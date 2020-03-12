@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using NeuroSimHub.Data;
+using Microsoft.AspNetCore.Identity;
+using System;
 
 namespace NeuroSimHub
 {
@@ -41,6 +43,22 @@ namespace NeuroSimHub
             services.AddEntityFrameworkNpgsql()
                 .AddDbContext<ApplicationDbContext>( opt => 
                 opt.UseNpgsql(Configuration.GetConnectionString("DBConnectionString")));
+
+            services.AddIdentity<IdentityUser, IdentityRole>( options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+                options.User.RequireUniqueEmail = true;
+                // Lockout settings.
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+            })
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
         }
 
