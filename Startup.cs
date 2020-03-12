@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using NeuroSimHub.Data;
 
 namespace NeuroSimHub
 {
@@ -35,6 +37,10 @@ namespace NeuroSimHub
                     builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
                 });
             });
+
+            services.AddEntityFrameworkNpgsql()
+                .AddDbContext<ApplicationDbContext>( opt => 
+                opt.UseNpgsql(Configuration.GetConnectionString("DBConnectionString")));
 
         }
 
