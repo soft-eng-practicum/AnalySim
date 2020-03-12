@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore;
 using NeuroSimHub.Data;
 using Microsoft.AspNetCore.Identity;
 using System;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using NeuroSimHub.Helpers;
+using System.Text;
 
 namespace NeuroSimHub
 {
@@ -60,6 +64,33 @@ namespace NeuroSimHub
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
+
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+
+            services.AddAuthentication( o =>
+            {
+                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = appSettings.Site,
+                    ValidAudience = appSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+            
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -77,6 +108,7 @@ namespace NeuroSimHub
             }
 
             app.UseCors("EnableCORS");
+            
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -84,8 +116,9 @@ namespace NeuroSimHub
             {
                 app.UseSpaStaticFiles();
             }
-
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
