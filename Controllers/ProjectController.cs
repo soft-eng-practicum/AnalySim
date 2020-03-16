@@ -51,11 +51,11 @@ namespace NeuroSimHub.Controllers
             await _dbContext.AddAsync(newproject);
             await _dbContext.SaveChangesAsync();
 
-            return Ok();
+            return Ok(new JsonResult("The Project was successfully added"));
         }
 
         // PUT: api/Project/id?
-        [HttpPut("[action]")]
+        [HttpPut("[action]/{id}")]
         [Authorize(Policy = "RequireLoggedIn")]
         public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProjectModel formdata)
         {
@@ -90,7 +90,7 @@ namespace NeuroSimHub.Controllers
         }
 
         // DELETE: api/Project/id?
-        [HttpDelete("[action]")]
+        [HttpDelete("[action]/{id}")]
         [Authorize(Policy = "RequireLoggedIn")]
         public async Task<IActionResult> DeleteProject([FromRoute] int id)
         {
