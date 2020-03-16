@@ -28,6 +28,9 @@ namespace NeuroSimHub
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddMvc();
+
             services.AddControllersWithViews();
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -40,7 +43,7 @@ namespace NeuroSimHub
             {
                 options.AddPolicy("EnableCORS", builder =>
                 {
-                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().Build();
                 });
             });
 
@@ -71,7 +74,8 @@ namespace NeuroSimHub
             var appSettings = appSettingsSection.Get<AppSettings>();
             var key = Encoding.ASCII.GetBytes(appSettings.Secret);
 
-            services.AddAuthentication( o =>
+            // Authentication Middleware
+            services.AddAuthentication(o =>
             {
                 o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 o.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -87,8 +91,9 @@ namespace NeuroSimHub
                     ValidIssuer = appSettings.Site,
                     ValidAudience = appSettings.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(key)
+
+
                 };
-            
             });
 
         }
