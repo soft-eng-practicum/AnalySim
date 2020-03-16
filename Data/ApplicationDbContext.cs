@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using NeuroSimHub.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,8 @@ namespace NeuroSimHub.Data
                 new { Id = "3", Name = "Moderator", NormalizedName = "MODERATOR" }
             );
         }
+
+        public DbSet<ProjectModel> Projects { get; set; }
 
 
     }
