@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ namespace NeuroSimHub.Controllers
 
         // GET: api/Project/
         [HttpGet("[action]")]
+        [Authorize(Policy = "RequireLoggedIn")]
         public IActionResult GetProject()
         {
             return Ok(_dbContext.Projects.ToList());
@@ -31,6 +33,7 @@ namespace NeuroSimHub.Controllers
 
         // POST: api/Project
         [HttpPost("[action]")]
+        [Authorize(Policy = "RequireLoggedIn")]
         public async Task<IActionResult> AddProduct([FromBody] ProjectModel formdata)
         {
             var newproject = new ProjectModel
@@ -51,8 +54,9 @@ namespace NeuroSimHub.Controllers
             return Ok();
         }
 
-
+        // PUT: api/Project/id?
         [HttpPut("[action]")]
+        [Authorize(Policy = "RequireLoggedIn")]
         public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProjectModel formdata)
         {
             if (!ModelState.IsValid)
@@ -85,7 +89,9 @@ namespace NeuroSimHub.Controllers
 
         }
 
+        // DELETE: api/Project/id?
         [HttpDelete("[action]")]
+        [Authorize(Policy = "RequireLoggedIn")]
         public async Task<IActionResult> DeleteProject([FromRoute] int id)
         {
             if (!ModelState.IsValid)
