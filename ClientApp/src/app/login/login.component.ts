@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup} from '@angular/forms';
+import { AccountService } from '../services/account.service';
 
 @Component({
   selector: 'app-login',
@@ -8,9 +9,12 @@ import { FormGroup} from '@angular/forms';
 })
 export class LoginComponent implements OnInit {
 
-  constructor() { }
+  private loginStatusGet : boolean;
+
+  constructor(private acct : AccountService) { }
 
   ngOnInit() {
+    
   }
 
 }
