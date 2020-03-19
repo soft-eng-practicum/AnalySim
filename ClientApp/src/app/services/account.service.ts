@@ -14,6 +14,7 @@ export class AccountService {
   constructor(private http : HttpClient, private router: Router) { }
 
   private baseUrlLogin : string = "/api/account/login";
+  private baseUrlRegister : string = "/api/account/register";
 
   
   private loginStatus = new BehaviorSubject<boolean>(this.checkLoginStatus());
@@ -22,6 +23,18 @@ export class AccountService {
 
   checkLoginStatus(): boolean {
     return false;
+  }
+
+  register (username: string, password: string, email: string)
+  {
+    return this.http.post<any>(this.baseUrlRegister, {username, password, email}).pipe(
+      map(result => {
+        return result;
+      },
+      error =>{
+        return error;
+      })
+    );
   }
 
   login (username: string, password: string)

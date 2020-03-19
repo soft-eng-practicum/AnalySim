@@ -2,19 +2,20 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card">
+                <div class="card bg-light">
                     <article class="card-body">
                         <h4 class="card-title text-center mb-4 mt-1">Sign in</h4>
                         <hr>
                         <div class="text-center alert alert-warning alert-dismissible" *ngIf="invalidLogin" role="alert">
                             <strong>{{ErrorMessage}}</strong>
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="invalidLogin = null;">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>  
-                        <form class="login-form form" [formGroup]="insertForm" (ngSubmit)="onSubmit()">
+                        <form class="form" [formGroup]="insertForm" (ngSubmit)="onSubmit()">
                             <div class="form-group">
-                                <label for="Username" class="text-uppercase">Username</label>
+
+                                <label for="Username">Username</label>
                                 <input formControlName="Username" type="text" class="form-control" placeholder="" required autofocus>
                                 <div *ngIf="Username.touched && Username.errors" class="errorMessage">
                                     <span *ngIf="Username.hasError('required')" class="text-danger">Username is required</span>
@@ -23,7 +24,7 @@
 
                             <div class="form-group">
                                 <a class="float-right" href="#">Forgot?</a>
-                                <label for="Password" class="text-uppercase">Password</label>
+                                <label for="Password">Password</label>
                                 <input formControlName="Password" type="password" class="form-control" placeholder="" required autofocus>
                                 <div *ngIf="Password.touched && Password.errors" class="errorMessage">
                                     <span *ngIf="Password.hasError('required')" class="text-danger">Password is required</span>

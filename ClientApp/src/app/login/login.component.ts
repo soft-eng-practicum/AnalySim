@@ -15,6 +15,7 @@ export class LoginComponent implements OnInit {
   Password: FormControl;
   returnUrl: string;
   ErrorMessage: string;
+  ErrorMessagePopup: boolean;
   invalidLogin: boolean;
 
   constructor(private acct : AccountService, 
@@ -27,6 +28,8 @@ export class LoginComponent implements OnInit {
     // Initialize Form Controls
     this.Username = new FormControl('', [Validators.required]);
     this.Password = new FormControl('', [Validators.required]);
+
+    this.ErrorMessagePopup = false;
 
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
@@ -47,11 +50,14 @@ export class LoginComponent implements OnInit {
     this.acct.login(userLogin.Username, userLogin.Password).subscribe(
       result => {
         let token = (<any>result).token;
-        this.invalidLogin = false;
+        console.log(token);
+
+        this.invalidLogin = false;      
       },
       error => {
         this.invalidLogin = true;
         this.ErrorMessage = "Invalid details Supplied - Could not Log in";
+        this.ErrorMessagePopup = true;
       }
     );
 
