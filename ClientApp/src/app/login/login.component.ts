@@ -40,4 +40,21 @@ export class LoginComponent implements OnInit {
 
   }
 
+  onSubmit()
+  {
+    let userLogin = this.insertForm.value;
+
+    this.acct.login(userLogin.Username, userLogin.Password).subscribe(
+      result => {
+        let token = (<any>result).token;
+        this.invalidLogin = false;
+      },
+      error => {
+        this.invalidLogin = true;
+        this.ErrorMessage = "Invalid details Supplied - Could not Log in";
+      }
+    );
+
+  }
+
 }
