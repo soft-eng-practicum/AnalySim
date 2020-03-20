@@ -11,20 +11,92 @@ import { Router, ActivatedRoute } from '@angular/router';
 export class RegisterComponent implements OnInit {
 
   insertForm: FormGroup;
-  EmailAddress : FormControl;
-  Username: FormControl;
-  Password: FormControl;
-  ConfirmPassword: FormControl;
+  emailAddress : FormControl;
+  username: FormControl;
+  password: FormControl;
+  confirmPassword: FormControl;
   errorList : string[];
 
   constructor(
     private acct : AccountService, 
     private router : Router,
-    private route : ActivatedRoute,
     private formBuilder : FormBuilder           
   ) { }
 
-  MustMatch(passwordControl : AbstractControl) : ValidatorFn
+
+  hasUpper(): ValidatorFn 
+  {
+    return (passwordControl: AbstractControl): {[key: string]: boolean} | null => {
+
+      if(passwordControl.value.length == ''){
+        return null;
+      }
+
+      var reg = new RegExp('(?=.*[A-Z])');
+      if(!reg.test(passwordControl.value)){
+        return {'noUpper': true};
+      }
+      else{
+        return null;
+      }
+    }
+  }
+
+  hasLower(): ValidatorFn 
+  {
+    return (passwordControl: AbstractControl): {[key: string]: boolean} | null => {
+
+      if(passwordControl.value.length == ''){
+        return null;
+      }
+
+      var reg = new RegExp('(?=.*[a-z])');
+      if(!reg.test(passwordControl.value)){
+        return {'noLower': true};
+      }
+      else{
+        return null;
+      }
+    }
+  }
+
+  hasNumeric(): ValidatorFn 
+  {
+    return (passwordControl: AbstractControl): {[key: string]: boolean} | null => {
+
+      if(passwordControl.value.length == ''){
+        return null;
+      }
+
+      var reg = new RegExp('(?=.*[0-9])');
+      if(!reg.test(passwordControl.value)){
+        return {'noNumeric': true};
+      }
+      else{
+        return null;
+      }
+    }
+  }
+
+  hasSpecial(): ValidatorFn 
+  {
+    return (passwordControl: AbstractControl): {[key: string]: boolean} | null => {
+
+      if(passwordControl.value.length == ''){
+        return null;
+      }
+
+      var reg = new RegExp('(?=.*[!@#$%^&*])');
+      if(!reg.test(passwordControl.value)){
+        return {'noSpecial': true};
+      }
+      else{
+        return null;
+      }
+    }
+  }
+
+  isMatch(passwordControl : AbstractControl) : ValidatorFn
   {
     return (confirmPasswordControl : AbstractControl) : {[key: string] : boolean} | null =>
     {
@@ -37,7 +109,7 @@ export class RegisterComponent implements OnInit {
       }
 
       if(passwordControl.value !== confirmPasswordControl.value){
-        return {'mustMatch': true};
+        return {'noMatch': true};
       }
       else{
         return null;
@@ -46,37 +118,37 @@ export class RegisterComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.EmailAddress = new FormControl('test2@gmail.com', [Validators.required, Validators.email])
-    this.Username = new FormControl('asdfg', [Validators.required, Validators.maxLength(10), Validators.minLength(5)])
-    this.Password = new FormControl('Aa2345!', [Validators.required, Validators.maxLength(10), Validators.minLength(5)])
-    this.ConfirmPassword = new FormControl('Aa2345!', [Validators.required, this.MustMatch(this.Password)])  
+    this.emailAddress = new FormControl('', [Validators.required, Validators.email])
+    this.username = new FormControl('', [Validators.required, Validators.maxLength(15), Validators.minLength(5)])
+    this.password = new FormControl('', [Validators.required, Validators.minLength(5), this.hasUpper(), this.hasLower(), this.hasNumeric(), this.hasSpecial()])
+    this.confirmPassword = new FormControl('', [Validators.required, this.isMatch(this.password)])  
     this.errorList = [];
 
      // Initialize FormGroup using FormBuilder
     this.insertForm = this.formBuilder.group({
-      "EmailAddress" : this.EmailAddress,
-      "Username" : this.Username,
-      "Password" : this.Password,
-      "ConfirmPassword" : this.ConfirmPassword   
+      'emailAddress' : this.emailAddress,
+      'username' : this.username,
+      'password' : this.password,
+      'confirmPassword' : this.confirmPassword   
     });
   }
 
   showError(){
-    console.log(this.Username.errors);
-    console.log(this.Username.errors?.minLength);
+    console.log(this.username.errors);
+    console.log(this.username.errors?.minLength);
   }
 
   onSubmit()
   {
     let userReg = this.insertForm.value;
 
-    this.acct.register(userReg.Username, userReg.Password, userReg.EmailAddress).subscribe(
+    this.acct.register(userReg.username, userReg.password, userReg.emailAddress).subscribe(
       result => {
         console.log('Register Successfully');
         this.router.navigate(['/login']);
       },
       err => {
-        console.log(userReg.Username + userReg.Password + userReg.EmailAddress);
+        console.log(userReg.username + userReg.password + userReg.emailAddress);
         
         this.errorList = [];
 

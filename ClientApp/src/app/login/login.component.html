@@ -7,7 +7,7 @@
                         <h4 class="card-title text-center mb-4 mt-1">Sign in</h4>
                         <hr>
                         <div class="text-center alert alert-warning alert-dismissible" *ngIf="invalidLogin" role="alert">
-                            <strong>{{ErrorMessage}}</strong>
+                            <strong>{{errorMessage}}</strong>
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="invalidLogin = null;">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -15,19 +15,19 @@
                         <form class="form" [formGroup]="insertForm" (ngSubmit)="onSubmit()">
                             <div class="form-group">
 
-                                <label for="Username">Username</label>
-                                <input formControlName="Username" type="text" class="form-control" placeholder="" required autofocus>
-                                <div *ngIf="Username.touched && Username.errors" class="errorMessage">
-                                    <span *ngIf="Username.hasError('required')" class="text-danger">Username is required</span>
+                                <label for="username">Username</label>
+                                <input formControlName="username" type="text" class="form-control" placeholder="" required>
+                                <div *ngIf="username.touched && username.errors" class="errorMessage">
+                                    <span *ngIf="username.hasError('required')" class="text-danger">Username is required</span>
                                 </div>
                             </div> <!-- form-group// -->
 
                             <div class="form-group">
-                                <a class="float-right" href="#">Forgot?</a>
-                                <label for="Password">Password</label>
-                                <input formControlName="Password" type="password" class="form-control" placeholder="" required autofocus>
-                                <div *ngIf="Password.touched && Password.errors" class="errorMessage">
-                                    <span *ngIf="Password.hasError('required')" class="text-danger">Password is required</span>
+                                <a class="float-right" href="javascript:void(0);" (click)="notfi.showInfo('Not Implemented Yet','Forgot Password');">Forgot?</a>
+                                <label for="password">Password</label>
+                                <input formControlName="password" type="password" class="form-control" placeholder="" required>
+                                <div *ngIf="password.touched && password.errors" class="errorMessage">
+                                    <span *ngIf="password.hasError('required')" class="text-danger">Password is required</span>
                                 </div>
                             </div> <!-- form-group// --> 
 
@@ -42,11 +42,11 @@
 
         <div class="row justify-content-center mt-4">
             <div class="col-md-8">
-                <div class="card">
+                <div class="card bg-light">
                     <article class="card-body">
                         <div class="text-center">
                             <p class ="d-inline">Don't have an account? </p>
-                            <a href="">Sign Up</a>
+                            <a [routerLink]='["/register"]'>Sign Up</a>
                         </div>
                         
                     </article>

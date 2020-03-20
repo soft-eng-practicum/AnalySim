@@ -9,41 +9,44 @@
                         
                         <form class="form" [formGroup]="insertForm" (ngSubmit)="onSubmit()">
                             <div class="form-group">
-                                <label for="EmailAddress">Email Address</label>
+                                <label for="emailAddress">Email Address</label>
                                 <span class="text-danger"> *</span>
-                                <input formControlName="EmailAddress" type="text" class="form-control" placeholder="" [class.invalid]="EmailAddress.touched && EmailAddress.invalid" [class.valid]="EmailAddress.valid" required autofocus>
-                                <div *ngIf="EmailAddress.touched && EmailAddress.errors" class="text-danger">
-                                    <span *ngIf="EmailAddress.errors?.email">Please provide valid email.</span>
+                                <input formControlName="emailAddress" type="email" class="form-control" placeholder="" [class.invalid]="emailAddress.touched && emailAddress.invalid" [class.valid]="emailAddress.valid" required autofocus>
+                                <div *ngIf="emailAddress.touched && emailAddress.errors" class="text-danger">
+                                    <span *ngIf="emailAddress.errors?.email">Please provide valid email.</span>
                                 </div>
                             </div> <!-- form-group// -->
 
                             <div class="form-group">
-                                <label for="Username">Username</label>
+                                <label for="username">Username</label>
                                 <span class="text-danger"> *</span>
-                                <input formControlName="Username" type="text" class="form-control" placeholder=""[class.invalid]="Username.touched && Username.invalid" [class.valid]="Username.valid" required>
-                                <div *ngIf="Username.touched && Username.errors" class="text-danger">
-                                    <span *ngIf="Username.errors?.minLength">Minimum 5 character</span>
-                                    <span *ngIf="Username.errors?.maxlength")>Maximum 10 character</span>
+                                <input formControlName="username" type="text" class="form-control" placeholder=""[class.invalid]="username.touched && username.invalid" [class.valid]="username.valid" required>
+                                <div *ngIf="username.touched && username.errors" class="text-danger">
+                                    <span *ngIf="username.errors?.minlength">Minimum 5 character</span>
+                                    <span *ngIf="username.errors?.maxlength")>Maximum 10 character</span>
                                 </div>
                             </div>
                             
 
                             <div class="form-group">
-                                <label for="Password">Password</label>
+                                <label for="password">Password</label>
                                 <span class="text-danger"> *</span>
-                                <input formControlName="Password" type="password" class="form-control" placeholder="" [class.invalid]="Password.touched && Password.invalid" [class.valid]="Password.valid" required>
-                                <div *ngIf="Password.touched && Password.errors" class="text-danger">
-                                    <span *ngIf="Password.errors?.minLength">Minimum 5 character</span>
-                                    <span *ngIf="Password.errors?.maxlength")>Maximum 10 character</span>
+                                <input formControlName="password" type="password" class="form-control" placeholder="" [class.invalid]="password.touched && password.invalid" [class.valid]="password.valid" required>
+                                <div *ngIf="password.touched && password.errors" class="text-danger">
+                                    <p class="mb-0 p-1" *ngIf="password.errors?.minlength">Minimum 5 character</p>
+                                    <p class="mb-0 p-1"  *ngIf="password.errors?.noUpper">Must Contain 1 Uppercase Character</p>
+                                    <p class="mb-0 p-1"  *ngIf="password.errors?.noLower">Must Contain 1 Lowercase Character</p>
+                                    <p class="mb-0 p-1"  *ngIf="password.errors?.noNumeric">Must Contain 1 Numeric Character</p>
+                                    <p class="mb-0 p-1"  *ngIf="password.errors?.noSpecial">Must Contain 1 Special Character</p>
                                 </div>
                             </div> <!-- form-group// -->
 
                             <div class="form-group">
-                                <label for="ConfirmPassword">Confirm Password</label>
+                                <label for="confirmPassword">Confirm Password</label>
                                 <span class="text-danger"> *</span>
-                                <input formControlName="ConfirmPassword" type="password" class="form-control" placeholder="" [class.invalid]="ConfirmPassword.touched && ConfirmPassword.invalid" [class.valid]="ConfirmPassword.valid" required>
-                                <div *ngIf="ConfirmPassword.touched && ConfirmPassword.errors" class="text-danger">
-                                    <span *ngIf="ConfirmPassword.errors?.mustMatch">Password Must Match</span>
+                                <input formControlName="confirmPassword" type="password" class="form-control" placeholder="" [class.invalid]="confirmPassword.touched && confirmPassword.invalid" [class.valid]="confirmPassword.valid" required>
+                                <div *ngIf="confirmPassword.touched && confirmPassword.errors" class="text-danger">
+                                    <span *ngIf="confirmPassword.errors?.noMatch">Password Must Match</span>
                                 </div>
                             </div> <!-- form-group// -->
 
@@ -58,11 +61,11 @@
 
         <div class="row justify-content-center mt-4">
             <div class="col-md-8">
-                <div class="card">
+                <div class="card bg-light">
                     <article class="card-body">
                         <div class="text-center">
                             <p class ="d-inline">Already have an account? </p>
-                            <a href="">Sign in</a>
+                            <a [routerLink]='["/login"]'>Sign in</a>
                         </div>
                         
                     </article>

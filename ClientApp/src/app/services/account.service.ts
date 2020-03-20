@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
-import { Observable, Subject, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
@@ -67,7 +67,6 @@ export class AccountService {
     localStorage.removeItem('userRole');
     this.router.navigate(['/login']);
   }
-
 
   get isLoggedIn()
   {
