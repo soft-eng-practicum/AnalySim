@@ -25,13 +25,15 @@ export class AccountService {
     return false;
   }
 
-  register (username: string, password: string, email: string)
+  register (username: string, password: string, emailaddress: string)
   {
-    return this.http.post<any>(this.baseUrlRegister, {username, password, email}).pipe(
+    return this.http.post<any>(this.baseUrlRegister, {username, password, emailaddress}).pipe(
       map(result => {
+        console.log('test:' + result)
         return result;
       },
       error =>{
+        console.log(error)
         return error;
       })
     );
