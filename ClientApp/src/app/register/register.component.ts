@@ -46,10 +46,10 @@ export class RegisterComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.EmailAddress = new FormControl('', [Validators.required, Validators.email])
-    this.Username = new FormControl('', [Validators.required, Validators.maxLength(10), Validators.minLength(5)])
-    this.Password = new FormControl('', [Validators.required, Validators.maxLength(10), Validators.minLength(5)])
-    this.ConfirmPassword = new FormControl('', [Validators.required, this.MustMatch(this.Password)])  
+    this.EmailAddress = new FormControl('test2@gmail.com', [Validators.required, Validators.email])
+    this.Username = new FormControl('asdfg', [Validators.required, Validators.maxLength(10), Validators.minLength(5)])
+    this.Password = new FormControl('Aa2345!', [Validators.required, Validators.maxLength(10), Validators.minLength(5)])
+    this.ConfirmPassword = new FormControl('Aa2345!', [Validators.required, this.MustMatch(this.Password)])  
     this.errorList = [];
 
      // Initialize FormGroup using FormBuilder
@@ -72,17 +72,21 @@ export class RegisterComponent implements OnInit {
 
     this.acct.register(userReg.Username, userReg.Password, userReg.EmailAddress).subscribe(
       result => {
+        console.log('Register Successfully');
         this.router.navigate(['/login']);
       },
-      error => {
+      err => {
+        console.log(userReg.Username + userReg.Password + userReg.EmailAddress);
+        
         this.errorList = [];
 
-        for(var i = 0; i < error.error.value.length; i++) 
+        for(var i = 0; i < err.error.value.length; i++) 
         {
-          this.errorList.push(error.error.value[i]);
+          console.log(err.error.value[i])
+          this.errorList.push(err.error.value[i]);
         }
-
-        console.log(error)
+        console.log(this.errorList)
+        
       }
     );
 

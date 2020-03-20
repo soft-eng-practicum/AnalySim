@@ -49,15 +49,16 @@ export class LoginComponent implements OnInit {
 
     this.acct.login(userLogin.Username, userLogin.Password).subscribe(
       result => {
-        let token = (<any>result).token;
-        console.log(token);
-
-        this.invalidLogin = false;      
+        let token = (<any>result).token;      
+        this.invalidLogin = false;
+        this.router.navigate(['/home']);
+        console.log('Log in Successfully');
       },
       error => {
         this.invalidLogin = true;
         this.ErrorMessage = "Invalid details Supplied - Could not Log in";
         this.ErrorMessagePopup = true;
+        console.log(error);
       }
     );
 

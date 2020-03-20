@@ -147,8 +147,9 @@ namespace NeuroSimHub
 
                 if (env.IsDevelopment())
                 {
-                    spa.UseAngularCliServer(npmScript: "start");
-                    spa.Options.StartupTimeout = TimeSpan.FromSeconds(200);
+                    spa.Options.StartupTimeout = new TimeSpan(0,0,80);
+                    //spa.UseAngularCliServer(npmScript: "start");
+                    spa.UseProxyToSpaDevelopmentServer("http://localhost:4200");
                 }
 
             });
