@@ -147,18 +147,17 @@ export class RegisterComponent implements OnInit {
         console.log('Register Successfully');
         this.router.navigate(['/login']);
       },
-      err => {
+      error => {
         console.log(userReg.username + userReg.password + userReg.emailAddress);
         
         this.errorList = [];
 
-        for(var i = 0; i < err.error.value.length; i++) 
+        for(var i = 0; i < error.error.value.length; i++) 
         {
-          console.log(err.error.value[i])
-          this.errorList.push(err.error.value[i]);
+          this.errorList.push(error.error.value[i]);
         }
-        console.log(this.errorList)
         
+        console.log(this.errorList);
       }
     );
 

@@ -33,7 +33,6 @@ export class AccountService {
         return result;
       },
       error =>{
-        console.log(error)
         return error;
       })
     );
