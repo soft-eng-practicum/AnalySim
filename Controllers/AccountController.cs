@@ -30,7 +30,7 @@ namespace NeuroSimHub.Controllers
             this._appSettings = _appSettings.Value;
         }
 
-        //api/account/register
+        // POST: api/account/register
         [HttpPost("[action]")]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel formdata) {
             
@@ -64,7 +64,7 @@ namespace NeuroSimHub.Controllers
             return BadRequest(new JsonResult(errorList));
         }
 
-        //Login Method
+        // POST: api/account/login
         [HttpPost("[action]")]
         public async Task<IActionResult> Login([FromBody] LoginViewModel formdata) 
         {
