@@ -9,33 +9,46 @@
                         
                         <form class="form" [formGroup]="insertForm">
                             <div class="form-group">
-                                <label for="Username">Email Address</label>
+                                <label for="EmailAddress">Email Address</label>
                                 <span class="text-danger"> *</span>
-                                <input formControlName="Username" type="text" class="form-control" placeholder="" required autofocus>
+                                <input formControlName="EmailAddress" type="text" class="form-control" placeholder="" [class.invalid]="EmailAddress.touched && EmailAddress.invalid" [class.valid]="EmailAddress.valid" required autofocus>
+                                <div *ngIf="EmailAddress.touched && EmailAddress.errors" class="text-danger">
+                                    <span *ngIf="EmailAddress.errors?.email">Please provide valid email.</span>
+                                </div>
                             </div> <!-- form-group// -->
 
                             <div class="form-group">
                                 <label for="Username">Username</label>
                                 <span class="text-danger"> *</span>
-                                <input formControlName="Username" type="text" class="form-control" placeholder="" required autofocus>
-                            </div> <!-- form-group// -->
-
+                                <input formControlName="Username" type="text" class="form-control" placeholder=""[class.invalid]="Username.touched && Username.invalid" [class.valid]="Username.valid" required>
+                                <div *ngIf="Username.touched && Username.errors" class="text-danger">
+                                    <span *ngIf="Username.errors?.minLength">Minimum 5 character</span>
+                                    <span *ngIf="Username.errors?.maxlength")>Maximum 10 character</span>
+                                </div>
+                            </div>
                             
 
                             <div class="form-group">
-                                <label for="Username">Password</label>
+                                <label for="Password">Password</label>
                                 <span class="text-danger"> *</span>
-                                <input formControlName="Username" type="text" class="form-control" placeholder="" required autofocus>
+                                <input formControlName="Password" type="password" class="form-control" placeholder="" [class.invalid]="Password.touched && Password.invalid" [class.valid]="Password.valid" required>
+                                <div *ngIf="Password.touched && Password.errors" class="text-danger">
+                                    <span *ngIf="Password.errors?.minLength">Minimum 5 character</span>
+                                    <span *ngIf="Password.errors?.maxlength")>Maximum 10 character</span>
+                                </div>
                             </div> <!-- form-group// -->
 
                             <div class="form-group">
-                                <label for="Username">Confirm Password</label>
+                                <label for="ConfirmPassword">Confirm Password</label>
                                 <span class="text-danger"> *</span>
-                                <input formControlName="Username" type="text" class="form-control" placeholder="" required autofocus>
+                                <input formControlName="ConfirmPassword" type="password" class="form-control" placeholder="" [class.invalid]="ConfirmPassword.touched && ConfirmPassword.invalid" [class.valid]="ConfirmPassword.valid" required>
+                                <div *ngIf="ConfirmPassword.touched && ConfirmPassword.errors" class="text-danger">
+                                    <span *ngIf="ConfirmPassword.errors?.mustMatch">Password Must Match</span>
+                                </div>
                             </div> <!-- form-group// -->
 
                             <div class="form-group">
-                                <button type="submit" class="btn btn-success btn-block" value="Submit">Register</button>
+                                <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="insertForm">Register</button>
                             </div> <!-- form-group// -->                                                           
                         </form>
                     </article>

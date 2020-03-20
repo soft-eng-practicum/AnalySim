@@ -46,21 +46,25 @@ export class RegisterComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.EmailAddress = new FormControl('', [Validators.required, Validators.email])
     this.Username = new FormControl('', [Validators.required, Validators.maxLength(10), Validators.minLength(5)])
     this.Password = new FormControl('', [Validators.required, Validators.maxLength(10), Validators.minLength(5)])
-    this.ConfirmPassword = new FormControl('', [Validators.required, this.MustMatch(this.Password)])
-    this.EmailAddress = new FormControl('', [Validators.required])
+    this.ConfirmPassword = new FormControl('', [Validators.required, this.MustMatch(this.Password)])  
     this.errorList = [];
 
      // Initialize FormGroup using FormBuilder
-     this.insertForm = this.formBuilder.group({
+    this.insertForm = this.formBuilder.group({
+      "EmailAddress" : this.EmailAddress,
       "Username" : this.Username,
       "Password" : this.Password,
-      "ConfirmPassword" : this.ConfirmPassword,
-      "EmailAddress" : this.EmailAddress
+      "ConfirmPassword" : this.ConfirmPassword   
     });
   }
 
+  showError(){
+    console.log(this.Username.errors);
+    console.log(this.Username.errors?.minLength);
+  }
 
   onSubmit()
   {
