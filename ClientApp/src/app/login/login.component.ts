@@ -46,6 +46,8 @@ export class LoginComponent implements OnInit {
   {
     let userLogin = this.insertForm.value;
 
+    this.insertForm.reset();
+
     this.acct.login(userLogin.username, userLogin.password).subscribe(
       result => {
         let token = (<any>result).token;      

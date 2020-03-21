@@ -18,11 +18,20 @@ export class AccountService {
 
   
   private loginStatus = new BehaviorSubject<boolean>(this.checkLoginStatus());
-  private UserName = new BehaviorSubject<string>(localStorage.getItem('username'));
-  private UserRole = new BehaviorSubject<string>(localStorage.getItem('userRole'));
+  private username = new BehaviorSubject<string>(localStorage.getItem('username'));
+  private userRole = new BehaviorSubject<string>(localStorage.getItem('userRole'));
 
   checkLoginStatus(): boolean {
-    return false;
+    var loginCookie = localStorage.getItem('loginStatus');
+    if(loginCookie == "1")
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+    
   }
 
   register (username: string, password: string, emailaddress: string)
@@ -72,14 +81,14 @@ export class AccountService {
     return this.loginStatus.asObservable();
   }
 
-  get currentUserName()
+  get currentUsername()
   {
-    return this.UserName.asObservable();
+    return this.username.asObservable();
   }
 
   get currentUserRole()
   {
-    return this.UserRole.asObservable();
+    return this.userRole.asObservable();
   }
 
 }

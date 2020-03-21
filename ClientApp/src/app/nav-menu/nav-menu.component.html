@@ -11,20 +11,20 @@
           <li class="nav-item">
             <a class="nav-link text-dark" [routerLink]='["/"]'>Home</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link text-dark"  [routerLink]='["/projects"]'>Projects</a>
+          <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
+            <a class="nav-link text-dark" [routerLink]='["/project"]' *ngIf="loginStatus">Project</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link text-dark"  [routerLink]='["/login"]'>Login</a>
+          <li class="nav-item" *ngIf="!(loginStatus$ | async) as loginStatus">
+            <a class="nav-link text-dark" *ngIf="loginStatus" [routerLink]='["/login"]'>Login</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link text-dark"  [routerLink]='["/register"]'>Register</a>
+          <li class="nav-item" *ngIf="!(loginStatus$ | async) as loginStatus">
+            <a class="nav-link text-dark" *ngIf="loginStatus" [routerLink]='["/register"]'>Register</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link text-danger"></a>
+          <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
+            <a class="nav-link text-danger" *ngIf="(username$ | async) as username">{{username}}</a>
           </li>
-          <li class="nav-item">
-            <a class="btn btn-primary text-white">Logout</a>
+          <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
+            <a class="btn btn-primary text-white" (click)="onLogout()" *ngIf="loginStatus">Logout</a>
           </li>
   
         </ul>
