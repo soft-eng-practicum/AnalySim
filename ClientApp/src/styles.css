@@ -6,3 +6,9 @@
 .valid{
     border-color: #28a745;
 }
+
+.nav-link:hover{
+    color: #808080 !important;
+    transition: .3s;
+    
+}

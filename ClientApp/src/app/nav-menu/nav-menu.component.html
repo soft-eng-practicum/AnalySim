@@ -1,36 +1,43 @@
 <header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom mb-3">
-  
+  <nav class="navbar navbar-dark bg-dark navbar-expand-sm navbar-toggleable-sm border-bottom mb-3 text-white">
+    <div class="container">
       <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">NeuroSimHub</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
               aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-        <ul class="navbar-nav flex-grow-2">
+      <div class="navbar-collapse collapse">
+        <ul class="navbar-nav justify-content-center">
           <li class="nav-item">
-            <a class="nav-link text-dark" [routerLink]='["/"]'>Home</a>
+            <a class="nav-link text-white" [routerLink]='["/"]'>Home</a>
           </li>
-          <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
-            <a class="nav-link text-dark" [routerLink]='["/project"]' *ngIf="loginStatus">Project</a>
+          <li class="nav-item">
+            <a class="nav-link text-white" [routerLink]='["/projects"]'>Explore</a>
+          </li>
+        </ul>
+
+        <form class="form-inline justify-content-center">
+          <input class="form-control form-control-sm mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-sm btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+        
+
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item" *ngIf="!(loginStatus$ | async) as loginStatus">
+            <a class="nav-link text-white" *ngIf="loginStatus" [routerLink]='["/login"]'>Login</a>
           </li>
           <li class="nav-item" *ngIf="!(loginStatus$ | async) as loginStatus">
-            <a class="nav-link text-dark" *ngIf="loginStatus" [routerLink]='["/login"]'>Login</a>
-          </li>
-          <li class="nav-item" *ngIf="!(loginStatus$ | async) as loginStatus">
-            <a class="nav-link text-dark" *ngIf="loginStatus" [routerLink]='["/register"]'>Register</a>
+            <a class="nav-link text-white" *ngIf="loginStatus" [routerLink]='["/register"]'>Register</a>
           </li>
           <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
-            <a class="nav-link text-danger" *ngIf="(username$ | async) as username">{{username}}</a>
+            <a class="nav-link text-white" *ngIf="(username$ | async) as username">{{username}}</a>
           </li>
           <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
             <a class="btn btn-primary text-white" (click)="onLogout()" *ngIf="loginStatus">Logout</a>
           </li>
-  
         </ul>
-  
-  
       </div>
+    </div>
+  </nav>
   
-    </nav>
-  </header>
+</header>
