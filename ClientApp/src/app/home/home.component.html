@@ -1,90 +1,16 @@
-<div class="container">
-    <br>
-    <br>
-    <div class="row" id="ads">
-      <!-- Category Card -->
-      <div class="col-md-4">
-        <div class="card rounded">
-          <div class="card-image">
-            <span class="card-notify-badge">Back-End</span>
-            <img class="img-fluid" src="/images/aspnetcore.png" alt="Alternate Text" />
-          </div>
-          <div class="card-image-overlay m-auto">
-            <span class="card-detail-badge">Backend Managed With API</span>
-          </div>
-          <div class="card-body text-center">
-            <div class="ad-title m-auto">
-              <h5>ASP.NET Core 2.2</h5>
-            </div>
-  
+<main>
+  <section class="jumbotron text-center bg-gray">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <h1 class="jumbotron-heading">Neuro Sim Hub</h1>
+          <p class="lead text-muted">Something short and leading about the collection below—its contents, the creator, etc. Make it short and sweet, but not too short so folks don't simply skip over it entirely.</p>
+          <div>
+            <a class="btn btn-primary my-2 mr-2" [routerLink]='["/register"]'>Register</a>
+            <a href="javascript:void(0);" class="btn btn-secondary my-2" (click)="notfi.showInfo('Not Implemented Yet','Explore Page');">Explore</a>
           </div>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card rounded">
-          <div class="card-image">
-            <span class="card-notify-badge">Front-End</span>
-            <img class="img-fluid" src="/images/Angular7.png" alt="Alternate Text" />
-          </div>
-          <div class="card-image-overlay m-auto">
-            <span class="card-detail-badge">Client Side Managed With Angular 7</span>
-          </div>
-          <div class="card-body text-center">
-            <div class="ad-title m-auto">
-              <h5>ANGULAR 7</h5>
-            </div>
-          </div>
-        </div>
-      </div>
-  
-      <div class="col-md-4">
-        <div class="card rounded">
-          <div class="card-image">
-            <span class="card-notify-badge">UI Framework</span>
-            <img class="img-fluid" src="/images/Bootstrap4.png" alt="Alternate Text" />
-          </div>
-          <div class="card-image-overlay m-auto">
-            <span class="card-detail-badge">Templates Build With Bootstrap 4.2.3</span>
-          </div>
-          <div class="card-body text-center">
-            <div class="ad-title m-auto">
-              <h5>BOOTSTRAP 4</h5>
-            </div>
-          </div>
-        </div>
-      </div>
-  
+      </div>   
     </div>
-  </div>
-  <div class="container">
-    <div class="row">
-      <div class="col-sm-6">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title text-center text-uppercase">JWT Authentication</h5>
-            <ul class="list-group">
-              <li class="list-group-item">JSON Web Tokens are an open, industry standard RFC 7519 method for representing claims securely between two parties.</li>
-              <li class="list-group-item">JWT.IO allows you to decode, verify and generate JWT.</li>
-              <li class="list-group-item">JWTs can be signed using a secret (with the HMAC algorithm) or a public/private key pair using RSA or ECDSA.</li>
-              <li class="list-group-item">JWTs Signed tokens can verify the integrity of the claims contained within it.</li>
-            </ul>
-            <a href="https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-2.2&tabs=visual-studio" class="btn btn-primary mt-2 btn-block">Read More</a>
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-6">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title text-center text-uppercase">Asp.Net Identity Framework</h5>
-            <ul class="list-group">
-              <li class="list-group-item">ASP.NET Core Identity is a membership system that adds login functionality to ASP.NET Core apps.</li>
-              <li class="list-group-item">Users can create an account with the login information stored in Identity or they can use an external login provider.</li>
-              <li class="list-group-item">External login providers include Facebook, Google, Microsoft Account, and Twitter.</li>
-              <li class="list-group-item">Identity can be configured using a SQL Server database to store user names, passwords, and profile data.</li>
-            </ul>
-            <a href="https://jwt.io/" class="btn btn-primary mt-2 btn-block">Read More</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  </section>
+</main>
