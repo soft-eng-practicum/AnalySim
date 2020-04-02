@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountService } from '../services/account.service';
-import { Observable } from 'rxjs';
 import { NotificationService } from '../services/notification.service';
+import { Observable } from 'rxjs';
 
 @Component({
-  selector: 'app-nav-menu',
-  templateUrl: './nav-menu.component.html',
-  styleUrls: ['./nav-menu.component.css']
+  selector: 'app-header',
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.css']
 })
-export class NavMenuComponent implements OnInit {
+export class HeaderComponent implements OnInit {
 
   constructor(private acct : AccountService, public notfi : NotificationService){ }
 
@@ -24,7 +24,4 @@ export class NavMenuComponent implements OnInit {
   onLogout(){
     this.acct.logout();
   }
-
-  
-
 }

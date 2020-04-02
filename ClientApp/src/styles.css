@@ -12,3 +12,16 @@
     transition: .3s;
     
 }
+
+html{
+    height: 100vh !important;
+}
+
+body{ 
+    height: 100vh !important; 
+    margin:0; 
+}
+
+section{
+    margin: 0 !important;
+}

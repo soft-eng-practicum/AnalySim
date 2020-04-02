@@ -1,0 +1,10 @@
+footer {
+    margin: 0;
+    padding: 1rem; /* tweaked from 0 to 1px */   
+    height: 8rem;
+    position: relative;
+    bottom: 0;
+}
+p {
+    color: white;
+}
