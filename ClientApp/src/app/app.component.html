@@ -1,5 +1,13 @@
 <body>
-  <app-header></app-header>
-  <router-outlet></router-outlet>
-  <app-footer></app-footer>
+  <div class ="d-flex flex-column h-100">
+    <div class="flex-column justify-content-center">
+      <app-header></app-header>
+    </div>
+    <div class="flex-column justify-content-center flex-grow-1 d-flex ">
+      <router-outlet></router-outlet>
+    </div>
+    <div class="flex-column justify-content-center">
+      <app-footer></app-footer>
+    </div>
+  </div>  
 </body>
