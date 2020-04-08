@@ -3,42 +3,67 @@ import { HttpClient} from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import * as jwt_decode from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountService {
 
-  
-
   constructor(private http : HttpClient, private router: Router) { }
 
+  // Url to access Web API
   private baseUrlLogin : string = "/api/account/login";
   private baseUrlRegister : string = "/api/account/register";
 
-  
+  //User properties
   private loginStatus = new BehaviorSubject<boolean>(this.checkLoginStatus());
   private username = new BehaviorSubject<string>(localStorage.getItem('username'));
   private userRole = new BehaviorSubject<string>(localStorage.getItem('userRole'));
+
 
   checkLoginStatus(): boolean {
     var loginCookie = localStorage.getItem('loginStatus');
     if(loginCookie == "1")
     {
-      return true;
-    }
-    else
-    {
+      if(localStorage.getItem('jwt') === null || localStorage.getItem('jwt') === undefined) 
+      {
+          return false;
+      }
+
+      // Get and Decode the Token
+      const token = localStorage.getItem('jwt');
+      
+      const decoded = jwt_decode(token);
+
+      // Check if the cookie is valid
+      if(decoded.exp === undefined) 
+      {
+          return false;
+      }
+      
+
+      // Get Current Time
+      const date = new Date(0);
+
+      // Convert Expiration to UTC
+      let tokenExpDate = date.setUTCSeconds(decoded.exp);
+
+      // Compare Expiration time with current time
+      if(tokenExpDate.valueOf() > new Date().valueOf()) 
+      {
+        return true;
+      }
+
       return false;
     }
-    
+    return false;
   }
 
   register (username: string, password: string, emailaddress: string)
   {
     return this.http.post<any>(this.baseUrlRegister, {username, password, emailaddress}).pipe(
       map(result => {
-        console.log('test:' + result)
         return result;
       },
       error =>{
@@ -59,6 +84,8 @@ export class AccountService {
           localStorage.setItem('username', result.username);
           localStorage.setItem('expiration', result.expiration);
           localStorage.setItem('userRole', result.userRole);
+          this.username.next(localStorage.getItem('username'));
+          this.userRole.next(localStorage.getItem('userRole'));
         }
         return result;
       })
@@ -67,12 +94,17 @@ export class AccountService {
 
   logout()
   {
+    // Set Login Status to false
     this.loginStatus.next(false);
+
+    // Remove item from localStorage
     localStorage.setItem('loginStatus', '0');
     localStorage.removeItem('jwt');
     localStorage.removeItem('username');
     localStorage.removeItem('expiration');
     localStorage.removeItem('userRole');
+
+    // Navigate back to the login page
     this.router.navigate(['/login']);
   }
 

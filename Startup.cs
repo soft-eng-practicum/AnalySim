@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using NeuroSimHub.Helpers;
 using System.Text;
+using Microsoft.Extensions.Azure;
 
 namespace NeuroSimHub
 {
@@ -49,6 +50,7 @@ namespace NeuroSimHub
             services.AddEntityFrameworkNpgsql()
                 .AddDbContext<ApplicationDbContext>( opt => 
                 opt.UseNpgsql(Configuration.GetConnectionString("DBConnectionString")));
+
 
             services.AddIdentity<IdentityUser, IdentityRole>( options =>
             {
@@ -102,6 +104,11 @@ namespace NeuroSimHub
                 options.AddPolicy("RequireAdministratorRole", policy => policy.RequireRole("Admin").RequireAuthenticatedUser());
             });
 
+            services.AddAzureClients(builder =>
+            {
+                builder.AddBlobServiceClient(Configuration["ConnectionStrings:DBConnectionString1"]);
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -147,9 +154,9 @@ namespace NeuroSimHub
 
                 if (env.IsDevelopment())
                 {
-                    spa.Options.StartupTimeout = new TimeSpan(0,1,30);
-                    spa.UseAngularCliServer(npmScript: "start");
-                    //spa.UseProxyToSpaDevelopmentServer("http://localhost:4200");
+                    //spa.Options.StartupTimeout = new TimeSpan(0,1,30);
+                    //spa.UseAngularCliServer(npmScript: "start");
+                    spa.UseProxyToSpaDevelopmentServer("http://localhost:4200");
                 }
 
             });

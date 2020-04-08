@@ -6,7 +6,12 @@
                     <article class="card-body">
                         <h4 class="card-title text-center mb-4 mt-1">Sign up</h4>
                         <hr>
-                        
+                        <div class="text-center alert alert-warning alert-dismissible" *ngIf="invalidRegister" role="alert">
+                            <strong>{{errorMessage}}</strong>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="invalidRegister = null;">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div> 
                         <form class="form" [formGroup]="insertForm" (ngSubmit)="onSubmit()">
                             <div class="form-group">
                                 <label for="emailAddress">Email Address</label>
@@ -51,7 +56,18 @@
                             </div> <!-- form-group// -->
 
                             <div class="form-group">
-                                <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="insertForm.invalid">Register</button>
+                                <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="insertForm.invalid">
+                                    <div *ngIf="isLoading; then showLoading else showRegister"></div>
+                                    <ng-template #showRegister>
+                                        <span *ngIf="!isLoading then">Register</span>
+                                    </ng-template>
+                                    <ng-template #showLoading>
+                                        <div class="spinner-border" role="status">
+                                            <span class="sr-only"></span>
+                                        </div>
+                                    </ng-template>
+                                </button>
+                                
                             </div> <!-- form-group// -->                                                           
                         </form>
                     </article>

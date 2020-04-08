@@ -41,11 +41,16 @@
             <li class="nav-item" *ngIf="!(loginStatus$ | async) as loginStatus">
               <a class="nav-link text-white" *ngIf="loginStatus" [routerLink]='["/login"]'>Login</a>
             </li>
-            <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
-              <a class="nav-link text-white" *ngIf="(username$ | async) as username">{{username}}</a>
-            </li>
-            <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
-              <a class="btn btn-primary text-white" (click)="onLogout()" *ngIf="loginStatus">Logout</a>
+            <li class="nav-item dropdown" *ngIf="(loginStatus$ | async) as loginStatus">
+              <a class="nav-link text-white dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" *ngIf="(username$ | async) as username">
+                {{username}}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <a class="dropdown-item" href="javascript:void(0);" (click)="notfi.showInfo('Not Implemented Yet','View Profile');">View Profile</a>
+                <a class="dropdown-item" href="javascript:void(0);" (click)="notfi.showInfo('Not Implemented Yet','Dashboard');">Dashboard</a>
+                <a class="dropdown-item" href="javascript:void(0);" (click)="notfi.showInfo('Not Implemented Yet','Setting');">Setting</a>
+                <a class="dropdown-item" (click)="onLogout()">Log out</a>
+              </div>
             </li>
           </ul>
         </div>
