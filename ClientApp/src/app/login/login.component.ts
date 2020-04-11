@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
       result => {
         let token = (<any>result).token;      
         this.invalidLogin = false;
-        this.router.navigate(['/home']);
+        this.router.navigate(['/dashboard']);
       },
       error => {
         this.isLoading = false;

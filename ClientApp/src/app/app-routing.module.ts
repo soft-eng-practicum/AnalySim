@@ -4,6 +4,7 @@ import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { ProjectsComponent } from './projects/projects.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 const routes: Routes = [];
 
@@ -14,7 +15,9 @@ const routes: Routes = [];
     {path: "login", component: LoginComponent},
     {path: "register", component: RegisterComponent},
     {path: "projects", component: ProjectsComponent},
+    {path: 'dashboard', component: DashboardComponent},
     {path: '**', redirectTo: '/home'}
+    
 
     ])],
   exports: [RouterModule]
