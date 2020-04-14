@@ -1,1 +1,123 @@
-<p>projects works!</p>
+<!-- Container Start -->
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-md-center">
+        <!-- Column Start -->
+        <div class="col-md-8">
+            <!-- Card Start -->
+            <div class="card bg-light">
+                <!-- Card Body Start -->
+                <div class="card-body">
+                    <!-- Card Header Start-->
+                    <h4 class="card-title text-center mb-4 mt-1">Project Creation</h4>
+                    <hr>
+                    <!-- Card Header End -->
+
+                    <!-- Form Start -->
+                    <form class="form" [formGroup]="projectForm" (ngSubmit)="onSubmit()">
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button class="btn btn-big btn-light btn-block">
+                                        <div class="btn-title">Public</div>
+                                        <div class="btn-subtitle">Anyone can see this project</div>   
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button class="btn btn-big btn-light btn-block">
+                                        <div class="btn-title">Private</div>
+                                        <div class="btn-subtitle">Only those you invite to view can view</div>   
+                                    </button>
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                        <!-- Form Project Name -->
+                        <div class="form-group">
+                            <label for="projectName">Project Name</label>
+                            <input formControlName="projectName" type="text" class="form-control" placeholder="" required>
+                            <div *ngIf="projectName.touched && projectName.errors" class="text-danger">
+                                <p class="mb-0 p-1" *ngIf="projectName.errors?.noSpaceSpecial">No Space or Special Character</p>
+                                <p class="mb-0 p-1"  *ngIf="projectName.errors?.minlength">Minimum 5 Character</p>
+                                <p class="mb-0 p-1"  *ngIf="projectName.errors?.maxlength">maximum 20 Character</p>
+                            </div>
+                        </div>
+
+                        <!-- Form Description -->
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input formControlName="description" type="text" class="form-control" placeholder="">
+                        </div>
+
+                        <!-- Form Procedure -->
+                        <div class="form-group">
+                            <label for="data">Procedure</label>
+                            <input formControlName="data" type="text" class="form-control" placeholder="">
+                        </div>
+
+                        <!-- Form Tag -->
+                        <div class="form-group">
+                            <label for="data">Data</label>
+                    
+                            <!-- Drop Zone -->
+                            <div class="upload-drop-zone d-flex justify-content-center align-items-center" id="drop-zone">
+                                <div class="container">
+                                    <button type="submit" class="btn btn-sm btn-primary" id="js-upload-submit">Upload files</button>
+                                    <p class="text-center m-0">or</p>
+                                    <p class="text-center m-0">drag and drop files here</p>
+                                </div>                
+                            </div>
+                
+                            <!-- Progress Bar -->
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                <span class="sr-only">60% Complete</span>
+                                </div>
+                            </div>
+                
+                            <!-- Upload Finished -->
+                            <div class="js-upload-finished">
+                                <h3>Processed files</h3>
+                                <div class="list-group">
+                                <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>image-01.jpg</a>
+                                <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>image-02.jpg</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Create Project -->
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="projectForm.invalid">
+                                <div *ngIf="isLoading; then showLoading else showCreate"></div>
+                                <ng-template #showCreate>
+                                    <span *ngIf="!isLoading then">Create Project</span>
+                                </ng-template>
+                                <ng-template #showLoading>
+                                    <div class="spinner-border" role="status">
+                                        <span class="sr-only"></span>
+                                    </div>
+                                </ng-template>
+                            </button>                
+                        </div>
+
+                    </form>
+                    <!-- Form End -->
+                </div>
+                <!-- Card Body End -->
+            </div>
+            <!-- Card End -->
+        </div>
+        <!-- Column End -->
+        </div>
+    <!-- Row End -->
+</div>
+<!-- Container End -->
+
+<ng-template #loadingModal>
+    <div class="modal-header">
+        <div class="spinner-border" role="status">
+            <span class="sr-only"></span>
+        </div>
+    </div>
+</ng-template>

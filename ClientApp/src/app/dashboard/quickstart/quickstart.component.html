@@ -1,46 +1,75 @@
-<div class="card ml-5 mr-5">
-    <div class="card-header d-flex align-items-center">
-        <span class="text-center">
-            Quick Start
-        </span>
-        <button class="btn-sm btn-success ml-auto" type="submit">+</button>
-    </div>
-    <div class="card-subtitle">
-        
-    </div>
-    <div class="card-body">
-        <div class="card-block">
-            <!-- Nav Search Bar -->
-            <form class="form mb-3">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control" placeholder="Search...">
-                    <div class="input-group-append">
-                        <div class="input-group-text bg-white">
-                            <i class="fa fa-search"></i>
-                        </div>     
-                    </div>          
-                </div>
-            </form>
+<div class="container">
+    <!-- Card Start -->
+    <div class="card">
+        <!-- Card Header Start -->
+        <div class="card-header d-flex align-items-center">
+            <span class="text-center">Quick Start</span>
+            <button class="btn-sm btn-success ml-auto" type="submit" [routerLink]='["/projects"]'>+</button>
         </div>
-        <div class="card-block">
-            <ul class="nav nav-tabs">
-                <li class="nav-item">
-                    <a class="nav-link active" href="#">Project</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Organization</a>
-                    
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Cluster</a>
-                </li>
-            </ul>
-        </div>
-        <div class="nav-tab-border">
-            <div class="m-5">
-                <p>test</p>
-            </div>
+        <!-- Card Header End -->
             
-        </div>
-    </div> 
+        <!-- Card Body Start -->
+        <div class="card-body">
+            <!-- Nav Search Bar Start -->
+            <div class="card-block">
+                <form class="form mb-3">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" placeholder="Search...">
+                        <div class="input-group-append">
+                            <div class="input-group-text bg-white">
+                                <i class="fa fa-search"></i>
+                            </div>     
+                        </div>          
+                    </div>
+                </form>
+            </div>
+            <!-- Nav Search Bar End -->
+
+            <!-- Nav Tab Start -->
+            <div class="card-block">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Project</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Organization</a>
+                        
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Cluster</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Nav Tab End -->
+
+            <!-- Nav Content Start -->
+            <div class="nav-tabs-content">
+                <div class="m-3">
+                    <ul class="list-unstyled">
+                        <li>
+                            <a href="">Project 1</a>
+                        </li>
+                        <li>
+                            <a href="">Project 1</a>
+                        </li>
+                        <li>
+                            <a href="">Project 1</a>
+                        </li>
+                        <li>
+                            <a href="">Project 1</a>
+                        </li>
+                        <li>
+                            <a href="">Project 1</a>
+                        </li><li>
+                            <a href="">Project 1</a>
+                        </li>
+                    </ul>
+                </div>
+                
+            </div>
+            <!-- Nav Content End -->
+        </div> 
+        <!-- Card Body End -->
+    </div>
+    <!-- Card End -->
 </div>

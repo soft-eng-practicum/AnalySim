@@ -28,8 +28,9 @@ section{
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-.nav-tab-border
+.nav-tabs-content
 { 
     border: 1px solid #dee2e6;
+    border-top: 1px solid white;
 
 }
