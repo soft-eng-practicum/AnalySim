@@ -19,11 +19,11 @@ namespace NeuroSimHub.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signManager;
         private readonly AppSettings _appSettings;
 
-        public AccountController(UserManager<IdentityUser> _userManager, SignInManager<IdentityUser> _signManager, IOptions<AppSettings> _appSettings) 
+        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signManager, IOptions<AppSettings> _appSettings) 
         {
             this._userManager = _userManager;
             this._signManager = _signManager;
@@ -32,12 +32,12 @@ namespace NeuroSimHub.Controllers
 
         // POST: api/account/register
         [HttpPost("[action]")]
-        public async Task<IActionResult> Register([FromBody] RegisterViewModel formdata) {
+        public async Task<IActionResult> Register([FromBody] RegisterView formdata) {
             
             //Hold Error
             List<string> errorList = new List<string>();
 
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 Email = formdata.EmailAddress,
                 UserName = formdata.Username,
@@ -66,7 +66,7 @@ namespace NeuroSimHub.Controllers
 
         // POST: api/account/login
         [HttpPost("[action]")]
-        public async Task<IActionResult> Login([FromBody] LoginViewModel formdata) 
+        public async Task<IActionResult> Login([FromBody] LoginView formdata) 
         {
             // Get the User from Database
             var user = await _userManager.FindByNameAsync(formdata.Username);

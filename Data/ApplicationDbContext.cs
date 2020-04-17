@@ -9,15 +9,20 @@ using System.Threading.Tasks;
 
 namespace NeuroSimHub.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-        { 
+        {
 
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<ApplicationUser>()
+                .HasMany(p => p.ProjectList)
+                .WithOne(u => u.User)
+                .IsRequired();
+
             base.OnModelCreating(builder);
 
             builder.Entity<IdentityRole>().HasData(
@@ -27,7 +32,7 @@ namespace NeuroSimHub.Data
             );
         }
 
-        public DbSet<ProjectModel> Projects { get; set; }
+        public DbSet<Project> Projects { get; set; }
 
 
     }

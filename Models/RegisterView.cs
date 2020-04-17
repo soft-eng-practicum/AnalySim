@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NeuroSimHub.Models
 {
-    public class RegisterViewModel
+    public class RegisterView
     {
         [Required]
         [EmailAddress]

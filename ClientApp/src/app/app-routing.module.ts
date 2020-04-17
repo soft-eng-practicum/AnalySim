@@ -9,16 +9,15 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 const routes: Routes = [];
 
 @NgModule({
-  imports: [RouterModule.forRoot([
-    {path: 'home', component: HomeComponent},
-    {path: '', component: HomeComponent, pathMatch: 'full'},  
-    {path: "login", component: LoginComponent},
-    {path: "register", component: RegisterComponent},
-    {path: "projects", component: ProjectsComponent},
-    {path: 'dashboard', component: DashboardComponent},
-    {path: '**', redirectTo: '/home'}
-    
-
+  imports: [
+    RouterModule.forRoot([
+      {path: 'home', component: HomeComponent},
+      {path: '', component: HomeComponent, pathMatch: 'full'},  
+      {path: "login", component: LoginComponent},
+      {path: "register", component: RegisterComponent},
+      {path: "projects", component: ProjectsComponent},
+      {path: 'dashboard', component: DashboardComponent},
+      {path: '**', redirectTo: '/home'}
     ])],
   exports: [RouterModule]
 })

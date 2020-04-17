@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -6,25 +7,20 @@ using System.Threading.Tasks;
 
 namespace NeuroSimHub.Models
 {
-    public class ProjectModel
+    public class Project
     {
-        [Key]
-        public int ProductId { get; set; }
-
-        [Required]
-        [MaxLength(150)]
-        public int Name { get; set; }
+        [KeyAttribute]
+        public int ProjectID { get; set; }
 
         [Required]
         [MaxLength(20)]
-        public int Type { get; set; }
+        public int Name { get; set; }
 
         [Required]
+        public string Visibility { get; set; }
+
         [MaxLength(150)]
         public int Description { get; set; }
-
-        [Required]
-        public int Visibility { get; set; }
 
         [Required]
         [Timestamp]
@@ -34,8 +30,11 @@ namespace NeuroSimHub.Models
         [Timestamp]
         public int LastUpdated { get; set; }
 
-        [Required]
-        public int Owner { get; set; }
+        [DataType(DataType.Upload)]
+        [FileExtensions(Extensions = "xlsx, jpg, png, gif, jpeg, bmp, svg")]
+        public List<IFormFile> FileStorage { get; set; }
 
+        public ApplicationUser User { get; set; }
+        public string UserID { get; set; }
     }
 }

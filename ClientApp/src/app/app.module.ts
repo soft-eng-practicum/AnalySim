@@ -16,7 +16,8 @@ import { HeaderComponent } from './header/header.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { QuickstartComponent } from './dashboard/quickstart/quickstart.component';
-import { FavoritesComponent } from './dashboard/favorites/favorites.component'
+import { FavoritesComponent } from './dashboard/favorites/favorites.component';
+import { UploadFilesComponent } from './upload-files/upload-files.component'
 
 
 
@@ -31,7 +32,8 @@ import { FavoritesComponent } from './dashboard/favorites/favorites.component'
     HeaderComponent,
     DashboardComponent,
     QuickstartComponent,
-    FavoritesComponent
+    FavoritesComponent,
+    UploadFilesComponent
   ],
   imports: [
     BrowserModule,

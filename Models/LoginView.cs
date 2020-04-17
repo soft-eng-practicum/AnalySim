@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NeuroSimHub.Models
 {
-    public class LoginViewModel
+    public class LoginView
     {
         [Required]
         [Display(Name="User Name")]

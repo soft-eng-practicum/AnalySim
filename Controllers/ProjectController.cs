@@ -34,18 +34,18 @@ namespace NeuroSimHub.Controllers
         // POST: api/Project
         [HttpPost("[action]")]
         [Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> AddProduct([FromBody] ProjectModel formdata)
+        public async Task<IActionResult> AddProduct([FromBody] Project formdata)
         {
-            var newproject = new ProjectModel
+            var newproject = new Project
             {
-                ProductId = formdata.ProductId,
+                
+                ProjectID = formdata.ProjectID,
                 Name = formdata.Name,
-                Type = formdata.Type,
-                Description = formdata.Description,
                 Visibility = formdata.Visibility,
+                Description = formdata.Description,
                 DateCreated = formdata.DateCreated,
                 LastUpdated = formdata.LastUpdated,
-                Owner = formdata.Owner
+                User = formdata.User
             };
 
             await _dbContext.AddAsync(newproject);
@@ -57,14 +57,14 @@ namespace NeuroSimHub.Controllers
         // PUT: api/Project/id?
         [HttpPut("[action]/{id}")]
         [Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProjectModel formdata)
+        public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] Project formdata)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var findProduct = _dbContext.Projects.FirstOrDefault(p => p.ProductId == id);
+            var findProduct = _dbContext.Projects.FirstOrDefault(p => p.ProjectID == id);
 
             if (findProduct == null)
             {
@@ -72,14 +72,14 @@ namespace NeuroSimHub.Controllers
             }
 
             // If the product was found
-            findProduct.ProductId = formdata.ProductId;
+            findProduct.ProjectID = formdata.ProjectID;
             findProduct.Name = formdata.Name;
-            findProduct.Type = formdata.Type;
+            findProduct.Visibility = formdata.Visibility;
             findProduct.Description = formdata.Description;
             findProduct.Visibility = formdata.Visibility;
             findProduct.DateCreated = formdata.DateCreated;
             findProduct.LastUpdated = formdata.LastUpdated;
-            findProduct.Owner = formdata.Owner;
+            findProduct.User = formdata.User;
 
             _dbContext.Entry(findProduct).State = EntityState.Modified;
 

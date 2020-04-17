@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using NeuroSimHub.Helpers;
 using System.Text;
+using NeuroSimHub.Models;
 
 namespace NeuroSimHub
 {
@@ -51,7 +52,7 @@ namespace NeuroSimHub
                 opt.UseNpgsql(Configuration.GetConnectionString("DBConnectionString")));
 
 
-            services.AddIdentity<IdentityUser, IdentityRole>( options =>
+            services.AddIdentity<ApplicationUser, IdentityRole>( options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 6;
