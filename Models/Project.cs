@@ -30,10 +30,6 @@ namespace NeuroSimHub.Models
         [Timestamp]
         public int LastUpdated { get; set; }
 
-        [DataType(DataType.Upload)]
-        [FileExtensions(Extensions = "xlsx, jpg, png, gif, jpeg, bmp, svg")]
-        public List<IFormFile> FileStorage { get; set; }
-
         public ApplicationUser User { get; set; }
         public string UserID { get; set; }
     }

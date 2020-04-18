@@ -29,6 +29,7 @@ export class RegisterComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Set up FormControl and its Validators
     this.emailAddress = new FormControl('', [Validators.required, Validators.email])
     this.username = new FormControl('', [Validators.required, Validators.maxLength(15), Validators.minLength(5)])
     this.password = new FormControl('', [Validators.required, Validators.minLength(5), this.hasUpper(), this.hasLower(), this.hasNumeric(), this.hasSpecial()])
@@ -44,53 +45,52 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  showError(){
-    console.log(this.username.errors);
-    console.log(this.username.errors?.minLength);
-  }
-
-  onSubmit()
-  {
+  onSubmit(){
+    // Variable for FormGroupValue
     let userReg = this.insertForm.value;
+
+    // Show loading icon
     this.isLoading = true;
 
+    // Register the Account
     this.acct.register(userReg.username, userReg.password, userReg.emailAddress).subscribe(
       result => {
+        // Hide Error Message Box
         this.invalidRegister = false;
 
-        console.log('Register Successfully');
+        // Navigate to login page
         this.router.navigate(['/login']);
+
+        // Send registration notification
         this.notfi.showSuccess('Account has been registered', 'Registration');
       },
       error => {
+        // Hide Loading Icon
         this.isLoading = false;
+
+        // Show Error Message Box
         this.invalidRegister = true;
 
-        console.log(userReg.username + userReg.password + userReg.emailAddress);
-        
-        this.errorList = [];
-
-        for(var i = 0; i < error.error.value.length; i++) 
-        {
-          this.errorList.push(error.error.value[i]);
-        }
-        
-        console.log(this.errorList);
+        //Set Error Message
         this.errorMessage = error.error.value[0];
       }
     );
 
   }
 
-  hasUpper(): ValidatorFn 
-  {
+  // Customer Validator
+  hasUpper(): ValidatorFn{
     return (passwordControl: AbstractControl): {[key: string]: boolean} | null => {
-
+      
+      // Check if empty
       if(passwordControl.value.length == ''){
         return null;
       }
 
+      // Regular Expression for having Upper Case
       var reg = new RegExp('(?=.*[A-Z])');
+
+      // Return Error Message if test false, otherwise return null
       if(!reg.test(passwordControl.value)){
         return {'noUpper': true};
       }
@@ -100,15 +100,18 @@ export class RegisterComponent implements OnInit {
     }
   }
 
-  hasLower(): ValidatorFn 
-  {
+  hasLower(): ValidatorFn {
     return (passwordControl: AbstractControl): {[key: string]: boolean} | null => {
 
+      // Check if empty
       if(passwordControl.value.length == ''){
         return null;
       }
 
+      // Regular Expression for having Lower Case
       var reg = new RegExp('(?=.*[a-z])');
+
+      // Return Error Message if test false, otherwise return null
       if(!reg.test(passwordControl.value)){
         return {'noLower': true};
       }
@@ -118,15 +121,18 @@ export class RegisterComponent implements OnInit {
     }
   }
 
-  hasNumeric(): ValidatorFn 
-  {
+  hasNumeric(): ValidatorFn {
     return (passwordControl: AbstractControl): {[key: string]: boolean} | null => {
 
+      // Check if empty
       if(passwordControl.value.length == ''){
         return null;
       }
 
+      // Regular Expression for having Numeric Number
       var reg = new RegExp('(?=.*[0-9])');
+
+      // Return Error Message if test false, otherwise return null
       if(!reg.test(passwordControl.value)){
         return {'noNumeric': true};
       }
@@ -136,15 +142,18 @@ export class RegisterComponent implements OnInit {
     }
   }
 
-  hasSpecial(): ValidatorFn 
-  {
+  hasSpecial(): ValidatorFn {
     return (passwordControl: AbstractControl): {[key: string]: boolean} | null => {
 
+      // Check if empty
       if(passwordControl.value.length == ''){
         return null;
       }
 
+      // Regular Expression for having Numeric Number
       var reg = new RegExp('(?=.*[!@#$%^&*])');
+
+      // Return Error Message if test false, otherwise return null
       if(!reg.test(passwordControl.value)){
         return {'noSpecial': true};
       }
@@ -158,6 +167,7 @@ export class RegisterComponent implements OnInit {
   {
     return (confirmPasswordControl : AbstractControl) : {[key: string] : boolean} | null =>
     {
+      
       if(!passwordControl && !confirmPasswordControl){
         return null;
       }
@@ -166,6 +176,7 @@ export class RegisterComponent implements OnInit {
         return null;
       }
 
+      // Return Error Message if value don't match, otherwise return null
       if(passwordControl.value !== confirmPasswordControl.value){
         return {'noMatch': true};
       }

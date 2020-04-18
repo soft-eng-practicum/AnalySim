@@ -5,33 +5,50 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using NeuroSimHub.Models;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace NeuroSimHub.Controllers
 {
     [Route("api/[controller]")]
-    public class BlobStorageController : Controller
+    [ApiController]
+    public class BlobStorageController : ControllerBase
     {
 
-        // GET: /<controller>/
-        public async Task<IActionResult> UploadFile(IFormFile files, string containerName)
+        private readonly string storageConnString;
+
+        public BlobStorageController(IConfiguration config)
+        {
+            storageConnString = config.GetConnectionString("AccessKey");
+        }
+
+        // Post: api/blobstorage/uploadfile
+        [HttpPost("[action]")]
+        public async Task<IActionResult> UploadFile([FromForm(Name = "Blob")]IFormFile files, string containerName, string directory = "")
         {
             try {
+                if (files == null) return BadRequest("Null File");
+                if (files.Length == 0)
+                {
+                    return BadRequest("Empty File");
+                }
+
                 //Connection to Storage Account
-                CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse("AccessKey");
+                CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnString);
 
                 // Create a blob client
                 CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
 
                 // Get a reference to a container
-                CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
+                CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference("temp");
 
                 // Get a reference to a block blob
-                CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(files.FileName);
+                CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(directory + files.FileName);
 
                 // Create or overwrite the blob with the contents of a local file
                 using (var fileStream = files.OpenReadStream())
@@ -41,7 +58,7 @@ namespace NeuroSimHub.Controllers
 
                 return Ok(new
                 {
-                    container = cloudBlockBlob.Container,
+                    container = cloudBlockBlob.Container.Name,
                     name = cloudBlockBlob.Name,
                     type = cloudBlockBlob.Properties.ContentType,
                     size = cloudBlockBlob.Properties.Length,
@@ -50,17 +67,20 @@ namespace NeuroSimHub.Controllers
             }
             catch (Exception e)
             {
+                System.Diagnostics.Debug.WriteLine(e);
                 return BadRequest(new { DownloadError = "Error when trying to download file", exception = e });
             }
 
         }
 
+        // Delete: api/blobstorage/deletefile
+        [HttpDelete("[action]")]
         public async Task<IActionResult> DeleteFile(string fileName, string containerName)
         {
             try
             {
                 //Connection to Storage Account
-                CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse("AccessKey");
+                CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnString);
 
                 //Create a blob client
                 CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
@@ -90,12 +110,14 @@ namespace NeuroSimHub.Controllers
 
         }
 
+        // Get: api/blobstorage/DownloadFile
+        [HttpGet("action")]
         public async Task<IActionResult> DownloadFile(string fileName, string containerName)
         {
             try
             {
                 //Connection to Storage Account
-                CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse("AccessKey");
+                CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnString);
 
                 //Create a blob client
                 CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
@@ -130,12 +152,14 @@ namespace NeuroSimHub.Controllers
 
         }
 
+        // Post: api/blobstorage/transferfile
+        [HttpPost("action")]
         public async Task<IActionResult> TransferFile(string fileName, string containerNameSource, string containerNameTarget)
         {
             try
             {
                 //Connection to Storage Account
-                CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse("AccessKey");
+                CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnString);
 
                 //Create a blob client
                 CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();

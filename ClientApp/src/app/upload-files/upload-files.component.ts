@@ -15,8 +15,7 @@ export class UploadFilesComponent implements OnInit {
   }
 
   uploadPhoto(){
-    let nativeElement: HTMLInputElement = this.fileInput.nativeElement;
-    this.fileService.upload(nativeElement.files)
+    
   }
 
 }

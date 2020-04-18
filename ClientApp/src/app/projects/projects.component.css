@@ -23,7 +23,7 @@
     color: #ccc;
     border-style: dashed;
     border-color: #ccc;
-    text-align: center
+    text-align: center;
 }
 .upload-drop-zone.drop {
     color: #222;

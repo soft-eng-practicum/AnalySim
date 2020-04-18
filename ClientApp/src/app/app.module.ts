@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import { ModalModule } from 'ngx-bootstrap/modal';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -13,11 +14,12 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { FooterComponent } from './footer/footer.component';
 import { HeaderComponent } from './header/header.component';
-import { ModalModule } from 'ngx-bootstrap/modal';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { QuickstartComponent } from './dashboard/quickstart/quickstart.component';
 import { FavoritesComponent } from './dashboard/favorites/favorites.component';
-import { UploadFilesComponent } from './upload-files/upload-files.component'
+import { UploadFilesComponent } from './upload-files/upload-files.component';
+import { FileService } from './services/file.service';
+import { } from '@angular/core';
 
 
 
@@ -45,7 +47,9 @@ import { UploadFilesComponent } from './upload-files/upload-files.component'
     ModalModule.forRoot(),
     ToastrModule.forRoot()
   ],
-  providers: [],
+  providers: [
+    FileService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
