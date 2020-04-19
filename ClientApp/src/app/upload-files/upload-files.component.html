@@ -1,1 +1,19 @@
-<p>upload-files works!</p>
+<td class="align-middle text-center col-md-1" [ngSwitch]="fileStatus">
+    <div *ngSwitchCase="1" class="spinner-border spinner-border-sm" role="status">
+        <span class="sr-only"></span>
+    </div>
+    <a *ngSwitchCase="2" href="">
+        <i class="fa fa-check alt fa-lg text-success"></i>
+    </a>
+    <a *ngSwitchCase="3" href="">
+        <i class="fa fa-exclamation-triangle alt fa-lg text-danger"></i>
+    </a>
+</td>
+<td class="align-middle col-md-10">
+    {{file.value.name}}
+</td>
+<td class="align-middle text-center col-md-1">
+    <a href="">
+        <i class="fa fa-times alt fa-lg text-danger"></i>
+    </a>
+</td>

@@ -16,7 +16,7 @@ export class ProjectsComponent implements OnInit {
   projectForm: FormGroup;
   projectName: FormControl;
   description: FormControl;
-  files: FormGroup;
+  files: FormArray;
   key: string;
 
   constructor(private acct : ProjectService, 
@@ -36,12 +36,11 @@ export class ProjectsComponent implements OnInit {
     this.projectForm = this.formBuilder.group({
         projectName : this.projectName,
         description : this.description,
-        files : this.files
+        files : this.formBuilder.array([])
     });
 
     // Initialize FormGroup using FormBuilder
-    this.files = this.formBuilder.group({});
-
+    this.files = <FormArray>this.projectForm.controls['files']
     // Key for storing temp file
     this.key = this.makeString();
   }
@@ -83,30 +82,24 @@ export class ProjectsComponent implements OnInit {
     return outString;
   }
 
-  result: string = this.makeString();
-
-  
-
+  // Add FormControl to FormGroup for file input
   public fileEvent($event) {
 
     for (let file of $event.target.files)
     {
-      if(this.files.controls[file.name] == null)
+      // Check if FormControl already exist
+      if((this.files.controls.findIndex(x => x.value.name === file.name)) == -1)
       {
-        this.files.addControl(file.name, new FormControl(''))
+        // Add FormControl to files FormGroup
+        this.files.push(new FormControl(file))
       }    
     }
-
-    console.log('beg');
-    Object.keys(this.files.value).forEach(key => {
-      console.log(key);
-    });
-    console.log('end');
- }
+  }
 
   onSubmit() {
     let userLogin = this.projectForm.value;
 
+    /*
     this.fileService.upload(userLogin.file).subscribe(
       result => {
         console.log(result);
@@ -115,6 +108,7 @@ export class ProjectsComponent implements OnInit {
         console.log(error);
       }
     );
+    */
   }
 
 }

@@ -16,20 +16,20 @@ export class FileService {
 
   constructor(private http: HttpClient) { }
 
-  upload(file: any)
+  upload(file: any, containerName: string, directory: string)
   {
     let body = new FormData();
-    body.append('Blob', file);
-
-    console.log(file.name + ' ' + file.size + ' ' + file.type + ' test');
+    body.append('blob', file);
+    body.append('container', containerName);
+    body.append('directory', directory);
 
     return this.http.post<any>(this.baseUrlUploadFile, body).pipe(
       map(result => {
-        console.log(result);
+        console.log('Result:' + result);
         return result;
       },
       error =>{
-        console.log(error);
+        console.log('Error:' + error);
         return error;
       })
     );

@@ -62,9 +62,16 @@
 
                             <!-- Drop Zone -->
                             <div class="upload-drop-zone d-flex justify-content-center align-items-center" id="drop-zone">
-                                    <p class="text-center m-0">Drag and drop files here</p>              
+                                <p class="text-center m-0">Drag and drop files here</p>              
                             </div>
-                
+
+                            
+                            <table class="table">
+                                <tr *ngFor="let file of files.controls">
+                                    <app-upload-files [file]=file></app-upload-files>
+                                </tr>
+                            </table>
+                            
                         </div>
 
                         <!-- Form Create Project -->

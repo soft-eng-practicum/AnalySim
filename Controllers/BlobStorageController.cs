@@ -29,7 +29,7 @@ namespace NeuroSimHub.Controllers
 
         // Post: api/blobstorage/uploadfile
         [HttpPost("[action]")]
-        public async Task<IActionResult> UploadFile([FromForm(Name = "Blob")]IFormFile files, string containerName, string directory = "")
+        public async Task<IActionResult> UploadFile([FromForm(Name = "blob")]IFormFile files, [FromForm(Name = "container")]string containerName, [FromForm(Name = "directory")]string directory)
         {
             try {
                 if (files == null) return BadRequest("Null File");
@@ -45,7 +45,7 @@ namespace NeuroSimHub.Controllers
                 CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
 
                 // Get a reference to a container
-                CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference("temp");
+                CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
 
                 // Get a reference to a block blob
                 CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(directory + files.FileName);
