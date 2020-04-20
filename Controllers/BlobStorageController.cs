@@ -27,16 +27,13 @@ namespace NeuroSimHub.Controllers
             storageConnString = config.GetConnectionString("AccessKey");
         }
 
-        // Post: api/blobstorage/uploadfile
+        // Post: api/blobstorage/upload
         [HttpPost("[action]")]
-        public async Task<IActionResult> UploadFile([FromForm(Name = "blob")]IFormFile files, [FromForm(Name = "container")]string containerName, [FromForm(Name = "directory")]string directory)
+        public async Task<IActionResult> Upload([FromForm(Name = "file")]IFormFile files, [FromForm(Name = "container")]string containerName, [FromForm(Name = "directory")]string directory)
         {
             try {
                 if (files == null) return BadRequest("Null File");
-                if (files.Length == 0)
-                {
-                    return BadRequest("Empty File");
-                }
+                if (files.Length == 0) return BadRequest("Empty File");
 
                 //Connection to Storage Account
                 CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnString);
@@ -73,35 +70,40 @@ namespace NeuroSimHub.Controllers
 
         }
 
-        // Delete: api/blobstorage/deletefile
-        [HttpDelete("[action]")]
-        public async Task<IActionResult> DeleteFile(string fileName, string containerName)
+        // Delete: api/blobstorage/delete/{containerName}/{directory}
+        [HttpDelete("[action/{containerName}/{directory}]")]
+        public async Task<IActionResult> Delete(string containerName, string directory)
         {
             try
             {
-                //Connection to Storage Account
-                CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnString);
-
-                //Create a blob client
-                CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
-
-                //Get reference to container
-                CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
-
-                // get block blob refarence    
-                CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(fileName);
-
-                // Delete Blob from container
-                await cloudBlockBlob.DeleteIfExistsAsync();
-
-                return Ok(new
+                if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
                 {
-                    container = cloudBlockBlob.Container,
-                    name = cloudBlockBlob.Name,
-                    type = cloudBlockBlob.Properties.ContentType,
-                    size = cloudBlockBlob.Properties.Length,
-                    uri = cloudBlockBlob.Uri
-                });
+                    //Create a blob client
+                    CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+
+                    //Get reference to container
+                    CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
+
+                    // get block blob refarence    
+                    CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(directory);
+
+                    // Delete Blob from container
+                    await cloudBlockBlob.DeleteIfExistsAsync();
+
+                    return Ok(new
+                    {
+                        container = cloudBlockBlob.Container,
+                        name = cloudBlockBlob.Name,
+                        type = cloudBlockBlob.Properties.ContentType,
+                        size = cloudBlockBlob.Properties.Length,
+                        uri = cloudBlockBlob.Uri
+                    });
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Server Connection Error");
+                }
+
             }
             catch (Exception e)
             {
@@ -154,7 +156,7 @@ namespace NeuroSimHub.Controllers
 
         // Post: api/blobstorage/transferfile
         [HttpPost("action")]
-        public async Task<IActionResult> TransferFile(string fileName, string containerNameSource, string containerNameTarget)
+        public async Task<IActionResult> Move(string fileName, string containerNameSource, string containerNameTarget)
         {
             try
             {

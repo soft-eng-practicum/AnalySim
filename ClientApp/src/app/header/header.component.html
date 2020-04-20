@@ -16,8 +16,8 @@
           <!-- Nav Item List Left Start -->
           <ul class="navbar-nav"> 
             <!-- Nav Dashboard -->
-            <li class="nav-item">
-              <a class="nav-link text-white" [routerLink]='["/dashboard"]' routerLinkActive = "border-bottom">Dashboard</a>
+            <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
+              <a class="nav-link text-white" [routerLink]='["/dashboard"]' routerLinkActive = "border-bottom" >Dashboard</a>
             </li>        
             <!-- Nav Explore -->
             <li class="nav-item">

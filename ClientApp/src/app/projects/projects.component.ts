@@ -43,6 +43,7 @@ export class ProjectsComponent implements OnInit {
     this.files = <FormArray>this.projectForm.controls['files']
     // Key for storing temp file
     this.key = this.makeString();
+    console.log(this.key)
   }
 
   // Custom Validator
@@ -82,6 +83,11 @@ export class ProjectsComponent implements OnInit {
     return outString;
   }
 
+  public deleteFormControl(formControl : FormControl){
+    let formIndex = this.files.controls.findIndex(x => x === formControl)
+    this.files.removeAt(formIndex)
+  }
+
   // Add FormControl to FormGroup for file input
   public fileEvent($event) {
 
@@ -94,6 +100,7 @@ export class ProjectsComponent implements OnInit {
         this.files.push(new FormControl(file))
       }    
     }
+
   }
 
   onSubmit() {

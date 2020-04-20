@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormControl} from '@angular/forms';
 import { FileService } from '../services/file.service';
 import { AccountService } from '../services/account.service';
@@ -21,19 +21,21 @@ export class UploadFilesComponent implements OnInit {
   @Input() file : FormControl;
   fileStatus : FileStatus;
   directory : string;
-  key : string;
+  @Input() key : string;
+  @Output() deleteFormControl = new EventEmitter<FormControl>();
 
 
   ngOnInit(): void {
+
     this.fileStatus = FileStatus.Loading;
-    this.directory = this.key + "/";
+    this.directory = this.acctService.currentUsername + "/" + this.key + "/";
     
     this.uploadFile();
   }
 
   uploadFile(){
-    
-    this.fileService.upload(this.file.value, 'temp', '1561651651/').subscribe(
+
+    this.fileService.upload(this.file.value, 'temp', this.directory).subscribe(
       result => {
         this.fileStatus = FileStatus.Success;
         console.log(result);
@@ -44,6 +46,25 @@ export class UploadFilesComponent implements OnInit {
       }
     );
     
+  }
+
+  deleteFile(){
+    
+    
+    this.fileService.delete('temp', this.directory).subscribe(
+      result => {
+        this.fileStatus = FileStatus.Success;
+        console.log(result);
+      },
+      error => {  
+        this.fileStatus = FileStatus.Error;      
+        console.log(error);
+      }
+    );
+    
+
+    this.deleteFormControl.emit(this.file);
+
   }
 
 }

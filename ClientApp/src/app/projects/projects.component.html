@@ -61,14 +61,14 @@
 
 
                             <!-- Drop Zone -->
-                            <div class="upload-drop-zone d-flex justify-content-center align-items-center" id="drop-zone">
+                            <div class="upload-drop-zone d-flex justify-content-center align-items-center" id="drop-zone" *ngIf="files.length == 0">
                                 <p class="text-center m-0">Drag and drop files here</p>              
                             </div>
 
                             
-                            <table class="table">
+                            <table class="table" *ngIf="files.length > 0">
                                 <tr *ngFor="let file of files.controls">
-                                    <app-upload-files [file]=file></app-upload-files>
+                                    <app-upload-files [file]=file [key]=key (deleteFormControl)="deleteFormControl($event)"></app-upload-files>
                                 </tr>
                             </table>
                             

@@ -16,23 +16,43 @@ namespace NeuroSimHub.Data
 
         }
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            builder.Entity<ApplicationUser>()
-                .HasMany(p => p.ProjectList)
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ApplicationUserProject>().HasKey(aup => new { aup.ApplicationUserID, aup.ProjectID });
+
+            modelBuilder.Entity<ApplicationUserProject>()
+                .HasOne<ApplicationUser>(au => au.ApplicationUser)
+                .WithMany(aup => aup.ApplicationUserProjects)
+                .HasForeignKey(sc => sc.ApplicationUserID);
+
+
+            modelBuilder.Entity<ApplicationUserProject>()
+                .HasOne<Project>(p => p.Project)
+                .WithMany(aup => aup.ApplicationUserProjects)
+                .HasForeignKey(sc => sc.ProjectID);
+
+            modelBuilder.Entity<ApplicationUser>()
+                .HasMany(b => b.BlobFiles)
                 .WithOne(u => u.User)
                 .IsRequired();
 
-            base.OnModelCreating(builder);
+            modelBuilder.Entity<Project>()
+                .HasMany(p => p.BlobFiles)
+                .WithOne(p => p.Project)
+                .IsRequired();
 
-            builder.Entity<IdentityRole>().HasData(
+            modelBuilder.Entity<IdentityRole>().HasData(
                 new { Id = "1", Name = "Admin", NormalizedName = "ADMIN"},
                 new { Id = "2", Name = "Customer", NormalizedName = "CUSTOMER" },
                 new { Id = "3", Name = "Moderator", NormalizedName = "MODERATOR" }
             );
         }
 
+        public DbSet<ApplicationUserProject> ApplicationUserProjects { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<BlobFile> BlobFiles { get; set; }
 
 
     }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NeuroSimHub.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -9,9 +10,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NeuroSimHub.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200419234151_BlobFiles")]
+    partial class BlobFiles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -233,72 +235,6 @@ namespace NeuroSimHub.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.ApplicationUserProject", b =>
-                {
-                    b.Property<string>("ApplicationUserID")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ApplicationUserID", "ProjectID");
-
-                    b.HasIndex("ProjectID");
-
-                    b.ToTable("ApplicationUserProjects");
-                });
-
-            modelBuilder.Entity("NeuroSimHub.Models.BlobFile", b =>
-                {
-                    b.Property<int>("BlobFileID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("Container")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("DateCreated")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Directory")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProjectID")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ProjectID1")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Size")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Uri")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserID")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("BlobFileID");
-
-                    b.HasIndex("ProjectID1");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("BlobFiles");
-                });
-
             modelBuilder.Entity("NeuroSimHub.Models.Project", b =>
                 {
                     b.Property<int>("ProjectID")
@@ -325,6 +261,7 @@ namespace NeuroSimHub.Migrations
                         .HasMaxLength(20);
 
                     b.Property<string>("UserID")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Visibility")
@@ -389,41 +326,13 @@ namespace NeuroSimHub.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.ApplicationUserProject", b =>
-                {
-                    b.HasOne("NeuroSimHub.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany("ApplicationUserProjects")
-                        .HasForeignKey("ApplicationUserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NeuroSimHub.Models.Project", "Project")
-                        .WithMany("ApplicationUserProjects")
-                        .HasForeignKey("ProjectID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("NeuroSimHub.Models.BlobFile", b =>
-                {
-                    b.HasOne("NeuroSimHub.Models.Project", "Project")
-                        .WithMany("BlobFiles")
-                        .HasForeignKey("ProjectID1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NeuroSimHub.Models.ApplicationUser", "User")
-                        .WithMany("BlobFiles")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("NeuroSimHub.Models.Project", b =>
                 {
                     b.HasOne("NeuroSimHub.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID");
+                        .WithMany("ProjectList")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

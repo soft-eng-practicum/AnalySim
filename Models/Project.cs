@@ -32,5 +32,8 @@ namespace NeuroSimHub.Models
 
         public ApplicationUser User { get; set; }
         public string UserID { get; set; }
+
+        public ICollection<ApplicationUserProject> ApplicationUserProjects { get; set;}
+        public ICollection<BlobFile> BlobFiles { get; set; }
     }
 }
