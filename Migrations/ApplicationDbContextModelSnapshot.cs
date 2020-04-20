@@ -259,12 +259,14 @@ namespace NeuroSimHub.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("DateCreated")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Directory")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Extension")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -278,12 +280,10 @@ namespace NeuroSimHub.Migrations
                     b.Property<int>("ProjectID1")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Size")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Uri")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("UserID")
@@ -306,19 +306,15 @@ namespace NeuroSimHub.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("DateCreated")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Description")
                         .HasColumnType("integer")
                         .HasMaxLength(150);
 
-                    b.Property<int>("LastUpdated")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Name")
                         .HasColumnType("integer")

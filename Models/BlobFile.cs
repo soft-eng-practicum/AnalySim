@@ -12,32 +12,24 @@ namespace NeuroSimHub.Models
     {
         [KeyAttribute]
         public int BlobFileID { get; set; }
-
-        
+       
         [Required]
-        [FromForm(Name = "container")]
         public string Container { get; set; }
 
         [Required]
-        [FromForm(Name = "directory")]
         public string Directory { get; set; }
 
         [Required]
-        [FromForm(Name = "name")]
         public string Name { get; set; }
 
         [Required]
-        [FromForm(Name = "size")]
-        public string Size { get; set; }
+        public string Extension { get; set; }
 
-        [Required]
-        [FromForm(Name = "uri")]
+        public long Size { get; set; }
+
         public string Uri { get; set; }
 
-        [Required]
-        [Timestamp]
-        [FromForm(Name = "dateCreated")]
-        public int DateCreated { get; set; }
+        public DateTime DateCreated { get; set; }
 
         //Foreign Key To User
         public ApplicationUser User { get; set; }

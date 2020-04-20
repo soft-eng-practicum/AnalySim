@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using NeuroSimHub.Data;
 using NeuroSimHub.Models;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -21,15 +22,17 @@ namespace NeuroSimHub.Controllers
     {
 
         private readonly string storageConnString;
+        private readonly ApplicationDbContext _dbContext;
 
-        public BlobStorageController(IConfiguration config)
+        public BlobStorageController(IConfiguration config, ApplicationDbContext _dbContext)
         {
             storageConnString = config.GetConnectionString("AccessKey");
+            this._dbContext = _dbContext;
         }
 
         // Post: api/blobstorage/upload
         [HttpPost("[action]")]
-        public async Task<IActionResult> Upload([FromForm(Name = "file")]IFormFile files, [FromForm(Name = "container")]string containerName, [FromForm(Name = "directory")]string directory)
+        public async Task<IActionResult> Upload([FromForm(Name = "file")]IFormFile files, [FromForm] BlobFile formdata)
         {
             try {
                 if (files == null) return BadRequest("Null File");
@@ -42,10 +45,10 @@ namespace NeuroSimHub.Controllers
                 CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
 
                 // Get a reference to a container
-                CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
+                CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(formdata.Container);
 
                 // Get a reference to a block blob
-                CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(directory + files.FileName);
+                CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(formdata.Directory + files.FileName);
 
                 // Create or overwrite the blob with the contents of a local file
                 using (var fileStream = files.OpenReadStream())
@@ -53,13 +56,30 @@ namespace NeuroSimHub.Controllers
                     await cloudBlockBlob.UploadFromStreamAsync(fileStream);
                 }
 
+                var newBlobFile = new BlobFile
+                {
+                    BlobFileID = formdata.BlobFileID,
+                    Container = formdata.Container,
+                    Directory = formdata.Directory,
+                    Name = formdata.Name,
+                    Size = formdata.Size,
+                    
+
+                    Uri = cloudBlockBlob.Uri.ToString()
+                };
+
+                cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(formdata.Directory + files.FileName);
+
+
                 return Ok(new
                 {
                     container = cloudBlockBlob.Container.Name,
-                    name = cloudBlockBlob.Name,
+                    name = Path.GetFileNameWithoutExtension(cloudBlockBlob.Name),
                     type = cloudBlockBlob.Properties.ContentType,
                     size = cloudBlockBlob.Properties.Length,
-                    uri = cloudBlockBlob.Uri
+                    uri = cloudBlockBlob.Uri,
+                    type2 = Path.GetExtension(files.FileName),
+                    test1 = cloudBlockBlob.Properties.Created
                 });
             }
             catch (Exception e)
@@ -71,7 +91,7 @@ namespace NeuroSimHub.Controllers
         }
 
         // Delete: api/blobstorage/delete/{containerName}/{directory}
-        [HttpDelete("[action/{containerName}/{directory}]")]
+        [HttpDelete("[action]")]
         public async Task<IActionResult> Delete(string containerName, string directory)
         {
             try

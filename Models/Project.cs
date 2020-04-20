@@ -23,12 +23,10 @@ namespace NeuroSimHub.Models
         public int Description { get; set; }
 
         [Required]
-        [Timestamp]
-        public int DateCreated { get; set; }
+        public DateTime DateCreated { get; set; }
 
         [Required]
-        [Timestamp]
-        public int LastUpdated { get; set; }
+        public DateTime LastUpdated { get; set; }
 
         public ApplicationUser User { get; set; }
         public string UserID { get; set; }

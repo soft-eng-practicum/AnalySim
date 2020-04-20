@@ -100,7 +100,7 @@ namespace NeuroSimHub.Controllers
 
                 var token = tokenHandler.CreateToken(tokenDescriptor);
 
-                return Ok(new {token = tokenHandler.WriteToken(token), expiration = token.ValidTo, username = user.UserName, userRole = roles.FirstOrDefault()});
+                return Ok(new {token = tokenHandler.WriteToken(token), expiration = token.ValidTo, username = user.UserName, userRole = roles.FirstOrDefault(), userID = user.Id});
 
             }
             

@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace NeuroSimHub.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class InitalCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -153,6 +153,88 @@ namespace NeuroSimHub.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    ProjectID = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<int>(maxLength: 20, nullable: false),
+                    Visibility = table.Column<string>(nullable: false),
+                    Description = table.Column<int>(maxLength: 150, nullable: false),
+                    DateCreated = table.Column<DateTime>(nullable: false),
+                    LastUpdated = table.Column<DateTime>(nullable: false),
+                    UserID = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.ProjectID);
+                    table.ForeignKey(
+                        name: "FK_Projects_AspNetUsers_UserID",
+                        column: x => x.UserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApplicationUserProjects",
+                columns: table => new
+                {
+                    ApplicationUserID = table.Column<string>(nullable: false),
+                    ProjectID = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationUserProjects", x => new { x.ApplicationUserID, x.ProjectID });
+                    table.ForeignKey(
+                        name: "FK_ApplicationUserProjects_AspNetUsers_ApplicationUserID",
+                        column: x => x.ApplicationUserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApplicationUserProjects_Projects_ProjectID",
+                        column: x => x.ProjectID,
+                        principalTable: "Projects",
+                        principalColumn: "ProjectID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BlobFiles",
+                columns: table => new
+                {
+                    BlobFileID = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Container = table.Column<string>(nullable: false),
+                    Directory = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    Extension = table.Column<string>(nullable: false),
+                    Size = table.Column<long>(nullable: false),
+                    Uri = table.Column<string>(nullable: true),
+                    DateCreated = table.Column<DateTime>(nullable: false),
+                    UserID = table.Column<string>(nullable: false),
+                    ProjectID1 = table.Column<int>(nullable: false),
+                    ProjectID = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BlobFiles", x => x.BlobFileID);
+                    table.ForeignKey(
+                        name: "FK_BlobFiles_Projects_ProjectID1",
+                        column: x => x.ProjectID1,
+                        principalTable: "Projects",
+                        principalColumn: "ProjectID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BlobFiles_AspNetUsers_UserID",
+                        column: x => x.UserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
@@ -162,6 +244,11 @@ namespace NeuroSimHub.Migrations
                     { "2", null, "Customer", "CUSTOMER" },
                     { "3", null, "Moderator", "MODERATOR" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUserProjects_ProjectID",
+                table: "ApplicationUserProjects",
+                column: "ProjectID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -199,10 +286,28 @@ namespace NeuroSimHub.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlobFiles_ProjectID1",
+                table: "BlobFiles",
+                column: "ProjectID1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlobFiles_UserID",
+                table: "BlobFiles",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_UserID",
+                table: "Projects",
+                column: "UserID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ApplicationUserProjects");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -219,7 +324,13 @@ namespace NeuroSimHub.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "BlobFiles");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Projects");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
