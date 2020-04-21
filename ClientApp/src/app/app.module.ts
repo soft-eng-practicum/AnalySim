@@ -20,6 +20,7 @@ import { FavoritesComponent } from './dashboard/favorites/favorites.component';
 import { UploadFilesComponent } from './upload-files/upload-files.component';
 import { FileService } from './services/file.service';
 import { } from '@angular/core';
+import { ProjectPageComponent } from './project-page/project-page.component';
 
 
 
@@ -35,7 +36,8 @@ import { } from '@angular/core';
     DashboardComponent,
     QuickstartComponent,
     FavoritesComponent,
-    UploadFilesComponent
+    UploadFilesComponent,
+    ProjectPageComponent
   ],
   imports: [
     BrowserModule,

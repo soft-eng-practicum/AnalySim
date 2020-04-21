@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NeuroSimHub.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200420062422_InitalCreate")]
-    partial class InitalCreate
+    [Migration("20200420191601_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -276,14 +276,11 @@ namespace NeuroSimHub.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ProjectID")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ProjectID1")
+                    b.Property<int>("ProjectID")
                         .HasColumnType("integer");
 
-                    b.Property<long>("Size")
-                        .HasColumnType("bigint");
+                    b.Property<int>("Size")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Uri")
                         .HasColumnType("text");
@@ -294,7 +291,7 @@ namespace NeuroSimHub.Migrations
 
                     b.HasKey("BlobFileID");
 
-                    b.HasIndex("ProjectID1");
+                    b.HasIndex("ProjectID");
 
                     b.HasIndex("UserID");
 
@@ -406,7 +403,7 @@ namespace NeuroSimHub.Migrations
                 {
                     b.HasOne("NeuroSimHub.Models.Project", "Project")
                         .WithMany("BlobFiles")
-                        .HasForeignKey("ProjectID1")
+                        .HasForeignKey("ProjectID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

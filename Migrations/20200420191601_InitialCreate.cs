@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace NeuroSimHub.Migrations
 {
-    public partial class InitalCreate : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -211,19 +211,18 @@ namespace NeuroSimHub.Migrations
                     Directory = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     Extension = table.Column<string>(nullable: false),
-                    Size = table.Column<long>(nullable: false),
+                    Size = table.Column<int>(nullable: false),
                     Uri = table.Column<string>(nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: false),
                     UserID = table.Column<string>(nullable: false),
-                    ProjectID1 = table.Column<int>(nullable: false),
-                    ProjectID = table.Column<string>(nullable: true)
+                    ProjectID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BlobFiles", x => x.BlobFileID);
                     table.ForeignKey(
-                        name: "FK_BlobFiles_Projects_ProjectID1",
-                        column: x => x.ProjectID1,
+                        name: "FK_BlobFiles_Projects_ProjectID",
+                        column: x => x.ProjectID,
                         principalTable: "Projects",
                         principalColumn: "ProjectID",
                         onDelete: ReferentialAction.Cascade);
@@ -288,9 +287,9 @@ namespace NeuroSimHub.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_BlobFiles_ProjectID1",
+                name: "IX_BlobFiles_ProjectID",
                 table: "BlobFiles",
-                column: "ProjectID1");
+                column: "ProjectID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BlobFiles_UserID",

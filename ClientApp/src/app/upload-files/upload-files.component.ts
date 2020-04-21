@@ -34,7 +34,6 @@ export class UploadFilesComponent implements OnInit {
   }
 
   uploadFile(){
-
     this.fileService.upload(this.file.value, 'temp', this.directory).subscribe(
       result => {
         this.fileStatus = FileStatus.Success;

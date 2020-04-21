@@ -23,18 +23,11 @@ namespace NeuroSimHub.Controllers
             this._dbContext = _dbContext;
         }
 
-        // GET: api/Project/
-        [HttpGet("[action]")]
-        [Authorize(Policy = "RequireLoggedIn")]
-        public IActionResult GetProject()
-        {
-            return Ok(_dbContext.Projects.ToList());
-        }
 
-        // POST: api/Project
+        // POST: api/Project/Create
         [HttpPost("[action]")]
         [Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> AddProduct([FromBody] Project formdata)
+        public async Task<IActionResult> Create([FromForm] Project formdata)
         {
             var newproject = new Project
             {
@@ -57,60 +50,70 @@ namespace NeuroSimHub.Controllers
         // PUT: api/Project/id?
         [HttpPut("[action]/{id}")]
         [Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] Project formdata)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Project formdata)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var findProduct = _dbContext.Projects.FirstOrDefault(p => p.ProjectID == id);
+            var project = _dbContext.Projects.FirstOrDefault(p => p.ProjectID == id);
 
-            if (findProduct == null)
+            if (project == null)
             {
                 return NotFound();
             }
 
             // If the product was found
-            findProduct.ProjectID = formdata.ProjectID;
-            findProduct.Name = formdata.Name;
-            findProduct.Visibility = formdata.Visibility;
-            findProduct.Description = formdata.Description;
-            findProduct.Visibility = formdata.Visibility;
-            findProduct.DateCreated = formdata.DateCreated;
-            findProduct.LastUpdated = formdata.LastUpdated;
-            findProduct.User = formdata.User;
+            project.ProjectID = formdata.ProjectID;
+            project.Name = formdata.Name;
+            project.Visibility = formdata.Visibility;
+            project.Description = formdata.Description;
+            project.DateCreated = formdata.DateCreated;
+            project.LastUpdated = formdata.LastUpdated;
+            project.ApplicationUserProjects = formdata.ApplicationUserProjects;
+            project.BlobFiles = formdata.BlobFiles;
 
-            _dbContext.Entry(findProduct).State = EntityState.Modified;
+            // Set Entity State
+            _dbContext.Entry(project).State = EntityState.Modified;
 
             await _dbContext.SaveChangesAsync();
 
-            return Ok(new JsonResult("The Project with id " + id + "is updated"));
+            return Ok(new
+            {
+                project_id = id,
+                project = formdata,
+                message = "Project successfully updated."
+            });
 
         }
 
         // DELETE: api/Project/id?
         [HttpDelete("[action]/{id}")]
         [Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> DeleteProject([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var findProduct = await _dbContext.Projects.FindAsync(id);
+            var project = await _dbContext.Projects.FindAsync(id);
 
-            if (findProduct == null)
+            if (project == null)
             {
                 return NotFound();
             }
 
-            _dbContext.Projects.Remove(findProduct);
+            _dbContext.Projects.Remove(project);
 
             await _dbContext.SaveChangesAsync();
 
-            return Ok(new JsonResult("The Product with id " + id + " is Deleted."));
+            return Ok(new
+            {
+                project_id = id,
+                message = "Project successfully deleted."
+            });
 
         }
 

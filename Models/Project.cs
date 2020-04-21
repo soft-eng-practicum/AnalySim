@@ -28,9 +28,6 @@ namespace NeuroSimHub.Models
         [Required]
         public DateTime LastUpdated { get; set; }
 
-        public ApplicationUser User { get; set; }
-        public string UserID { get; set; }
-
         public ICollection<ApplicationUserProject> ApplicationUserProjects { get; set;}
         public ICollection<BlobFile> BlobFiles { get; set; }
     }

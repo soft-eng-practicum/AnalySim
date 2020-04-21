@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +12,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using NeuroSimHub.Data;
 using NeuroSimHub.Models;
+using NeuroSimHub.ViewModels;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -32,185 +34,247 @@ namespace NeuroSimHub.Controllers
 
         // Post: api/blobstorage/upload
         [HttpPost("[action]")]
-        public async Task<IActionResult> Upload([FromForm(Name = "file")]IFormFile files, [FromForm] BlobFile formdata)
+        [Authorize(Policy = "RequireLoggedIn")]
+        public async Task<IActionResult> Upload([FromForm] UploadView formdata)
         {
             try {
-                if (files == null) return BadRequest("Null File");
-                if (files.Length == 0) return BadRequest("Empty File");
+                // Reture Bad Request Status
+                if (formdata.File == null) return BadRequest("Null File");
+                if (formdata.File.Length == 0) return BadRequest("Empty File");
 
-                //Connection to Storage Account
-                CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnString);
-
-                // Create a blob client
-                CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
-
-                // Get a reference to a container
-                CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(formdata.Container);
-
-                // Get a reference to a block blob
-                CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(formdata.Directory + files.FileName);
-
-                // Create or overwrite the blob with the contents of a local file
-                using (var fileStream = files.OpenReadStream())
+                // Connection to Storage Account
+                if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
                 {
-                    await cloudBlockBlob.UploadFromStreamAsync(fileStream);
+
+                    // Create a blob client
+                    CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+
+                    // Get a reference to a container
+                    CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(formdata.Container);
+
+                    // Get a reference to a block blob
+                    CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(formdata.Directory + formdata.Name + formdata.Extension);
+
+                    // Create or overwrite the blob with the contents of a local file
+                    using (var fileStream = formdata.File.OpenReadStream())
+                    {
+                        await cloudBlockBlob.UploadFromStreamAsync(fileStream);
+                    }
+
+                    // Find Foreign Key
+                    ApplicationUser user = await _dbContext.Users.FindAsync(formdata.UserID);
+                    Project project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+
+                    // Return Not Found Status If Null
+                    if (user == null || project == null) return NotFound();
+
+                    // Create BlobFile
+                    var newBlobFile = new BlobFile
+                    {
+                        Container = formdata.Container,
+                        Directory = formdata.Directory,
+                        Name = formdata.Name,
+                        Extension = formdata.Extension,
+                        Size = (int)cloudBlockBlob.Properties.Length,
+                        Uri = cloudBlockBlob.Uri.ToString(),
+                        DateCreated = DateTime.Now,
+                        User = user,
+                        UserID = formdata.UserID,
+                        Project = project,
+                        ProjectID = formdata.ProjectID  
+                    };
+
+                    // Update Database with entry
+                    await _dbContext.BlobFiles.AddAsync(newBlobFile);
+                    await _dbContext.SaveChangesAsync();
+                
+                    // Return Ok Status
+                    return Ok(new
+                    {
+                        file = newBlobFile,
+                        message = "File Successfully Uploaded"
+                    });
                 }
-
-                var newBlobFile = new BlobFile
+                else
                 {
-                    BlobFileID = formdata.BlobFileID,
-                    Container = formdata.Container,
-                    Directory = formdata.Directory,
-                    Name = formdata.Name,
-                    Size = formdata.Size,
-                    
-
-                    Uri = cloudBlockBlob.Uri.ToString()
-                };
-
-                cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(formdata.Directory + files.FileName);
-
-
-                return Ok(new
-                {
-                    container = cloudBlockBlob.Container.Name,
-                    name = Path.GetFileNameWithoutExtension(cloudBlockBlob.Name),
-                    type = cloudBlockBlob.Properties.ContentType,
-                    size = cloudBlockBlob.Properties.Length,
-                    uri = cloudBlockBlob.Uri,
-                    type2 = Path.GetExtension(files.FileName),
-                    test1 = cloudBlockBlob.Properties.Created
-                });
+                    // Return 500 Internal Error If Server Not Found
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Server Connection Error");
+                }
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(e);
-                return BadRequest(new { DownloadError = "Error when trying to download file", exception = e });
+                return BadRequest(new { DownloadError = "Error ", exception = e });
             }
 
         }
 
-        // Delete: api/blobstorage/delete/{containerName}/{directory}
-        [HttpDelete("[action]")]
-        public async Task<IActionResult> Delete(string containerName, string directory)
+        // Delete: api/blobstorage/delete/id?
+        [HttpDelete("[action/{id}]")]
+        [Authorize(Policy = "RequireLoggedIn")]
+        public async Task<IActionResult> Delete([FromRoute]string id)
         {
             try
             {
+                // Connection To Storage Account
                 if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
                 {
-                    //Create a blob client
+
+                    // Find Project
+                    var blobFile = await _dbContext.BlobFiles.FindAsync(id);
+
+                    // Return Not Found Status Code If Not Found
+                    if (blobFile == null) return NotFound();
+
+                    // Create A Blob Client
                     CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
 
-                    //Get reference to container
-                    CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
+                    // Get Reference To Container
+                    CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(blobFile.Container);
 
-                    // get block blob refarence    
-                    CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(directory);
+                    // Get A Reference To A Block Blob  
+                    CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(blobFile.Directory + blobFile.Name + blobFile.Extension);
 
-                    // Delete Blob from container
+                    // Delete Blob From Container
                     await cloudBlockBlob.DeleteIfExistsAsync();
 
+                    // Delete Blob Files From Database
+                    _dbContext.BlobFiles.Remove(blobFile);
+
+                    // Save Change to Database
+                    await _dbContext.SaveChangesAsync();
+
+                    // Return Ok Status
                     return Ok(new
                     {
                         container = cloudBlockBlob.Container,
                         name = cloudBlockBlob.Name,
                         type = cloudBlockBlob.Properties.ContentType,
                         size = cloudBlockBlob.Properties.Length,
-                        uri = cloudBlockBlob.Uri
+                        uri = cloudBlockBlob.Uri,
+                        message = "File Successfully Deleted"
                     });
                 }
                 else
                 {
+                    // Return 500 Internal Error If Server Not Found
                     return StatusCode(StatusCodes.Status500InternalServerError, "Server Connection Error");
                 }
 
             }
             catch (Exception e)
             {
-                return BadRequest(new { DownloadError = "Error when trying to download file", exception = e });
+                return BadRequest(new { DownloadError = "Error ", exception = e });
             }
 
         }
 
-        // Get: api/blobstorage/DownloadFile
-        [HttpGet("action")]
-        public async Task<IActionResult> DownloadFile(string fileName, string containerName)
+        // Get: api/blobstorage/Download
+        [HttpGet("[action/{id}]")]
+        [Authorize(Policy = "RequireLoggedIn")]
+        public async Task<IActionResult> Download([FromRoute] int id)
         {
             try
             {
-                //Connection to Storage Account
-                CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnString);
-
-                //Create a blob client
-                CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
-
-                //Get reference to container
-                CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
-
-                // get block blob refarence    
-                CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(fileName);
-
-                string user = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                string download = Path.Combine(user, "Downloads", fileName);
-
-
-                using (var fileStream = System.IO.File.OpenWrite(download))
+                // Connection To Storage Account
+                if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
                 {
-                    await cloudBlockBlob.DownloadToStreamAsync(fileStream);
-                    return Ok(new
+                    // Find Project
+                    var blobFile = await _dbContext.BlobFiles.FindAsync(id);
+
+                    // Return Not Found Status Code If Not Found
+                    if (blobFile == null) return NotFound();
+
+                    // Create A Blob Client
+                    CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+
+                    // Get Reference To Container
+                    CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(blobFile.Container);
+
+                    // Get A Reference To A Block Blob  
+                    CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(blobFile.Directory + blobFile.Name + blobFile.Extension);
+
+                    // Download File to User Download Folder
+                    string user = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                    string download = Path.Combine(user, "Downloads", blobFile.Name + blobFile.Extension);
+
+                    // Write File to Download
+                    using (var fileStream = System.IO.File.OpenWrite(download))
                     {
-                        container = cloudBlockBlob.Container,
-                        name = cloudBlockBlob.Name,
-                        type = cloudBlockBlob.Properties.ContentType,
-                        size = cloudBlockBlob.Properties.Length,
-                        uri = cloudBlockBlob.Uri
-                    });
+                        // Download From Cloud Block
+                        await cloudBlockBlob.DownloadToStreamAsync(fileStream);
+
+                        // Return Ok Status
+                        return Ok(new
+                        {
+                            container = cloudBlockBlob.Container,
+                            name = cloudBlockBlob.Name,
+                            type = cloudBlockBlob.Properties.ContentType,
+                            size = cloudBlockBlob.Properties.Length,
+                            uri = cloudBlockBlob.Uri,
+                            message = "File Successfully Downloaded"
+                        });
+                    }
+                }
+                else
+                {
+                    // Return 500 Internal Error If Server Not Found
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Server Connection Error");
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(new { DownloadError = "Error when trying to download file", exception = e });
+                return BadRequest(new { DownloadError = "Error ", exception = e });
             }
 
         }
 
-        // Post: api/blobstorage/transferfile
+        // Post: api/blobstorage/move
         [HttpPost("action")]
-        public async Task<IActionResult> Move(string fileName, string containerNameSource, string containerNameTarget)
+        public async Task<IActionResult> Move([FromForm] MoveView formdata)
         {
             try
             {
-                //Connection to Storage Account
-                CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnString);
-
-                //Create a blob client
-                CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
-
-                //Get reference to container
-                CloudBlobContainer cloudBlobContainerSource = cloudBlobClient.GetContainerReference(containerNameSource);
-
-                //Get reference to container
-                CloudBlobContainer cloudBlobContainerTarget = cloudBlobClient.GetContainerReference(containerNameTarget);
-
-
-                CloudBlockBlob cloudBlockBlobSource = cloudBlobContainerSource.GetBlockBlobReference(fileName);
-                CloudBlockBlob cloudBlockBlobTarget = cloudBlobContainerTarget.GetBlockBlobReference(fileName);
-
-                //Copy Source to Target
-                await cloudBlockBlobTarget.StartCopyAsync(cloudBlockBlobSource);
-                
-                // Delete Source
-                await cloudBlockBlobSource.DeleteAsync();
-
-                return Ok(new
+                // Connection To Storage Account
+                if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
                 {
-                    source_container = cloudBlockBlobSource.Container,
-                    target_container = cloudBlockBlobTarget.Container,
-                    name = cloudBlockBlobTarget.Name,
-                    type = cloudBlockBlobTarget.Properties.ContentType,
-                    size = cloudBlockBlobTarget.Properties.Length,
-                    uri = cloudBlockBlobTarget.Uri
-                });
+                    // Find Project
+                    var blobFile = await _dbContext.BlobFiles.FindAsync(formdata.FileID);
+
+                    // Return Not Found Status Code If Not Found
+                    if (blobFile == null) return NotFound();
+
+
+                    // Create A Blob Client
+                    CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+
+                    // Get Reference To Container
+                    CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(blobFile.Container);
+
+                    // Get A Reference To The Source Block Blob  
+                    CloudBlockBlob cloudBlockBlobSource = cloudBlobContainer.GetBlockBlobReference(blobFile.Directory + blobFile.Name + blobFile.Extension);
+
+                    // Get A Reference To The Targeted Block Blob  
+                    CloudBlockBlob cloudBlockBlobTarget = cloudBlobContainer.GetBlockBlobReference(formdata.SubDirectory + blobFile.Name + blobFile.Extension);
+
+                    //Copy Source to Target
+                    await cloudBlockBlobTarget.StartCopyAsync(cloudBlockBlobSource);
+                
+                    // Delete Source
+                    await cloudBlockBlobSource.DeleteAsync();
+
+                    // Return Ok Status
+                    return Ok(new
+                    {
+                        file = cloudBlockBlobTarget.Name,
+                        message = "File Successfully Moved"
+                    });
+
+                }
+                else
+                {
+                    // Return 500 Internal Error If Server Not Found
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Server Connection Error");
+                }
 
             }
             catch (Exception e)
