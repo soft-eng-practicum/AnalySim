@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NeuroSimHub.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200420191601_InitialCreate")]
+    [Migration("20200424063045_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -279,10 +279,11 @@ namespace NeuroSimHub.Migrations
                     b.Property<int>("ProjectID")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Size")
+                    b.Property<int?>("Size")
                         .HasColumnType("integer");
 
                     b.Property<string>("Uri")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("UserID")
@@ -308,27 +309,23 @@ namespace NeuroSimHub.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("Description")
-                        .HasColumnType("integer")
+                    b.Property<string>("Description")
+                        .HasColumnType("character varying(150)")
                         .HasMaxLength(150);
 
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("Name")
-                        .HasColumnType("integer")
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("character varying(20)")
                         .HasMaxLength(20);
-
-                    b.Property<string>("UserID")
-                        .HasColumnType("text");
 
                     b.Property<string>("Visibility")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("ProjectID");
-
-                    b.HasIndex("UserID");
 
                     b.ToTable("Projects");
                 });
@@ -412,13 +409,6 @@ namespace NeuroSimHub.Migrations
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("NeuroSimHub.Models.Project", b =>
-                {
-                    b.HasOne("NeuroSimHub.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID");
                 });
 #pragma warning restore 612, 618
         }

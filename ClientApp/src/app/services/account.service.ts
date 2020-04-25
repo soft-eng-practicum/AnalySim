@@ -63,7 +63,12 @@ export class AccountService {
 
   register (username: string, password: string, emailaddress: string)
   {
-    return this.http.post<any>(this.baseUrlRegister, {username, password, emailaddress}).pipe(
+    let body = new FormData()
+    body.append('emailaddress', emailaddress)
+    body.append('username', username)
+    body.append('password', password)
+
+    return this.http.post<any>(this.baseUrlRegister, body).pipe(
       map(result => {
         return result
       },
@@ -75,7 +80,11 @@ export class AccountService {
 
   login (username: string, password: string)
   {
-    return this.http.post<any>(this.baseUrlLogin, {username, password}).pipe(
+    let body = new FormData()
+    body.append('username', username)
+    body.append('password', password)
+
+    return this.http.post<any>(this.baseUrlLogin, body).pipe(
       map(result => {
         if(result && result.token)
         {

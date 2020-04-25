@@ -21,6 +21,7 @@ import { UploadFilesComponent } from './upload-files/upload-files.component';
 import { FileService } from './services/file.service';
 import { } from '@angular/core';
 import { ProjectPageComponent } from './project-page/project-page.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 
 
@@ -37,7 +38,8 @@ import { ProjectPageComponent } from './project-page/project-page.component';
     QuickstartComponent,
     FavoritesComponent,
     UploadFilesComponent,
-    ProjectPageComponent
+    ProjectPageComponent,
+    SidebarComponent
   ],
   imports: [
     BrowserModule,

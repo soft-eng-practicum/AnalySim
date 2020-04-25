@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace NeuroSimHub.ViewModels
 {
-    public class ProjectView
+    public class ProjectCreateViewModel
     {
         [Required]
-        [Display(Name = "User Name")]
-        public int Name { get; set; }
+        [Display(Name = "Project Name")]
+        public string Name { get; set; }
 
         [Required]
         [Display(Name = "Visibility")]
         public string Visibility { get; set; }
 
         [Display(Name = "Description")]
-        public int Description { get; set; }
+        public string Description { get; set; }
 
         [Required]
         public string UserID { get; set; }     

@@ -48,6 +48,23 @@ namespace NeuroSimHub.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    ProjectID = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(maxLength: 20, nullable: false),
+                    Visibility = table.Column<string>(nullable: false),
+                    Description = table.Column<string>(maxLength: 150, nullable: true),
+                    DateCreated = table.Column<DateTime>(nullable: false),
+                    LastUpdated = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.ProjectID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -154,30 +171,6 @@ namespace NeuroSimHub.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Projects",
-                columns: table => new
-                {
-                    ProjectID = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<int>(maxLength: 20, nullable: false),
-                    Visibility = table.Column<string>(nullable: false),
-                    Description = table.Column<int>(maxLength: 150, nullable: false),
-                    DateCreated = table.Column<DateTime>(nullable: false),
-                    LastUpdated = table.Column<DateTime>(nullable: false),
-                    UserID = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Projects", x => x.ProjectID);
-                    table.ForeignKey(
-                        name: "FK_Projects_AspNetUsers_UserID",
-                        column: x => x.UserID,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ApplicationUserProjects",
                 columns: table => new
                 {
@@ -211,8 +204,8 @@ namespace NeuroSimHub.Migrations
                     Directory = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     Extension = table.Column<string>(nullable: false),
-                    Size = table.Column<int>(nullable: false),
-                    Uri = table.Column<string>(nullable: true),
+                    Size = table.Column<int>(nullable: true),
+                    Uri = table.Column<string>(nullable: false),
                     DateCreated = table.Column<DateTime>(nullable: false),
                     UserID = table.Column<string>(nullable: false),
                     ProjectID = table.Column<int>(nullable: false)
@@ -294,11 +287,6 @@ namespace NeuroSimHub.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_BlobFiles_UserID",
                 table: "BlobFiles",
-                column: "UserID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Projects_UserID",
-                table: "Projects",
                 column: "UserID");
         }
 

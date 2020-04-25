@@ -1,13 +1,41 @@
+<!-- Body Start -->
 <body>
-  <div class ="d-flex flex-column h-100">
-    <div class="flex-column justify-content-center">
+  <!-- Flex Wrapper Start -->
+  <div class ="flex-column h-100">
+    <!-- Flex Header Start -->
+    <div class="flex-row justify-content-center">
       <app-header></app-header>
     </div>
-    <div class="flex-column flex-grow-1 d-flex">
-      <router-outlet></router-outlet>
+    <!-- Flex Header End -->
+
+    <!-- Flex Main Content Start -->
+    <div class="flex-row d-flex">
+
+      <!-- Flex SideBar Start -->
+      <div class="flex-column">
+        <app-sidebar></app-sidebar>
+      </div>
+      <!-- Flex SideBar End -->
+
+      <!-- Flex Content Start -->
+      <div class="flex-row flex-grow-1">
+        <!-- Flex Router Outlet Start -->
+        <div class="flex-column flex-grow-1 d-flex">
+          <router-outlet></router-outlet>
+        </div>
+        <!-- Flex Router Outlet End -->
+
+        <!-- Flex Footer Start -->
+        <div class="flex-column">
+          <app-footer></app-footer>
+        </div>
+        <!-- Flex Footer End -->
+      </div>
+      <!-- Flex Content End -->
+
     </div>
-    <div class="flex-column justify-content-center">
-      <app-footer></app-footer>
-    </div>
-  </div>  
+    <!-- Flex Main Content End -->
+  </div>
+  <!-- Flex Wrapper End -->
 </body>
+<!-- Body End -->

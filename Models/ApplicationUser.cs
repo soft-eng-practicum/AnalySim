@@ -9,7 +9,7 @@ namespace NeuroSimHub.Models
     public class ApplicationUser : IdentityUser
     {
 
-        public ICollection<ApplicationUserProject> ApplicationUserProjects { get; set; }
-        public ICollection<BlobFile> BlobFiles { get; set; }
+        public ICollection<ApplicationUserProject> ApplicationUserProjects { get; } = new List<ApplicationUserProject>();
+        public ICollection<BlobFile> BlobFiles { get; } = new List<BlobFile>();
     }
 }

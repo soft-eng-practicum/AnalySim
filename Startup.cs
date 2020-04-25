@@ -13,6 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using NeuroSimHub.Helpers;
 using System.Text;
 using NeuroSimHub.Models;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NeuroSimHub
 {
@@ -31,7 +33,10 @@ namespace NeuroSimHub
             
             services.AddMvc();
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { AccountService } from '../services/account.service';
 import { NotificationService } from '../services/notification.service';
 import { Observable } from 'rxjs';
+import { SidebarService } from '../services/sidebar.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-header',
@@ -10,18 +12,25 @@ import { Observable } from 'rxjs';
 })
 export class HeaderComponent implements OnInit {
 
-  constructor(private acct : AccountService, public notfi : NotificationService){ }
+  constructor(private acct : AccountService, 
+              public notfi : NotificationService,
+              private sidebar : SidebarService){ }
 
-  loginStatus$ : Observable<boolean>;
-  username$ : Observable<string>;
+  loginStatus$ : Observable<boolean>
+  username$ : Observable<string>
+  sideBarToggle$ : Observable<boolean>
 
   ngOnInit() {
-    this.loginStatus$ = this.acct.isLoggedIn;
-    this.username$ = this.acct.currentUsername;
-    
+    this.loginStatus$ = this.acct.isLoggedIn
+    this.username$ = this.acct.currentUsername
+    this.sideBarToggle$ = this.sidebar.isToggled
+  }
+
+  toggleSideBar() {
+    this.sidebar.toggle()
   }
 
   onLogout(){
-    this.acct.logout();
+    this.acct.logout()
   }
 }

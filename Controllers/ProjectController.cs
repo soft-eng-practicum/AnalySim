@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NeuroSimHub.Data;
 using NeuroSimHub.Models;
+using NeuroSimHub.ViewModels;
 
 namespace NeuroSimHub.Controllers
 {
@@ -23,62 +24,95 @@ namespace NeuroSimHub.Controllers
             this._dbContext = _dbContext;
         }
 
+        // Get: api/Project/GetUser/id
+        [HttpGet("[action]/{id}")]
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public IActionResult GetUser([FromRoute] int id)
+        {
+            return Ok(_dbContext.Projects.Where(p => p.ProjectID == id).SelectMany(x => _dbContext.Users));
+        }
+
+        // Get: api/Project/GetBlobFiles/id
+        [HttpGet("[action]/{id}")]
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public IActionResult GetBlobFiles([FromRoute] int id)
+        {
+            return Ok(_dbContext.Projects.Where(p => p.ProjectID == id).SelectMany(p => p.BlobFiles));
+        }
 
         // POST: api/Project/Create
         [HttpPost("[action]")]
-        [Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> Create([FromForm] Project formdata)
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public async Task<IActionResult> Create([FromForm] ProjectCreateViewModel formdata)
         {
-            var newproject = new Project
+            // Find User
+            var user = await _dbContext.Users.FindAsync(formdata.UserID);
+            if (user == null) return NotFound();
+
+            // Create Project
+            var newProject = new Project
             {
-                
-                ProjectID = formdata.ProjectID,
                 Name = formdata.Name,
                 Visibility = formdata.Visibility,
                 Description = formdata.Description,
-                DateCreated = formdata.DateCreated,
-                LastUpdated = formdata.LastUpdated,
-                User = formdata.User
+                DateCreated = DateTime.Now,
+                LastUpdated = DateTime.Now,
             };
 
-            await _dbContext.AddAsync(newproject);
+            // Add Project and Save Change
+            await _dbContext.Projects.AddAsync(newProject);
             await _dbContext.SaveChangesAsync();
 
-            return Ok(new JsonResult("The Project was successfully added"));
+            // Add Both Reference to Many To Many Table
+            var newUserProject = new ApplicationUserProject
+            {
+                ApplicationUserID = user.Id,
+                ProjectID = newProject.ProjectID
+            };
+
+            // Add Project
+            await _dbContext.AddAsync(newUserProject);
+
+            // Save Changes
+            await _dbContext.SaveChangesAsync();
+
+            // Return Ok Request
+            return Ok(new
+            {
+                id = newProject.ProjectID,
+                name = newProject.Name,
+                username = user.UserName,
+                message = "Project was successfully added"
+            });
         }
 
-        // PUT: api/Project/id?
+        // PUT: api/Project/id
         [HttpPut("[action]/{id}")]
-        [Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Project formdata)
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public async Task<IActionResult> Update([FromRoute] int id, [FromForm] ProjectUpdateViewModel formdata)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            // Check Model State
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
+            // Get Project From Database
             var project = _dbContext.Projects.FirstOrDefault(p => p.ProjectID == id);
 
-            if (project == null)
-            {
-                return NotFound();
-            }
+            // Return Not Found Status If Not Found
+            if (project == null) return NotFound();
 
             // If the product was found
-            project.ProjectID = formdata.ProjectID;
             project.Name = formdata.Name;
             project.Visibility = formdata.Visibility;
             project.Description = formdata.Description;
-            project.DateCreated = formdata.DateCreated;
-            project.LastUpdated = formdata.LastUpdated;
-            project.ApplicationUserProjects = formdata.ApplicationUserProjects;
-            project.BlobFiles = formdata.BlobFiles;
+            project.LastUpdated = DateTime.Now;
 
             // Set Entity State
             _dbContext.Entry(project).State = EntityState.Modified;
 
+            // Save Change
             await _dbContext.SaveChangesAsync();
 
+            // Return Ok Status
             return Ok(new
             {
                 project_id = id,
@@ -88,27 +122,27 @@ namespace NeuroSimHub.Controllers
 
         }
 
-        // DELETE: api/Project/id?
+        // DELETE: api/Project/id
         [HttpDelete("[action]/{id}")]
         [Authorize(Policy = "RequireLoggedIn")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            // Check Model State
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
+            // Find Project
             var project = await _dbContext.Projects.FindAsync(id);
 
-            if (project == null)
-            {
-                return NotFound();
-            }
+            // Return Not Found Status If Not Found
+            if (project == null) return NotFound();
 
+            // Remove Project
             _dbContext.Projects.Remove(project);
 
+            // Save Change
             await _dbContext.SaveChangesAsync();
 
+            // Return Ok Status
             return Ok(new
             {
                 project_id = id,

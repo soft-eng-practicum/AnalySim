@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NeuroSimHub.Data;
 using NeuroSimHub.Helpers;
 using NeuroSimHub.Models;
 
@@ -22,21 +23,50 @@ namespace NeuroSimHub.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signManager;
         private readonly AppSettings _appSettings;
+        private readonly ApplicationDbContext _dbContext;
 
-        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signManager, IOptions<AppSettings> _appSettings) 
+        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signManager, IOptions<AppSettings> _appSettings, ApplicationDbContext _dbContext) 
         {
             this._userManager = _userManager;
             this._signManager = _signManager;
             this._appSettings = _appSettings.Value;
+            this._dbContext = _dbContext;
+        }
+
+        // Get: api/account/getproject/{id}
+        //[Authorize(Policy = "RequireLoggedIn")]
+        [HttpGet("[action]/{id}")]
+        public IActionResult GetProject([FromRoute] string id)
+        {
+            return Ok(_dbContext.Users.Where(u => u.Id == id).SelectMany(c => _dbContext.Projects).Select(x => _dbContext.Projects));
+        }
+
+        // Get: api/account/getuser
+        //[Authorize(Policy = "RequireLoggedIn")]
+        [HttpGet("[action]")]
+        public IActionResult GetUser()
+        {
+            return Ok(_dbContext.Users.ToList());
+        }
+
+        // Get: api/account/getuser/{id}
+        [HttpGet("[action]/{id}")]
+        public async Task<IActionResult> GetUser([FromRoute] string id)
+        {
+            // Find User
+            var user = await _dbContext.Users.FindAsync(id);
+            if (user == null) return NotFound();
+            return Ok(user);
         }
 
         // POST: api/account/register
         [HttpPost("[action]")]
-        public async Task<IActionResult> Register([FromBody] RegisterView formdata) {
+        public async Task<IActionResult> Register([FromForm] UserRegisterViewModel formdata) {
             
-            //Hold Error
+            // Hold Error List
             List<string> errorList = new List<string>();
 
+            // Create User Object
             var user = new ApplicationUser
             {
                 Email = formdata.EmailAddress,
@@ -44,16 +74,26 @@ namespace NeuroSimHub.Controllers
                 SecurityStamp = Guid.NewGuid().ToString()
             };
 
+            // Create User To Database
             var result = await _userManager.CreateAsync(user, formdata.Password);
 
             if (result.Succeeded)
             {
+                // Add Role To User
                 await _userManager.AddToRoleAsync(user, "Customer");
 
-                return Ok(new { username = user.UserName, email = user.Email, status = 1, message = "Registration Successful" });
+                // Return Ok Request
+                return Ok(new 
+                { 
+                    username = user.UserName, 
+                    email = user.Email, 
+                    status = 1, 
+                    message = "Registration Successful"
+                });
             }
             else
             {
+                // Add Error In Creating User TO List
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError("", error.Description);
@@ -61,26 +101,33 @@ namespace NeuroSimHub.Controllers
                 }
             }
 
+            // Return Bad Request Status With ErrorList
             return BadRequest(new JsonResult(errorList));
         }
 
         // POST: api/account/login
         [HttpPost("[action]")]
-        public async Task<IActionResult> Login([FromBody] LoginView formdata) 
+        public async Task<IActionResult> Login([FromForm] UserLoginViewModel formdata) 
         {
-            // Get the User from Database
+            // Get The User
             var user = await _userManager.FindByNameAsync(formdata.Username);
 
+            // Get The User Role
             var roles = await _userManager.GetRolesAsync(user);
 
+            // Generate Key Token
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_appSettings.Secret));
 
-            double tokenExpiryTime = Convert.ToDouble(_appSettings.ExpireTime); 
+            // Generate Expiration Time For Token
+            double tokenExpiryTime = Convert.ToDouble(_appSettings.ExpireTime);
 
+            // Check Login Status
             if (user != null && await _userManager.CheckPasswordAsync(user, formdata.Password))
             {
+                // Create JWT Token Handler
                 var tokenHandler = new JwtSecurityTokenHandler();
 
+                // Create Token Descriptor
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(new Claim[]
@@ -98,18 +145,33 @@ namespace NeuroSimHub.Controllers
                     Expires = DateTime.UtcNow.AddMinutes(tokenExpiryTime)
                 };
 
+                // Create Token
                 var token = tokenHandler.CreateToken(tokenDescriptor);
 
-                return Ok(new {token = tokenHandler.WriteToken(token), expiration = token.ValidTo, username = user.UserName, userRole = roles.FirstOrDefault(), userID = user.Id});
+                // Return OK Request
+                return Ok(new 
+                { 
+                    token = tokenHandler.WriteToken(token), 
+                    expiration = token.ValidTo, 
+                    username = user.UserName, 
+                    userRole = roles.FirstOrDefault(), 
+                    userID = user.Id 
+                });
 
             }
-            
-            ModelState.AddModelError("", "Username/Password was not found");
-            return Unauthorized(new { LoginError = "Please Check the Login Creddentials - Invalid Username/Password was entered" });
-            
+            else
+            {
 
+                ModelState.AddModelError("", "Username/Password was not found");
+
+                // Return Unauthorized Status If Unable To Login
+                return Unauthorized(new 
+                {
+                    LoginError = "Please Check the Login Creddentials - Invalid Username/Password was entered" 
+                });
+            }
         }
 
-
     }
+
 }

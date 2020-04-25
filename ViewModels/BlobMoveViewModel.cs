@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NeuroSimHub.ViewModels
 {
-    public class MoveView
+    public class BlobMoveViewModel
     {
         [Required]
         public int FileID { get; set; }

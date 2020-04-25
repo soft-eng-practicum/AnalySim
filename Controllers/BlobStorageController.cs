@@ -34,8 +34,8 @@ namespace NeuroSimHub.Controllers
 
         // Post: api/blobstorage/upload
         [HttpPost("[action]")]
-        [Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> Upload([FromForm] UploadView formdata)
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public async Task<IActionResult> Upload([FromForm] BlobUploadViewModel formdata)
         {
             try {
                 // Reture Bad Request Status
@@ -78,9 +78,7 @@ namespace NeuroSimHub.Controllers
                         Size = (int)cloudBlockBlob.Properties.Length,
                         Uri = cloudBlockBlob.Uri.ToString(),
                         DateCreated = DateTime.Now,
-                        User = user,
                         UserID = formdata.UserID,
-                        Project = project,
                         ProjectID = formdata.ProjectID  
                     };
 
@@ -109,9 +107,8 @@ namespace NeuroSimHub.Controllers
         }
 
         // Delete: api/blobstorage/delete/id?
-        [HttpDelete("[action/{id}]")]
-        [Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> Delete([FromRoute]string id)
+        [HttpDelete("[action]/{id}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
             {
@@ -169,7 +166,7 @@ namespace NeuroSimHub.Controllers
         }
 
         // Get: api/blobstorage/Download
-        [HttpGet("[action/{id}]")]
+        [HttpGet("[action]/{id}")]
         [Authorize(Policy = "RequireLoggedIn")]
         public async Task<IActionResult> Download([FromRoute] int id)
         {
@@ -230,7 +227,7 @@ namespace NeuroSimHub.Controllers
 
         // Post: api/blobstorage/move
         [HttpPost("action")]
-        public async Task<IActionResult> Move([FromForm] MoveView formdata)
+        public async Task<IActionResult> Move([FromForm] BlobMoveViewModel formdata)
         {
             try
             {
@@ -259,6 +256,7 @@ namespace NeuroSimHub.Controllers
                     //Copy Source to Target
                     await cloudBlockBlobTarget.StartCopyAsync(cloudBlockBlobSource);
                 
+
                     // Delete Source
                     await cloudBlockBlobSource.DeleteAsync();
 

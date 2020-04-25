@@ -1,6 +1,12 @@
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm bg-dark border-bottom text-white">
 
+      <!-- Nav Side Bar Toggle Start -->
+      <button class="btn btn-lg pl-0" (click)="toggleSideBar()">
+        <i class="fa fa-bars fa-lg text-white"></i>
+      </button>
+      <!-- Nav Side Bar Toggle End -->
+
       <!-- Nav Brand Start -->
       <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">NeuroSimHub</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -16,7 +22,7 @@
           <!-- Nav Item List Left Start -->
           <ul class="navbar-nav"> 
             <!-- Nav Dashboard -->
-            <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
+            <li class="nav-item" *ngIf="!(loginStatus$ | async) as loginStatus">
               <a class="nav-link text-white" [routerLink]='["/dashboard"]' routerLinkActive = "border-bottom" >Dashboard</a>
             </li>        
             <!-- Nav Explore -->

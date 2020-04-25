@@ -14,21 +14,26 @@ namespace NeuroSimHub.Models
 
         [Required]
         [MaxLength(20)]
-        public int Name { get; set; }
+        public string Name { get; set; }
 
         [Required]
         public string Visibility { get; set; }
 
         [MaxLength(150)]
-        public int Description { get; set; }
+        public string Description { get; set; }
 
         [Required]
+        [DataType(DataType.DateTime)]
         public DateTime DateCreated { get; set; }
 
         [Required]
+        [DataType(DataType.DateTime)]
         public DateTime LastUpdated { get; set; }
 
-        public ICollection<ApplicationUserProject> ApplicationUserProjects { get; set;}
-        public ICollection<BlobFile> BlobFiles { get; set; }
+        public ICollection<ApplicationUserProject> ApplicationUserProjects { get; } = new List<ApplicationUserProject>();
+        public ICollection<BlobFile> BlobFiles { get; } = new List<BlobFile>();
     }
 }
+
+
+

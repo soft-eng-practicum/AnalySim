@@ -259,7 +259,7 @@ namespace NeuroSimHub.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("DateCreated")
+                    b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Directory")
@@ -274,16 +274,18 @@ namespace NeuroSimHub.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ProjectID")
+                    b.Property<int>("ProjectID")
                         .HasColumnType("integer");
 
                     b.Property<int?>("Size")
                         .HasColumnType("integer");
 
                     b.Property<string>("Uri")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("UserID")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("BlobFileID");
@@ -305,27 +307,23 @@ namespace NeuroSimHub.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("Description")
-                        .HasColumnType("integer")
+                    b.Property<string>("Description")
+                        .HasColumnType("character varying(150)")
                         .HasMaxLength(150);
 
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("Name")
-                        .HasColumnType("integer")
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("character varying(20)")
                         .HasMaxLength(20);
-
-                    b.Property<string>("UserID")
-                        .HasColumnType("text");
 
                     b.Property<string>("Visibility")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("ProjectID");
-
-                    b.HasIndex("UserID");
 
                     b.ToTable("Projects");
                 });
@@ -400,18 +398,15 @@ namespace NeuroSimHub.Migrations
                 {
                     b.HasOne("NeuroSimHub.Models.Project", "Project")
                         .WithMany("BlobFiles")
-                        .HasForeignKey("ProjectID");
+                        .HasForeignKey("ProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("NeuroSimHub.Models.ApplicationUser", "User")
                         .WithMany("BlobFiles")
-                        .HasForeignKey("UserID");
-                });
-
-            modelBuilder.Entity("NeuroSimHub.Models.Project", b =>
-                {
-                    b.HasOne("NeuroSimHub.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID");
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NeuroSimHub.ViewModels
 {
-    public class UploadView
+    public class BlobUploadViewModel
     {
         [Required]
         public IFormFile File { get; set; }
