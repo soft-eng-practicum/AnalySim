@@ -3,8 +3,8 @@ import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
-import { ProjectsComponent } from './projects/projects.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { ProjectsModule } from './projects/projects.module';
 
 const routes: Routes = [];
 
@@ -15,7 +15,8 @@ const routes: Routes = [];
       {path: '', component: HomeComponent, pathMatch: 'full'},  
       {path: "login", component: LoginComponent},
       {path: "register", component: RegisterComponent},
-      {path: "projects", component: ProjectsComponent},
+      
+      {path: 'projects', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule)},
       {path: 'dashboard', component: DashboardComponent},
       {path: '**', redirectTo: '/home'}
     ])],

@@ -11,11 +11,10 @@ export class SidebarService {
   constructor() { }
 
   toggle(){
-    console.log(this.sideBarToggle.value)
     this.sideBarToggle.next(!this.sideBarToggle.value)
   }
 
   get isToggled(){
-    return this.sideBarToggle.asObservable();
+    return this.sideBarToggle;
   }
 }

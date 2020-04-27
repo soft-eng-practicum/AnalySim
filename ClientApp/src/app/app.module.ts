@@ -9,7 +9,6 @@ import { ModalModule } from 'ngx-bootstrap/modal';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
-import { ProjectsComponent } from './projects/projects.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { FooterComponent } from './footer/footer.component';
@@ -29,7 +28,6 @@ import { SidebarComponent } from './sidebar/sidebar.component';
   declarations: [
     AppComponent,
     HomeComponent,
-    ProjectsComponent,
     LoginComponent,
     RegisterComponent,
     FooterComponent,

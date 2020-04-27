@@ -1,27 +1,30 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, FormBuilder, Validators, ValidatorFn, AbstractControl, FormArray } from '@angular/forms';
-import { ProjectService } from '../services/project.service';
-import { FileService } from '../services/file.service';
-import { AccountService } from '../services/account.service';
-
+import { FormGroup, FormControl, FormBuilder, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
+import { ProjectService } from 'src/app/services/project.service';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-projects',
-  templateUrl: './projects.component.html',
-  styleUrls: ['./projects.component.css']
+  selector: 'app-project-create',
+  templateUrl: './project-create.component.html',
+  styleUrls: ['./project-create.component.css']
 })
-export class ProjectsComponent implements OnInit {
+export class ProjectCreateComponent implements OnInit {
+
+  // Form Control - Create Project
+  projectForm: FormGroup;
+  name: FormControl;
+  description: FormControl;
+  visibility: FormControl;
+  
 
   isLoading : boolean;
-  projectForm: FormGroup;
-  projectName: FormControl;
-  description: FormControl;
-  files: FormArray;
+  //files: FormArray;
   key: string;
 
-  constructor(private acct : ProjectService, 
+  constructor(private projectService : ProjectService,
     private formBuilder : FormBuilder,
-    private fileService : FileService
+    private router : Router,
+    //private fileService : FileService
     ) { }
 
 
@@ -29,21 +32,22 @@ export class ProjectsComponent implements OnInit {
     this.isLoading = false;
 
     // Initialize Form Controls
-    this.projectName = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20), this.noSpaceSpecial()]);
+    this.name = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20), this.noSpaceSpecial()]);
     this.description = new FormControl('');
+    this.visibility = new FormControl('');
 
     // Initialize FormGroup using FormBuilder
     this.projectForm = this.formBuilder.group({
-        projectName : this.projectName,
+        name : this.name,
         description : this.description,
-        files : this.formBuilder.array([])
+        visibility : this.visibility
+        //files : this.formBuilder.array([])
     });
 
     // Initialize FormGroup using FormBuilder
-    this.files = <FormArray>this.projectForm.controls['files']
+    //this.files = <FormArray>this.projectForm.controls['files']
     // Key for storing temp file
     this.key = this.makeString();
-    console.log(this.key)
   }
 
   // Custom Validator
@@ -83,6 +87,7 @@ export class ProjectsComponent implements OnInit {
     return outString;
   }
 
+  /*
   public deleteFormControl(formControl : FormControl){
     let formIndex = this.files.controls.findIndex(x => x === formControl)
     this.files.removeAt(formIndex)
@@ -102,20 +107,24 @@ export class ProjectsComponent implements OnInit {
     }
 
   }
+  */
 
   onSubmit() {
-    let userLogin = this.projectForm.value;
+    let projectForm = this.projectForm.value;
+    this.router.navigateByUrl('/projects/testuser/gasdgasdg');
 
     /*
-    this.fileService.upload(userLogin.file).subscribe(
-      result => {
-        console.log(result);
-      },
-      error => {        
-        console.log(error);
+    this.projectService.CreateProject(projectForm).subscribe(
+      result =>{
+        console.log('/projects/' + result.route)
+        
+
+      },error =>{
+        console.log('Error:' + error)
       }
-    );
+    )
     */
+
   }
 
 }

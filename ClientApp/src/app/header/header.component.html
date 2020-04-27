@@ -22,9 +22,13 @@
           <!-- Nav Item List Left Start -->
           <ul class="navbar-nav"> 
             <!-- Nav Dashboard -->
-            <li class="nav-item" *ngIf="!(loginStatus$ | async) as loginStatus">
+            <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
               <a class="nav-link text-white" [routerLink]='["/dashboard"]' routerLinkActive = "border-bottom" >Dashboard</a>
-            </li>        
+            </li>
+            <!-- Nav Dashboard -->
+            <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
+              <a class="nav-link text-white" [routerLink]='["/projects"]' routerLinkActive = "border-bottom" >Project</a>
+            </li>       
             <!-- Nav Explore -->
             <li class="nav-item">
               <a class="nav-link text-white" (click)="notfi.showInfo('Not Implemented Yet','Explore Page');">Explore</a>

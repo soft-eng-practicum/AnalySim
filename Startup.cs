@@ -144,6 +144,11 @@ namespace NeuroSimHub
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}"
                 );
+
+                endpoints.MapControllerRoute(
+                    name: "project",
+                    pattern: "{controller}/{action=Index}/{username?}/{projectname?}"
+                );
             });
 
             app.UseSpa(spa =>

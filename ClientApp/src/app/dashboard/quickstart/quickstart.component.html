@@ -42,12 +42,19 @@
             </div>
             <!-- Nav Tab End -->
 
-            <!-- Nav Content Start -->
+            <!--  
+            <table class="table" *ngIf="files.length > 0">
+                <tr *ngFor="let file of files.controls">
+                    <app-upload-files [file]=file [key]=key (deleteFormControl)="deleteFormControl($event)"></app-upload-files>
+                </tr>
+            </table>
+
+            Nav Content Start
             <div class="nav-tabs-content">
                 <div class="m-3">
                     <ul class="list-unstyled">
-                        <li>
-                            <a href="">Project 1</a>
+                        <li *ngFor="let project of projectList">
+                            <a href="">{{project.name}}</a>
                         </li>
                         <li>
                             <a href="">Project 1</a>
@@ -64,10 +71,10 @@
                             <a href="">Project 1</a>
                         </li>
                     </ul>
-                </div>
-                
+                </div>       
             </div>
-            <!-- Nav Content End -->
+            Nav Content End
+            -->
         </div> 
         <!-- Card Body End -->
     </div>

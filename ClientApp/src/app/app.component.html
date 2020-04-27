@@ -1,41 +1,40 @@
 <!-- Body Start -->
 <body>
   <!-- Flex Wrapper Start -->
-  <div class ="flex-column h-100">
+  <div class =" d-flex flex-column h-100">
     <!-- Flex Header Start -->
-    <div class="flex-row justify-content-center">
+    <div class="">
       <app-header></app-header>
     </div>
     <!-- Flex Header End -->
 
     <!-- Flex Main Content Start -->
-    <div class="flex-row d-flex">
+    <div class="d-flex flex-row h-100">
 
-      <!-- Flex SideBar Start -->
-      <div class="flex-column">
-        <app-sidebar></app-sidebar>
-      </div>
-      <!-- Flex SideBar End -->
-
-      <!-- Flex Content Start -->
-      <div class="flex-row flex-grow-1">
-        <!-- Flex Router Outlet Start -->
-        <div class="flex-column flex-grow-1 d-flex">
-          <router-outlet></router-outlet>
+        <!-- Flex SideBar Start -->
+        <div class="">
+          <app-sidebar></app-sidebar>
         </div>
-        <!-- Flex Router Outlet End -->
+        <!-- Flex SideBar End -->
 
-        <!-- Flex Footer Start -->
-        <div class="flex-column">
-          <app-footer></app-footer>
+        <!-- Flex Content Start -->
+        <div class="d-flex flex-column flex-grow-1">
+          <!-- Flex Router Outlet Start -->
+          <div class="d-flex flex-column flex-grow-1 ">
+            <router-outlet></router-outlet>
+          </div>
+          <!-- Flex Router Outlet End -->
+
+          <!-- Flex Footer Start -->
+          <div class="">
+            <app-footer></app-footer>
+          </div>
+          <!-- Flex Footer End -->
         </div>
-        <!-- Flex Footer End -->
-      </div>
-      <!-- Flex Content End -->
+        <!-- Flex Content End -->
 
+      </div>
     </div>
     <!-- Flex Main Content End -->
-  </div>
-  <!-- Flex Wrapper End -->
 </body>
 <!-- Body End -->

@@ -21,9 +21,10 @@ export class HeaderComponent implements OnInit {
   sideBarToggle$ : Observable<boolean>
 
   ngOnInit() {
-    this.loginStatus$ = this.acct.isLoggedIn
-    this.username$ = this.acct.currentUsername
-    this.sideBarToggle$ = this.sidebar.isToggled
+    this.loginStatus$ = this.acct.isLoggedIn.asObservable()
+    this.username$ = this.acct.currentUsername.asObservable()
+    this.sideBarToggle$ = this.sidebar.isToggled.asObservable()
+
   }
 
   toggleSideBar() {

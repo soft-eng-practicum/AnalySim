@@ -38,7 +38,11 @@ namespace NeuroSimHub.Controllers
         [HttpGet("[action]/{id}")]
         public IActionResult GetProject([FromRoute] string id)
         {
-            return Ok(_dbContext.Users.Where(u => u.Id == id).SelectMany(c => _dbContext.Projects).Select(x => _dbContext.Projects));
+            var query = _dbContext.Users
+                .Where(u => u.Id == id)
+                .SelectMany(c => _dbContext.Projects);
+
+            return Ok(query);
         }
 
         // Get: api/account/getuser
