@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 import { ProjectService } from 'src/app/services/project.service';
 import { Router } from '@angular/router';
+import { Project } from 'src/app/interfaces/project';
 
 @Component({
   selector: 'app-project-create',
@@ -111,20 +112,14 @@ export class ProjectCreateComponent implements OnInit {
 
   onSubmit() {
     let projectForm = this.projectForm.value;
-    this.router.navigateByUrl('/projects/testuser/gasdgasdg');
-
-    /*
+    
     this.projectService.CreateProject(projectForm).subscribe(
       result =>{
-        console.log('/projects/' + result.route)
-        
-
+        this.router.navigateByUrl('/projects/' + result.route);
       },error =>{
-        console.log('Error:' + error)
+        console.log('Error:' + JSON.stringify(error))
       }
     )
-    */
-
   }
 
 }

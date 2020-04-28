@@ -35,11 +35,6 @@ namespace NeuroSimHub.Data
                         .WithMany(aup => aup.ApplicationUserProjects)
                         .HasForeignKey(sc => sc.ProjectID);
 
-            // Unique Endpoint URL
-            modelBuilder.Entity<ApplicationUserProject>()
-                        .HasIndex(aup => aup.Route)
-                        .IsUnique();
-
             // Many To Many Relationship (ApplicationUserProject -> Project)
             modelBuilder.Entity<ApplicationUserProject>()
                         .HasOne<Project>(p => p.Project)

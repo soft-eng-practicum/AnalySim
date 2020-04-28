@@ -1,7 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormControl} from '@angular/forms';
-import { FileService } from '../services/file.service';
-import { AccountService } from '../services/account.service';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { AccountService } from 'src/app/services/account.service';
+import { FileService } from 'src/app/services/file.service';
 
 enum FileStatus {
   Loading = 1, 
@@ -9,12 +9,11 @@ enum FileStatus {
   Error = 3}
 
 @Component({
-  selector: 'app-upload-files',
-  templateUrl: './upload-files.component.html',
-  styleUrls: ['./upload-files.component.css']
+  selector: 'app-project-upload-files',
+  templateUrl: './project-upload-files.component.html',
+  styleUrls: ['./project-upload-files.component.css']
 })
-
-export class UploadFilesComponent implements OnInit {
+export class ProjectUploadFilesComponent implements OnInit {
 
   constructor(private fileService : FileService, private acctService : AccountService) { }
 

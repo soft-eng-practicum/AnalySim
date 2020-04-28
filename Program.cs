@@ -14,7 +14,6 @@ namespace NeuroSimHub
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
-            System.Diagnostics.Debug.WriteLine("Test");
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

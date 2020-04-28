@@ -1,4 +1,23 @@
-body{ 
-    height:100%; 
-    margin:0; 
+#body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.content{
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+}
+
+#footer {
+    display: flex;
 }

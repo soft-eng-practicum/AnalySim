@@ -15,9 +15,9 @@ const routes: Routes = [];
       {path: '', component: HomeComponent, pathMatch: 'full'},  
       {path: "login", component: LoginComponent},
       {path: "register", component: RegisterComponent},
-      
+      {path: 'dashboard', component: DashboardComponent},    
       {path: 'projects', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule)},
-      {path: 'dashboard', component: DashboardComponent},
+      {path: 'errors', loadChildren: () => import('./errors/errors.module').then(m => m.ErrorsModule)},  
       {path: '**', redirectTo: '/home'}
     ])],
   exports: [RouterModule]

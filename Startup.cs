@@ -146,9 +146,15 @@ namespace NeuroSimHub
                 );
 
                 endpoints.MapControllerRoute(
-                    name: "project",
+                    name: "read project",
                     pattern: "{controller}/{action=Index}/{username?}/{projectname?}"
                 );
+
+                endpoints.MapControllerRoute(
+                    name: "delete user role",
+                    pattern: "{controller}/{action=Index}/{projectid?}/{userid?}"
+                );
+
             });
 
             app.UseSpa(spa =>

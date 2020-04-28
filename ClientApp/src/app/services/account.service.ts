@@ -123,22 +123,22 @@ export class AccountService {
 
   get isLoggedIn()
   {
-    return this.loginStatus
+    return this.loginStatus.asObservable()
   }
 
   get currentUsername()
   {
-    return this.username
+    return this.username.asObservable()
   }
 
   get currentUserRole()
   {
-    return this.userRole
+    return this.userRole.asObservable()
   }
 
   get currentUserID()
   {
-    return this.userID
+    return this.userID.asObservable()
   }
 
 }

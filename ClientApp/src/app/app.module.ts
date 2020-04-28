@@ -16,11 +16,10 @@ import { HeaderComponent } from './header/header.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { QuickstartComponent } from './dashboard/quickstart/quickstart.component';
 import { FavoritesComponent } from './dashboard/favorites/favorites.component';
-import { UploadFilesComponent } from './upload-files/upload-files.component';
 import { FileService } from './services/file.service';
 import { } from '@angular/core';
-import { ProjectPageComponent } from './project-page/project-page.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
+import { NotFoundComponent } from './errors/not-found/not-found.component';
 
 
 
@@ -35,9 +34,8 @@ import { SidebarComponent } from './sidebar/sidebar.component';
     DashboardComponent,
     QuickstartComponent,
     FavoritesComponent,
-    UploadFilesComponent,
-    ProjectPageComponent,
-    SidebarComponent
+    SidebarComponent,
+    NotFoundComponent
   ],
   imports: [
     BrowserModule,

@@ -32,6 +32,21 @@ namespace NeuroSimHub.Controllers
             this._dbContext = _dbContext;
         }
 
+        // Get: /api/Project/ReadBlobFiles/id
+        [HttpGet("[action]/{id}")]
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public IActionResult ReadBlobFiles([FromRoute] int id)
+        {
+            // Query File Of Project
+            var query = _dbContext.Projects
+                .Where(p => p.ProjectID == id)
+                .SelectMany(p => p.BlobFiles);
+
+            // Return Ok Status
+            return Ok(query);
+        }
+
+
         // Post: api/blobstorage/upload
         [HttpPost("[action]")]
         //[Authorize(Policy = "RequireLoggedIn")]

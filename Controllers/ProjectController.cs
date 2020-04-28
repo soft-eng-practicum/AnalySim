@@ -24,77 +24,6 @@ namespace NeuroSimHub.Controllers
             this._dbContext = _dbContext;
         }
 
-        // Post: /api/Project/AddUser
-        [HttpPost("[action]")]
-        //[Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> AddUser([FromForm] ProjectUserViewModel formdata)
-        {
-            // Create Many To Many Connection
-            var projectUser = new ApplicationUserProject
-            {
-                ProjectID = formdata.ProjectID,
-                ApplicationUserID = formdata.UserID,
-                UserRole = formdata.UserRole
-            };
-
-            // Add To Database
-            await _dbContext.ApplicationUserProjects.AddAsync(projectUser);
-
-            // Save Change
-            await _dbContext.SaveChangesAsync();
-
-            // Return Ok Status
-            return Ok(projectUser);
-        }
-
-        // Put: /api/Project/UpdateUser
-        [HttpPut("[action]")]
-        //[Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> UpdateUser([FromForm] ProjectUserViewModel formdata)
-        {
-            // Find Many To Many
-            var projectUser = await _dbContext.ApplicationUserProjects.FindAsync(formdata.UserID, formdata.ProjectID);
-
-            // Return Not Found Status If Not Found
-            if (projectUser == null) return NotFound();
-
-            // Update Role
-            projectUser.UserRole = formdata.UserRole;
-
-            // Return Ok Status
-            return Ok(projectUser);
-        }
-
-        // Get: /api/Project/GetUser/id
-        [HttpGet("[action]/{id}")]
-        //[Authorize(Policy = "RequireLoggedIn")]
-        public IActionResult GetUser([FromRoute] int id)
-        {
-            // Query Many To Many using Project ID
-            var query = _dbContext.ApplicationUserProjects
-                .Where(p => p.ProjectID == id)
-                .Include(u => u.ApplicationUser)
-                .Include(p => p.Project)
-                .ToList();
-
-            // Return Ok Status
-            return Ok(query);
-        }
-
-        // Get: /api/Project/GetBlobFiles/id
-        [HttpGet("[action]/{id}")]
-        //[Authorize(Policy = "RequireLoggedIn")]
-        public IActionResult GetBlobFiles([FromRoute] int id)
-        {
-            // Query File Of Project
-            var query = _dbContext.Projects
-                .Where(p => p.ProjectID == id)
-                .SelectMany(p => p.BlobFiles);
-
-            // Return Ok Status
-            return Ok(query);
-        }
-
         // POST: /api/Project/Create
         [HttpPost("[action]")]
         //[Authorize(Policy = "RequireLoggedIn")]
@@ -112,6 +41,7 @@ namespace NeuroSimHub.Controllers
                 Description = formdata.Description,
                 DateCreated = DateTime.Now,
                 LastUpdated = DateTime.Now,
+                Route = formdata.Route
             };
 
             // Add Project and Save Change
@@ -123,8 +53,7 @@ namespace NeuroSimHub.Controllers
             {
                 ApplicationUserID = user.Id,
                 ProjectID = newProject.ProjectID,
-                UserRole = "Owner",
-                Route = user.UserName + "/" + newProject.Name
+                UserRole = "Owner"
             };
 
             // Add Project
@@ -133,28 +62,85 @@ namespace NeuroSimHub.Controllers
             // Save Changes
             await _dbContext.SaveChangesAsync();
 
+            // Organization Project Table
+            var project = _dbContext.Projects
+                .Where(p => p.ApplicationUserProjects.Any(aup => aup.Project.ProjectID == newUserProject.ProjectID))
+                .Select(p => new
+                {
+                    ProjectID = p.ProjectID,
+                    Name = p.Name,
+                    Visibility = p.Visibility,
+                    Description = p.Description,
+                    DateCreated = p.DateCreated,
+                    LastUpdated = p.LastUpdated,
+                    Route = p.Route,
+                    ApplicationUserProjects = p.ApplicationUserProjects.Select(aup => new
+                    {
+                        ApplicationUserID = aup.ApplicationUserID,
+                        UserRole = aup.UserRole
+                    }),
+                    BlobFiles = p.BlobFiles
+                });
+
             // Return Ok Request
             return Ok(new
             {
-                project = newProject,
-                route = newUserProject.Route,
-                message = "Project was successfully added"
+                project = newUserProject,
+                message = "Project Successfully Created"
             });
         }
 
-        // POST: /api/Project/Create
-        [HttpPost("[action]/{owner}/{projectname}")]
+        // Post: /api/Project/CreateUserRole
+        [HttpPost("[action]")]
         //[Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> Read([FromRoute] string owner, [FromRoute] string projectname)
+        public async Task<IActionResult> CreateUserRole([FromForm] ProjectUserViewModel formdata)
         {
-            var user = _dbContext.Users.FirstOrDefault(u => u.UserName == owner);
+            // Create Many To Many Connection
+            var userRole = new ApplicationUserProject
+            {
+                ProjectID = formdata.ProjectID,
+                ApplicationUserID = formdata.UserID,
+                UserRole = formdata.UserRole
+            };
 
-            if (user == null) return NotFound();
+            // Add To Database
+            await _dbContext.ApplicationUserProjects.AddAsync(userRole);
 
-            var project = _dbContext.ApplicationUserProjects
-                .Where(u => u.ApplicationUserID == user.Id)
-                .Select(p => p.Project)
-                .FirstOrDefault(p => p.Name == projectname);
+            // Save Change
+            await _dbContext.SaveChangesAsync();
+
+            // Return Ok Status
+            return Ok(new
+            {
+                user = userRole,
+                message = "Project User Successfully Created"
+            });
+        }
+
+        // Get: /api/Project/read/{id}
+        [HttpGet("[action]/{id}")]
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public IActionResult Read([FromRoute] string id)
+        {
+
+            var project = _dbContext.Projects
+                .Where(p => p.ApplicationUserProjects.Any(aup => aup.ApplicationUser.Id == id))
+                .Select(p => new
+                {
+                    ProjectID = p.ProjectID,
+                    Name = p.Name,
+                    Visibility = p.Visibility,
+                    Description = p.Description,
+                    DateCreated = p.DateCreated,
+                    LastUpdated = p.LastUpdated,
+                    Route = p.Route,
+                    ApplicationUserProjects = p.ApplicationUserProjects.Select(aup => new
+                    {
+                        ApplicationUserID = aup.ApplicationUserID,
+                        UserRole = aup.UserRole
+                    }),
+                    BlobFiles = p.BlobFiles
+                }).ToList();
 
             if (project == null) return NotFound();
 
@@ -162,10 +148,69 @@ namespace NeuroSimHub.Controllers
             return Ok(project);
         }
 
+        // Get: /api/Project/read/{owner}/{projectname}
+        [HttpGet("[action]/{owner}/{projectname}")]
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public IActionResult Read([FromRoute] string owner, [FromRoute] string projectname)
+        {
+
+            var project = _dbContext.Projects
+                .Where(p => p.ApplicationUserProjects.Any(aup => aup.ApplicationUser.UserName == owner && aup.Project.Name == projectname))
+                .Select(p => new 
+                {
+                    ProjectID = p.ProjectID,
+                    Name = p.Name,
+                    Visibility = p.Visibility,
+                    Description = p.Description,
+                    DateCreated = p.DateCreated,
+                    LastUpdated = p.LastUpdated,
+                    Route = p.Route,
+                    ApplicationUserProjects = p.ApplicationUserProjects.Select(aup => new 
+                    { 
+                        ApplicationUserID = aup.ApplicationUserID,
+                        UserRole = aup.UserRole
+                    }),
+                    BlobFiles = p.BlobFiles
+                });
+
+            if (project == null) return NotFound();
+
+            // Return Ok Request
+            return Ok(new
+            {
+                project = project,
+                message = "Recieved Project"
+            });
+        }
+
+        // Get: /api/Project/ReadUserRole/{id}
+        [HttpGet("[action]/{id}")]
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public IActionResult ReadUserRole([FromRoute] int id)
+        {
+
+            var userRole = _dbContext.ApplicationUserProjects
+                .Where(aup => aup.Project.ProjectID == id)
+                .Select(aup => new
+                {
+                    ApplicationUserID = aup.ApplicationUserID,
+                    UserRole = aup.UserRole
+                }).ToList();
+
+            if (userRole == null) return NotFound();
+
+            // Return Ok Status
+            return Ok(new
+            {
+                user = userRole,
+                message = "Recieved User Roles List."
+            });
+        }
+
         // PUT: /api/Project/Update/id
         [HttpPut("[action]/{id}")]
         //[Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromForm] ProjectCreateViewModel formdata)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromForm] ProjectUpdateViewModel formdata)
         {
             // Check Model State
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -191,11 +236,36 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                project_id = id,
-                project = formdata,
+                project = project,
                 message = "Project successfully updated."
             });
 
+        }
+
+        // Put: /api/Project/UpdateUser
+        [HttpPut("[action]")]
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public async Task<IActionResult> UpdateUserRole([FromForm] ProjectUserViewModel formdata)
+        {
+            // Find Many To Many
+            var userRole = await _dbContext.ApplicationUserProjects.FindAsync(formdata.UserID, formdata.ProjectID);
+
+            // Return Not Found Status If Not Found
+            if (userRole == null) return NotFound();
+
+            // Update Role
+            userRole.UserRole = formdata.UserRole;
+
+            _dbContext.Entry(userRole).State = EntityState.Modified;
+
+            await _dbContext.SaveChangesAsync();
+
+            // Return Ok Status
+            return Ok(new
+            {
+                user = userRole,
+                message = "Project successfully updated."
+            });
         }
 
         // DELETE: api/Project/Delete/id
@@ -207,13 +277,13 @@ namespace NeuroSimHub.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             // Find Project
-            var project = await _dbContext.Projects.FindAsync(id);
+            var deleteProject = await _dbContext.Projects.FindAsync(id);
 
             // Return Not Found Status If Not Found
-            if (project == null) return NotFound();
+            if (deleteProject == null) return NotFound();
 
             // Remove Project
-            _dbContext.Projects.Remove(project);
+            _dbContext.Projects.Remove(deleteProject);
 
             // Save Change
             await _dbContext.SaveChangesAsync();
@@ -221,10 +291,35 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                project_id = id,
+                project = deleteProject,
                 message = "Project successfully deleted."
             });
 
+        }
+
+        // Put: /api/Project/DeleteUserRole
+        [HttpDelete("[action]/{projectid}/{userid}")]
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public async Task<IActionResult> DeleteUserRole([FromForm] ProjectUserViewModel formdata)
+        {
+            // Find Many To Many
+            var projectUser = await _dbContext.ApplicationUserProjects.FindAsync(formdata.UserID, formdata.ProjectID);
+
+            // Return Not Found Status If Not Found
+            if (projectUser == null) return NotFound();
+
+            // Remove Project
+            _dbContext.ApplicationUserProjects.Remove(projectUser);
+
+            // Save Change
+            await _dbContext.SaveChangesAsync();
+
+            // Return Ok Status
+            return Ok(new
+            {
+                user = projectUser,
+                message = "User Role successfully deleted."
+            });
         }
 
     }

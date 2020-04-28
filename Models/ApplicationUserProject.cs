@@ -18,7 +18,5 @@ namespace NeuroSimHub.Models
         public Project Project { get; set; }
         
         public string UserRole { get; set; }
-
-        public string Route { get; set; }
     }
 }

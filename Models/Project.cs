@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,6 +30,10 @@ namespace NeuroSimHub.Models
         [Required]
         [DataType(DataType.DateTime)]
         public DateTime LastUpdated { get; set; }
+
+        [Required]
+        [Index(IsUnique = true)]
+        public string Route { get; set; }
 
         public ICollection<ApplicationUserProject> ApplicationUserProjects { get; } = new List<ApplicationUserProject>();
         public ICollection<BlobFile> BlobFiles { get; } = new List<BlobFile>();
