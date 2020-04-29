@@ -20,6 +20,8 @@ import { FileService } from './services/file.service';
 import { } from '@angular/core';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
+import { ProjectListComponent } from './projects/project-list/project-list.component';
+import { ProjectSummaryComponent } from './projects/project-summary/project-summary.component';
 
 
 
@@ -35,7 +37,9 @@ import { NotFoundComponent } from './errors/not-found/not-found.component';
     QuickstartComponent,
     FavoritesComponent,
     SidebarComponent,
-    NotFoundComponent
+    NotFoundComponent,
+    ProjectListComponent,
+    ProjectSummaryComponent
   ],
   imports: [
     BrowserModule,

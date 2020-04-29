@@ -27,19 +27,26 @@ namespace NeuroSimHub.Data
             modelBuilder.Entity<ApplicationUserProject>()
                         .HasOne<ApplicationUser>(au => au.ApplicationUser)
                         .WithMany(aup => aup.ApplicationUserProjects)
-                        .HasForeignKey(sc => sc.ApplicationUserID);
+                        .HasForeignKey(aup => aup.ApplicationUserID);
 
             // Many To Many Relationship (ApplicationUserProject -> Project)
             modelBuilder.Entity<ApplicationUserProject>()
                         .HasOne<Project>(p => p.Project)
                         .WithMany(aup => aup.ApplicationUserProjects)
-                        .HasForeignKey(sc => sc.ProjectID);
+                        .HasForeignKey(aup => aup.ProjectID);
 
-            // Many To Many Relationship (ApplicationUserProject -> Project)
-            modelBuilder.Entity<ApplicationUserProject>()
+
+            // Many To Many Relationship (ProjectTag -> Tag)
+            modelBuilder.Entity<ProjectTag>()
+                        .HasOne<Tag>(t => t.Tag)
+                        .WithMany(pt => pt.ProjectTags)
+                        .HasForeignKey(pt => pt.TagID);
+
+            // Many To Many Relationship (ProjectTag -> Project)
+            modelBuilder.Entity<ProjectTag>()
                         .HasOne<Project>(p => p.Project)
-                        .WithMany(aup => aup.ApplicationUserProjects)
-                        .HasForeignKey(sc => sc.ProjectID);
+                        .WithMany(pt => pt.ProjectTags)
+                        .HasForeignKey(pt => pt.ProjectID);
 
             // One To Many Relationship (User -> Blob)
             modelBuilder.Entity<ApplicationUser>()
@@ -50,6 +57,9 @@ namespace NeuroSimHub.Data
             modelBuilder.Entity<Project>()
                         .HasMany(p => p.BlobFiles)
                         .WithOne(p => p.Project);
+
+            modelBuilder.Entity<ApplicationUserProject>().HasKey(aup => new { aup.ApplicationUserID, aup.ProjectID });
+            modelBuilder.Entity<ProjectTag>().HasKey(pt => new { pt.ProjectID, pt.TagID });
 
             // Create Identity Role
             modelBuilder.Entity<IdentityRole>().HasData(
@@ -62,6 +72,7 @@ namespace NeuroSimHub.Data
         public DbSet<ApplicationUserProject> ApplicationUserProjects { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<BlobFile> BlobFiles { get; set; }
+        public DbSet<ProjectTag> ProjectTags { get; set; }
 
 
     }

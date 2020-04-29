@@ -35,6 +35,7 @@ namespace NeuroSimHub.Models
         [Index(IsUnique = true)]
         public string Route { get; set; }
 
+        public ICollection<ProjectTag> ProjectTags { get; } = new List<ProjectTag>();
         public ICollection<ApplicationUserProject> ApplicationUserProjects { get; } = new List<ApplicationUserProject>();
         public ICollection<BlobFile> BlobFiles { get; } = new List<BlobFile>();
     }
