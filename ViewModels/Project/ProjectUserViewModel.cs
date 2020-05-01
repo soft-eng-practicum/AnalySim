@@ -16,5 +16,8 @@ namespace NeuroSimHub.ViewModels
 
         [Required]
         public string UserRole { get; set; }
+
+        [Required]
+        public bool IsFollowing { get; set; }
     }
 }

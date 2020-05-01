@@ -21,23 +21,20 @@ export class ProjectService {
   // Url to access Web API
   // Post
   private baseUrlCreate : string = "/api/Project/Create";
-  private baseUrlCreateUserRole : string = "/api/Project/AddUser";
+  private baseUrlCreateUserRole : string = "/api/Project/CreateUserRole";
 
   // Get
-  private baseUrlRead : string = "/api/Project/Read/";
-  private baseUrlReadUserRole : string = "/api/Project/ReadUser/";
+  private baseUrlRead : string = "/api/Project/Read";
+  private baseUrlReadID : string = "/api/Project/Read/";
+  private baseUrlReadUserRole : string = "/api/Project/ReadUserRole/";
 
   // Put
   private baseUrlUpdate : string = "/api/Project/Update";
-  private baseUrlUpdateUser : string = "/api/Project/UpdateUser";
+  private baseUrlUpdateUser : string = "/api/Project/UpdateUserRole";
 
   // Delete
   private baseUrlDelete : string = "/api/Project/Delete/";
   private baseUrlDeleteUserRole : string = "/api/Project/DeleteUserRole";
-
-
-  private projectList$: Observable<Project[]>
-  private userProjectList$: Observable<Project[]>
 
   CreateProject (newProject: Project) : Observable<Project>
   {
@@ -67,9 +64,9 @@ export class ProjectService {
   CreateUserRole (userRole : ApplicationUserProject) : Observable<ApplicationUserProject>
   {
     let body = new FormData()
-    body.append('userid', userRole.ApplicationUserID)
-    body.append('projectid', userRole.ProjectID.toString())
-    body.append('userrole', userRole.UserRole)
+    body.append('userid', userRole.applicationUserID)
+    body.append('projectid', userRole.projectID.toString())
+    body.append('userrole', userRole.userRole)
 
     return this.http.post<any>(this.baseUrlCreateUserRole, body).pipe(
       map(result => {
@@ -82,23 +79,39 @@ export class ProjectService {
     );
   }
 
-  ReadProjectList (userID: string) : Observable<Project[]>
+  ReadProjectList () : Observable<Project[]>
   {
-    if (!this.userProjectList$) 
-    {
-        this.userProjectList$ = this.http.get<Project[]>(this.baseUrlRead + userID).pipe(shareReplay());
-    }
+    return this.http.get<any>(this.baseUrlRead).pipe(
+      map(result => {
+        console.log(result.message)
+        console.log(result.project)
+        return result.project
+      },
+      error =>{
+        return error
+      })
+    );
+  }
 
-    // if products cache exists return it
-    return this.userProjectList$;
+  ReadUserProject (userID: string) : Observable<Project[]>
+  {
+    return this.http.get<any>(this.baseUrlReadID + userID).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.project
+      },
+      error =>{
+        return error
+      })
+    );
   }
 
   ReadProject (owner: string, projectname?: string) : Observable<Project>
   {
-    return this.http.get<any>(this.baseUrlRead + owner + "/" + projectname).pipe(
+    return this.http.get<any>(this.baseUrlRead + "/" + owner + "/" + projectname).pipe(
       map(result => {
         console.log(result.message)
-        return result.project[0]
+        return result.project
       },
       error =>{
         return error
@@ -141,14 +154,15 @@ export class ProjectService {
   UpdateUserRole (userRole : ApplicationUserProject) : Observable<ApplicationUserProject>
   {
     let body = new FormData()
-    body.append('userid', userRole.ApplicationUserID)
-    body.append('projectid', userRole.ProjectID.toString())
-    body.append('userrole', userRole.UserRole)
+    body.append('userid', userRole.applicationUserID)
+    body.append('projectid', userRole.projectID.toString())
+    body.append('userrole', userRole.userRole)
+    body.append('isfollowing', JSON.stringify(userRole.isFollowing))
 
     return this.http.put<any>(this.baseUrlUpdateUser, body).pipe(
       map(result => {
         console.log(result.message)
-        return result.user[0]
+        return result.user
       },
       error =>{
         return error

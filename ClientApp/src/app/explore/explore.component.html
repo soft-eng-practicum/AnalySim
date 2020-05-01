@@ -1,0 +1,39 @@
+<div class="container my-5">
+    <div class="row mb-3">
+        <div class="col-md-10">
+            <!-- Nav Search Bar -->
+            <div class="card">
+                <div class="card-body">
+                    <form class="form-control p-0">
+                        <div class="input-group ">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown">Category</button>
+                                <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#">Project</a>
+                                <a class="dropdown-item" href="#">Organization</a>
+                                <a class="dropdown-item" href="#">Profile</a>
+                                </div>
+                            </div>
+                        <input type="text" class="form-control border border-dark" placeholder="Search...">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-dark bg-white">
+                            <i class="fa fa-search"></i>
+                            </button>     
+                        </div>          
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row ">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-body">
+                    <app-explore-project-detail class="mb-3" *ngFor="let project of projects" [project]=project></app-explore-project-detail>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>

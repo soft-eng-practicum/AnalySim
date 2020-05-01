@@ -9,7 +9,7 @@ namespace NeuroSimHub.Models
     public class Tag
     {
         [KeyAttribute]
-        public int ProjectID { get; set; }
+        public int TagID { get; set; }
 
         [Required]
         public string Name { get; set; }

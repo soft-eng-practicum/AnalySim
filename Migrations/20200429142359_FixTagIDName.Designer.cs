@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NeuroSimHub.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -9,9 +10,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NeuroSimHub.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200429142359_FixTagIDName")]
+    partial class FixTagIDName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -241,11 +243,7 @@ namespace NeuroSimHub.Migrations
                     b.Property<int>("ProjectID")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsFollowing")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("UserRole")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("ApplicationUserID", "ProjectID");
@@ -356,7 +354,7 @@ namespace NeuroSimHub.Migrations
 
             modelBuilder.Entity("NeuroSimHub.Models.Tag", b =>
                 {
-                    b.Property<int>("TagID")
+                    b.Property<int>("ProjectID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
@@ -365,7 +363,7 @@ namespace NeuroSimHub.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("TagID");
+                    b.HasKey("ProjectID");
 
                     b.ToTable("Tag");
                 });

@@ -53,7 +53,7 @@ namespace NeuroSimHub.Controllers
             {
                 ApplicationUserID = user.Id,
                 ProjectID = newProject.ProjectID,
-                UserRole = "Owner"
+                UserRole = "owner"
             };
 
             // Add Project
@@ -117,6 +117,28 @@ namespace NeuroSimHub.Controllers
             });
         }
 
+        // Get: /api/Project/read
+        [HttpGet("[action]")]
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public IActionResult Read()
+        {
+
+            var project = _dbContext.Projects
+                .Where(p => p.Visibility == "public")
+                .Include(p => p.ApplicationUserProjects)
+                .Include(p => p.BlobFiles)
+                .ToList();
+
+            if (project == null) return NotFound();
+
+            // Return Ok Request
+            return Ok(new
+            {
+                project = project,
+                message = "Recieved Project"
+            });
+        }
+
         // Get: /api/Project/read/{id}
         [HttpGet("[action]/{id}")]
         //[Authorize(Policy = "RequireLoggedIn")]
@@ -125,27 +147,18 @@ namespace NeuroSimHub.Controllers
 
             var project = _dbContext.Projects
                 .Where(p => p.ApplicationUserProjects.Any(aup => aup.ApplicationUser.Id == id))
-                .Select(p => new
-                {
-                    ProjectID = p.ProjectID,
-                    Name = p.Name,
-                    Visibility = p.Visibility,
-                    Description = p.Description,
-                    DateCreated = p.DateCreated,
-                    LastUpdated = p.LastUpdated,
-                    Route = p.Route,
-                    ApplicationUserProjects = p.ApplicationUserProjects.Select(aup => new
-                    {
-                        ApplicationUserID = aup.ApplicationUserID,
-                        UserRole = aup.UserRole
-                    }),
-                    BlobFiles = p.BlobFiles
-                }).ToList();
+                .Include(p => p.ApplicationUserProjects)
+                .Include(p => p.BlobFiles)
+                .ToList();
 
             if (project == null) return NotFound();
 
             // Return Ok Request
-            return Ok(project);
+            return Ok(new
+            {
+                project = project,
+                message = "Recieved Project"
+            });
         }
 
         // Get: /api/Project/read/{owner}/{projectname}
@@ -156,22 +169,9 @@ namespace NeuroSimHub.Controllers
 
             var project = _dbContext.Projects
                 .Where(p => p.ApplicationUserProjects.Any(aup => aup.ApplicationUser.UserName == owner && aup.Project.Name == projectname))
-                .Select(p => new 
-                {
-                    ProjectID = p.ProjectID,
-                    Name = p.Name,
-                    Visibility = p.Visibility,
-                    Description = p.Description,
-                    DateCreated = p.DateCreated,
-                    LastUpdated = p.LastUpdated,
-                    Route = p.Route,
-                    ApplicationUserProjects = p.ApplicationUserProjects.Select(aup => new 
-                    { 
-                        ApplicationUserID = aup.ApplicationUserID,
-                        UserRole = aup.UserRole
-                    }),
-                    BlobFiles = p.BlobFiles
-                });
+                .Include(p => p.ApplicationUserProjects)
+                .Include(p => p.BlobFiles)
+                .FirstOrDefault<Project>();
 
             if (project == null) return NotFound();
 
@@ -253,8 +253,27 @@ namespace NeuroSimHub.Controllers
             // Return Not Found Status If Not Found
             if (userRole == null) return NotFound();
 
+
+            //Remove Follower If Not Following
+            if (formdata.UserRole == "follower" && formdata.IsFollowing == false)
+            {
+                // Remove User Role
+                _dbContext.ApplicationUserProjects.Remove(userRole);
+
+                // Save Change
+                await _dbContext.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    user = userRole,
+                    message = "Follower successfully deleted"
+                });
+            }
+            
+
             // Update Role
             userRole.UserRole = formdata.UserRole;
+            userRole.IsFollowing = formdata.IsFollowing;
 
             _dbContext.Entry(userRole).State = EntityState.Modified;
 
@@ -308,7 +327,7 @@ namespace NeuroSimHub.Controllers
             // Return Not Found Status If Not Found
             if (projectUser == null) return NotFound();
 
-            // Remove Project
+            // Remove User Role
             _dbContext.ApplicationUserProjects.Remove(projectUser);
 
             // Save Change

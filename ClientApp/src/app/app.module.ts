@@ -17,11 +17,11 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { QuickstartComponent } from './dashboard/quickstart/quickstart.component';
 import { FavoritesComponent } from './dashboard/favorites/favorites.component';
 import { FileService } from './services/file.service';
-import { } from '@angular/core';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
-import { ProjectListComponent } from './projects/project-list/project-list.component';
-import { ProjectSummaryComponent } from './projects/project-summary/project-summary.component';
+import { ExploreComponent } from './explore/explore.component';
+import { ExploreProjectDetailComponent } from './explore/explore-project-detail/explore-project-detail.component';
+import { ExploreProjectListComponent } from './explore/explore-project-list/explore-project-list.component';
 
 
 
@@ -38,8 +38,9 @@ import { ProjectSummaryComponent } from './projects/project-summary/project-summ
     FavoritesComponent,
     SidebarComponent,
     NotFoundComponent,
-    ProjectListComponent,
-    ProjectSummaryComponent
+    ExploreComponent,
+    ExploreProjectDetailComponent,
+    ExploreProjectListComponent
   ],
   imports: [
     BrowserModule,

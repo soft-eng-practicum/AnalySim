@@ -1,5 +1,6 @@
 export interface ApplicationUserProject {
-    ProjectID: number;
-    ApplicationUserID: string;
-    UserRole: string;
+    projectID?: number;
+    applicationUserID: string;
+    userRole: string;
+    isFollowing: boolean;
 }

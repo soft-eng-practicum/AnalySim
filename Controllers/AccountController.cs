@@ -36,7 +36,7 @@ namespace NeuroSimHub.Controllers
         // Get: api/account/getproject/{id}
         //[Authorize(Policy = "RequireLoggedIn")]
         [HttpGet("[action]/{id}")]
-        public IActionResult GetProject([FromRoute] string id)
+        public IActionResult ReadProject([FromRoute] string id)
         {
             var query = _dbContext.Users
                 .Where(u => u.Id == id)
@@ -48,14 +48,14 @@ namespace NeuroSimHub.Controllers
         // Get: api/account/getuser
         //[Authorize(Policy = "RequireLoggedIn")]
         [HttpGet("[action]")]
-        public IActionResult GetUser()
+        public IActionResult Read()
         {
             return Ok(_dbContext.Users.ToList());
         }
 
         // Get: api/account/getuser/{id}
         [HttpGet("[action]/{id}")]
-        public async Task<IActionResult> GetUser([FromRoute] string id)
+        public async Task<IActionResult> Read([FromRoute] string id)
         {
             // Find User
             var user = await _dbContext.Users.FindAsync(id);

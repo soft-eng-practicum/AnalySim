@@ -17,6 +17,10 @@ namespace NeuroSimHub.Models
         public int ProjectID { get; set; }
         public Project Project { get; set; }
         
+        [Required]
         public string UserRole { get; set; }
+
+        [Required]
+        public bool IsFollowing { get; set; }
     }
 }
