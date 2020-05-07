@@ -20,7 +20,7 @@ namespace NeuroSimHub.Models
         [Required]
         public string Visibility { get; set; }
 
-        [MaxLength(150)]
+        [MaxLength(500)]
         public string Description { get; set; }
 
         [Required]

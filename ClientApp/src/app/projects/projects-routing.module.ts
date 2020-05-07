@@ -7,6 +7,7 @@ import { ProjectHomeComponent } from './project-home/project-home.component';
 const routes: Routes = [
     {path: '', component: ProjectCreateComponent},
     {path: 'create', component : ProjectCreateComponent},
+    {path: 'create2', component : ProjectHomeComponent},
     {path: ':owner/:projectname', component : ProjectHomeComponent},
     {path: ':owner/:projectname/files', component : ProjectHomeComponent},
     {path: ':owner/:projectname/files/**', component : ProjectHomeComponent},

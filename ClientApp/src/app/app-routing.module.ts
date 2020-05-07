@@ -5,6 +5,7 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ExploreComponent } from './explore/explore.component';
+import { FileExplorerComponent } from './file-explorer/file-explorer.component';
 
 const routes: Routes = [];
 
@@ -14,6 +15,7 @@ const routes: Routes = [];
       {path: 'home', component: HomeComponent},
       {path: '', component: HomeComponent, pathMatch: 'full'},  
       {path: "login", component: LoginComponent},
+      {path: "file", component: FileExplorerComponent},
       {path: "register", component: RegisterComponent},
       {path: "explore", component: ExploreComponent},
       {path: 'dashboard', component: DashboardComponent},

@@ -35,7 +35,6 @@ namespace NeuroSimHub.Data
                         .WithMany(aup => aup.ApplicationUserProjects)
                         .HasForeignKey(aup => aup.ProjectID);
 
-
             // Many To Many Relationship (ProjectTag -> Tag)
             modelBuilder.Entity<ProjectTag>()
                         .HasOne<Tag>(t => t.Tag)
@@ -71,6 +70,7 @@ namespace NeuroSimHub.Data
 
         public DbSet<ApplicationUserProject> ApplicationUserProjects { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<Tag> Tag { get; set; }
         public DbSet<BlobFile> BlobFiles { get; set; }
         public DbSet<ProjectTag> ProjectTags { get; set; }
 

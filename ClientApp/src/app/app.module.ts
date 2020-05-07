@@ -22,6 +22,8 @@ import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ExploreComponent } from './explore/explore.component';
 import { ExploreProjectDetailComponent } from './explore/explore-project-detail/explore-project-detail.component';
 import { ExploreProjectListComponent } from './explore/explore-project-list/explore-project-list.component';
+import { FileExplorerComponent } from './file-explorer/file-explorer.component';
+import { timeElapsedPipe, RoleFilterPipe, RoutePipe } from './explore/explore-project-detail/explore-project-filter.pipe';
 
 
 
@@ -40,7 +42,11 @@ import { ExploreProjectListComponent } from './explore/explore-project-list/expl
     NotFoundComponent,
     ExploreComponent,
     ExploreProjectDetailComponent,
-    ExploreProjectListComponent
+    ExploreProjectListComponent,
+    FileExplorerComponent,
+    RoleFilterPipe,
+    timeElapsedPipe,
+    RoutePipe
   ],
   imports: [
     BrowserModule,

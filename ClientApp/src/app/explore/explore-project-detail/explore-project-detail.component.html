@@ -3,12 +3,12 @@
     <!-- Card Header Start -->
     <div class="d-flex card-header flex-row align-items-center">
         <!-- Project Route Link Start -->
-        <span class="h5 card-link mb-0">
-            <a [routerLink]='["/profile/" + owner]'>{{owner}}</a>
+        <span class="h5 card-link mb-0" *ngIf="(project.route | route:'owner') as owner">
+            <a [routerLink]='["/profile/" + owner]'>{{project.route | route:"owner"}}</a>
         </span>
         <span class="h4 mb-0 mx-1">  /  </span>
-        <span class="h5 card-link mb-0" >
-            <a [routerLink]='["/projects/" + project.route]'>{{projectname}}</a>
+        <span class="h5 card-link mb-0" *ngIf="(project.route | route:'projectname') as projectname">
+            <a [routerLink]='["/projects/" + projectname]'>{{ projectname }}</a>
         </span>
         <!-- Project Route Link End -->
 
@@ -17,7 +17,7 @@
             <button class="btn btn-primary float-right" type="button" *ngIf="!isFollowing" (click)="followProject()">
                 Follow
                 <span class="badge badge-light font-weight-light ml-1">
-                    {{followers}}
+                    {{ project | role:"follower" }}
                 </span>
             </button>
 
@@ -50,8 +50,8 @@
 
     <!-- Card Footer Start -->
     <div class="card-footer">
-        <span><i class="fa fa-user mr-2"></i>{{members}}</span>  
-        <span class="float-right">Last Updated {{lastUpdate}} Ago</span>
+        <span><i class="fa fa-user mr-2"></i>{{ project | role:"member" }}</span>  
+        <span class="float-right">Last Updated {{ project.lastUpdated | timeElapsed}} Ago</span>
     </div>
     <!-- Card Footer End -->
 </div>

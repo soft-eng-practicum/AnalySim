@@ -26,6 +26,7 @@ export class ProjectHomeComponent implements OnInit {
     console.log(owner)
     console.log(projectname)
 
+    /*
     this.projectService.ReadProject(owner, projectname).subscribe(
       result =>{
         this.projectData = result;
@@ -35,6 +36,7 @@ export class ProjectHomeComponent implements OnInit {
         
       }
     )
+    */
 
     
   }

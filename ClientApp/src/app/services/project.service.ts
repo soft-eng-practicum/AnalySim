@@ -27,6 +27,7 @@ export class ProjectService {
   private baseUrlRead : string = "/api/Project/Read";
   private baseUrlReadID : string = "/api/Project/Read/";
   private baseUrlReadUserRole : string = "/api/Project/ReadUserRole/";
+  private baseUrlSearch : string = "/api/Project/Search/";
 
   // Put
   private baseUrlUpdate : string = "/api/Project/Update";
@@ -126,6 +127,19 @@ export class ProjectService {
       map(result => {
         console.log(result.message)
         return result.user
+      },
+      error =>{
+        return error
+      })
+    );
+  }
+
+  Search (searchTerm: string) : Observable<Project[]>
+  {
+    return this.http.get<any>(this.baseUrlSearch + searchTerm).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.project
       },
       error =>{
         return error
