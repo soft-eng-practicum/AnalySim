@@ -5,8 +5,8 @@ import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { Project } from '../interfaces/project';
 import { AccountService } from './account.service';
-import { ApplicationUserProject } from '../interfaces/application-user-project';
 import { flatMap, shareReplay } from 'rxjs/operators';
+import { ProjectUser } from '../interfaces/project-user';
 
 @Injectable({
   providedIn: 'root'
@@ -62,10 +62,10 @@ export class ProjectService {
     );
   }
 
-  CreateUserRole (userRole : ApplicationUserProject) : Observable<ApplicationUserProject>
+  CreateUserRole (userRole : ProjectUser) : Observable<ProjectUser>
   {
     let body = new FormData()
-    body.append('userid', userRole.applicationUserID)
+    body.append('userid', userRole.userID.toString())
     body.append('projectid', userRole.projectID.toString())
     body.append('userrole', userRole.userRole)
 
@@ -120,7 +120,7 @@ export class ProjectService {
     );
   }
 
-  ReadUserRole (projectID: string) : Observable<ApplicationUserProject[]>
+  ReadUserRole (projectID: string) : Observable<ProjectUser[]>
   {
 
     return this.http.get<any>(this.baseUrlReadUserRole + projectID).pipe(
@@ -165,10 +165,10 @@ export class ProjectService {
     );
   }
 
-  UpdateUserRole (userRole : ApplicationUserProject) : Observable<ApplicationUserProject>
+  UpdateUserRole (userRole : ProjectUser) : Observable<ProjectUser>
   {
     let body = new FormData()
-    body.append('userid', userRole.applicationUserID)
+    body.append('userid', userRole.userID.toString())
     body.append('projectid', userRole.projectID.toString())
     body.append('userrole', userRole.userRole)
     body.append('isfollowing', JSON.stringify(userRole.isFollowing))
@@ -198,7 +198,7 @@ export class ProjectService {
     );
   }
 
-  DeleteUserRole (projectID: string, userID : string) : Observable<ApplicationUserProject>
+  DeleteUserRole (projectID: string, userID : string) : Observable<ProjectUser>
   {
 
     return this.http.delete<any>(this.baseUrlDeleteUserRole + projectID + '/' + userID).pipe(

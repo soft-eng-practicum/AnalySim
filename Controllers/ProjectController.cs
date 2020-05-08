@@ -38,8 +38,8 @@ namespace NeuroSimHub.Controllers
 
             // Check If Project Already Exist
             var project = _dbContext.Projects
-                .FirstOrDefault(p => p.ApplicationUserProjects.Any(aup => 
-                    aup.ApplicationUser.Id == formdata.UserID &&
+                .FirstOrDefault(p => p.ProjectUsers.Any(aup => 
+                    aup.User.Id == formdata.UserID &&
                     aup.Project.Name == formdata.Name &&
                     aup.UserRole == "owner"));
 
@@ -61,17 +61,17 @@ namespace NeuroSimHub.Controllers
             await _dbContext.Projects.AddAsync(newProject);
             await _dbContext.SaveChangesAsync();
 
-            // Create UserProject
-            var newUserProject = new ApplicationUserProject
+            // Create ProjectUser
+            var newProjectUser = new ProjectUser
             {
-                ApplicationUserID = user.Id,
+                UserID = user.Id,
                 ProjectID = newProject.ProjectID,
                 UserRole = "owner",
                 IsFollowing = true
             };
 
-            // Add UserProject
-            await _dbContext.AddAsync(newUserProject);
+            // Add ProjectUser
+            await _dbContext.AddAsync(newProjectUser);
 
             // Save Changes
             await _dbContext.SaveChangesAsync();
@@ -117,7 +117,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Request
             return Ok(new
             {
-                project = newUserProject,
+                project = newProjectUser,
                 message = "Project Successfully Created"
             });
         }
@@ -128,15 +128,15 @@ namespace NeuroSimHub.Controllers
         public async Task<IActionResult> CreateUserRole([FromForm] ProjectUserViewModel formdata)
         {
             // Create Many To Many Connection
-            var userRole = new ApplicationUserProject
+            var userRole = new ProjectUser
             {
                 ProjectID = formdata.ProjectID,
-                ApplicationUserID = formdata.UserID,
+                UserID = formdata.UserID,
                 UserRole = formdata.UserRole
             };
 
             // Add To Database
-            await _dbContext.ApplicationUserProjects.AddAsync(userRole);
+            await _dbContext.ProjectUsers.AddAsync(userRole);
 
             // Save Change
             await _dbContext.SaveChangesAsync();
@@ -157,7 +157,7 @@ namespace NeuroSimHub.Controllers
 
             var project = _dbContext.Projects
                 .Where(p => p.Visibility == "public")
-                .Include(p => p.ApplicationUserProjects)
+                .Include(p => p.ProjectUsers)
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                 .ToList();
@@ -175,12 +175,12 @@ namespace NeuroSimHub.Controllers
         // Get: /api/Project/read/{id}
         [HttpGet("[action]/{id}")]
         //[Authorize(Policy = "RequireLoggedIn")]
-        public IActionResult Read([FromRoute] string id)
+        public IActionResult Read([FromRoute] int id)
         {
 
             var project = _dbContext.Projects
-                .Where(p => p.ApplicationUserProjects.Any(aup => aup.ApplicationUser.Id == id))
-                .Include(p => p.ApplicationUserProjects)
+                .Where(p => p.ProjectUsers.Any(aup => aup.User.Id == id))
+                .Include(p => p.ProjectUsers)
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                 .ToList();
@@ -202,8 +202,8 @@ namespace NeuroSimHub.Controllers
         {
 
             var project = _dbContext.Projects
-                .Where(p => p.ApplicationUserProjects.Any(aup => aup.ApplicationUser.UserName == owner && aup.Project.Name == projectname))
-                .Include(p => p.ApplicationUserProjects)
+                .Where(p => p.ProjectUsers.Any(aup => aup.User.UserName == owner && aup.Project.Name == projectname))
+                .Include(p => p.ProjectUsers)
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                 .FirstOrDefault<Project>();
@@ -224,11 +224,11 @@ namespace NeuroSimHub.Controllers
         public IActionResult ReadUserRole([FromRoute] int id)
         {
 
-            var userRole = _dbContext.ApplicationUserProjects
+            var userRole = _dbContext.ProjectUsers
                 .Where(aup => aup.Project.ProjectID == id)
                 .Select(aup => new
                 {
-                    ApplicationUserID = aup.ApplicationUserID,
+                    UserID = aup.UserID,
                     UserRole = aup.UserRole
                 }).ToList();
 
@@ -268,7 +268,7 @@ namespace NeuroSimHub.Controllers
             // Find Project That Have The Matched Tag
             var projects = _dbContext.Projects
                 .Where(p => p.ProjectTags.Any(pt => matchedTag.Contains(pt.Tag.TagID)))
-                .Include(p => p.ApplicationUserProjects)
+                .Include(p => p.ProjectUsers)
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag);
 
@@ -321,7 +321,7 @@ namespace NeuroSimHub.Controllers
         public async Task<IActionResult> UpdateUserRole([FromForm] ProjectUserViewModel formdata)
         {
             // Find Many To Many
-            var userRole = await _dbContext.ApplicationUserProjects.FindAsync(formdata.UserID, formdata.ProjectID);
+            var userRole = await _dbContext.ProjectUsers.FindAsync(formdata.UserID, formdata.ProjectID);
 
             // Return Not Found Status If Not Found
             if (userRole == null) return NotFound();
@@ -331,7 +331,7 @@ namespace NeuroSimHub.Controllers
             if (formdata.UserRole == "follower" && formdata.IsFollowing == false)
             {
                 // Remove User Role
-                _dbContext.ApplicationUserProjects.Remove(userRole);
+                _dbContext.ProjectUsers.Remove(userRole);
 
                 // Save Change
                 await _dbContext.SaveChangesAsync();
@@ -395,13 +395,13 @@ namespace NeuroSimHub.Controllers
         public async Task<IActionResult> DeleteUserRole([FromForm] ProjectUserViewModel formdata)
         {
             // Find Many To Many
-            var projectUser = await _dbContext.ApplicationUserProjects.FindAsync(formdata.UserID, formdata.ProjectID);
+            var projectUser = await _dbContext.ProjectUsers.FindAsync(formdata.UserID, formdata.ProjectID);
 
             // Return Not Found Status If Not Found
             if (projectUser == null) return NotFound();
 
             // Remove User Role
-            _dbContext.ApplicationUserProjects.Remove(projectUser);
+            _dbContext.ProjectUsers.Remove(projectUser);
 
             // Save Change
             await _dbContext.SaveChangesAsync();

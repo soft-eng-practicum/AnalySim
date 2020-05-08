@@ -1,0 +1,33 @@
+<!-- Card Start -->
+<div class="card mb-4" style="min-height: 100px;">
+    <div class="row">
+        <div class="col-md-3 d-flex align-items-center">
+            <img src="assets/img/default-profile.png" class="card-img rounded-circle pl-1" alt="">
+        </div>
+        <div class="col-md-9 pl-0">       
+            <!-- Card Body Start -->
+            <div class="card-body pl-0">
+                <div class="d-flex flex-row align-items-center mb-2">
+                    <span class="h5 card-link mb-0">
+                        <a [routerLink]='["/profile/"]'>{{user.userName}}</a>
+                    </span>
+                    
+                    <!-- Follow Project Start -->
+                    <div class="d-inline-flex ml-auto">
+                        <button class="btn btn-primary float-right" type="button">
+                            Follow
+                            <span class="badge badge-light font-weight-light ml-1">
+                                0
+                            </span>
+                        </button>
+                    </div> 
+                </div>    
+                <p class="card-text">
+                    {{user.bio}}
+                </p>
+            </div>
+            <!-- Card Body End -->
+        </div>
+    </div>
+</div>
+<!-- Card End -->

@@ -37,7 +37,7 @@ namespace NeuroSimHub.Models
         //Foreign Key To User
         [Required]
         public ApplicationUser User { get; set; }
-        public string UserID { get; set; }
+        public int UserID { get; set; }
 
         //Foreign Key to Project
         [Required]

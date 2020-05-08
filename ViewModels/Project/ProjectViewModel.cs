@@ -21,6 +21,6 @@ namespace NeuroSimHub.ViewModels
         public string Description { get; set; }
 
         [Required]
-        public string UserID { get; set; }
+        public int UserID { get; set; }
     }
 }

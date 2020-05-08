@@ -25,11 +25,11 @@ export class RoleFilterPipe implements PipeTransform {
     transform(project: Project, type: string): number {
         switch(type){
             case "follower":
-                return project.applicationUserProjects.filter(x => 
+                return project.projectUsers.filter(x => 
                     x.isFollowing == true
                   ).length
             case "member":
-                return project.applicationUserProjects.filter(x => 
+                return project.projectUsers.filter(x => 
                     x.userRole == 'owner' || 
                     x.userRole == 'admin' || 
                     x.userRole == 'member'

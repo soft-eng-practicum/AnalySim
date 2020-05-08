@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
+import { ApplicationUser } from '../interfaces/user';
 
 @Injectable({
   providedIn: 'root'
@@ -15,51 +16,13 @@ export class AccountService {
   // Url to access Web API
   private baseUrlLogin : string = "/api/account/login"
   private baseUrlRegister : string = "/api/account/register"
+  private baseUrlRead : string = "/api/account/read"
 
   //User properties
   private loginStatus = new BehaviorSubject<boolean>(this.checkLoginStatus())
   private username = new BehaviorSubject<string>(localStorage.getItem('username'))
   private userRole = new BehaviorSubject<string>(localStorage.getItem('userRole'))
-  private userID = new BehaviorSubject<string>(localStorage.getItem('userID'))
-
-
-  checkLoginStatus(): boolean {
-    var loginCookie = localStorage.getItem('loginStatus');
-    if(loginCookie == "1")
-    {
-      if(localStorage.getItem('jwt') === null || localStorage.getItem('jwt') === undefined) 
-      {
-          return false;
-      }
-
-      // Get and Decode the Token
-      const token = localStorage.getItem('jwt');
-      
-      const decoded = jwt_decode(token)
-
-      // Check if the cookie is valid
-      if(decoded.exp === undefined) 
-      {
-          return false;
-      }
-      
-
-      // Get Current Time
-      const date = new Date(0)
-
-      // Convert Expiration to UTC
-      let tokenExpDate = date.setUTCSeconds(decoded.exp)
-
-      // Compare Expiration time with current time
-      if(tokenExpDate.valueOf() > new Date().valueOf()) 
-      {
-        return true;
-      }
-
-      return false;
-    }
-    return false;
-  }
+  private userID = new BehaviorSubject<number>(parseInt(localStorage.getItem('userID')))
 
   register (username: string, password: string, emailaddress: string)
   {
@@ -97,11 +60,62 @@ export class AccountService {
           localStorage.setItem('userID', result.userID)
           this.username.next(localStorage.getItem('username'))
           this.userRole.next(localStorage.getItem('userRole'))
-          this.userID.next(localStorage.getItem('userID'))
+          this.userID.next(parseInt(localStorage.getItem('userID')))
         }
         return result
       })
     );
+  }
+
+  ReadUserList () : Observable<ApplicationUser[]>
+  {
+    return this.http.get<any>(this.baseUrlRead).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.user
+      },
+      error =>{
+        return error
+      })
+    );
+  }
+
+  checkLoginStatus(): boolean {
+    var loginCookie = localStorage.getItem('loginStatus');
+    if(loginCookie == "1")
+    {
+      if(localStorage.getItem('jwt') === null || localStorage.getItem('jwt') === undefined) 
+      {
+          return false;
+      }
+
+      // Get and Decode the Token
+      const token = localStorage.getItem('jwt');
+      
+      const decoded = jwt_decode(token)
+
+      // Check if the cookie is valid
+      if(decoded.exp === undefined) 
+      {
+          return false;
+      }
+      
+
+      // Get Current Time
+      const date = new Date(0)
+
+      // Convert Expiration to UTC
+      let tokenExpDate = date.setUTCSeconds(decoded.exp)
+
+      // Compare Expiration time with current time
+      if(tokenExpDate.valueOf() > new Date().valueOf()) 
+      {
+        return true;
+      }
+
+      return false;
+    }
+    return false;
   }
 
   logout()

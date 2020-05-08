@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace NeuroSimHub.Models
 {
-    public class ApplicationUserProject
+    public class ProjectUser
     {
         [Key, Column(Order = 1)]
-        public string ApplicationUserID { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
+        public int UserID { get; set; }
+        public ApplicationUser User { get; set; }
 
         [Key, Column(Order = 2)]
         public int ProjectID { get; set; }

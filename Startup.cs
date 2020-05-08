@@ -57,7 +57,7 @@ namespace NeuroSimHub
                 opt.UseNpgsql(Configuration.GetConnectionString("DBConnectionString")));
 
 
-            services.AddIdentity<ApplicationUser, IdentityRole>( options =>
+            services.AddIdentity<ApplicationUser, IdentityRole<int>>( options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 6;

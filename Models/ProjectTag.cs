@@ -13,7 +13,7 @@ namespace NeuroSimHub.Models
         public int TagID { get; set; }
         public Tag Tag { get; set; }
 
-        [Key]
+        [Key, Column(Order = 2)]
         public int ProjectID { get; set; }
         public Project Project { get; set; }
     }

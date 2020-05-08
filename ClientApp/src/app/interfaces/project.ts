@@ -1,6 +1,6 @@
 import { BlobFile } from 'src/app/interfaces/blob-file';
 import { ProjectTag } from 'src/app/interfaces/project-tag';
-import { ApplicationUserProject } from 'src/app/interfaces/application-user-project';
+import { ProjectUser } from './project-user';
 
 export interface Project {
     projectID: number;
@@ -10,7 +10,7 @@ export interface Project {
     dateCreated: Date;
     lastUpdated: Date;
     route: string;
-    applicationUserProjects: Array<ApplicationUserProject>;
+    projectUsers: Array<ProjectUser>;
     blobFiles : Array<BlobFile>;
     projectTags : Array<ProjectTag>
 }

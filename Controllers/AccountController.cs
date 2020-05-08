@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -33,10 +34,10 @@ namespace NeuroSimHub.Controllers
             this._dbContext = _dbContext;
         }
 
-        // Get: api/account/getproject/{id}
+        // Get: api/account/readproject/{id}
         //[Authorize(Policy = "RequireLoggedIn")]
         [HttpGet("[action]/{id}")]
-        public IActionResult ReadProject([FromRoute] string id)
+        public IActionResult ReadProject([FromRoute] int id)
         {
             var query = _dbContext.Users
                 .Where(u => u.Id == id)
@@ -45,15 +46,26 @@ namespace NeuroSimHub.Controllers
             return Ok(query);
         }
 
-        // Get: api/account/getuser
+        // Get: api/account/read
         //[Authorize(Policy = "RequireLoggedIn")]
         [HttpGet("[action]")]
         public IActionResult Read()
         {
-            return Ok(_dbContext.Users.ToList());
+            var user = _dbContext.Users
+                .Include(u => u.Followers)
+                .Include(u => u.Following)
+                .Include(u => u.ProjectUsers)
+                .Include(u => u.BlobFiles)
+                .ToList();
+
+            return Ok(new
+            {
+                user = user,
+                message = "User Received"
+            });
         }
 
-        // Get: api/account/getuser/{id}
+        // Get: api/account/read/{id}
         [HttpGet("[action]/{id}")]
         public async Task<IActionResult> Read([FromRoute] string id)
         {
@@ -138,7 +150,7 @@ namespace NeuroSimHub.Controllers
                     {
                         new Claim(JwtRegisteredClaimNames.Sub, formdata.Username),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim(ClaimTypes.NameIdentifier, user.Id),
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                         new Claim(ClaimTypes.Role, roles.FirstOrDefault()),
                         new Claim("LoggedOn", DateTime.Now.ToString())
                     }),

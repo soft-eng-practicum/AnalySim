@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ProjectService } from '../services/project.service';
 import { Project } from '../interfaces/project';
 import { ProjectTag } from '../interfaces/project-tag';
+import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
+import { AccountService } from '../services/account.service';
+import { ApplicationUser } from '../interfaces/user';
 
 @Component({
   selector: 'app-explore',
@@ -10,11 +13,18 @@ import { ProjectTag } from '../interfaces/project-tag';
 })
 export class ExploreComponent implements OnInit {
 
-  constructor(private projectService : ProjectService) { }
+  constructor(private projectService : ProjectService,
+    private accountService : AccountService,
+    private formBuilder : FormBuilder) { }
+
+  // Form Control - Create Project
+  searchForm: FormGroup;
+  searchCategory: FormControl;
+  searchTerm: FormControl;
+  
 
   projects : Project[]
-  tags : ProjectTag[]
-  searchTerm : string
+  users : ApplicationUser[]
 
   ngOnInit(): void {
     this.projectService.ReadProjectList().subscribe(
@@ -23,26 +33,51 @@ export class ExploreComponent implements OnInit {
       }, error =>{
         console.log("Error");      
       });
+
+    this.accountService.ReadUserList().subscribe(
+      result =>{
+        this.users = result
+      }, error =>{
+        console.log("Error");      
+      });
+
+    // Initialize Form Controls
+    this.searchCategory = new FormControl('profile');
+    this.searchTerm = new FormControl('');
+
+    // Initialize FormGroup using FormBuilder
+    this.searchForm = this.formBuilder.group({
+        searchCategory : this.searchCategory,
+        searchTerm : this.searchTerm
+    });
   }
 
   onSubmit(){
-    if(!this.searchTerm)
+    let searchForm = this.searchForm.value
+    switch(searchForm.searchCategory)
     {
-      this.projectService.ReadProjectList().subscribe(
-        result =>{
-          this.projects = result
-        }, error =>{
-          console.log("Error");      
-        });
+        case "project":
+          if(searchForm.searchTerm == "" || !searchForm.searchTerm){
+            this.projectService.ReadProjectList().subscribe(
+              result =>{
+                this.projects = result
+              }, error =>{
+                console.log("Error");      
+              });
+          }
+        else{
+          this.projectService.Search(searchForm.searchTerm).subscribe(
+            result =>{
+              this.projects = result
+            }, error =>{
+              console.log("Error");      
+            });
+        }
+        break
+        case "profile":
+        break
     }
-    else{
-      this.projectService.Search(this.searchTerm).subscribe(
-        result =>{
-          this.projects = result
-        }, error =>{
-          console.log("Error");      
-        });
-    }
+    
 
 
   }

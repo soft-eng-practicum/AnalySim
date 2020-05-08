@@ -1,9 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Project } from 'src/app/interfaces/project';
 import { ProjectService } from 'src/app/services/project.service';
-import { ApplicationUserProject } from 'src/app/interfaces/application-user-project';
 import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
+import { ProjectUser } from 'src/app/interfaces/project-user';
 
 @Component({
   selector: 'app-explore-project-detail',
@@ -26,13 +26,13 @@ export class ExploreProjectDetailComponent implements OnInit {
   members : number
   lastUpdate : string
 
-  userID : string
-  userData : ApplicationUserProject
+  userID : number
+  userData : ProjectUser
 
   ngOnInit(): void {
     this.accountService.currentUserID.subscribe(result => this.userID = result)
-    this.userData = this.project.applicationUserProjects.find(x =>
-      x.applicationUserID == this.userID
+    this.userData = this.project.projectUsers.find(x =>
+      x.userID == this.userID
     )
   }
 
@@ -47,9 +47,9 @@ export class ExploreProjectDetailComponent implements OnInit {
     if(!this.accountService.checkLoginStatus())
       this.router.navigate(['/login'])
 
-    var user = {} as ApplicationUserProject;
+    var user = {} as ProjectUser;
     user.projectID = this.project.projectID
-    this.accountService.currentUserID.subscribe(result => user.applicationUserID = result)
+    this.accountService.currentUserID.subscribe(result => user.userID = result)
     user.isFollowing = true;
     if(this.userData != null && !this.userData.isFollowing){
       user.userRole = this.userData.userRole   
