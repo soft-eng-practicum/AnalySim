@@ -24,7 +24,7 @@
             <button class="btn btn-primary float-right" type="button" *ngIf="isFollowing" (click)="unFollowProject()">
                 Unfollow
                 <span class="badge badge-light font-weight-light ml-1">
-                    {{followers}}
+                    {{ project | role:"follower" }}
                 </span>
             </button>
         </div>

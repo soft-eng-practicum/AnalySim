@@ -1,5 +1,5 @@
 import { PipeTransform, Pipe } from "@angular/core";
-import { Project } from "../../interfaces/project";
+import { Project } from './interfaces/project';
 
 @Pipe({
     name: 'route'

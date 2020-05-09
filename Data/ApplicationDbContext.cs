@@ -49,16 +49,6 @@ namespace NeuroSimHub.Data
                         .WithMany(pt => pt.ProjectTags)
                         .HasForeignKey(pt => pt.ProjectID);
 
-            // One To Many Relationship (ApplicationUser -> Blob)
-            modelBuilder.Entity<ApplicationUser>()
-                        .HasMany(b => b.BlobFiles)
-                        .WithOne(u => u.User);
-
-            // One To Many Relationship (Project -> Blob)
-            modelBuilder.Entity<Project>()
-                        .HasMany(p => p.BlobFiles)
-                        .WithOne(p => p.Project);
-
             // Many To Many Relationship (UserUser -> User)
             modelBuilder.Entity<UserUser>()
                         .HasOne<ApplicationUser>(uu => uu.User)
@@ -71,13 +61,22 @@ namespace NeuroSimHub.Data
                         .WithMany(u => u.Following)
                         .HasForeignKey(uu => uu.FollowerID);
 
+            // One To Many Relationship (ApplicationUser -> Blob)
+            modelBuilder.Entity<ApplicationUser>()
+                        .HasMany(u => u.BlobFiles)
+                        .WithOne(u => u.User)
+                        .HasForeignKey(u => u.UserID);
 
+            // One To Many Relationship (Project -> Blob)
+            modelBuilder.Entity<Project>()
+                        .HasMany(p => p.BlobFiles)
+                        .WithOne(p => p.Project)
+                        .HasForeignKey(p => p.ProjectID);
 
-            // Create Identity Role
-            modelBuilder.Entity<IdentityRole>().HasData(
-                new { Id = "1", Name = "Admin", NormalizedName = "ADMIN"},
-                new { Id = "2", Name = "Customer", NormalizedName = "CUSTOMER" },
-                new { Id = "3", Name = "Moderator", NormalizedName = "MODERATOR" }
+            modelBuilder.Entity<IdentityRole<int>>().HasData(
+                new IdentityRole<int> { Id = 1, Name = "Admin", NormalizedName = "ADMIN"},
+                new IdentityRole<int> { Id = 2, Name = "Customer", NormalizedName = "CUSTOMER" },
+                new IdentityRole<int> { Id = 3, Name = "Moderator", NormalizedName = "MODERATOR" }
             );
         }
 

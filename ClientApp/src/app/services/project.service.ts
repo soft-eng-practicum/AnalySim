@@ -68,11 +68,13 @@ export class ProjectService {
     body.append('userid', userRole.userID.toString())
     body.append('projectid', userRole.projectID.toString())
     body.append('userrole', userRole.userRole)
+    body.append('isFollowing', userRole.isFollowing ? 'true' : 'false')
 
     return this.http.post<any>(this.baseUrlCreateUserRole, body).pipe(
       map(result => {
         console.log(result.message)
-        return result.user[0]
+        console.log(result)
+        return result.user
       },
       error =>{
         return error
@@ -85,7 +87,6 @@ export class ProjectService {
     return this.http.get<any>(this.baseUrlRead).pipe(
       map(result => {
         console.log(result.message)
-        console.log(result.project)
         return result.project
       },
       error =>{
@@ -107,7 +108,7 @@ export class ProjectService {
     );
   }
 
-  ReadProject (owner: string, projectname?: string) : Observable<Project>
+  ReadProject (owner: string, projectname: string) : Observable<Project>
   {
     return this.http.get<any>(this.baseUrlRead + "/" + owner + "/" + projectname).pipe(
       map(result => {

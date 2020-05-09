@@ -132,7 +132,8 @@ namespace NeuroSimHub.Controllers
             {
                 ProjectID = formdata.ProjectID,
                 UserID = formdata.UserID,
-                UserRole = formdata.UserRole
+                UserRole = formdata.UserRole,
+                IsFollowing = formdata.IsFollowing
             };
 
             // Add To Database
@@ -389,7 +390,7 @@ namespace NeuroSimHub.Controllers
 
         }
 
-        // Put: /api/Project/DeleteUserRole
+        // Delete: /api/Project/DeleteUserRole
         [HttpDelete("[action]/{projectid}/{userid}")]
         //[Authorize(Policy = "RequireLoggedIn")]
         public async Task<IActionResult> DeleteUserRole([FromForm] ProjectUserViewModel formdata)

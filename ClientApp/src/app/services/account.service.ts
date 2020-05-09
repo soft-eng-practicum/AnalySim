@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import { ApplicationUser } from '../interfaces/user';
+import { UserUser } from '../interfaces/user-user';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,11 @@ export class AccountService {
   // Url to access Web API
   private baseUrlLogin : string = "/api/account/login"
   private baseUrlRegister : string = "/api/account/register"
-  private baseUrlRead : string = "/api/account/read"
+  private baseUrlRead : string = "/api/account/read/"
+  private baseUrlReadList : string = "/api/account/read"
+  private baseUrlSearch : string = "/api/account/search/"
+  private baseUrlFollow : string = "/api/account/follow"
+  private baseUrlUnfollow : string = "/api/account/unfollow/"
 
   //User properties
   private loginStatus = new BehaviorSubject<boolean>(this.checkLoginStatus())
@@ -67,12 +72,73 @@ export class AccountService {
     );
   }
 
+  Read (userID : number) : Observable<ApplicationUser>
+  {
+
+    return this.http.get<any>(this.baseUrlRead + userID).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.user[0]
+      },
+      error =>{
+        return error
+      })
+    );
+  }
+
   ReadUserList () : Observable<ApplicationUser[]>
   {
-    return this.http.get<any>(this.baseUrlRead).pipe(
+    return this.http.get<any>(this.baseUrlReadList).pipe(
       map(result => {
         console.log(result.message)
         return result.user
+      },
+      error =>{
+        return error
+      })
+    );
+  }
+
+  Search (searchTerm: string) : Observable<ApplicationUser[]>
+  {
+    return this.http.get<any>(this.baseUrlSearch + searchTerm).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.user
+      },
+      error =>{
+        return error
+      })
+    );
+  }
+
+  Follow (userFollower : UserUser) : Observable<UserUser>
+  {
+    let body = new FormData()
+    body.append('userID', userFollower.userID.toString())
+    body.append('followerID', userFollower.followerID.toString())
+    
+
+    return this.http.post<any>(this.baseUrlFollow, body ).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.userFollower
+      },
+      error =>{
+        return error
+      })
+    );
+  }
+
+  Unfollow (userFollower : UserUser) : Observable<UserUser>
+  {
+    let userID = userFollower.userID.toString()
+    let followerID = userFollower.followerID.toString()
+
+    return this.http.delete<any>(this.baseUrlUnfollow + userID + '/' + followerID).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.userFollower
       },
       error =>{
         return error

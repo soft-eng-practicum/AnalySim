@@ -33,7 +33,7 @@
                         <app-explore-project-detail class="mb-3" *ngFor="let project of projects" [project]=project></app-explore-project-detail>
                     </div>
                     <div *ngIf="searchForm.value.searchCategory == 'profile'">
-                        <app-explore-profile-detail class="mb-3" *ngFor="let user of users" [user]=user></app-explore-profile-detail>
+                        <app-explore-profile-detail class="mb-3" *ngFor="let user of users" [profile]=user></app-explore-profile-detail>
                     </div>        
                 </div>
             </div>

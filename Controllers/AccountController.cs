@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -9,11 +8,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NeuroSimHub.Data;
 using NeuroSimHub.Helpers;
 using NeuroSimHub.Models;
+using NeuroSimHub.ViewModels;
 
 namespace NeuroSimHub.Controllers
 {
@@ -55,8 +56,7 @@ namespace NeuroSimHub.Controllers
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
                 .Include(u => u.ProjectUsers)
-                .Include(u => u.BlobFiles)
-                .ToList();
+                .Include(u => u.BlobFiles);
 
             return Ok(new
             {
@@ -67,12 +67,127 @@ namespace NeuroSimHub.Controllers
 
         // Get: api/account/read/{id}
         [HttpGet("[action]/{id}")]
-        public async Task<IActionResult> Read([FromRoute] string id)
+        public async Task<IActionResult> Read([FromRoute] int id)
         {
             // Find User
-            var user = await _dbContext.Users.FindAsync(id);
+            var user =_dbContext.Users.Where(u => u.Id == id)
+                .Include(u => u.Followers)
+                .Include(u => u.Following)
+                .Include(u => u.ProjectUsers)
+                .Include(u => u.BlobFiles)
+                .ToList();
+
             if (user == null) return NotFound();
-            return Ok(user);
+            return Ok(new
+            {
+                user = user,
+                message = "User Received"
+            });
+        }
+
+        // Post: api/account/follow
+        //[Authorize(Policy = "RequireLoggedIn")]
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Follow([FromForm] UserFollowViewModel formdata)
+        {
+            // Find User
+            var user = await _dbContext.Users.FindAsync(formdata.UserID);
+            if (user == null) return NotFound();
+
+            // Find Follower
+            var follower = await _dbContext.Users.FindAsync(formdata.FollowerID);
+            if (follower == null) return NotFound();
+
+            // Create Many To Many Connection
+            var userFollower = new UserUser
+            {
+                UserID = formdata.UserID,
+                FollowerID = formdata.FollowerID
+            };
+
+            // Add To Database
+            await _dbContext.UserUsers.AddAsync(userFollower);
+
+            // Save Change
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new
+            {
+                userFollower = userFollower,
+                message = "User Received"
+            });
+        }
+
+        // Delete: api/account/unfollow
+        //[Authorize(Policy = "RequireLoggedIn")]
+        [HttpDelete("[action]/{userID}/{followerID}")]
+        public async Task<IActionResult> Unfollow([FromRoute] int userID, [FromRoute] int followerID)
+        {
+            // Find User
+            var user = await _dbContext.Users.FindAsync(userID);
+            if (user == null) return NotFound();
+
+            // Find Follower
+            var follower = await _dbContext.Users.FindAsync(followerID);
+            if (follower == null) return NotFound();
+
+            // Find Many To Many
+            var userFollower = await _dbContext.UserUsers.FindAsync(user.Id, follower.Id);
+
+            // Return Not Found Status If Not Found
+            if (userFollower == null) return NotFound(new { message = "userFollower not found" });
+
+            // Remove Project
+            _dbContext.UserUsers.Remove(userFollower);
+
+            // Save Change
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new
+            {
+                userFollower = userFollower,
+                message = "Follower Successfully Delete"
+            });
+        }
+
+        // Get: /api/account/Search/{searchTerm}
+        [HttpGet("[action]/{searchTerm}")]
+        //[Authorize(Policy = "RequireLoggedIn")]
+        public IActionResult Search([FromRoute] string searchTerm)
+        {
+            // Split String Into Multiple Search Tag
+            var searchTermList = searchTerm.Split(" ");
+
+            // Get List Of Tag
+            var user = _dbContext.Users.ToList();
+
+            // Set For Tag That Match
+            var matchedUser = new HashSet<int>();
+
+            // Look For Tag That Contains Any Of The Term In TermList
+            foreach (ApplicationUser u in user)
+            {
+                foreach (string term in searchTermList)
+                {
+                    // Add To Matched Tag
+                    if (u.UserName.ToLower().Contains(term)) { matchedUser.Add(u.Id); break; }
+                }
+            }
+
+            var userList = _dbContext.Users
+                .Where(u => matchedUser.Contains(u.Id))
+                .Include(u => u.Followers)
+                .Include(u => u.Following)
+                .Include(u => u.ProjectUsers)
+                .Include(u => u.BlobFiles)
+                .ToList();
+
+            // Return Ok Status
+            return Ok(new
+            {
+                user = userList,
+                message = "Recieved Search Result."
+            });
         }
 
         // POST: api/account/register

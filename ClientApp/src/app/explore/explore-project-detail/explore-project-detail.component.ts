@@ -4,6 +4,7 @@ import { ProjectService } from 'src/app/services/project.service';
 import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
 import { ProjectUser } from 'src/app/interfaces/project-user';
+import { RoutePipe } from 'src/app/custom.pipe';
 
 @Component({
   selector: 'app-explore-project-detail',
@@ -20,14 +21,8 @@ export class ExploreProjectDetailComponent implements OnInit {
 
   @Input() project : Project;
 
-  owner : string
-  projectname : string
-  followers : number
-  members : number
-  lastUpdate : string
-
   userID : number
-  userData : ProjectUser
+  userData : ProjectUser = null
 
   ngOnInit(): void {
     this.accountService.currentUserID.subscribe(result => this.userID = result)
@@ -37,7 +32,7 @@ export class ExploreProjectDetailComponent implements OnInit {
   }
 
   get isFollowing() : boolean{
-    if(this.userData && this.userData.isFollowing == true)
+    if(this.userData != null && this.userData.isFollowing == true)
       return true
     else 
       return false;
@@ -51,11 +46,13 @@ export class ExploreProjectDetailComponent implements OnInit {
     user.projectID = this.project.projectID
     this.accountService.currentUserID.subscribe(result => user.userID = result)
     user.isFollowing = true;
-    if(this.userData != null && !this.userData.isFollowing){
-      user.userRole = this.userData.userRole   
+
+
+    if(this.userData != null){
+      user.userRole = this.userData.userRole  
+      
       this.projectService.UpdateUserRole(user).subscribe(
         result =>{
-          console.log(result)
           this.resetProject()
         }, error =>{
           console.log(error)
@@ -65,9 +62,9 @@ export class ExploreProjectDetailComponent implements OnInit {
     else
     {
       user.userRole = "follower"
+      console.log(user)
       this.projectService.CreateUserRole(user).subscribe(
-        result =>{
-          console.log(result)
+        result =>{      
           this.resetProject()
         }, error =>{
           console.log(error)
@@ -80,7 +77,6 @@ export class ExploreProjectDetailComponent implements OnInit {
     this.userData.isFollowing = false
     this.projectService.UpdateUserRole(this.userData).subscribe(
       result =>{
-        console.log(result)
         this.resetProject()       
       }, error =>{
         console.log(error)
@@ -91,10 +87,16 @@ export class ExploreProjectDetailComponent implements OnInit {
   }
 
   resetProject(){
-    this.projectService.ReadProject(this.owner, this.projectname).subscribe(
+    const filterPipe = new RoutePipe();
+    let owner = filterPipe.transform(this.project.route,"owner");
+    let projectName = filterPipe.transform(this.project.route,"projectname");
+
+    this.projectService.ReadProject(owner, projectName).subscribe(
       result =>{
-        console.log(result)
         this.project = result
+        this.userData = this.project.projectUsers.find(x =>
+          x.userID == this.userID
+        )
       }, error =>{
         console.log(error)
       }

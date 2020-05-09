@@ -42,7 +42,7 @@ export class ExploreComponent implements OnInit {
       });
 
     // Initialize Form Controls
-    this.searchCategory = new FormControl('profile');
+    this.searchCategory = new FormControl('project');
     this.searchTerm = new FormControl('');
 
     // Initialize FormGroup using FormBuilder
@@ -65,16 +65,32 @@ export class ExploreComponent implements OnInit {
                 console.log("Error");      
               });
           }
-        else{
+          else{
           this.projectService.Search(searchForm.searchTerm).subscribe(
             result =>{
               this.projects = result
             }, error =>{
               console.log("Error");      
             });
-        }
+          }
         break
         case "profile":
+          if(searchForm.searchTerm == "" || !searchForm.searchTerm){
+            this.accountService.ReadUserList().subscribe(
+              result =>{
+                this.users = result
+              }, error =>{
+                console.log("Error");      
+              });
+          }
+          else{
+          this.accountService.Search(searchForm.searchTerm).subscribe(
+            result =>{
+              this.users = result
+            }, error =>{
+              console.log("Error");      
+            });
+          }
         break
     }
     

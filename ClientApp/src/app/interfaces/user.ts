@@ -8,7 +8,7 @@ export interface ApplicationUser {
     email: string;
     bio: string;
     followers: Array<UserUser>;
-    follwing : Array<UserUser>;
+    following : Array<UserUser>;
     projectUsers : Array<ProjectUser>
     blobFiles : Array<BlobFile>
 }

@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NeuroSimHub.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200508063550_InitialCommit")]
-    partial class InitialCommit
+    [Migration("20200508225312_InitalCommit")]
+    partial class InitalCommit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,45 +20,6 @@ namespace NeuroSimHub.Migrations
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
                 .HasAnnotation("ProductVersion", "3.1.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IdentityRole");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = "2",
-                            Name = "Customer",
-                            NormalizedName = "CUSTOMER"
-                        },
-                        new
-                        {
-                            Id = "3",
-                            Name = "Moderator",
-                            NormalizedName = "MODERATOR"
-                        });
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
                 {
@@ -86,6 +47,29 @@ namespace NeuroSimHub.Migrations
                         .HasName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ConcurrencyStamp = "8d149bb4-2b54-4dc4-94ba-537f36b07616",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ConcurrencyStamp = "cc6145a6-94fb-4d3e-b7fe-99c888b9e5e1",
+                            Name = "Customer",
+                            NormalizedName = "CUSTOMER"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ConcurrencyStamp = "c762f4c8-06d7-4ef6-9db4-db0afb875c33",
+                            Name = "Moderator",
+                            NormalizedName = "MODERATOR"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -394,6 +378,21 @@ namespace NeuroSimHub.Migrations
                     b.ToTable("Tag");
                 });
 
+            modelBuilder.Entity("NeuroSimHub.Models.UserUser", b =>
+                {
+                    b.Property<int>("UserID")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FollowerID")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserID", "FollowerID");
+
+                    b.HasIndex("FollowerID");
+
+                    b.ToTable("UserUsers");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
@@ -485,6 +484,21 @@ namespace NeuroSimHub.Migrations
 
                     b.HasOne("NeuroSimHub.Models.ApplicationUser", "User")
                         .WithMany("ProjectUsers")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NeuroSimHub.Models.UserUser", b =>
+                {
+                    b.HasOne("NeuroSimHub.Models.ApplicationUser", "Follower")
+                        .WithMany("Following")
+                        .HasForeignKey("FollowerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NeuroSimHub.Models.ApplicationUser", "User")
+                        .WithMany("Followers")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

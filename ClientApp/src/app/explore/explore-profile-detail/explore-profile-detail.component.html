@@ -9,21 +9,29 @@
             <div class="card-body pl-0">
                 <div class="d-flex flex-row align-items-center mb-2">
                     <span class="h5 card-link mb-0">
-                        <a [routerLink]='["/profile/"]'>{{user.userName}}</a>
+                        <a [routerLink]='["/profile/"]'>{{profile.userName}}</a>
                     </span>
                     
                     <!-- Follow Project Start -->
                     <div class="d-inline-flex ml-auto">
-                        <button class="btn btn-primary float-right" type="button">
+                        <button class="btn btn-primary float-right" type="button" *ngIf="!isFollowing" (click)="followUser()">
                             Follow
                             <span class="badge badge-light font-weight-light ml-1">
-                                0
+                                {{profile.followers.length}}
                             </span>
                         </button>
+            
+                        <button class="btn btn-primary float-right" type="button" *ngIf="isFollowing" (click)="unFollowUser()">
+                            Unfollow
+                            <span class="badge badge-light font-weight-light ml-1">
+                                {{profile.followers.length}}
+                            </span>
+                        </button>
+
                     </div> 
                 </div>    
                 <p class="card-text">
-                    {{user.bio}}
+                    {{profile.bio}}
                 </p>
             </div>
             <!-- Card Body End -->

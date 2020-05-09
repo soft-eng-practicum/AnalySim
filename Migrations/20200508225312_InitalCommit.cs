@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace NeuroSimHub.Migrations
 {
-    public partial class InitialCommit : Migration
+    public partial class InitalCommit : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -48,20 +48,6 @@ namespace NeuroSimHub.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "IdentityRole",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(nullable: true),
-                    NormalizedName = table.Column<string>(nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_IdentityRole", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -202,6 +188,30 @@ namespace NeuroSimHub.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserUsers",
+                columns: table => new
+                {
+                    UserID = table.Column<int>(nullable: false),
+                    FollowerID = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserUsers", x => new { x.UserID, x.FollowerID });
+                    table.ForeignKey(
+                        name: "FK_UserUsers_AspNetUsers_FollowerID",
+                        column: x => x.FollowerID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserUsers_AspNetUsers_UserID",
+                        column: x => x.UserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BlobFiles",
                 columns: table => new
                 {
@@ -285,13 +295,13 @@ namespace NeuroSimHub.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "IdentityRole",
+                table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "1", null, "Admin", "ADMIN" },
-                    { "2", null, "Customer", "CUSTOMER" },
-                    { "3", null, "Moderator", "MODERATOR" }
+                    { 1, "8d149bb4-2b54-4dc4-94ba-537f36b07616", "Admin", "ADMIN" },
+                    { 2, "cc6145a6-94fb-4d3e-b7fe-99c888b9e5e1", "Customer", "CUSTOMER" },
+                    { 3, "c762f4c8-06d7-4ef6-9db4-db0afb875c33", "Moderator", "MODERATOR" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -350,6 +360,11 @@ namespace NeuroSimHub.Migrations
                 name: "IX_ProjectUsers_ProjectID",
                 table: "ProjectUsers",
                 column: "ProjectID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserUsers_FollowerID",
+                table: "UserUsers",
+                column: "FollowerID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -373,13 +388,13 @@ namespace NeuroSimHub.Migrations
                 name: "BlobFiles");
 
             migrationBuilder.DropTable(
-                name: "IdentityRole");
-
-            migrationBuilder.DropTable(
                 name: "ProjectTags");
 
             migrationBuilder.DropTable(
                 name: "ProjectUsers");
+
+            migrationBuilder.DropTable(
+                name: "UserUsers");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
