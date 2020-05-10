@@ -13,7 +13,7 @@
                     </span>
                     
                     <!-- Follow Project Start -->
-                    <div class="d-inline-flex ml-auto">
+                    <div class="d-inline-flex ml-auto" *ngIf="userID != profile.id">
                         <button class="btn btn-primary float-right" type="button" *ngIf="!isFollowing" (click)="followUser()">
                             Follow
                             <span class="badge badge-light font-weight-light ml-1">

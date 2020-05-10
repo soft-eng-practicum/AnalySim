@@ -32,98 +32,15 @@ namespace NeuroSimHub.Controllers
             this._dbContext = _dbContext;
         }
 
-        // Get: /api/Project/ReadBlobFiles/id
-        [HttpGet("[action]/{id}")]
-        //[Authorize(Policy = "RequireLoggedIn")]
-        public IActionResult ReadBlobFiles([FromRoute] int id)
-        {
-            // Query File Of Project
-            var query = _dbContext.Projects
-                .Where(p => p.ProjectID == id)
-                .SelectMany(p => p.BlobFiles);
-
-            // Return Ok Status
-            return Ok(query);
-        }
-
-
-        // Post: api/blobstorage/upload
-        [HttpPost("[action]")]
-        //[Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> Upload([FromForm] BlobUploadViewModel formdata)
-        {
-            try {
-                // Reture Bad Request Status
-                if (formdata.File == null) return BadRequest("Null File");
-                if (formdata.File.Length == 0) return BadRequest("Empty File");
-
-                // Connection to Storage Account
-                if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
-                {
-
-                    // Create a blob client
-                    CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
-
-                    // Get a reference to a container
-                    CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(formdata.Container);
-
-                    // Get a reference to a block blob
-                    CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(formdata.Directory + formdata.Name + formdata.Extension);
-
-                    // Create or overwrite the blob with the contents of a local file
-                    using (var fileStream = formdata.File.OpenReadStream())
-                    {
-                        await cloudBlockBlob.UploadFromStreamAsync(fileStream);
-                    }
-
-                    // Find Foreign Key
-                    ApplicationUser user = await _dbContext.Users.FindAsync(formdata.UserID);
-                    Project project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
-
-                    // Return Not Found Status If Null
-                    if (user == null || project == null) return NotFound();
-
-                    // Create BlobFile
-                    var newBlobFile = new BlobFile
-                    {
-                        Container = formdata.Container,
-                        Directory = formdata.Directory,
-                        Name = formdata.Name,
-                        Extension = formdata.Extension,
-                        Size = (int)cloudBlockBlob.Properties.Length,
-                        Uri = cloudBlockBlob.Uri.ToString(),
-                        DateCreated = DateTime.Now,
-                        UserID = formdata.UserID,
-                        ProjectID = formdata.ProjectID  
-                    };
-
-                    // Update Database with entry
-                    await _dbContext.BlobFiles.AddAsync(newBlobFile);
-                    await _dbContext.SaveChangesAsync();
-                
-                    // Return Ok Status
-                    return Ok(new
-                    {
-                        file = newBlobFile,
-                        message = "File Successfully Uploaded"
-                    });
-                }
-                else
-                {
-                    // Return 500 Internal Error If Server Not Found
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Server Connection Error");
-                }
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new { DownloadError = "Error ", exception = e });
-            }
-
-        }
-
-        // Delete: api/blobstorage/delete/id?
-        [HttpDelete("[action]/{id}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        #region GET REQUEST
+        /*
+         * Type : GET
+         * URL : /api/blobstorage/download/
+         * Param : {fileID}
+         * Description: Download File From Azure Storage
+         */
+        [HttpGet("[action]/{fileID}")]
+        public async Task<IActionResult> Download([FromRoute] int fileID)
         {
             try
             {
@@ -131,78 +48,17 @@ namespace NeuroSimHub.Controllers
                 if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
                 {
 
-                    // Find Project
-                    var blobFile = await _dbContext.BlobFiles.FindAsync(id);
-
-                    // Return Not Found Status Code If Not Found
-                    if (blobFile == null) return NotFound();
+                    // Find File
+                    var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
+                    if (blobFile == null) return NotFound(new { message = "File Not FOund" });
 
                     // Create A Blob Client
                     CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
 
-                    // Get Reference To Container
+                    // Get Container Reference
                     CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(blobFile.Container);
 
-                    // Get A Reference To A Block Blob  
-                    CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(blobFile.Directory + blobFile.Name + blobFile.Extension);
-
-                    // Delete Blob From Container
-                    await cloudBlockBlob.DeleteIfExistsAsync();
-
-                    // Delete Blob Files From Database
-                    _dbContext.BlobFiles.Remove(blobFile);
-
-                    // Save Change to Database
-                    await _dbContext.SaveChangesAsync();
-
-                    // Return Ok Status
-                    return Ok(new
-                    {
-                        container = cloudBlockBlob.Container,
-                        name = cloudBlockBlob.Name,
-                        type = cloudBlockBlob.Properties.ContentType,
-                        size = cloudBlockBlob.Properties.Length,
-                        uri = cloudBlockBlob.Uri,
-                        message = "File Successfully Deleted"
-                    });
-                }
-                else
-                {
-                    // Return 500 Internal Error If Server Not Found
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Server Connection Error");
-                }
-
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new { DownloadError = "Error ", exception = e });
-            }
-
-        }
-
-        // Get: api/blobstorage/Download
-        [HttpGet("[action]/{id}")]
-        [Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> Download([FromRoute] int id)
-        {
-            try
-            {
-                // Connection To Storage Account
-                if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
-                {
-                    // Find Project
-                    var blobFile = await _dbContext.BlobFiles.FindAsync(id);
-
-                    // Return Not Found Status Code If Not Found
-                    if (blobFile == null) return NotFound();
-
-                    // Create A Blob Client
-                    CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
-
-                    // Get Reference To Container
-                    CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(blobFile.Container);
-
-                    // Get A Reference To A Block Blob  
+                    // Get Block Blob Reference
                     CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(blobFile.Directory + blobFile.Name + blobFile.Extension);
 
                     // Download File to User Download Folder
@@ -235,12 +91,106 @@ namespace NeuroSimHub.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(new { DownloadError = "Error ", exception = e });
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
+            }
+
+        }
+        #endregion
+
+        #region POST REQUEST
+        /*
+         * Type : POST
+         * URL : /api/blobstorage/upload
+         * Param : BlobUploadViewModel
+         * Description: Upload File To Azure Storage
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Upload([FromForm] BlobUploadViewModel formdata)
+        {
+            try {
+                // Reture Bad Request Status
+                if (formdata.File == null) return BadRequest("Null File");
+                if (formdata.File.Length == 0) return BadRequest("Empty File");
+
+                // Find User
+                var user = await _dbContext.Users.FindAsync(formdata.UserID);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                // Find Project
+                var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+                if (user == null) return NotFound(new { message = "Project Not Found" });
+
+                // Connection To Storage Account
+                if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
+                {
+
+                    // Create A Blob Client
+                    CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+
+                    // Get Container Reference
+                    CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(formdata.Container);
+
+                    // Get Block Blob Reference
+                    CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(formdata.Directory + formdata.Name + formdata.Extension);
+
+                    // Create Or Overwrite File
+                    using (var fileStream = formdata.File.OpenReadStream())
+                    {
+                        await cloudBlockBlob.UploadFromStreamAsync(fileStream);
+                    }
+
+                    // Create BlobFile
+                    var newBlobFile = new BlobFile
+                    {
+                        Container = formdata.Container,
+                        Directory = formdata.Directory,
+                        Name = formdata.Name,
+                        Extension = formdata.Extension,
+                        Size = (int)cloudBlockBlob.Properties.Length,
+                        Uri = cloudBlockBlob.Uri.ToString(),
+                        DateCreated = DateTime.Now,
+                        UserID = formdata.UserID,
+                        ProjectID = formdata.ProjectID  
+                    };
+
+                    // Update Database with entry
+                    await _dbContext.BlobFiles.AddAsync(newBlobFile);
+                    await _dbContext.SaveChangesAsync();
+                
+                    // Return Ok Status
+                    return Ok(new
+                    {
+                        result = newBlobFile,
+                        message = "File Successfully Uploaded"
+                    });
+                }
+                else
+                {
+                    // Return 500 Internal Error If Server Not Found
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Server Connection Error");
+                }
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new 
+                { 
+                    error = e               
+                });
             }
 
         }
 
-        // Post: api/blobstorage/move
+        /*
+         * Type : POST
+         * URL : /api/blobstorage/move
+         * Param : BlobMoveViewModel
+         * Description: Move File In Azure Storage
+         */
         [HttpPost("action")]
         public async Task<IActionResult> Move([FromForm] BlobMoveViewModel formdata)
         {
@@ -249,12 +199,9 @@ namespace NeuroSimHub.Controllers
                 // Connection To Storage Account
                 if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
                 {
-                    // Find Project
+                    // Find File
                     var blobFile = await _dbContext.BlobFiles.FindAsync(formdata.FileID);
-
-                    // Return Not Found Status Code If Not Found
-                    if (blobFile == null) return NotFound();
-
+                    if (blobFile == null) return NotFound(new { message = "File Not Found" });
 
                     // Create A Blob Client
                     CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
@@ -262,15 +209,14 @@ namespace NeuroSimHub.Controllers
                     // Get Reference To Container
                     CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(blobFile.Container);
 
-                    // Get A Reference To The Source Block Blob  
+                    // Get Reference To The Source Block Blob  
                     CloudBlockBlob cloudBlockBlobSource = cloudBlobContainer.GetBlockBlobReference(blobFile.Directory + blobFile.Name + blobFile.Extension);
 
-                    // Get A Reference To The Targeted Block Blob  
+                    // Get Reference To The Targeted Block Blob  
                     CloudBlockBlob cloudBlockBlobTarget = cloudBlobContainer.GetBlockBlobReference(formdata.SubDirectory + blobFile.Name + blobFile.Extension);
 
-                    //Copy Source to Target
+                    // Copy Source to Target
                     await cloudBlockBlobTarget.StartCopyAsync(cloudBlockBlobSource);
-                
 
                     // Delete Source
                     await cloudBlockBlobSource.DeleteAsync();
@@ -292,12 +238,81 @@ namespace NeuroSimHub.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(new { DownloadError = "Error ", exception = e });
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
             }
 
 
 
         }
+        #endregion
 
+        #region DELETE REQUEST
+        /*
+         * Type : DELETE
+         * URL : /api/blobstorage/delete/
+         * Param : {fileID}
+         * Description: Delete File From Azure Storage
+         */
+        [HttpDelete("[action]/{fileID}")]
+        public async Task<IActionResult> Delete([FromRoute] int fileID)
+        {
+            try
+            {
+                // Connection To Storage Account
+                if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
+                {
+
+                    // Find File
+                    var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
+                    if (blobFile == null) return NotFound(new { message = "File Not Found" });
+
+                    // Create A Blob Client
+                    CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+
+                    // Get Container Reference
+                    CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(blobFile.Container);
+
+                    // Get Block Blob Reference
+                    CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(blobFile.Directory + blobFile.Name + blobFile.Extension);
+
+                    // Delete Blob From Container
+                    await cloudBlockBlob.DeleteIfExistsAsync();
+
+                    // Delete Blob Files From Database
+                    _dbContext.BlobFiles.Remove(blobFile);
+
+                    // Save Change to Database
+                    await _dbContext.SaveChangesAsync();
+
+                    // Return Ok Status
+                    return Ok(new
+                    {
+                        result = blobFile,
+                        message = "File Successfully Deleted"
+                    });
+                }
+                else
+                {
+                    // Return 500 Internal Error If Server Not Found
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Server Connection Error");
+                }
+
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
+            }
+
+        }
+        #endregion
+    
     }
 }

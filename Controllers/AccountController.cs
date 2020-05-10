@@ -35,24 +35,77 @@ namespace NeuroSimHub.Controllers
             this._dbContext = _dbContext;
         }
 
-        // Get: api/account/readproject/{id}
-        //[Authorize(Policy = "RequireLoggedIn")]
-        [HttpGet("[action]/{id}")]
-        public IActionResult ReadProject([FromRoute] int id)
+        #region GET REQUEST
+        /*
+         * Type : GET
+         * URL : /api/account/getprojectlist/
+         * Param : {projectID}
+         * Description: Get list of project user has connection to
+         */
+        [HttpGet("[action]/{projectID}")]
+        public IActionResult GetProjectList([FromRoute] int projectID)
         {
-            var query = _dbContext.Users
-                .Where(u => u.Id == id)
-                .SelectMany(c => _dbContext.Projects);
 
-            return Ok(query);
+            // Find User
+            var user = _dbContext.Users
+                .Where(u => u.Id == projectID);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            // Grab Project List From User
+            var query = user
+                .SelectMany(c => _dbContext.Projects).ToList();
+
+
+
+            // Return Ok Status
+            return Ok(new 
+            { 
+                result = query,
+                message = "User's Project Recieved"
+            });
         }
 
-        // Get: api/account/read
-        //[Authorize(Policy = "RequireLoggedIn")]
+        /*
+         * Type : GET
+         * URL : /api/account/getuserlist
+         * Param : None
+         * Description: Get list of all user
+         */
         [HttpGet("[action]")]
-        public IActionResult Read()
+        public IActionResult GetUserList()
         {
-            var user = _dbContext.Users
+            // Query All User Into A List
+            var query = _dbContext.Users
+                .Include(u => u.Followers)
+                .Include(u => u.Following)
+                .Include(u => u.ProjectUsers)
+                .Include(u => u.BlobFiles)
+                .ToList();
+
+            return Ok(new
+            {
+                result = query,
+                message = "User List Received"
+            });
+        }
+
+        /*
+         * Type : GET
+         * URL : /api/account/read/
+         * Param : {userID}
+         * Description: Get user from their id
+         */
+        // Get: 
+        [HttpGet("[action]/{userID}")]
+        public IActionResult GetUser([FromRoute] int userID)
+        {
+            // Find User
+            var user = _dbContext.Users.Where(u => u.Id == userID);
+            if (user == null) NotFound(new { message = "User Not Found" });
+
+
+            // Populate To Many List
+            var query = user
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
                 .Include(u => u.ProjectUsers)
@@ -60,43 +113,74 @@ namespace NeuroSimHub.Controllers
 
             return Ok(new
             {
-                user = user,
+                result = query,
                 message = "User Received"
             });
         }
 
-        // Get: api/account/read/{id}
-        [HttpGet("[action]/{id}")]
-        public async Task<IActionResult> Read([FromRoute] int id)
+        /*
+         * Type : GET
+         * URL : /api/account/search/
+         * Param : {searchTerm}
+         * Description: Filter and return search result
+         */
+        [HttpGet("[action]/{searchTerm}")]
+        public IActionResult Search([FromRoute] string searchTerm)
         {
-            // Find User
-            var user =_dbContext.Users.Where(u => u.Id == id)
+            // Split String Into Multiple Search Term
+            var searchTermList = searchTerm.Split(" ");
+
+            // Get List Of User
+            var user = _dbContext.Users.ToList();
+
+            // Set For User That Match
+            var matchedUser = new HashSet<int>();
+
+            // Look For User That Contains Any Of The Search Term
+            foreach (ApplicationUser u in user)
+            {
+                foreach (string term in searchTermList)
+                {
+                    // Add To Matched User
+                    if (u.UserName.ToLower().Contains(term)) { matchedUser.Add(u.Id); break; }
+                }
+            }
+
+            // Find All The Matched User
+            var query = _dbContext.Users
+                .Where(u => matchedUser.Contains(u.Id))
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
                 .Include(u => u.ProjectUsers)
                 .Include(u => u.BlobFiles)
                 .ToList();
 
-            if (user == null) return NotFound();
+            // Return Ok Status
             return Ok(new
             {
-                user = user,
-                message = "User Received"
+                result = query,
+                message = "Recieved Search Result."
             });
         }
+        #endregion
 
-        // Post: api/account/follow
-        //[Authorize(Policy = "RequireLoggedIn")]
+        #region POST REQUEST
+        /*
+         * Type : POST
+         * URL : /api/account/follow
+         * Param : UserFollowViewModel
+         * Description: Have a user follow another user
+         */
         [HttpPost("[action]")]
         public async Task<IActionResult> Follow([FromForm] UserFollowViewModel formdata)
         {
             // Find User
             var user = await _dbContext.Users.FindAsync(formdata.UserID);
-            if (user == null) return NotFound();
+            if (user == null) return NotFound(new { message = "User Not Found" });
 
             // Find Follower
             var follower = await _dbContext.Users.FindAsync(formdata.FollowerID);
-            if (follower == null) return NotFound();
+            if (follower == null) return NotFound(new { message = "Follower Not Found" });
 
             // Create Many To Many Connection
             var userFollower = new UserUser
@@ -113,87 +197,21 @@ namespace NeuroSimHub.Controllers
 
             return Ok(new
             {
-                userFollower = userFollower,
-                message = "User Received"
+                result = userFollower,
+                message = "User is now following " + user.UserName
             });
         }
 
-        // Delete: api/account/unfollow
-        //[Authorize(Policy = "RequireLoggedIn")]
-        [HttpDelete("[action]/{userID}/{followerID}")]
-        public async Task<IActionResult> Unfollow([FromRoute] int userID, [FromRoute] int followerID)
-        {
-            // Find User
-            var user = await _dbContext.Users.FindAsync(userID);
-            if (user == null) return NotFound();
-
-            // Find Follower
-            var follower = await _dbContext.Users.FindAsync(followerID);
-            if (follower == null) return NotFound();
-
-            // Find Many To Many
-            var userFollower = await _dbContext.UserUsers.FindAsync(user.Id, follower.Id);
-
-            // Return Not Found Status If Not Found
-            if (userFollower == null) return NotFound(new { message = "userFollower not found" });
-
-            // Remove Project
-            _dbContext.UserUsers.Remove(userFollower);
-
-            // Save Change
-            await _dbContext.SaveChangesAsync();
-
-            return Ok(new
-            {
-                userFollower = userFollower,
-                message = "Follower Successfully Delete"
-            });
-        }
-
-        // Get: /api/account/Search/{searchTerm}
-        [HttpGet("[action]/{searchTerm}")]
-        //[Authorize(Policy = "RequireLoggedIn")]
-        public IActionResult Search([FromRoute] string searchTerm)
-        {
-            // Split String Into Multiple Search Tag
-            var searchTermList = searchTerm.Split(" ");
-
-            // Get List Of Tag
-            var user = _dbContext.Users.ToList();
-
-            // Set For Tag That Match
-            var matchedUser = new HashSet<int>();
-
-            // Look For Tag That Contains Any Of The Term In TermList
-            foreach (ApplicationUser u in user)
-            {
-                foreach (string term in searchTermList)
-                {
-                    // Add To Matched Tag
-                    if (u.UserName.ToLower().Contains(term)) { matchedUser.Add(u.Id); break; }
-                }
-            }
-
-            var userList = _dbContext.Users
-                .Where(u => matchedUser.Contains(u.Id))
-                .Include(u => u.Followers)
-                .Include(u => u.Following)
-                .Include(u => u.ProjectUsers)
-                .Include(u => u.BlobFiles)
-                .ToList();
-
-            // Return Ok Status
-            return Ok(new
-            {
-                user = userList,
-                message = "Recieved Search Result."
-            });
-        }
-
-        // POST: api/account/register
+        /*
+         * Type : POST
+         * URL : /api/account/register
+         * Param : UserRegisterViewModel
+         * Description: Register Account
+         */
         [HttpPost("[action]")]
-        public async Task<IActionResult> Register([FromForm] UserRegisterViewModel formdata) {
-            
+        public async Task<IActionResult> Register([FromForm] UserRegisterViewModel formdata)
+        {
+
             // Hold Error List
             List<string> errorList = new List<string>();
 
@@ -202,29 +220,32 @@ namespace NeuroSimHub.Controllers
             {
                 Email = formdata.EmailAddress,
                 UserName = formdata.Username,
+                DateCreated = DateTime.Now,
+                LastOnline = DateTime.Now,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
 
-            // Create User To Database
+            // Add User To Database
             var result = await _userManager.CreateAsync(user, formdata.Password);
 
+            // If Successfully Created
             if (result.Succeeded)
             {
                 // Add Role To User
                 await _userManager.AddToRoleAsync(user, "Customer");
 
                 // Return Ok Request
-                return Ok(new 
-                { 
-                    username = user.UserName, 
-                    email = user.Email, 
-                    status = 1, 
+                return Ok(new
+                {
+                    username = user.UserName,
+                    email = user.Email,
+                    status = 1,
                     message = "Registration Successful"
                 });
             }
             else
             {
-                // Add Error In Creating User TO List
+                // Add Error To ErrorList
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError("", error.Description);
@@ -236,9 +257,14 @@ namespace NeuroSimHub.Controllers
             return BadRequest(new JsonResult(errorList));
         }
 
-        // POST: api/account/login
+        /*
+         * Type : POST
+         * URL : /api/account/login
+         * Param : UserLoginViewModel
+         * Description: Register Account
+         */
         [HttpPost("[action]")]
-        public async Task<IActionResult> Login([FromForm] UserLoginViewModel formdata) 
+        public async Task<IActionResult> Login([FromForm] UserLoginViewModel formdata)
         {
             // Get The User
             var user = await _userManager.FindByNameAsync(formdata.Username);
@@ -279,14 +305,20 @@ namespace NeuroSimHub.Controllers
                 // Create Token
                 var token = tokenHandler.CreateToken(tokenDescriptor);
 
+                // Update Last Online
+                user.LastOnline = DateTime.Now;
+
+                // Save Database Change
+                await _dbContext.SaveChangesAsync();
+
                 // Return OK Request
-                return Ok(new 
-                { 
-                    token = tokenHandler.WriteToken(token), 
-                    expiration = token.ValidTo, 
-                    username = user.UserName, 
-                    userRole = roles.FirstOrDefault(), 
-                    userID = user.Id 
+                return Ok(new
+                {
+                    token = tokenHandler.WriteToken(token),
+                    expiration = token.ValidTo,
+                    username = user.UserName,
+                    userRole = roles.FirstOrDefault(),
+                    userID = user.Id
                 });
 
             }
@@ -296,13 +328,49 @@ namespace NeuroSimHub.Controllers
                 ModelState.AddModelError("", "Username/Password was not found");
 
                 // Return Unauthorized Status If Unable To Login
-                return Unauthorized(new 
+                return Unauthorized(new
                 {
-                    LoginError = "Please Check the Login Creddentials - Invalid Username/Password was entered" 
+                    LoginError = "Please Check the Login Creddentials - Invalid Username/Password was entered"
                 });
             }
         }
+        #endregion
 
+        #region DELETE REQUEST
+        /*
+         * Type : DELETE
+         * URL : /api/account/unfollow
+         * Param : {userID}/{followerID}
+         * Description: Have the follower unfollow the user
+         */
+        [HttpDelete("[action]/{userID}/{followerID}")]
+        public async Task<IActionResult> Unfollow([FromRoute] int userID, [FromRoute] int followerID)
+        {
+            // Find User
+            var user = await _dbContext.Users.FindAsync(userID);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            // Find Follower
+            var follower = await _dbContext.Users.FindAsync(followerID);
+            if (follower == null) return NotFound(new { message = "Follower Not Found" });
+
+            // Find Many To Many
+            var userFollower = await _dbContext.UserUsers.FindAsync(user.Id, follower.Id);
+            if (userFollower == null) return NotFound(new { message = "User Follower Connection Not FOund" });
+
+            // Remove Project
+            _dbContext.UserUsers.Remove(userFollower);
+
+            // Save Change
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new
+            {
+                result = userFollower,
+                message = "Follower Successfully Delete"
+            });
+        }
+        #endregion
     }
 
 }
