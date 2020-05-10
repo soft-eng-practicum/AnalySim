@@ -27,14 +27,14 @@ export class ExploreComponent implements OnInit {
   users : ApplicationUser[]
 
   ngOnInit(): void {
-    this.projectService.ReadProjectList().subscribe(
+    this.projectService.getProjectList().subscribe(
       result =>{
         this.projects = result
       }, error =>{
         console.log("Error");      
       });
 
-    this.accountService.ReadUserList().subscribe(
+    this.accountService.getUserList().subscribe(
       result =>{
         this.users = result
       }, error =>{
@@ -58,7 +58,7 @@ export class ExploreComponent implements OnInit {
     {
         case "project":
           if(searchForm.searchTerm == "" || !searchForm.searchTerm){
-            this.projectService.ReadProjectList().subscribe(
+            this.projectService.getProjectList().subscribe(
               result =>{
                 this.projects = result
               }, error =>{
@@ -66,7 +66,7 @@ export class ExploreComponent implements OnInit {
               });
           }
           else{
-          this.projectService.Search(searchForm.searchTerm).subscribe(
+          this.projectService.search(searchForm.searchTerm).subscribe(
             result =>{
               this.projects = result
             }, error =>{
@@ -76,7 +76,7 @@ export class ExploreComponent implements OnInit {
         break
         case "profile":
           if(searchForm.searchTerm == "" || !searchForm.searchTerm){
-            this.accountService.ReadUserList().subscribe(
+            this.accountService.getUserList().subscribe(
               result =>{
                 this.users = result
               }, error =>{
@@ -84,7 +84,7 @@ export class ExploreComponent implements OnInit {
               });
           }
           else{
-          this.accountService.Search(searchForm.searchTerm).subscribe(
+          this.accountService.search(searchForm.searchTerm).subscribe(
             result =>{
               this.users = result
             }, error =>{

@@ -7,6 +7,8 @@ import { Project } from '../interfaces/project';
 import { AccountService } from './account.service';
 import { flatMap, shareReplay } from 'rxjs/operators';
 import { ProjectUser } from '../interfaces/project-user';
+import { BlobFile } from '../interfaces/blob-file';
+import { Tag } from '../interfaces/tag';
 
 @Injectable({
   providedIn: 'root'
@@ -19,130 +21,177 @@ export class ProjectService {
     private accountService: AccountService) { }
 
   // Url to access Web API
-  // Post
-  private baseUrlCreate : string = "/api/Project/Create";
-  private baseUrlCreateUserRole : string = "/api/Project/CreateUserRole";
+  private baseUrl : string = '/api/project/'
 
   // Get
-  private baseUrlRead : string = "/api/Project/Read";
-  private baseUrlReadID : string = "/api/Project/Read/";
-  private baseUrlReadUserRole : string = "/api/Project/ReadUserRole/";
-  private baseUrlSearch : string = "/api/Project/Search/";
+  private urlGetProjectList : string = this.baseUrl + "getprojectList"
+  private urlGetProject : string = this.baseUrl + "getproject/"
+  private urlGetUserList : string = this.baseUrl + "getuserlist/"
+  private urlSearch : string = this.baseUrl + "search/"
+  private urlGetFileList : string = this.baseUrl + "getfilelist/"
+  private urlGetTagList : string = this.baseUrl + "gettaglist/"
+
+  // Post
+  private urlCreateProject : string = this.baseUrl + "addproject"
+  private urlAddUser : string = this.baseUrl + "adduser"
+  private urlAddTag : string = this.baseUrl + "addtag"
 
   // Put
-  private baseUrlUpdate : string = "/api/Project/Update";
-  private baseUrlUpdateUser : string = "/api/Project/UpdateUserRole";
+  private urlUpdateProject : string = this.baseUrl + "updateproject/"
+  private urlupdateUser : string = this.baseUrl + "updateuser"
 
   // Delete
-  private baseUrlDelete : string = "/api/Project/Delete/";
-  private baseUrlDeleteUserRole : string = "/api/Project/DeleteUserRole";
+  private urlDeleteProject : string = this.baseUrl + "deleteproject/"
+  private urlRemoveUser : string = this.baseUrl + "removeuser/"
+  private urlRemoveTag : string = this.baseUrl + "removetag/"
 
-  CreateProject (newProject: Project) : Observable<Project>
+
+  getProjectList () : Observable<Project[]>
+  {
+    return this.http.get<any>(this.urlGetProjectList).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.resultObject
+      },
+      error =>{
+        console.log(error)
+        return error
+      })
+    );
+  }
+
+  getProject (owner: string, projectName: string) : Observable<Project>
+  {
+    return this.http.get<any>(this.urlGetProject + owner + "/" + projectName).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.resultObject[0]
+      },
+      error =>{
+        console.log(error)
+        return error
+      })
+    );
+  }
+
+  getUserList (projectID: number) : Observable<ProjectUser[]>
+  {
+
+    return this.http.get<any>(this.urlGetUserList + projectID).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.resultObject
+      },
+      error =>{
+        console.log(error)
+        return error
+      })
+    );
+  }
+
+  search (searchTerm: string) : Observable<Project[]>
+  {
+    return this.http.get<any>(this.urlSearch + searchTerm).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.resultObject
+      },
+      error =>{
+        console.log(error)
+        return error
+      })
+    );
+  }
+
+  getFileList (projectID: number) : Observable<BlobFile[]>
+  {
+
+    return this.http.get<any>(this.urlGetFileList + projectID).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.resultObject
+      },
+      error =>{
+        console.log(error)
+        return error
+      })
+    );
+  }
+
+  getTagList (projectID: number) : Observable<Tag[]>
+  {
+
+    return this.http.get<any>(this.urlGetTagList + projectID).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.resultObject
+      },
+      error =>{
+        console.log(error)
+        return error
+      })
+    );
+  }
+
+  CreateProject (projectName : string, visibility : string, description : string) : Observable<Project>
   {
     let userid
-    this.accountService.currentUserID.subscribe(value => userid = value);
+    this.accountService.currentUserID.subscribe(value => userid = value)
     let username
-    this.accountService.currentUsername.subscribe(value => username = value);
+    this.accountService.currentUsername.subscribe(value => username = value)
 
     let body = new FormData()
-    body.append('name', newProject.name)
-    body.append('visibility', newProject.visibility)
-    body.append('description', newProject.description)
+    body.append('name', projectName)
+    body.append('visibility', visibility)
+    body.append('description', description)
     body.append('userid', userid)
-    body.append('route', username + "/" + newProject.name)
+    body.append('route', username + "/" + projectName)
 
-    return this.http.post<any>(this.baseUrlCreate, body).pipe(
+    return this.http.post<any>(this.urlCreateProject, body).pipe(
       map(result => {
         console.log(result.message)
-        return result.project[0]
+        return result.resultObject
       },
       error =>{
+        console.log(error)
         return error
       })
-    );
+    )
   }
-
-  CreateUserRole (userRole : ProjectUser) : Observable<ProjectUser>
+  
+  AddUser (projectID : number, userID : number, userRole: string, isFollowing : boolean) : Observable<ProjectUser>
   {
     let body = new FormData()
-    body.append('userid', userRole.userID.toString())
-    body.append('projectid', userRole.projectID.toString())
-    body.append('userrole', userRole.userRole)
-    body.append('isFollowing', userRole.isFollowing ? 'true' : 'false')
+    body.append('projectid', projectID.toString())
+    body.append('userid', userID.toString())
+    body.append('userrole', userRole)
+    body.append('isFollowing', isFollowing ? 'true' : 'false')
 
-    return this.http.post<any>(this.baseUrlCreateUserRole, body).pipe(
+    return this.http.post<any>(this.urlAddUser, body).pipe(
       map(result => {
         console.log(result.message)
-        console.log(result)
-        return result.user
+        return result.resultObject
       },
       error =>{
+        console.log(error)
         return error
       })
     );
   }
 
-  ReadProjectList () : Observable<Project[]>
+  AddTag (projectID : number, tagName : string) : Observable<Tag>
   {
-    return this.http.get<any>(this.baseUrlRead).pipe(
+    let body = new FormData()
+    body.append('projectid', projectID.toString())
+    body.append('tagname', tagName.toString())
+
+    return this.http.post<any>(this.urlAddTag, body).pipe(
       map(result => {
         console.log(result.message)
-        return result.project
+        return result.resultObject
       },
       error =>{
-        return error
-      })
-    );
-  }
-
-  ReadUserProject (userID: string) : Observable<Project[]>
-  {
-    return this.http.get<any>(this.baseUrlReadID + userID).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.project
-      },
-      error =>{
-        return error
-      })
-    );
-  }
-
-  ReadProject (owner: string, projectname: string) : Observable<Project>
-  {
-    return this.http.get<any>(this.baseUrlRead + "/" + owner + "/" + projectname).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.project
-      },
-      error =>{
-        return error
-      })
-    );
-  }
-
-  ReadUserRole (projectID: string) : Observable<ProjectUser[]>
-  {
-
-    return this.http.get<any>(this.baseUrlReadUserRole + projectID).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.user
-      },
-      error =>{
-        return error
-      })
-    );
-  }
-
-  Search (searchTerm: string) : Observable<Project[]>
-  {
-    return this.http.get<any>(this.baseUrlSearch + searchTerm).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.project
-      },
-      error =>{
+        console.log(error)
         return error
       })
     );
@@ -155,31 +204,33 @@ export class ProjectService {
     body.append('visibility', updateProject.visibility)
     body.append('description', updateProject.description)
 
-    return this.http.put<any>(this.baseUrlUpdate, body).pipe(
+    return this.http.put<any>(this.urlUpdateProject, body).pipe(
       map(result => {
         console.log(result.message)
-        return result.project[0]
+        return result.resultObject
       },
       error =>{
+        console.log(error)
         return error
       })
     );
   }
 
-  UpdateUserRole (userRole : ProjectUser) : Observable<ProjectUser>
+  UpdateUser (userRole : ProjectUser) : Observable<ProjectUser>
   {
     let body = new FormData()
     body.append('userid', userRole.userID.toString())
     body.append('projectid', userRole.projectID.toString())
     body.append('userrole', userRole.userRole)
-    body.append('isfollowing', JSON.stringify(userRole.isFollowing))
+    body.append('isFollowing', userRole.isFollowing ? 'true' : 'false')
 
-    return this.http.put<any>(this.baseUrlUpdateUser, body).pipe(
+    return this.http.put<any>(this.urlupdateUser, body).pipe(
       map(result => {
         console.log(result.message)
-        return result.user
+        return result.resultObject
       },
       error =>{
+        console.log(error)
         return error
       })
     );
@@ -188,60 +239,46 @@ export class ProjectService {
   DeleteProject (projectID: string)
   {
 
-    return this.http.delete<any>(this.baseUrlDelete + projectID).pipe(
+    return this.http.delete<any>(this.urlDeleteProject + projectID).pipe(
       map(result => {
         console.log(result.message)
-        return result.project[0]
+        return result.resultObject
       },
       error =>{
+        console.log(error)
         return error
       })
     );
   }
 
-  DeleteUserRole (projectID: string, userID : string) : Observable<ProjectUser>
+  RemoveUser (projectID: number, userID : number) : Observable<ProjectUser>
   {
 
-    return this.http.delete<any>(this.baseUrlDeleteUserRole + projectID + '/' + userID).pipe(
+    return this.http.delete<any>(this.urlRemoveUser + projectID + '/' + userID).pipe(
       map(result => {
         console.log(result.message)
-        return result.user[0]
+        return result.resultObject
       },
       error =>{
+        console.log(error)
         return error
       })
     );
   }
 
-
-
-  /*
-  
-
-  
-
-  
-
-  
-
-  GetBlobFiles (userID: string, projectID: string, userRole: string)
+  RemoveTag (projectID: number, tagID : number) : Observable<ProjectUser>
   {
-    let body = new FormData()
-    body.append('userid', userID)
-    body.append('projectid', projectID)
-    body.append('userrole', userRole)
 
-    return this.http.post<any>(this.baseUrlGetBlobFiles, body).pipe(
+    return this.http.delete<any>(this.urlRemoveUser + projectID + '/' + tagID).pipe(
       map(result => {
-        return result
+        console.log(result.message)
+        return result.resultObject
       },
       error =>{
+        console.log(error)
         return error
       })
     );
   }
-
-  
-  */
 
 }

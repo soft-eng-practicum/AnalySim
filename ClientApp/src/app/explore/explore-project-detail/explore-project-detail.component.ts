@@ -42,16 +42,14 @@ export class ExploreProjectDetailComponent implements OnInit {
     if(!this.accountService.checkLoginStatus())
       this.router.navigate(['/login'])
 
-    var user = {} as ProjectUser;
-    user.projectID = this.project.projectID
-    this.accountService.currentUserID.subscribe(result => user.userID = result)
-    user.isFollowing = true;
-
-
     if(this.userData != null){
+      var user = {} as ProjectUser;
+      user.projectID = this.project.projectID
+      this.accountService.currentUserID.subscribe(result => user.userID = result)
+      user.isFollowing = true;
       user.userRole = this.userData.userRole  
       
-      this.projectService.UpdateUserRole(user).subscribe(
+      this.projectService.UpdateUser(user).subscribe(
         result =>{
           this.resetProject()
         }, error =>{
@@ -61,9 +59,7 @@ export class ExploreProjectDetailComponent implements OnInit {
     }
     else
     {
-      user.userRole = "follower"
-      console.log(user)
-      this.projectService.CreateUserRole(user).subscribe(
+      this.projectService.AddUser(this.project.projectID, this.userID, "follower", true).subscribe(
         result =>{      
           this.resetProject()
         }, error =>{
@@ -75,7 +71,7 @@ export class ExploreProjectDetailComponent implements OnInit {
 
   unFollowProject(){
     this.userData.isFollowing = false
-    this.projectService.UpdateUserRole(this.userData).subscribe(
+    this.projectService.UpdateUser(this.userData).subscribe(
       result =>{
         this.resetProject()       
       }, error =>{
@@ -91,7 +87,7 @@ export class ExploreProjectDetailComponent implements OnInit {
     let owner = filterPipe.transform(this.project.route,"owner");
     let projectName = filterPipe.transform(this.project.route,"projectname");
 
-    this.projectService.ReadProject(owner, projectName).subscribe(
+    this.projectService.getProject(owner, projectName).subscribe(
       result =>{
         this.project = result
         this.userData = this.project.projectUsers.find(x =>

@@ -39,28 +39,30 @@ namespace NeuroSimHub.Controllers
         /*
          * Type : GET
          * URL : /api/account/getprojectlist/
-         * Param : {projectID}
+         * Param : {userID}
          * Description: Get list of project user has connection to
          */
-        [HttpGet("[action]/{projectID}")]
-        public IActionResult GetProjectList([FromRoute] int projectID)
+        [HttpGet("[action]/{userID}")]
+        public IActionResult GetProjectList([FromRoute] int userID)
         {
 
             // Find User
             var user = _dbContext.Users
-                .Where(u => u.Id == projectID);
+                .Where(u => u.Id == userID);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
             // Grab Project List From User
             var query = user
-                .SelectMany(c => _dbContext.Projects).ToList();
-
-
+                .SelectMany(c => _dbContext.Projects)
+                .Include(p => p.ProjectUsers)
+                .Include(p => p.BlobFiles)
+                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
+                .ToList();
 
             // Return Ok Status
             return Ok(new 
             { 
-                result = query,
+                resultObject = query,
                 message = "User's Project Recieved"
             });
         }
@@ -84,18 +86,17 @@ namespace NeuroSimHub.Controllers
 
             return Ok(new
             {
-                result = query,
+                resultObject = query,
                 message = "User List Received"
             });
         }
 
         /*
          * Type : GET
-         * URL : /api/account/read/
+         * URL : /api/account/getuser/
          * Param : {userID}
          * Description: Get user from their id
          */
-        // Get: 
         [HttpGet("[action]/{userID}")]
         public IActionResult GetUser([FromRoute] int userID)
         {
@@ -113,7 +114,7 @@ namespace NeuroSimHub.Controllers
 
             return Ok(new
             {
-                result = query,
+                resultObject = query,
                 message = "User Received"
             });
         }
@@ -158,7 +159,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = query,
+                resultObject = query,
                 message = "Recieved Search Result."
             });
         }
@@ -197,7 +198,7 @@ namespace NeuroSimHub.Controllers
 
             return Ok(new
             {
-                result = userFollower,
+                resultObject = userFollower,
                 message = "User is now following " + user.UserName
             });
         }
@@ -237,9 +238,7 @@ namespace NeuroSimHub.Controllers
                 // Return Ok Request
                 return Ok(new
                 {
-                    username = user.UserName,
-                    email = user.Email,
-                    status = 1,
+                    resultObject = user,
                     message = "Registration Successful"
                 });
             }
@@ -314,11 +313,13 @@ namespace NeuroSimHub.Controllers
                 // Return OK Request
                 return Ok(new
                 {
+                    resultObject = user,
                     token = tokenHandler.WriteToken(token),
                     expiration = token.ValidTo,
                     username = user.UserName,
                     userRole = roles.FirstOrDefault(),
-                    userID = user.Id
+                    userID = user.Id,
+                    message = "Login Successful"
                 });
 
             }
@@ -339,7 +340,7 @@ namespace NeuroSimHub.Controllers
         #region DELETE REQUEST
         /*
          * Type : DELETE
-         * URL : /api/account/unfollow
+         * URL : /api/account/unfollow/
          * Param : {userID}/{followerID}
          * Description: Have the follower unfollow the user
          */
@@ -366,7 +367,7 @@ namespace NeuroSimHub.Controllers
 
             return Ok(new
             {
-                result = userFollower,
+                resultObject = userFollower,
                 message = "Follower Successfully Delete"
             });
         }

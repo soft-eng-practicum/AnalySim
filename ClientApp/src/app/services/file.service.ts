@@ -8,11 +8,13 @@ import { map } from 'rxjs/operators';
 export class FileService {
 
   // Url to access Web API
-  private baseUrlUpload : string = "/api/blobstorage/upload";
-  private baseUrlDelete : string = "/api/blobstorage/delete";
-  private baseUrlMove : string = "/api/blobstorage/move";
-  private baseUrlDownload : string = "/api/blobstorage/download";
-  private baseUrlLogin : string = "/api/account/login";
+  private baseUrl : string = '/api/blobstorage/'
+
+  // Post
+  private urlUpload : string = this.baseUrl + "upload"
+
+  // Delete
+  private urlDelete : string = this.baseUrl + "delete/"
 
   constructor(private http: HttpClient) { }
 
@@ -22,26 +24,26 @@ export class FileService {
     body.append('container', containerName)
     body.append('directory', directory)
 
-    return this.http.post<any>(this.baseUrlUpload, body).pipe(
+    return this.http.post<any>(this.urlUpload, body).pipe(
       map(result => {
-        console.log('Result:' + result)
-        return result
+        console.log(result.message)
+        return result.object
       },
       error =>{
-        console.log('Error:' + error)
+        console.log(error)
         return error
       })
     );
   }
 
   delete(containerName: string, directory: string){
-    return this.http.delete<any>(this.baseUrlDelete + '/' + containerName + '/' + directory).pipe(
+    return this.http.delete<any>(this.urlDelete + containerName + '/' + directory).pipe(
       map(result => {
-        console.log('Result:' + result)
-        return result
+        console.log(result.message)
+        return result.object
       },
       error =>{
-        console.log('Error:' + error)
+        console.log(error)
         return error
       })
     );

@@ -30,11 +30,7 @@ export class ExploreProfileDetailComponent implements OnInit {
     if(!this.accountService.checkLoginStatus())
       this.router.navigate(['/login'])
 
-    let followData = {} as UserUser;
-    followData.userID = this.profile.id
-    followData.followerID = this.userID
-
-    this.accountService.Follow(followData).subscribe(
+    this.accountService.follow(this.profile.id, this.userID).subscribe(
       result =>{
         this.isFollowing = true
         this.reloadUser(result.userID)
@@ -45,11 +41,7 @@ export class ExploreProfileDetailComponent implements OnInit {
   }
 
   unFollowUser(){
-    let followData = {} as UserUser;
-    followData.userID = this.profile.id
-    followData.followerID = this.userID
-
-    this.accountService.Unfollow(followData).subscribe(
+    this.accountService.unfollow(this.profile.id, this.userID).subscribe(
       result =>{
         this.isFollowing = false
         this.reloadUser(result.userID)       
@@ -57,12 +49,11 @@ export class ExploreProfileDetailComponent implements OnInit {
         console.log(error)
       }
     )
-
-    
+ 
   }
 
   reloadUser(profileID : number){
-    this.accountService.Read(profileID).subscribe(
+    this.accountService.getUser(profileID).subscribe(
       result =>{
         this.profile = result
       }, error =>{

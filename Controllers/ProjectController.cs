@@ -50,42 +50,14 @@ namespace NeuroSimHub.Controllers
             // Return Ok Request
             return Ok(new
             {
-                result = project,
+                resultObject = project,
                 message = "Recieved Project"
             });
         }
 
         /*
          * Type : GET
-         * URL : /api/project/getuserprojectlist/
-         * Param : {userID}
-         * Description: Get All Project Of User
-         */
-        [HttpGet("[action]/{userID}")]
-        public IActionResult GetUserProjectList([FromRoute] int userID)
-        {
-            // Find Project
-            var project = _dbContext.Projects.Where(p => p.ProjectUsers.Any(aup => aup.User.Id == userID));
-            if (project == null) return NotFound(new { message = "Project Not Found"});
-
-            // Include To Many List
-            var query = project
-                .Include(p => p.ProjectUsers)
-                .Include(p => p.BlobFiles)
-                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
-                .ToList();
-
-            // Return Ok Request
-            return Ok(new
-            {
-                result = query,
-                message = "Recieved Project"
-            });
-        }
-
-        /*
-         * Type : GET
-         * URL : /api/project/GetProject/
+         * URL : /api/project/getproject/
          * Param : {owner}/{projectname}
          * Description: Get Project
          */
@@ -105,7 +77,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Request
             return Ok(new
             {
-                result = query,
+                resultObject = query,
                 message = "Recieved Project"
             });
         }
@@ -136,7 +108,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = query,
+                resultObject = query,
                 message = "Recieved User Roles List."
             });
         }
@@ -179,7 +151,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = query,
+                resultObject = query,
                 message = "Recieved Search Result."
             });
         }
@@ -191,7 +163,7 @@ namespace NeuroSimHub.Controllers
          * Description: Get list of file from project
          */
         [HttpGet("[action]/{projectID}")]
-        public IActionResult GetFilesList([FromRoute] int projectID)
+        public IActionResult GetFileList([FromRoute] int projectID)
         {
             var project = _dbContext.Projects.Where(p => p.ProjectID == projectID);
 
@@ -202,7 +174,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = query,
+                resultObject = query,
                 message = "Project File Received"
             });
         }
@@ -227,7 +199,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = query,
+                resultObject = query,
                 message = "Recieved Tag List."
             });
         }
@@ -236,12 +208,12 @@ namespace NeuroSimHub.Controllers
         #region POST REQUEST
         /*
         * Type : POST
-        * URL : /api/project/addproject
+        * URL : /api/project/createproject
         * Param : ProjectViewModel
         * Description: Create Project
         */
         [HttpPost("[action]")]
-        public async Task<IActionResult> AddProject([FromForm] ProjectViewModel formdata)
+        public async Task<IActionResult> CreateProject([FromForm] ProjectViewModel formdata)
         {
             // Find User
             var user = await _dbContext.Users.FindAsync(formdata.UserID);
@@ -329,7 +301,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Request
             return Ok(new
             {
-                result = newProject,
+                resultObject = newProject,
                 message = "Project Successfully Created"
             });
         }
@@ -349,7 +321,7 @@ namespace NeuroSimHub.Controllers
                 ProjectID = formdata.ProjectID,
                 UserID = formdata.UserID,
                 UserRole = formdata.UserRole,
-                IsFollowing = false
+                IsFollowing = formdata.IsFollowing
             };
 
             // Add To Database And Save Change
@@ -359,7 +331,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = userRole,
+                resultObject = userRole,
                 message = "Project User Successfully Created"
             });
         }
@@ -405,7 +377,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = projectTag,
+                resultObject = projectTag,
                 message = "Project Tag Added"
             });
         }
@@ -443,7 +415,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = project,
+                resultObject = project,
                 message = "Project successfully updated."
             });
 
@@ -473,7 +445,7 @@ namespace NeuroSimHub.Controllers
 
                 return Ok(new
                 {
-                    result = userRole,
+                    resultObject = userRole,
                     message = "Follower successfully deleted"
                 });
             }
@@ -523,7 +495,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = deleteProject,
+                resultObject = deleteProject,
                 message = "Project successfully deleted."
             });
 
@@ -551,7 +523,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = projectUser,
+                resultObject = projectUser,
                 message = "User Role successfully deleted."
             });
         }
@@ -592,7 +564,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = projectTag,
+                resultObject = projectTag,
                 message = "Project Tag Successfully Deleted"
             });
         }

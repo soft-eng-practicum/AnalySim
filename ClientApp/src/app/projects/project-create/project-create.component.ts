@@ -113,7 +113,7 @@ export class ProjectCreateComponent implements OnInit {
   onSubmit() {
     let projectForm = this.projectForm.value;
     
-    this.projectService.CreateProject(projectForm).subscribe(
+    this.projectService.CreateProject(projectForm.name, projectForm.visibility, projectForm.description).subscribe(
       result =>{
         this.router.navigateByUrl('/projects/' + result.route);
       },error =>{
