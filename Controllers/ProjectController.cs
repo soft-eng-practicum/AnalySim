@@ -66,7 +66,7 @@ namespace NeuroSimHub.Controllers
         {
             // Find Project
             var project = _dbContext.Projects.Where(p => p.ProjectUsers.Any(aup => aup.User.UserName == owner && aup.Project.Name == projectname));
-            if (project == null) return NotFound(new { message = "Project Not Found"});
+            if (!project.Any()) return NotFound(new { message = "Project Not Found"});
 
             // Include To Many List
             var query = project
@@ -93,7 +93,7 @@ namespace NeuroSimHub.Controllers
         {
             // Find Project
             var project = _dbContext.Projects.Where(p => p.ProjectID == projectID);
-            if (project == null) return NotFound(new { message = "Project Not Found" });
+            if (!project.Any()) return NotFound(new { message = "Project Not Found" });
 
             // Find Project List
             var query = project
@@ -190,7 +190,7 @@ namespace NeuroSimHub.Controllers
         {
             // Find Project
             var project = _dbContext.Projects.Where(p => p.ProjectID == projectID);
-            if (project == null) return NotFound(new { message = "Project Not Found"});
+            if (!project.Any()) return NotFound(new { message = "Project Not Found"});
 
             var query = project
                 .SelectMany(p => _dbContext.ProjectTags)

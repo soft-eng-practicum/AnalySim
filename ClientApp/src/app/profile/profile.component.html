@@ -1,0 +1,79 @@
+<app-not-found *ngIf="showError == true"></app-not-found>
+<div class="container my-5"  *ngIf="profile != undefined">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card py-2">
+                <div class="d-flex align-items-center px-2">
+                    <img *ngIf="profileImage != null" [src]="profileImage" class="card-img img-thumbnail pl-1">
+                </div>
+                <div class="card-body py-1">
+                    <h5 class="card-title text-center mb-1">{{ profile.userName }}</h5>
+                    <p class="card-text">{{profile.bio}}</p>                  
+                </div>
+                <div class="card-body py-1">
+                    <div class="row" *ngIf="!(profile.id == userID)">
+                        <div class="col-md-6 pr-1">
+                            <button class="btn btn-primary btn-sm btn-block" *ngIf="!isFollowing" (click)="followUser()">Follow</button>
+                            <button class="btn btn-primary btn-sm btn-block" *ngIf="isFollowing" (click)="unFollowUser()">Unfollow</button>
+                        </div>
+                        <div class="col-md-6 pl-1">
+                            <button class="btn btn-primary btn-sm btn-block">Message</button>
+                        </div>
+                    </div>
+                    <p class="card-text text-center"><small class="text-muted">Last Online {{ profile.lastOnline | timeElapsed}} Ago</small></p>                
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8"> 
+            <div class="card">
+                <div class="p-3">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item" >
+                            <a class="nav-link d-flex align-items-center" [class.active]="tabActive[0]" (click)="changeTab(0)">
+                                Project
+                                <span class="badge badge-primary font-weight-light ml-1">
+                                {{profile.projectUsers.length}}
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item" >
+                            <a class="nav-link d-flex align-items-center" [class.active]="tabActive[1]" (click)="changeTab(1)">
+                                Following
+                                <span class="badge badge-primary font-weight-light ml-1">
+                                {{profile.following.length}}
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" [class.active]="tabActive[2]" (click)="changeTab(2)">
+                                Follower
+                                <span class="badge badge-primary font-weight-light ml-1">
+                                {{profile.followers.length}}
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="nav-tabs-content">
+                        <div class="m-3">
+                            <ul class="list-group list-group-flush" *ngIf ="tabActive[0]">
+                                <li class="list-group-item border-0 p-0" *ngFor="let project of projects; let lastItem = last" [class.mb-4]="!lastItem">
+                                    <app-project-card [project]=project></app-project-card>
+                                </li>
+                            </ul>
+                            <ul class="list-group list-group-flush" *ngIf ="tabActive[1]">
+                                <li class="list-group-item border-0 p-0" *ngFor="let following of followings; let lastItem = last" [class.mb-4]="!lastItem">
+                                    <app-profile-card [profile]=following></app-profile-card>
+                                </li>
+                            </ul>
+                            <ul class="list-group list-group-flush" *ngIf ="tabActive[2]">
+                                <li class="list-group-item border-0 p-0" *ngFor="let follower of followers; let lastItem = last" [class.mb-4]="!lastItem">
+                                    <app-profile-card [profile]=follower></app-profile-card>
+                                </li>
+                            </ul>
+                        </div>       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

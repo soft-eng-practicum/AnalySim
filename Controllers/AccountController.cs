@@ -5,10 +5,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NeuroSimHub.Data;
@@ -26,13 +26,15 @@ namespace NeuroSimHub.Controllers
         private readonly SignInManager<ApplicationUser> _signManager;
         private readonly AppSettings _appSettings;
         private readonly ApplicationDbContext _dbContext;
+        private readonly string storageConnString;
 
-        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signManager, IOptions<AppSettings> _appSettings, ApplicationDbContext _dbContext) 
+        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signManager, IOptions<AppSettings> _appSettings, ApplicationDbContext _dbContext, IConfiguration config) 
         {
             this._userManager = _userManager;
             this._signManager = _signManager;
             this._appSettings = _appSettings.Value;
             this._dbContext = _dbContext;
+            this.storageConnString = config.GetConnectionString("AccessKey");
         }
 
         #region GET REQUEST
@@ -49,20 +51,24 @@ namespace NeuroSimHub.Controllers
             // Find User
             var user = _dbContext.Users
                 .Where(u => u.Id == userID);
-            if (user == null) return NotFound(new { message = "User Not Found" });
+            if (!user.Any()) return NotFound(new { message = "User Not Found" });
 
             // Grab Project List From User
-            var query = user
-                .SelectMany(c => _dbContext.Projects)
-                .Include(p => p.ProjectUsers)
+            var query = user.SelectMany(u => u.ProjectUsers)
+                .Select(pu => pu.Project)
                 .Include(p => p.BlobFiles)
+                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag);
+
+            var query2 = _dbContext.Set<Project>()
+                .Include(p => p.BlobFiles)
+                .Include(p => p.ProjectUsers)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
-                .ToList();
+                .Where(p => p.ProjectUsers.Any(pu => pu.UserID == userID));
 
             // Return Ok Status
             return Ok(new 
             { 
-                resultObject = query,
+                resultObject = query2,
                 message = "User's Project Recieved"
             });
         }
@@ -98,12 +104,11 @@ namespace NeuroSimHub.Controllers
          * Description: Get user from their id
          */
         [HttpGet("[action]/{userID}")]
-        public IActionResult GetUser([FromRoute] int userID)
+        public IActionResult GetUserByID([FromRoute] int userID)
         {
             // Find User
             var user = _dbContext.Users.Where(u => u.Id == userID);
-            if (user == null) NotFound(new { message = "User Not Found" });
-
+            if (!user.Any()) return NotFound(new { message = "User Not Found" });
 
             // Populate To Many List
             var query = user
@@ -116,6 +121,89 @@ namespace NeuroSimHub.Controllers
             {
                 resultObject = query,
                 message = "User Received"
+            });
+        }
+
+        /*
+         * Type : GET
+         * URL : /api/account/getuser/
+         * Param : {username}
+         * Description: Get user from their username
+         */
+        [HttpGet("[action]/{username}")]
+        public IActionResult GetUserByName([FromRoute] string username)
+        {
+            // Find User
+            var user = _dbContext.Users.Where(u => u.UserName == username);
+            if (!user.Any()) return NotFound(new { message = "User Not Found" });
+
+            
+            // Populate To Many List
+            var query = user
+                .Include(u => u.Followers)
+                .Include(u => u.Following)
+                .Include(u => u.ProjectUsers)
+                .Include(u => u.BlobFiles);
+                
+
+            return Ok(new
+            {
+                resultObject = query,
+                message = "User Received"
+            });
+
+        }
+
+        /*
+        * Type : GET
+        * URL : /api/account/getfollower/
+        * Param : {userID}
+        * Description: Get follower from user id
+        */
+        [HttpGet("[action]/{userID}")]
+        public IActionResult GetFollower([FromRoute] int userID)
+        {
+            // Find User
+            var user = _dbContext.Users
+                .Where(u => u.Id == userID)
+                .Include(u => u.Following)
+                .Include(u => u.Followers);
+            if (!user.Any()) return NotFound(new { message = "User Not Found" });
+
+            // Grab Project List From User
+            var query = user.SelectMany(u => u.Followers)
+                .Select(f => f.Follower);
+
+            return Ok(new
+            {
+                resultObject = query,
+                message = "User Follower Received"
+            });
+        }
+
+        /*
+        * Type : GET
+        * URL : /api/account/getfollowing/
+        * Param : {userID}
+        * Description: Get user following from user id
+        */
+        [HttpGet("[action]/{userID}")]
+        public IActionResult GetFollowing([FromRoute] int userID)
+        {
+            // Find User
+            var user = _dbContext.Users
+                .Where(u => u.Id == userID);
+            if (!user.Any()) return NotFound(new { message = "User Not Found" });
+
+            // Grab Project List From User
+            var query = user.SelectMany(u => u.Following)
+                .Select(f => f.User);
+                
+
+            return Ok(new
+            {
+                resultObject = query,
+                message = "User Following Received"
             });
         }
 
@@ -163,6 +251,7 @@ namespace NeuroSimHub.Controllers
                 message = "Recieved Search Result."
             });
         }
+
         #endregion
 
         #region POST REQUEST
@@ -335,6 +424,7 @@ namespace NeuroSimHub.Controllers
                 });
             }
         }
+        
         #endregion
 
         #region DELETE REQUEST

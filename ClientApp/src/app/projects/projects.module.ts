@@ -12,7 +12,7 @@ import { ProjectMemberComponent } from './project-member/project-member.componen
   declarations: [
     ProjectCreateComponent,
     ProjectUploadFilesComponent,
-    ProjectMemberComponent
+    ProjectMemberComponent,
   ],
   imports: [
     CommonModule,

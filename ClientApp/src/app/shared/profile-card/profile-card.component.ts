@@ -2,20 +2,19 @@ import { Component, OnInit, Input } from '@angular/core';
 import { ApplicationUser } from 'src/app/interfaces/user';
 import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
-import { UserUser } from 'src/app/interfaces/user-user';
 
 @Component({
-  selector: 'app-explore-profile-detail',
-  templateUrl: './explore-profile-detail.component.html',
-  styleUrls: ['./explore-profile-detail.component.css']
+  selector: 'app-profile-card',
+  templateUrl: './profile-card.component.html',
+  styleUrls: ['./profile-card.component.css']
 })
-export class ExploreProfileDetailComponent implements OnInit {
+export class ProfileCardComponent implements OnInit {
 
   constructor(private accountService : AccountService,
     private router : Router) { }
 
   @Input() profile : ApplicationUser
-
+  profileImage : string = null
   userID : number
   isFollowing : boolean
 
@@ -24,6 +23,7 @@ export class ExploreProfileDetailComponent implements OnInit {
     this.isFollowing = this.profile.followers.some(x =>
       x.followerID == this.userID  
     )
+    this.profileImage = this.accountService.getProfileImage(this.profile);
   }
 
   followUser(){
@@ -53,7 +53,7 @@ export class ExploreProfileDetailComponent implements OnInit {
   }
 
   reloadUser(profileID : number){
-    this.accountService.getUser(profileID).subscribe(
+    this.accountService.getUserByID(profileID).subscribe(
       result =>{
         this.profile = result
       }, error =>{

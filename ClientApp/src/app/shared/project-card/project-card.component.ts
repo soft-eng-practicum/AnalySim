@@ -7,11 +7,11 @@ import { ProjectUser } from 'src/app/interfaces/project-user';
 import { RoutePipe } from 'src/app/custom.pipe';
 
 @Component({
-  selector: 'app-explore-project-detail',
-  templateUrl: './explore-project-detail.component.html',
-  styleUrls: ['./explore-project-detail.component.css']
+  selector: 'app-project-card',
+  templateUrl: './project-card.component.html',
+  styleUrls: ['./project-card.component.css']
 })
-export class ExploreProjectDetailComponent implements OnInit {
+export class ProjectCardComponent implements OnInit {
 
   constructor(
     private projectService : ProjectService,
@@ -98,4 +98,5 @@ export class ExploreProjectDetailComponent implements OnInit {
       }
     )
   }
+
 }

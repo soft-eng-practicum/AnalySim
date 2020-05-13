@@ -46,27 +46,33 @@ export class RoleFilterPipe implements PipeTransform {
 })
 export class timeElapsedPipe implements PipeTransform {
     transform(lastUpdate: Date): string {
-        var timeNow = new Date()
         var timeThen = new Date(lastUpdate)
-        var elapsed = new Date(timeNow.getTime() - timeThen.getTime())
+        var timeNow = new Date()
+        var elapsed = Math.floor(timeNow.getTime() - timeThen.getTime())
+        var secs = Math.floor(elapsed/1000);
+        var mins = Math.floor(secs/60);
+        var hours = Math.floor(mins/60);
+        var days = Math.floor(hours/24);
+        var months = Math.floor(days/31);
+        var years = Math.floor(months/12);
     
-        if(elapsed.getMonth() > 12){
-          return Math.floor(elapsed.getMonth() / 12) + " Year"
+        if(years > 12){
+          return years + " Year"
         }
-        else if(elapsed.getMonth() > 0){
-          return elapsed.getMonth()+ " Month"
+        else if(months > 0){
+          return months + " Month"
         }
-        else if(elapsed.getDay() > 0){
-          return elapsed.getDay() + " Day"
+        else if(days > 0){
+          return days + " Day"
         }
-        else if(elapsed.getHours() > 0){
-          return elapsed.getHours() + " Hour"
+        else if(hours > 0){
+          return hours + " Hour"
         }
-        else if(elapsed.getMinutes() > 0){
-          return elapsed.getMinutes() + " Minute"
+        else if(mins > 0){
+          return mins + " Minute"
         }
-        else if(elapsed.getSeconds() > 0){
-          return elapsed.getSeconds() + " Second"
+        else if(secs > 0){
+          return secs + " Second"
         }
     }
 }

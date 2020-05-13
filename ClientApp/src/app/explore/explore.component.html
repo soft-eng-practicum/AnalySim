@@ -16,7 +16,7 @@
                         <input type="text" class="form-control border border-dark" style= "height: 100%"placeholder="Search..." name="searchTerm" formControlName="searchTerm">
                         <div class="input-group-append">
                             <button class="btn btn-outline-dark">
-                            <i class="fa fa-search"></i>
+                                <i class="fa fa-search"></i>
                             </button>     
                         </div>          
                         </div>
@@ -28,13 +28,17 @@
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="card">
-                <div class="card-body">  
-                    <div *ngIf="searchForm.value.searchCategory == 'project'">
-                        <app-explore-project-detail class="mb-3" *ngFor="let project of projects" [project]=project></app-explore-project-detail>
-                    </div>
-                    <div *ngIf="searchForm.value.searchCategory == 'profile'">
-                        <app-explore-profile-detail class="mb-3" *ngFor="let user of users" [profile]=user></app-explore-profile-detail>
-                    </div>        
+                <div class="card-body">
+                    <ul class="list-group list-group-flush" *ngIf="searchForm.value.searchCategory == 'project'">
+                        <li class="list-group-item border-0 p-0" *ngFor="let project of projects; let lastItem = last" [class.mb-4]="!lastItem">
+                            <app-project-card [project]=project></app-project-card>
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush" *ngIf="searchForm.value.searchCategory == 'profile'">
+                        <li class="list-group-item border-0 p-0" *ngFor="let user of users; let lastItem = last" [class.mb-4]="!lastItem">
+                            <app-profile-card [profile]=user></app-profile-card>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

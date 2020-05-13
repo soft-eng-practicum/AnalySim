@@ -21,7 +21,10 @@ export class AccountService {
   // Get
   private urlGetProjectList : string = this.baseUrl + "getprojectlist/"
   private urlGetUserList : string = this.baseUrl + "getuserlist"
-  private urlGetUser : string = this.baseUrl + "getuser/"
+  private urlGetUserByID : string = this.baseUrl + "getuserbyid/"
+  private urlGetUserByName : string = this.baseUrl + "getuserbyname/"
+  private urlGetFollower : string = this.baseUrl + "getfollower/"
+  private urlGetFollowing : string = this.baseUrl + "getfollowing/"
   private urlSearch : string = this.baseUrl + "search/"
 
   // Post
@@ -66,12 +69,54 @@ export class AccountService {
     );
   }
 
-  getUser (userID : number) : Observable<ApplicationUser>
+  getUserByID (userID : number) : Observable<ApplicationUser>
   {
-    return this.http.get<any>(this.urlGetUser + userID).pipe(
+    return this.http.get<any>(this.urlGetUserByID + userID).pipe(
       map(result => {
         console.log(result.message)
         return result.resultObject[0]
+      },
+      error =>{
+        console.log(error.message)
+        return error
+      })
+    );
+  }
+
+  getUserByName (username : string) : Observable<ApplicationUser>
+  {
+    return this.http.get<any>(this.urlGetUserByName + username).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.resultObject[0]
+      },
+      error =>{
+        console.log(error.message)
+        return error
+      })
+    );
+  }
+
+  getFollower (userID : number) : Observable<ApplicationUser[]>
+  {
+    return this.http.get<any>(this.urlGetFollower + userID).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.resultObject
+      },
+      error =>{
+        console.log(error.message)
+        return error
+      })
+    );
+  }
+
+  getFollowing (followerID : number) : Observable<ApplicationUser[]>
+  {
+    return this.http.get<any>(this.urlGetFollowing + followerID).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.resultObject
       },
       error =>{
         console.log(error.message)
@@ -224,6 +269,21 @@ export class AccountService {
 
     // Navigate back to the login page
     this.router.navigate(['/login'])
+  }
+
+  getProfileImage(profile : ApplicationUser) : string{
+    if(profile != null && profile.blobFiles.length != 0)
+    {
+      var uri = profile.blobFiles.find(x => x.container == 'profile').uri
+      if(uri != null)
+        return uri
+      else
+        return "../../assets/img/default-profile.png"
+    }
+    else
+    {
+      return "../../assets/img/default-profile.png"
+    }
   }
 
   get isLoggedIn()

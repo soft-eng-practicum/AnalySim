@@ -72,7 +72,7 @@ export class RegisterComponent implements OnInit {
         this.invalidRegister = true;
 
         //Set Error Message
-        this.errorMessage = error.error.value[0];
+        this.errorMessage = error.value[0];
       }
     );
 

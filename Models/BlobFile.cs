@@ -25,7 +25,8 @@ namespace NeuroSimHub.Models
         [Required]
         public string Extension { get; set; }
 
-        public int? Size { get; set; }
+        [Required]
+        public int Size { get; set; }
 
         [Required]
         public string Uri { get; set; }
@@ -36,13 +37,12 @@ namespace NeuroSimHub.Models
 
         //Foreign Key To User
         [Required]
-        public ApplicationUser User { get; set; }
+        public virtual ApplicationUser User { get; set; }
         public int UserID { get; set; }
 
         //Foreign Key to Project
-        [Required]
-        public Project Project { get; set; }
-        public int ProjectID { get; set; }
+        public virtual Project Project { get; set; }
+        public int? ProjectID { get; set; }
 
     }
 }

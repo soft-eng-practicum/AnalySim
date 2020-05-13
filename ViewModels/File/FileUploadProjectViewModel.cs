@@ -7,22 +7,13 @@ using System.Threading.Tasks;
 
 namespace NeuroSimHub.ViewModels
 {
-    public class BlobUploadViewModel
+    public class FileUploadProjectViewModel
     {
         [Required]
         public IFormFile File { get; set; }
 
         [Required]
-        public string Container { get; set; }
-
-        [Required]
         public string Directory { get; set; }
-
-        [Required]
-        public string Name { get; set; }
-
-        [Required]
-        public string Extension { get; set; }
 
         [Required]
         public int UserID { get; set; }

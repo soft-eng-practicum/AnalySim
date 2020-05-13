@@ -6,7 +6,7 @@ import { RegisterComponent } from './register/register.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ExploreComponent } from './explore/explore.component';
 import { FileExplorerComponent } from './file-explorer/file-explorer.component';
-import { ExploreProfileDetailComponent } from './explore/explore-profile-detail/explore-profile-detail.component';
+import { ProfileComponent } from './profile/profile.component';
 
 const routes: Routes = [];
 
@@ -17,10 +17,10 @@ const routes: Routes = [];
       {path: '', component: HomeComponent, pathMatch: 'full'},  
       {path: "login", component: LoginComponent},
       {path: "file", component: FileExplorerComponent},
-      {path: "test", component: ExploreProfileDetailComponent},
       {path: "register", component: RegisterComponent},
       {path: "explore", component: ExploreComponent},
       {path: 'dashboard', component: DashboardComponent},
+      {path: 'profile/:username', component : ProfileComponent},
       {path: 'projects', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule)},
       {path: 'errors', loadChildren: () => import('./errors/errors.module').then(m => m.ErrorsModule)},  
       {path: '**', redirectTo: '/home'}

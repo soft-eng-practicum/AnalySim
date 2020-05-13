@@ -3,12 +3,14 @@ import { ProjectUser } from './project-user';
 import { UserUser } from './user-user';
 
 export interface ApplicationUser {
-    id: number;
-    userName: string;
-    email: string;
-    bio: string;
-    followers: Array<UserUser>;
-    following : Array<UserUser>;
+    id: number
+    userName: string
+    email: string
+    bio: string
+    dateCreated: Date
+    lastOnline: Date
+    followers: Array<UserUser>
+    following : Array<UserUser>
     projectUsers : Array<ProjectUser>
     blobFiles : Array<BlobFile>
 }
