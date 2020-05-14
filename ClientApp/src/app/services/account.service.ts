@@ -32,6 +32,9 @@ export class AccountService {
   private urlRegister : string = this.baseUrl + "register"
   private urlLogin : string = this.baseUrl + "login"
 
+  // Post
+  private urlUpdateUser : string = this.baseUrl + "updateuser/"
+
   // Delete
   private urlUnfollow : string = this.baseUrl + "unfollow/"
 
@@ -198,6 +201,22 @@ export class AccountService {
           this.userID.next(parseInt(localStorage.getItem('userID')))
         }
         return result
+      })
+    );
+  }
+
+  updateUser (bio : string, userID : number) : Observable<ApplicationUser>
+  {
+    let body = new FormData()
+    body.append('bio', bio)
+    return this.http.put<any>(this.urlUpdateUser + userID, body).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.resultObject
+      },
+      error =>{
+        console.log(error.message)
+        return error
       })
     );
   }

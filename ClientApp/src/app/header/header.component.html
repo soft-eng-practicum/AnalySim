@@ -80,14 +80,14 @@
           <!-- Logged In Nav Item Start -->
           <ul class="navbar-nav" *ngIf="(loginStatus$ | async) as loginStatus">
             <!-- Nav Profile Dropdown -->
-            <li class="nav-item dropdown" >
-              <a class="nav-link text-white dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" *ngIf="(username$ | async) as username">
+            <li class="nav-item dropdown" *ngIf="(username$ | async) as username">
+              <a class="nav-link text-white dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {{username}}
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <a class="dropdown-item" href="javascript:void(0);" (click)="notfi.showInfo('Not Implemented Yet','View Profile');">View Profile</a>
-                <a class="dropdown-item" href="javascript:void(0);" (click)="notfi.showInfo('Not Implemented Yet','Dashboard');">Dashboard</a>
-                <a class="dropdown-item" href="javascript:void(0);" (click)="notfi.showInfo('Not Implemented Yet','Setting');">Setting</a>
+                <a class="dropdown-item" [routerLink]='["/profile/" + username]'>View Profile</a>
+                <a class="dropdown-item" [routerLink]='["/dashboard"]'>Dashboard</a>
+                <a class="dropdown-item" [routerLink]='["/setting/profile"]'>Setting</a>
                 <a class="dropdown-item" (click)="onLogout()">Log out</a>
               </div>
             </li>

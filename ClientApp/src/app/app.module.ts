@@ -25,6 +25,7 @@ import { timeElapsedPipe, RoleFilterPipe, RoutePipe } from './custom.pipe';
 import { ProfileComponent } from './profile/profile.component';
 import { ProjectCardComponent } from './shared/project-card/project-card.component';
 import { ProfileCardComponent } from './shared/profile-card/profile-card.component';
+import { ProfileSettingComponent } from './profile/profile-setting/profile-setting.component';
 
 
 @NgModule({
@@ -47,7 +48,8 @@ import { ProfileCardComponent } from './shared/profile-card/profile-card.compone
     RoutePipe,
     ProfileComponent,
     ProjectCardComponent,
-    ProfileCardComponent
+    ProfileCardComponent,
+    ProfileSettingComponent
   ],
   imports: [
     BrowserModule,

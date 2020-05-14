@@ -4,6 +4,7 @@ import { NotificationService } from '../services/notification.service';
 import { Observable } from 'rxjs';
 import { SidebarService } from '../services/sidebar.service';
 import { map } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -14,7 +15,8 @@ export class HeaderComponent implements OnInit {
 
   constructor(private acct : AccountService, 
               public notfi : NotificationService,
-              private sidebar : SidebarService){ }
+              private sidebar : SidebarService,
+              private route : Router){ }
 
   loginStatus$ : Observable<boolean>
   username$ : Observable<string>

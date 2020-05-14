@@ -15,6 +15,7 @@ using NeuroSimHub.Data;
 using NeuroSimHub.Helpers;
 using NeuroSimHub.Models;
 using NeuroSimHub.ViewModels;
+using NeuroSimHub.ViewModels.Base;
 
 namespace NeuroSimHub.Controllers
 {
@@ -251,7 +252,6 @@ namespace NeuroSimHub.Controllers
                 message = "Recieved Search Result."
             });
         }
-
         #endregion
 
         #region POST REQUEST
@@ -424,7 +424,43 @@ namespace NeuroSimHub.Controllers
                 });
             }
         }
-        
+
+        #endregion
+
+        #region PUT REQUEST
+        /*
+         * Type : PUT
+         * URL : /api/account/updateuser/
+         * Param : {userID}, ProjectViewModel
+         * Description: Update Project
+         */
+        [HttpPut("[action]/{userID}")]
+        public async Task<IActionResult> UpdateUser([FromRoute] int userID, [FromForm] UserUpdateViewModel formdata)
+        {
+            // Check Model State
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            // Find Project
+            var user = _dbContext.Users.FirstOrDefault(u => u.Id == userID);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            // If the product was found
+            user.Bio = formdata.Bio;
+
+            // Set Entity State
+            _dbContext.Entry(user).State = EntityState.Modified;
+
+            // Save Change
+            await _dbContext.SaveChangesAsync();
+
+            // Return Ok Status
+            return Ok(new
+            {
+                resultObject = user,
+                message = "Project successfully updated."
+            });
+
+        }
         #endregion
 
         #region DELETE REQUEST

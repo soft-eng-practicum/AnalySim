@@ -48,7 +48,7 @@ export class ProjectUploadFilesComponent implements OnInit {
 
   deleteFile(){
     
-    
+    /*
     this.fileService.delete('temp', this.directory).subscribe(
       result => {
         this.fileStatus = FileStatus.Success;
@@ -58,7 +58,9 @@ export class ProjectUploadFilesComponent implements OnInit {
         this.fileStatus = FileStatus.Error;      
         console.log(error);
       }
+      
     );
+    */
     
 
     this.deleteFormControl.emit(this.file);

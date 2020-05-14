@@ -7,6 +7,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { ExploreComponent } from './explore/explore.component';
 import { FileExplorerComponent } from './file-explorer/file-explorer.component';
 import { ProfileComponent } from './profile/profile.component';
+import { ProfileSettingComponent } from './profile/profile-setting/profile-setting.component';
 
 const routes: Routes = [];
 
@@ -17,6 +18,7 @@ const routes: Routes = [];
       {path: '', component: HomeComponent, pathMatch: 'full'},  
       {path: "login", component: LoginComponent},
       {path: "file", component: FileExplorerComponent},
+      {path: "setting/profile", component: ProfileSettingComponent},
       {path: "register", component: RegisterComponent},
       {path: "explore", component: ExploreComponent},
       {path: 'dashboard', component: DashboardComponent},

@@ -288,7 +288,7 @@ namespace NeuroSimHub.Controllers
 
                     // Find User
                     var query = _dbContext.BlobFiles.Where(x => x.Uri == cloudBlockBlob.Uri.AbsoluteUri.ToString());
-                    if (query.Any()) return NotFound(new { message = "Profile Image Updated" });
+                    if (query.Any()) return Ok(new { resultObject = query, message = "Profile Image Updated" });
 
                     // Create BlobFile
                     var newBlobFile = new BlobFile
