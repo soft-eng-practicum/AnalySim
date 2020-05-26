@@ -16,7 +16,7 @@
                             <div class="form-group">
                                 <label for="emailAddress">Email Address</label>
                                 <span class="text-danger"> *</span>
-                                <input formControlName="emailAddress" type="email" class="form-control" placeholder="" [class.invalid]="emailAddress.touched && emailAddress.invalid" [class.valid]="emailAddress.valid" required autofocus>
+                                <input formControlName="emailAddress" type="email" class="form-control" placeholder="" [class.invalid]="emailAddress.touched && emailAddress.invalid" [class.valid]="emailAddress.valid" [readOnly]="isLoading" required autofocus>
                                 <div *ngIf="emailAddress.touched && emailAddress.errors" class="text-danger">
                                     <span *ngIf="emailAddress.errors?.email">Please provide valid email.</span>
                                 </div>
@@ -25,7 +25,7 @@
                             <div class="form-group">
                                 <label for="username">Username</label>
                                 <span class="text-danger"> *</span>
-                                <input formControlName="username" type="text" class="form-control" placeholder=""[class.invalid]="username.touched && username.invalid" [class.valid]="username.valid" required>
+                                <input formControlName="username" type="text" class="form-control" placeholder=""[class.invalid]="username.touched && username.invalid" [class.valid]="username.valid" [readOnly]="isLoading" required>
                                 <div *ngIf="username.touched && username.errors" class="text-danger">
                                     <span *ngIf="username.errors?.minlength">Minimum 5 character</span>
                                     <span *ngIf="username.errors?.maxlength")>Maximum 10 character</span>
@@ -36,7 +36,7 @@
                             <div class="form-group">
                                 <label for="password">Password</label>
                                 <span class="text-danger"> *</span>
-                                <input formControlName="password" type="password" class="form-control" placeholder="" [class.invalid]="password.touched && password.invalid" [class.valid]="password.valid" required>
+                                <input formControlName="password" type="password" class="form-control" placeholder="" [class.invalid]="password.touched && password.invalid" [class.valid]="password.valid" [readOnly]="isLoading" required>
                                 <div *ngIf="password.touched && password.errors" class="text-danger">
                                     <p class="mb-0 p-1" *ngIf="password.errors?.minlength">Minimum 5 character</p>
                                     <p class="mb-0 p-1"  *ngIf="password.errors?.noUpper">Must Contain 1 Uppercase Character</p>
@@ -49,7 +49,7 @@
                             <div class="form-group">
                                 <label for="confirmPassword">Confirm Password</label>
                                 <span class="text-danger"> *</span>
-                                <input formControlName="confirmPassword" type="password" class="form-control" placeholder="" [class.invalid]="confirmPassword.touched && confirmPassword.invalid" [class.valid]="confirmPassword.valid" required>
+                                <input formControlName="confirmPassword" type="password" class="form-control" placeholder="" [class.invalid]="confirmPassword.touched && confirmPassword.invalid" [class.valid]="confirmPassword.valid" [readOnly]="isLoading" required>
                                 <div *ngIf="confirmPassword.touched && confirmPassword.errors" class="text-danger">
                                     <span *ngIf="confirmPassword.errors?.noMatch">Password Must Match</span>
                                 </div>
@@ -57,15 +57,12 @@
 
                             <div class="form-group">
                                 <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="insertForm.invalid">
-                                    <div *ngIf="isLoading; then showLoading else showRegister"></div>
-                                    <ng-template #showRegister>
-                                        <span *ngIf="!isLoading then">Register</span>
-                                    </ng-template>
-                                    <ng-template #showLoading>
-                                        <div class="spinner-border" role="status">
-                                            <span class="sr-only"></span>
-                                        </div>
-                                    </ng-template>
+                                    <div *ngIf="!isLoading">
+                                        <span>Register</span>
+                                    </div>
+                                    <div *ngIf="isLoading" class="spinner-border" role="status">
+                                        <span class="sr-only"></span>
+                                    </div>
                                 </button>
                                 
                             </div> <!-- form-group// -->                                                           

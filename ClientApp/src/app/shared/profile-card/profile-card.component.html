@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-md-3">
             <div class="d-flex align-items-center p-2">
-                <img *ngIf="profileImage != null" [src]="profileImage" class="card-img img-thumbnail pl-1">
+                <img [src]="profile | profileImage" class="card-img img-thumbnail pl-1">
             </div>
             
         </div>

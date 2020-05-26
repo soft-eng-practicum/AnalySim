@@ -14,11 +14,9 @@ export class ProfileComponent implements OnInit {
 
   constructor(private route : ActivatedRoute,
     private router : Router, 
-    private accountService : AccountService,
-    private projectService : ProjectService) { }
+    private accountService : AccountService) { }
 
   profile : ApplicationUser
-  profileImage : string = null
   projects : Project[] = null
   followers : ApplicationUser[] = null
   followings : ApplicationUser[] = null
@@ -33,7 +31,6 @@ export class ProfileComponent implements OnInit {
     let username = this.route.snapshot.params['username']
     this.accountService.getUserByName(username).subscribe(
       result => {
-        this.profileImage = this.accountService.getProfileImage(result);
         this.profile = result
         this.loadTabContent(0)
         

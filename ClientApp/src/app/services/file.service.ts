@@ -30,7 +30,7 @@ export class FileService {
     return this.http.post<any>(this.urlUpload, body).pipe(
       map(result => {
         console.log(result.message)
-        return result.object
+        return result.resultObject
       },
       error =>{
         console.log(error)
@@ -47,7 +47,7 @@ export class FileService {
     return this.http.post<any>(this.urlUploadProfileImage, body).pipe(
       map(result => {
         console.log(result.message)
-        return result.resultObject[0]
+        return result.resultObject
       },
       error =>{
         console.log(error)
@@ -60,7 +60,7 @@ export class FileService {
     return this.http.delete<any>(this.urlDelete + fileID).pipe(
       map(result => {
         console.log(result.message)
-        return result.object
+        return result.resultObject
       },
       error =>{
         console.log(error)

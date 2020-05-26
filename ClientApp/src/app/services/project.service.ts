@@ -9,6 +9,7 @@ import { flatMap, shareReplay } from 'rxjs/operators';
 import { ProjectUser } from '../interfaces/project-user';
 import { BlobFile } from '../interfaces/blob-file';
 import { Tag } from '../interfaces/tag';
+import { ProjectTag } from '../interfaces/project-tag';
 
 @Injectable({
   providedIn: 'root'
@@ -25,14 +26,15 @@ export class ProjectService {
 
   // Get
   private urlGetProjectList : string = this.baseUrl + "getprojectList"
-  private urlGetProject : string = this.baseUrl + "getproject/"
+  private urlGetProjectByID : string = this.baseUrl + "getprojectbyid/"
+  private urlGetProjectByRoute : string = this.baseUrl + "getprojectbyroute/"
   private urlGetUserList : string = this.baseUrl + "getuserlist/"
   private urlSearch : string = this.baseUrl + "search/"
   private urlGetFileList : string = this.baseUrl + "getfilelist/"
   private urlGetTagList : string = this.baseUrl + "gettaglist/"
 
   // Post
-  private urlCreateProject : string = this.baseUrl + "addproject"
+  private urlCreateProject : string = this.baseUrl + "createproject"
   private urlAddUser : string = this.baseUrl + "adduser"
   private urlAddTag : string = this.baseUrl + "addtag"
 
@@ -60,9 +62,23 @@ export class ProjectService {
     );
   }
 
-  getProject (owner: string, projectName: string) : Observable<Project>
+  getProjectByID (projectID: number) : Observable<Project>
   {
-    return this.http.get<any>(this.urlGetProject + owner + "/" + projectName).pipe(
+    return this.http.get<any>(this.urlGetProjectByID + projectID).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.resultObject[0]
+      },
+      error =>{
+        console.log(error)
+        return error
+      })
+    );
+  }
+
+  getProjectByRoute (owner: string, projectName: string) : Observable<Project>
+  {
+    return this.http.get<any>(this.urlGetProjectByRoute + owner + "/" + projectName).pipe(
       map(result => {
         console.log(result.message)
         return result.resultObject[0]
@@ -133,7 +149,7 @@ export class ProjectService {
     );
   }
 
-  CreateProject (projectName : string, visibility : string, description : string) : Observable<Project>
+  createProject (projectName : string, visibility : string, description : string) : Observable<Project>
   {
     let userid
     this.accountService.currentUserID.subscribe(value => userid = value)
@@ -159,7 +175,7 @@ export class ProjectService {
     )
   }
   
-  AddUser (projectID : number, userID : number, userRole: string, isFollowing : boolean) : Observable<ProjectUser>
+  addUser (projectID : number, userID : number, userRole: string, isFollowing : boolean) : Observable<ProjectUser>
   {
     let body = new FormData()
     body.append('projectid', projectID.toString())
@@ -179,7 +195,7 @@ export class ProjectService {
     );
   }
 
-  AddTag (projectID : number, tagName : string) : Observable<Tag>
+  addTag (projectID : number, tagName : string) : Observable<ProjectTag>
   {
     let body = new FormData()
     body.append('projectid', projectID.toString())
@@ -197,7 +213,7 @@ export class ProjectService {
     );
   }
 
-  UpdateProject (updateProject: Project) : Observable<Project>
+  updateProject (updateProject: Project) : Observable<Project>
   {
     let body = new FormData()
     body.append('name', updateProject.name)
@@ -216,7 +232,7 @@ export class ProjectService {
     );
   }
 
-  UpdateUser (userRole : ProjectUser) : Observable<ProjectUser>
+  updateUser (userRole : ProjectUser) : Observable<ProjectUser>
   {
     let body = new FormData()
     body.append('userid', userRole.userID.toString())
@@ -236,7 +252,7 @@ export class ProjectService {
     );
   }
 
-  DeleteProject (projectID: string)
+  deleteProject (projectID: string)
   {
 
     return this.http.delete<any>(this.urlDeleteProject + projectID).pipe(
@@ -251,7 +267,7 @@ export class ProjectService {
     );
   }
 
-  RemoveUser (projectID: number, userID : number) : Observable<ProjectUser>
+  removeUser (projectID: number, userID : number) : Observable<ProjectUser>
   {
 
     return this.http.delete<any>(this.urlRemoveUser + projectID + '/' + userID).pipe(
@@ -266,10 +282,10 @@ export class ProjectService {
     );
   }
 
-  RemoveTag (projectID: number, tagID : number) : Observable<ProjectUser>
+  removeTag (projectID: number, tagID : number) : Observable<ProjectUser>
   {
 
-    return this.http.delete<any>(this.urlRemoveUser + projectID + '/' + tagID).pipe(
+    return this.http.delete<any>(this.urlRemoveTag + projectID + '/' + tagID).pipe(
       map(result => {
         console.log(result.message)
         return result.resultObject

@@ -1,0 +1,19 @@
+<!-- Form For Adding Tag To Project -->
+<form class="form" [formGroup]="userForm">
+    <!-- Form Description -->
+    <div class="form-group">
+        <div class="input-group my-3">
+            <div class="dropdown form-control border border-dark">
+                <input type="text" formControlName="userName" class="dropdown-toggle" style="width: 100%; border: none;"placeholder="Profile..." data-toggle="dropdown">
+                <ul class="dropdown-menu" [ngClass]="{'emptyList': filteredUsers.length == 0}">
+                    <li class="dropdown-item" *ngFor="let user of filteredUsers" (click)=addUser(user) type="submit" value="Submit">
+                        <img [src]="user | profileImage" class="mr-2" style="max-width: 20px;"> {{user.userName}}
+                    </li>
+                </ul>
+            </div> 
+            <div class="input-group-append">
+                <span class="btn btn-outline-dark"><i class="fa fa-search"></i></span>   
+            </div> 
+        </div>
+    </div>
+<form>

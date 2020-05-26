@@ -4,7 +4,7 @@ import { ProjectService } from 'src/app/services/project.service';
 import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
 import { ProjectUser } from 'src/app/interfaces/project-user';
-import { RoutePipe } from 'src/app/custom.pipe';
+import { RoutePipe } from 'src/app/application-pipes/custom.pipe';
 
 @Component({
   selector: 'app-project-card',
@@ -49,7 +49,7 @@ export class ProjectCardComponent implements OnInit {
       user.isFollowing = true;
       user.userRole = this.userData.userRole  
       
-      this.projectService.UpdateUser(user).subscribe(
+      this.projectService.updateUser(user).subscribe(
         result =>{
           this.resetProject()
         }, error =>{
@@ -59,7 +59,7 @@ export class ProjectCardComponent implements OnInit {
     }
     else
     {
-      this.projectService.AddUser(this.project.projectID, this.userID, "follower", true).subscribe(
+      this.projectService.addUser(this.project.projectID, this.userID, "follower", true).subscribe(
         result =>{      
           this.resetProject()
         }, error =>{
@@ -71,7 +71,7 @@ export class ProjectCardComponent implements OnInit {
 
   unFollowProject(){
     this.userData.isFollowing = false
-    this.projectService.UpdateUser(this.userData).subscribe(
+    this.projectService.updateUser(this.userData).subscribe(
       result =>{
         this.resetProject()       
       }, error =>{
@@ -83,11 +83,7 @@ export class ProjectCardComponent implements OnInit {
   }
 
   resetProject(){
-    const filterPipe = new RoutePipe();
-    let owner = filterPipe.transform(this.project.route,"owner");
-    let projectName = filterPipe.transform(this.project.route,"projectname");
-
-    this.projectService.getProject(owner, projectName).subscribe(
+    this.projectService.getProjectByID(this.project.projectID).subscribe(
       result =>{
         this.project = result
         this.userData = this.project.projectUsers.find(x =>

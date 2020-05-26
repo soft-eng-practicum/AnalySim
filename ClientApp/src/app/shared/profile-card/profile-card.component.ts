@@ -14,7 +14,6 @@ export class ProfileCardComponent implements OnInit {
     private router : Router) { }
 
   @Input() profile : ApplicationUser
-  profileImage : string = null
   userID : number
   isFollowing : boolean
 
@@ -23,7 +22,6 @@ export class ProfileCardComponent implements OnInit {
     this.isFollowing = this.profile.followers.some(x =>
       x.followerID == this.userID  
     )
-    this.profileImage = this.accountService.getProfileImage(this.profile);
   }
 
   followUser(){

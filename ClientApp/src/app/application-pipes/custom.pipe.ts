@@ -1,5 +1,9 @@
 import { PipeTransform, Pipe } from "@angular/core";
-import { Project } from './interfaces/project';
+import { Project } from '../interfaces/project';
+import { AccountService } from '../services/account.service';
+import { ApplicationUser } from '../interfaces/user';
+import { ProjectUser } from '../interfaces/project-user';
+import { filter } from 'rxjs/operators';
 
 @Pipe({
     name: 'route'
@@ -44,7 +48,7 @@ export class RoleFilterPipe implements PipeTransform {
 @Pipe({
     name: 'timeElapsed'
 })
-export class timeElapsedPipe implements PipeTransform {
+export class TimeElapsedPipe implements PipeTransform {
     transform(lastUpdate: Date): string {
         var timeThen = new Date(lastUpdate)
         var timeNow = new Date()
@@ -74,5 +78,34 @@ export class timeElapsedPipe implements PipeTransform {
         else if(secs > 0){
           return secs + " Second"
         }
+    }
+}
+
+@Pipe({
+    name: 'profileImage',
+    pure: false
+})
+export class ProfileImagePipe implements PipeTransform {
+    
+    transform(profile: ApplicationUser): string {
+        if(profile.blobFiles.length != 0)
+        {
+            var blobFile = profile.blobFiles.find(x => x.container == 'profile')
+            if(blobFile != null) { return blobFile.uri + "?" + blobFile.dateCreated }
+        }  
+        return "../../assets/img/default-profile.png"         
+    }
+}
+
+@Pipe({
+    name: 'projectMember',
+    pure: false
+})
+export class ProjectMemberPipe implements PipeTransform {
+    transform(projectUsers: ProjectUser[]): ProjectUser[] {
+        let filtered = projectUsers.filter(x => {
+                return x.userRole == "member" || x.userRole == "admin"
+            })
+        return filtered
     }
 }

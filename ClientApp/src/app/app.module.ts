@@ -21,11 +21,11 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ExploreComponent } from './explore/explore.component';
 import { FileExplorerComponent } from './file-explorer/file-explorer.component';
-import { timeElapsedPipe, RoleFilterPipe, RoutePipe } from './custom.pipe';
 import { ProfileComponent } from './profile/profile.component';
 import { ProjectCardComponent } from './shared/project-card/project-card.component';
 import { ProfileCardComponent } from './shared/profile-card/profile-card.component';
 import { ProfileSettingComponent } from './profile/profile-setting/profile-setting.component';
+import { ApplicationPipesModule } from './application-pipes/application-pipes.module';
 
 
 @NgModule({
@@ -43,9 +43,6 @@ import { ProfileSettingComponent } from './profile/profile-setting/profile-setti
     NotFoundComponent,
     ExploreComponent,
     FileExplorerComponent,
-    RoleFilterPipe,
-    timeElapsedPipe,
-    RoutePipe,
     ProfileComponent,
     ProjectCardComponent,
     ProfileCardComponent,
@@ -58,6 +55,7 @@ import { ProfileSettingComponent } from './profile/profile-setting/profile-setti
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
+    ApplicationPipesModule,
     ModalModule.forRoot(),
     ToastrModule.forRoot()
   ],

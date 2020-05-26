@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ProjectService } from '../services/project.service';
 import { Project } from '../interfaces/project';
-import { ProjectTag } from '../interfaces/project-tag';
 import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { AccountService } from '../services/account.service';
 import { ApplicationUser } from '../interfaces/user';
@@ -31,14 +30,14 @@ export class ExploreComponent implements OnInit {
       result =>{
         this.projects = result
       }, error =>{
-        console.log("Error");      
+        console.log(error);      
       });
 
     this.accountService.getUserList().subscribe(
       result =>{
         this.users = result
       }, error =>{
-        console.log("Error");      
+        console.log(error);      
       });
 
     // Initialize Form Controls
@@ -93,9 +92,6 @@ export class ExploreComponent implements OnInit {
           }
         break
     }
-    
-
-
   }
 
 }

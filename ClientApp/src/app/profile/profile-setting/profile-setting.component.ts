@@ -13,7 +13,6 @@ import { ApplicationUser } from 'src/app/interfaces/user';
 export class ProfileSettingComponent implements OnInit {
 
   profile : ApplicationUser
-  profileImage: string
   profileForm: FormGroup
   bio : FormControl
 
@@ -32,7 +31,6 @@ export class ProfileSettingComponent implements OnInit {
     this.accountService.currentUserID.subscribe(result => userID = result)
     this.accountService.getUserByID(userID).subscribe(
       result => {
-        this.profileImage = this.accountService.getProfileImage(result);
         this.profile = result 
         
         this.bio = new FormControl(this.profile.bio);
@@ -60,9 +58,10 @@ export class ProfileSettingComponent implements OnInit {
     let file = $event.target.files[0]
     this.fileService.uploadProfileImage(file, this.profile.id).subscribe(
       result => {
-        console.log(this.profileImage)
-        this.profileImage = result.uri + "?" + new Date().getTime();
-        console.log(this.profileImage)
+        let index = this.profile.blobFiles.findIndex(x => x.blobFileID == result.blobFileID)
+        console.log(this.profile.blobFiles[index])
+        this.profile.blobFiles[index] = result    
+        console.log(this.profile.blobFiles[index])
       }, error => {
         console.log(error)
       }
@@ -73,7 +72,7 @@ export class ProfileSettingComponent implements OnInit {
     let imageFileID = this.profile.blobFiles.find(x => x.container == 'profile').blobFileID
     this.fileService.delete(imageFileID).subscribe(
       result => {
-        this.profileImage = "../../assets/img/default-profile.png";
+        console.log(result)
       },error => {
         console.log(error)
       }
@@ -86,7 +85,6 @@ export class ProfileSettingComponent implements OnInit {
     this.accountService.updateUser(form.bio, this.profile.id).subscribe(
       result => {
         this.profile = result
-        this.profileImage = this.accountService.getProfileImage(result);
       }, error =>{
         console.log(error)
       }

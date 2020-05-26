@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -287,8 +288,24 @@ namespace NeuroSimHub.Controllers
                     }
 
                     // Find User
-                    var query = _dbContext.BlobFiles.Where(x => x.Uri == cloudBlockBlob.Uri.AbsoluteUri.ToString());
-                    if (query.Any()) return Ok(new { resultObject = query, message = "Profile Image Updated" });
+                    var blobFile = _dbContext.BlobFiles.FirstOrDefault(x => x.Uri == cloudBlockBlob.Uri.AbsoluteUri.ToString());
+                    if (blobFile != null)
+                    {
+                        blobFile.Extension = Path.GetExtension(formdata.File.FileName);
+                        blobFile.Size = (int)cloudBlockBlob.Properties.Length;
+                        blobFile.Uri = cloudBlockBlob.Uri.AbsoluteUri.ToString();
+                        blobFile.DateCreated = DateTime.Now;
+
+                        // Set Entity State
+                        _dbContext.Entry(blobFile).State = EntityState.Modified;
+
+                        await _dbContext.SaveChangesAsync();
+
+                        return Ok(new { resultObject = blobFile, message = "Profile Image Updated" });
+                    }
+                        
+                        
+                        
 
                     // Create BlobFile
                     var newBlobFile = new BlobFile

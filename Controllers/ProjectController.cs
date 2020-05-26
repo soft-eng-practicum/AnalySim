@@ -57,12 +57,39 @@ namespace NeuroSimHub.Controllers
 
         /*
          * Type : GET
-         * URL : /api/project/getproject/
+         * URL : /api/project/getprojectbyid/
+         * Param : {projectID}
+         * Description: Get Project
+         */
+        [HttpGet("[action]/{projectID}")]
+        public IActionResult GetProjectByID([FromRoute] int projectID)
+        {
+            // Find Project
+            var project = _dbContext.Projects.Where(p => p.ProjectID == projectID);
+            if (!project.Any()) return NotFound(new { message = "Project Not Found" });
+
+            // Include To Many List
+            var query = project
+                .Include(p => p.ProjectUsers).ThenInclude(pu => pu.User)
+                .Include(p => p.BlobFiles)
+                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag);
+
+            // Return Ok Request
+            return Ok(new
+            {
+                resultObject = query,
+                message = "Recieved Project"
+            });
+        }
+
+        /*
+         * Type : GET
+         * URL : /api/project/getprojectbyroute/
          * Param : {owner}/{projectname}
          * Description: Get Project
          */
         [HttpGet("[action]/{owner}/{projectname}")]
-        public IActionResult GetProject([FromRoute] string owner, [FromRoute] string projectname)
+        public IActionResult GetProjectByRoute([FromRoute] string owner, [FromRoute] string projectname)
         {
             // Find Project
             var project = _dbContext.Projects.Where(p => p.ProjectUsers.Any(aup => aup.User.UserName == owner && aup.Project.Name == projectname));
@@ -315,8 +342,29 @@ namespace NeuroSimHub.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> AddUser([FromForm] ProjectUserViewModel formdata)
         {
+            // Find Tag In Database
+            var projectUser = _dbContext.ProjectUsers.Find(formdata.UserID, formdata.ProjectID);
+            if (projectUser != null)
+            {
+                if(projectUser.UserRole != "follower") return Conflict(new {message = "Project User Already Exist"});
+
+                // Add Tag To Project
+                projectUser.UserRole = formdata.UserRole;
+
+                await _dbContext.SaveChangesAsync();
+
+                _dbContext.Entry(projectUser).Reference(pu => pu.User).Load();
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    resultObject = projectUser,
+                    message = "Project User Successfully Updated"
+                });
+            }
+
             // Create Many To Many Connection
-            var userRole = new ProjectUser
+            projectUser = new ProjectUser
             {
                 ProjectID = formdata.ProjectID,
                 UserID = formdata.UserID,
@@ -325,13 +373,15 @@ namespace NeuroSimHub.Controllers
             };
 
             // Add To Database And Save Change
-            await _dbContext.ProjectUsers.AddAsync(userRole);
+            await _dbContext.ProjectUsers.AddAsync(projectUser);
             await _dbContext.SaveChangesAsync();
+
+            _dbContext.Entry(projectUser).Reference(pu => pu.User).Load();
 
             // Return Ok Status
             return Ok(new
             {
-                resultObject = userRole,
+                resultObject = projectUser,
                 message = "Project User Successfully Created"
             });
         }
@@ -356,6 +406,9 @@ namespace NeuroSimHub.Controllers
                 {
                     Name = formdata.TagName,
                 };
+
+                await _dbContext.Tag.AddAsync(tag);
+                await _dbContext.SaveChangesAsync();
             }
 
             // Find ProjectTag In Database
@@ -511,7 +564,7 @@ namespace NeuroSimHub.Controllers
         public async Task<IActionResult> RemoveUser([FromRoute] int projectID, int userID)
         {
             // Find Many To Many
-            var projectUser = await _dbContext.ProjectUsers.FindAsync(projectID, userID);
+            var projectUser = await _dbContext.ProjectUsers.FindAsync(userID, projectID);
             if (projectUser == null) return NotFound( new { message = "User Not Found"});
 
             // Remove User Role

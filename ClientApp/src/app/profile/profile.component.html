@@ -4,7 +4,7 @@
         <div class="col-md-4">
             <div class="card py-2">
                 <div class="d-flex align-items-center px-2">
-                    <img *ngIf="profileImage != null" [src]="profileImage" class="card-img img-thumbnail pl-1">
+                    <img [src]="profile | profileImage" class="card-img img-thumbnail pl-1">
                 </div>
                 <div class="card-body py-1">
                     <h5 class="card-title text-center mb-1">{{ profile.userName }}</h5>

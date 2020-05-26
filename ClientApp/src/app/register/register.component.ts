@@ -22,7 +22,7 @@ export class RegisterComponent implements OnInit {
   invalidRegister: boolean;
 
   constructor(
-    private acct : AccountService, 
+    private accountService : AccountService, 
     private router : Router,
     private formBuilder : FormBuilder,
     private notfi : NotificationService          
@@ -53,7 +53,7 @@ export class RegisterComponent implements OnInit {
     this.isLoading = true;
 
     // Register the Account
-    this.acct.register(userReg.username, userReg.password, userReg.emailAddress).subscribe(
+    this.accountService.register(userReg.username, userReg.password, userReg.emailAddress).subscribe(
       result => {
         // Hide Error Message Box
         this.invalidRegister = false;
@@ -72,7 +72,7 @@ export class RegisterComponent implements OnInit {
         this.invalidRegister = true;
 
         //Set Error Message
-        this.errorMessage = error.value[0];
+        this.errorMessage = error.error.message[0];
       }
     );
 

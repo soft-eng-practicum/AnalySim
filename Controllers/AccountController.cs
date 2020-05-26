@@ -342,7 +342,7 @@ namespace NeuroSimHub.Controllers
             }
 
             // Return Bad Request Status With ErrorList
-            return BadRequest(new JsonResult(errorList));
+            return BadRequest(new { message = errorList });
         }
 
         /*

@@ -173,7 +173,7 @@ export class AccountService {
         return result.resultObject
       },
       error =>{
-        console.log(error.message)
+        console.log(error)
         return error
       })
     );
@@ -288,21 +288,6 @@ export class AccountService {
 
     // Navigate back to the login page
     this.router.navigate(['/login'])
-  }
-
-  getProfileImage(profile : ApplicationUser) : string{
-    if(profile != null && profile.blobFiles.length != 0)
-    {
-      var uri = profile.blobFiles.find(x => x.container == 'profile').uri
-      if(uri != null)
-        return uri
-      else
-        return "../../assets/img/default-profile.png"
-    }
-    else
-    {
-      return "../../assets/img/default-profile.png"
-    }
   }
 
   get isLoggedIn()

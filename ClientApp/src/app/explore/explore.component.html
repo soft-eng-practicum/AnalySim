@@ -1,4 +1,4 @@
-<div class="container my-5 mx-auto">
+<div id="test" class="container my-5 mx-auto">
     <div class="row justify-content-center mb-3">
         <div class="col-md-10">
             <!-- Nav Search Bar -->
@@ -8,17 +8,16 @@
                         <div class="input-group ">
                             <div class="input-group-prepend">
                                 <select class="btn custom-select" style="color: #343a40; border-color: #343a40;" formControlName="searchCategory">
-                                    <option value="project">Project</option>
+                                    <option class="option-text" value="project">Project</option>
                                     <option value="profile">Profile</option>
-                                  </select>
-
+                                </select>
                             </div>
-                        <input type="text" class="form-control border border-dark" style= "height: 100%"placeholder="Search..." name="searchTerm" formControlName="searchTerm">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-dark">
-                                <i class="fa fa-search"></i>
-                            </button>     
-                        </div>          
+                            <input type="text" class="form-control border border-dark" style= "height: 100%" placeholder="Search..." name="searchTerm" formControlName="searchTerm">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-dark">
+                                    <i class="fa fa-search"></i>
+                                </button>     
+                            </div>          
                         </div>
                     </form>
                 </div>
@@ -42,6 +41,5 @@
                 </div>
             </div>
         </div>
-    </div>
-    
+    </div>  
 </div>
