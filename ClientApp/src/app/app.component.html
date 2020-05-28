@@ -9,32 +9,16 @@
     <!-- Flex Header End -->
 
     <!-- Flex Main Content Start -->
-    <div class="d-flex flex-row h-100">
-
-        <!-- Flex SideBar Start -->
-        <div class="">
-          <app-sidebar></app-sidebar>
-        </div>
-        <!-- Flex SideBar End -->
-
-        <!-- Flex Content Start -->
-        <div class="d-flex flex-column flex-grow-1">
-          <!-- Flex Router Outlet Start -->
-          <div class="d-flex flex-column flex-grow-1 ">
-            <router-outlet></router-outlet>
-          </div>
-          <!-- Flex Router Outlet End -->
-
-          <!-- Flex Footer Start -->
-          <div class="">
-            <app-footer></app-footer>
-          </div>
-          <!-- Flex Footer End -->
-        </div>
-        <!-- Flex Content End -->
-
-      </div>
+    <div class="d-flex flex-column flex-grow-1">
+      <router-outlet></router-outlet>
     </div>
     <!-- Flex Main Content End -->
+
+     <!-- Flex Footer Start -->
+     <div>
+      <app-footer></app-footer>
+    </div>
+    <!-- Flex Footer End -->
+  </div>
 </body>
 <!-- Body End -->
