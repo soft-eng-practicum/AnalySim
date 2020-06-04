@@ -48,7 +48,11 @@
           </li>
           <!-- Nav Contact Us -->
           <li class="nav-item">
-            <a class="nav-link text-white" (click)="notfi.showInfo('Not Implemented Yet','Contact Us Page');">Contact Us</a>
+            <a class="nav-link text-white" [routerLink]='["/aboutus"]' routerLinkActive = "border-bottom">About Us</a>
+          </li>
+          <!-- Nav Contact Us -->
+          <li class="nav-item">
+            <a class="nav-link text-white" [routerLink]='["/contactus"]' routerLinkActive = "border-bottom">Contact Us</a>
           </li>
           <!-- Nav Register -->
           <li class="nav-item">
@@ -65,7 +69,8 @@
           <!-- Nav Profile Dropdown -->
           <li class="nav-item dropdown" *ngIf="(currentUser$ | async) as currentUser">
             <a class="nav-link text-white dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {{currentUser.userName}}
+              <img [src]="currentUser | profileImage" class="card-img rounded-circle img-thumbnail pl-1" style="max-width: 30px;">
+               {{currentUser.userName}}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item" [routerLink]='["/profile/" + currentUser.userName]'>View Profile</a>

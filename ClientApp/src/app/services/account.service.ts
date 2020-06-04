@@ -183,7 +183,7 @@ export class AccountService {
         if(body && body.token)
         {
           this.loginStatus.next(true)
-          console.log(body.result)
+          console.log(body)
           this.user.next(body.result)
           localStorage.setItem('loginStatus', '1')
           localStorage.setItem('jwt', body.token)

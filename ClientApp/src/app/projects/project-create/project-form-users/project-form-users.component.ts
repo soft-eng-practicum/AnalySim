@@ -26,6 +26,7 @@ export class ProjectFormUsersComponent implements OnInit {
   userName: FormControl
 
   ngOnInit(): void {
+    this.loadUser()
 
     this.accountService.getUserList().subscribe(
       result => 
@@ -53,11 +54,16 @@ export class ProjectFormUsersComponent implements OnInit {
       return []
 
     var existingUser : ApplicationUser[] = []
-    this.project.projectUsers.forEach(x => { if(x.userRole != "follower") existingUser.push(x.user) })
+    this.project.projectUsers
+    .forEach(x => { 
+      if(x.userRole != "follower"){
+        existingUser.push(x.user)
+      }   
+    })
 
     return this.users.filter(x => {
       if(count < 5){
-        if(x.userName.toLowerCase().indexOf(val.toLowerCase()) != -1 && existingUser.find(u => {x.userName == u.userName}) == undefined){
+        if(x.userName.toLowerCase().indexOf(val.toLowerCase()) != -1 && existingUser.find(u => x.userName == u.userName) == undefined){
           count++
           return true
         }  
@@ -65,6 +71,7 @@ export class ProjectFormUsersComponent implements OnInit {
       else
         return false
     })
+    
   }
 
   public addUser(user : ApplicationUser){
@@ -78,4 +85,23 @@ export class ProjectFormUsersComponent implements OnInit {
     )
     this.userForm.reset() 
   }
+
+  public loadUser(){
+    let userIDs : number[] = this.project.projectUsers.map(pu => pu.userID)
+    
+    this.accountService.getUserRange(userIDs).subscribe(
+      result =>{
+        
+        // Map Project in Project User
+        this.project.projectUsers.map(pu => pu.user = result.find(u => u.id == pu.userID))
+        // Map Project
+        this.users = this.project.projectUsers
+          .map(x => x.user)
+      }, error =>{
+        console.log(error)
+      }
+    )
+
+  }
+  
 }

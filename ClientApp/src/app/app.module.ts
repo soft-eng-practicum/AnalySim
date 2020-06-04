@@ -28,6 +28,8 @@ import { DashboardQuickstartComponent } from './dashboard/dashboard-quickstart/d
 
 import { FileService } from './services/file.service';
 import { NotFoundComponent } from './error/not-found/not-found.component';
+import { ContactUsComponent } from './contact-us/contact-us.component';
+import { AboutUsComponent } from './about-us/about-us.component';
 
 
 @NgModule({
@@ -49,7 +51,9 @@ import { NotFoundComponent } from './error/not-found/not-found.component';
     DashboardFollowingComponent,
     DashboardQuickstartComponent,
     NavbarComponent,
-    NotFoundComponent
+    NotFoundComponent,
+    ContactUsComponent,
+    AboutUsComponent
   ],
   imports: [
     BrowserModule,

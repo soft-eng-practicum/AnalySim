@@ -5,9 +5,10 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ExploreComponent } from './explore/explore.component';
-import { FileExplorerComponent } from './file-explorer/file-explorer.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ProfileSettingComponent } from './profile/profile-setting/profile-setting.component';
+import { AboutUsComponent } from './about-us/about-us.component';
+import { ContactUsComponent } from './contact-us/contact-us.component';
 
 const routes: Routes = [];
 
@@ -17,6 +18,8 @@ const routes: Routes = [];
       {path: 'home', component: HomeComponent},
       {path: '', component: HomeComponent, pathMatch: 'full'},  
       {path: "login", component: LoginComponent},
+      {path: "aboutus", component: AboutUsComponent},
+      {path: "contactus", component: ContactUsComponent},
       {path: "setting/profile", component: ProfileSettingComponent},
       {path: "register", component: RegisterComponent},
       {path: "explore", component: ExploreComponent},

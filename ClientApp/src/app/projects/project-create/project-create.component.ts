@@ -21,7 +21,7 @@ export class ProjectCreateComponent implements OnInit {
     ) { }
 
 
-  ngOnInit(): void { 
+  ngOnInit(): void {
   }
 
   setProject(project : Project){

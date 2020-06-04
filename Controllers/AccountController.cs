@@ -322,7 +322,7 @@ namespace NeuroSimHub.Controllers
                 // Return OK Request
                 return Ok(new
                 {
-                    resultObject = user,
+                    result = user,
                     token = tokenHandler.WriteToken(token),
                     expiration = token.ValidTo,
                     message = "Login Successful"
