@@ -302,6 +302,8 @@ export class AccountService {
       this.getUserByID(this.userID.value).subscribe(
         result => {
           this.user.next(result)
+        }, error =>{
+          this.logout()
         }
       )
     }

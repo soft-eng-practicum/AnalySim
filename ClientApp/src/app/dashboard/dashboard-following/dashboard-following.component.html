@@ -50,7 +50,7 @@
                             <p class="mb-0">No Project Following</p>
                         </li>
                         <li *ngFor="let project of projects">
-                            <a [routerLink]='["/profile/" + project.route]'><i class="fa fa-project-diagram fa-xs"></i> {{project.route}}</a>
+                            <a [routerLink]='["/project/" + project.route]'><i class="fa fa-project-diagram fa-xs"></i> {{project.route}}</a>
                         </li>
                     </ul>
                     <ul class="list-unstyled" *ngIf ="tabActive[1]">
