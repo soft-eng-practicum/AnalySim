@@ -4,6 +4,9 @@ import { AccountService } from '../services/account.service';
 import { ApplicationUser } from '../interfaces/user';
 import { Project } from '../interfaces/project';
 import { ProjectService } from '../services/project.service';
+import { of, pipe } from 'rxjs';
+import { take } from 'rxjs/operators';
+import { UserUser } from '../interfaces/user-user';
 
 @Component({
   selector: 'app-profile',
@@ -14,91 +17,55 @@ export class ProfileComponent implements OnInit {
 
   constructor(private route : ActivatedRoute,
     private router : Router, 
-    private accountService : AccountService) { }
+    private accountService : AccountService,
+    private projectService : ProjectService) { }
 
   profile : ApplicationUser
-  projects : Project[] = null
-  followers : ApplicationUser[] = null
-  followings : ApplicationUser[] = null
+  projects : Project[]
+  followings : ApplicationUser[]
+  followers : ApplicationUser[]
+  
   tabActive : boolean[] = [true, false, false]
-  userID : number
-  showError : boolean = false
-  
-  
-  ngOnInit(): void {
-    this.accountService.currentUserID.subscribe(result => this.userID = result)
+  showError : boolean
 
-    let username = this.route.snapshot.params['username']
-    this.accountService.getUserByName(username).subscribe(
-      result => {
-        this.profile = result
-        this.loadTabContent(0)
-        
-      }, error =>{
-        console.log(error)
-        this.showError = true;
-      }
-    )
-  }
+  currentUser : ApplicationUser
 
-  loadTabContent(num : number){
-    switch(num){
-      case 0:
-        if(this.projects == null)
-        {
-          this.accountService.getProjectList(this.profile.id).subscribe(
-            result => {
-              this.projects = result       
-            }, error =>{
-              console.log(error)
-            }
-          )
-        }       
-        break;
-      case 1:
-        if(this.followings == null)
-        {
-          this.accountService.getFollowing(this.profile.id).subscribe(
-            result => {
-              console.log(result)
-              this.followings = result       
-            }, error =>{
-              console.log(error)
-            }
-          )
-        }
-        break;
-      case 2:
-        if(this.followers == null)
-        {
-          this.accountService.getFollower(this.profile.id).subscribe(
-            result => {
-              console.log(result)
-              this.followers = result       
-            }, error =>{
-              console.log(error)
-            }
-          )
-        }
-        break;
-      default:
-        console.log("Error")
-        break;
-    }
+  
+  ngOnInit(){
+    
+    this.accountService.currentUser.subscribe(result => this.currentUser = result)
+
+    this.route.params.subscribe( params => {
+      this.profile = undefined
+      this.projects = []
+      this.followings = []
+      this.followers = []
+      this.showError = false
+
+
+      let username = params["username"]
+      this.accountService.getUserByName(username)
+      .subscribe(
+        result => {
+          console.log(result)
+          this.profile = result
+          this.loadProject(result)
+          this.loadFollowing(result)
+          this.loadFollower(result)
+        }, error =>{
+          this.showError = true
+      })
+    })
+    
   }
 
   changeTab(num : number)
   {
     this.tabActive.forEach((t,i) => {
-      {
-        if(num != i)
-          this.tabActive[i] = false
-        else
-        {
-          this.tabActive[i] = true
-          this.loadTabContent(i)
-        }
-          
+      if(num != i)
+        this.tabActive[i] = false
+      else {
+        this.tabActive[i] = true
       }
     }); 
   }
@@ -107,9 +74,11 @@ export class ProfileComponent implements OnInit {
     if(!this.accountService.checkLoginStatus())
       this.router.navigate(['/login'])
 
-    this.accountService.follow(this.profile.id, this.userID).subscribe(
+    this.accountService.follow(this.profile.id, this.currentUser.id).subscribe(
       result =>{
-        this.reloadUser(result.userID)
+        console.log(result)
+        this.profile.followers.push(result)
+        this.followers = this.profile.followers.map(x => {return x.follower})
       }, error =>{
         console.log(error)
       }
@@ -117,19 +86,70 @@ export class ProfileComponent implements OnInit {
   }
 
   unFollowUser(){
-    this.accountService.unfollow(this.profile.id, this.userID).subscribe(
+    this.accountService.unfollow(this.profile.id, this.currentUser.id).subscribe(
       result =>{
-        this.reloadUser(result.userID)       
+        
+        let index = this.profile.followers.findIndex(x => x.userID == result.userID && x.followerID == result.followerID)
+        console.log(index)
+        if (index > -1) {
+          this.profile.followers.splice(index, 1)
+          this.followers = this.profile.followers
+            .map(x => {
+              return x.follower
+            })
+        }
       }, error =>{
         console.log(error)
       }
     )
   }
 
-  reloadUser(profileID : number){
-    this.accountService.getUserByID(profileID).subscribe(
+  loadProject(profile : ApplicationUser){
+    let projectIDs : number[] = profile.projectUsers.map(pu => pu.projectID)
+    
+    this.projectService.getProjectRange(projectIDs).subscribe(
       result =>{
-        this.profile = result
+        
+        // Map Project in Project User
+        this.profile.projectUsers.map(pu => pu.project = result.find(p => p.projectID == pu.projectID))
+        console.log(this.profile.projectUsers
+          .filter(x => x.userRole != "follower"))
+        // Map Project
+        this.projects = this.profile.projectUsers
+          .filter(x => x.userRole != "follower")
+          .map(x => x.project)
+      }, error =>{
+        console.log(error)
+      }
+    )
+  }
+
+  loadFollower(profile : ApplicationUser){
+    let userIDs : number[] = profile.followers.map(f => f.followerID)
+
+    this.accountService.getUserRange(userIDs).subscribe(
+      result =>{
+        // Map Project in Project User
+        this.profile.followers
+          .map(f => f.follower = result.find(u => u.id == f.followerID))
+        this.followers = this.profile.followers
+          .map(x => x.follower)
+      }, error =>{
+        console.log(error)
+      }
+    )
+  }
+
+  loadFollowing(profile : ApplicationUser){
+    let userIDs : number[] = profile.following.map(f => f.userID)
+
+    this.accountService.getUserRange(userIDs).subscribe(
+      result =>{
+        // Map Project in Project User
+        this.profile.following
+          .map(f => f.user = result.find(u => u.id == f.userID))
+        this.followings = this.profile.following
+          .map(x => x.user)
       }, error =>{
         console.log(error)
       }
@@ -137,10 +157,10 @@ export class ProfileComponent implements OnInit {
   }
 
   get isFollowing() : boolean{
-    if(this.profile != null)
+    if(this.profile != null && this.currentUser != null)
     {
       return this.profile.followers.some(x =>
-        x.followerID == this.userID  
+        x.followerID == this.currentUser.id  
       )
     }
     else {

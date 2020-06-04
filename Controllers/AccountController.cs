@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -41,36 +42,77 @@ namespace NeuroSimHub.Controllers
         #region GET REQUEST
         /*
          * Type : GET
-         * URL : /api/account/getprojectlist/
+         * URL : /api/account/getuserbyid/
          * Param : {userID}
-         * Description: Get list of project user has connection to
+         * Description: Get user from their id
+         * Response Status: 200 Ok, 404 Not Found
          */
         [HttpGet("[action]/{userID}")]
-        public IActionResult GetProjectList([FromRoute] int userID)
+        public IActionResult GetUserByID([FromRoute] int userID)
         {
-
             // Find User
             var user = _dbContext.Users
-                .Where(u => u.Id == userID);
-            if (!user.Any()) return NotFound(new { message = "User Not Found" });
-
-            // Grab Project List From User
-            var query = user.SelectMany(u => u.ProjectUsers)
-                .Select(pu => pu.Project)
-                .Include(p => p.BlobFiles)
-                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag);
-
-            var query2 = _dbContext.Set<Project>()
-                .Include(p => p.BlobFiles)
-                .Include(p => p.ProjectUsers)
-                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
-                .Where(p => p.ProjectUsers.Any(pu => pu.UserID == userID));
-
-            // Return Ok Status
+                .Include(u => u.Followers)
+                .Include(u => u.Following)
+                .Include(u => u.ProjectUsers)
+                .Include(u => u.BlobFiles)
+                .SingleOrDefault(x => x.Id == userID);
+            if (user == null) return NotFound(new { message = "User Not Found" });
             return Ok(new 
-            { 
-                resultObject = query2,
-                message = "User's Project Recieved"
+            {
+                result = user,
+                message = "Recieved User: " + user.UserName
+            });
+        }
+
+        /*
+        * Type : GET
+        * URL : /api/account/getuserbyname/
+        * Param : {username}
+        * Description: Get user from their username
+        * Response Status: 200 Ok, 404 Not Found
+        */
+        [HttpGet("[action]/{username}")]
+        public IActionResult GetUserByName([FromRoute] string username)
+        {
+            // Find User
+            var user = _dbContext.Users
+                .Include(u => u.Followers)
+                .Include(u => u.Following)
+                .Include(u => u.ProjectUsers)
+                .Include(u => u.BlobFiles)
+                .SingleOrDefault(u => u.UserName == username);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+            return Ok(new
+            {
+                result = user,
+                message = "Recieved User: " + user.UserName
+            });
+        }
+
+        /*
+        * Type : GET
+        * URL : /api/account/getuserbyname?
+        * Description: Get user from their username
+        * Response Status: 200 Ok, 404 Not Found
+        */
+        [HttpGet("[action]")]
+        public IActionResult GetUserRange([FromQuery(Name = "id")] List<int> ids)
+        {
+            // Find User
+            var users = _dbContext.Users
+                .Include(u => u.Followers)
+                .Include(u => u.Following)
+                .Include(u => u.ProjectUsers)
+                .Include(u => u.BlobFiles)
+                .Where(u => ids.Contains(u.Id))
+                .ToList();
+            if (users.Count != ids.Count) return NotFound(new { message = "Contains Invalid User" });
+
+            return Ok(new
+            {
+                result = users,
+                message = "Recieved User Range"
             });
         }
 
@@ -79,12 +121,13 @@ namespace NeuroSimHub.Controllers
          * URL : /api/account/getuserlist
          * Param : None
          * Description: Get list of all user
+         * Response Status: 200 Ok
          */
         [HttpGet("[action]")]
         public IActionResult GetUserList()
         {
             // Query All User Into A List
-            var query = _dbContext.Users
+            var users = _dbContext.Users
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
                 .Include(u => u.ProjectUsers)
@@ -93,163 +136,33 @@ namespace NeuroSimHub.Controllers
 
             return Ok(new
             {
-                resultObject = query,
-                message = "User List Received"
+                result = users,
+                message = "Recieved User List"
             });
         }
 
         /*
          * Type : GET
-         * URL : /api/account/getuser/
-         * Param : {userID}
-         * Description: Get user from their id
-         */
-        [HttpGet("[action]/{userID}")]
-        public IActionResult GetUserByID([FromRoute] int userID)
-        {
-            // Find User
-            var user = _dbContext.Users.Where(u => u.Id == userID);
-            if (!user.Any()) return NotFound(new { message = "User Not Found" });
-
-            // Populate To Many List
-            var query = user
-                .Include(u => u.Followers)
-                .Include(u => u.Following)
-                .Include(u => u.ProjectUsers)
-                .Include(u => u.BlobFiles);
-
-            return Ok(new
-            {
-                resultObject = query,
-                message = "User Received"
-            });
-        }
-
-        /*
-         * Type : GET
-         * URL : /api/account/getuser/
-         * Param : {username}
-         * Description: Get user from their username
-         */
-        [HttpGet("[action]/{username}")]
-        public IActionResult GetUserByName([FromRoute] string username)
-        {
-            // Find User
-            var user = _dbContext.Users.Where(u => u.UserName == username);
-            if (!user.Any()) return NotFound(new { message = "User Not Found" });
-
-            
-            // Populate To Many List
-            var query = user
-                .Include(u => u.Followers)
-                .Include(u => u.Following)
-                .Include(u => u.ProjectUsers)
-                .Include(u => u.BlobFiles);
-                
-
-            return Ok(new
-            {
-                resultObject = query,
-                message = "User Received"
-            });
-
-        }
-
-        /*
-        * Type : GET
-        * URL : /api/account/getfollower/
-        * Param : {userID}
-        * Description: Get follower from user id
-        */
-        [HttpGet("[action]/{userID}")]
-        public IActionResult GetFollower([FromRoute] int userID)
-        {
-            // Find User
-            var user = _dbContext.Users
-                .Where(u => u.Id == userID)
-                .Include(u => u.Following)
-                .Include(u => u.Followers);
-            if (!user.Any()) return NotFound(new { message = "User Not Found" });
-
-            // Grab Project List From User
-            var query = user.SelectMany(u => u.Followers)
-                .Select(f => f.Follower);
-
-            return Ok(new
-            {
-                resultObject = query,
-                message = "User Follower Received"
-            });
-        }
-
-        /*
-        * Type : GET
-        * URL : /api/account/getfollowing/
-        * Param : {userID}
-        * Description: Get user following from user id
-        */
-        [HttpGet("[action]/{userID}")]
-        public IActionResult GetFollowing([FromRoute] int userID)
-        {
-            // Find User
-            var user = _dbContext.Users
-                .Where(u => u.Id == userID);
-            if (!user.Any()) return NotFound(new { message = "User Not Found" });
-
-            // Grab Project List From User
-            var query = user.SelectMany(u => u.Following)
-                .Select(f => f.User);
-                
-
-            return Ok(new
-            {
-                resultObject = query,
-                message = "User Following Received"
-            });
-        }
-
-        /*
-         * Type : GET
-         * URL : /api/account/search/
-         * Param : {searchTerm}
+         * URL : /api/account/search
          * Description: Filter and return search result
+         * Response Status: 200 Ok, 204 Not Found
          */
-        [HttpGet("[action]/{searchTerm}")]
-        public IActionResult Search([FromRoute] string searchTerm)
+        [HttpGet("[action]")]
+        public IActionResult Search([FromQuery(Name = "term")] List<string> searchTerms)
         {
-            // Split String Into Multiple Search Term
-            var searchTermList = searchTerm.Split(" ");
-
-            // Get List Of User
-            var user = _dbContext.Users.ToList();
-
-            // Set For User That Match
-            var matchedUser = new HashSet<int>();
-
-            // Look For User That Contains Any Of The Search Term
-            foreach (ApplicationUser u in user)
-            {
-                foreach (string term in searchTermList)
-                {
-                    // Add To Matched User
-                    if (u.UserName.ToLower().Contains(term)) { matchedUser.Add(u.Id); break; }
-                }
-            }
-
-            // Find All The Matched User
-            var query = _dbContext.Users
-                .Where(u => matchedUser.Contains(u.Id))
+            var matchedUser = _dbContext.Users
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
                 .Include(u => u.ProjectUsers)
                 .Include(u => u.BlobFiles)
-                .ToList();
+                .ToList()
+                .Where(u => searchTerms.All(k => u.UserName.ToLower().Contains(k.ToLower())));
+            if (matchedUser.Count() == 0) return NoContent();
 
-            // Return Ok Status
             return Ok(new
             {
-                resultObject = query,
-                message = "Recieved Search Result."
+                result = matchedUser,
+                message = "Search Successful"
             });
         }
         #endregion
@@ -260,17 +173,18 @@ namespace NeuroSimHub.Controllers
          * URL : /api/account/follow
          * Param : UserFollowViewModel
          * Description: Have a user follow another user
+         * Response Status: 200 Ok, 404 Not Found
          */
         [HttpPost("[action]")]
         public async Task<IActionResult> Follow([FromForm] UserFollowViewModel formdata)
         {
             // Find User
             var user = await _dbContext.Users.FindAsync(formdata.UserID);
-            if (user == null) return NotFound(new { message = "User Not Found" });
+            if (user == null) return NotFound(new { message = "User Not Found " + formdata.UserID });
 
             // Find Follower
             var follower = await _dbContext.Users.FindAsync(formdata.FollowerID);
-            if (follower == null) return NotFound(new { message = "Follower Not Found" });
+            if (follower == null) return NotFound(new { message = "User Not Found " + formdata.UserID });
 
             // Create Many To Many Connection
             var userFollower = new UserUser
@@ -287,8 +201,8 @@ namespace NeuroSimHub.Controllers
 
             return Ok(new
             {
-                resultObject = userFollower,
-                message = "User is now following " + user.UserName
+                result = userFollower,
+                message = user.UserName +  " is now following " + follower.UserName
             });
         }
 
@@ -297,6 +211,7 @@ namespace NeuroSimHub.Controllers
          * URL : /api/account/register
          * Param : UserRegisterViewModel
          * Description: Register Account
+         * Response Status: 200 Ok, 400 Bad Request
          */
         [HttpPost("[action]")]
         public async Task<IActionResult> Register([FromForm] UserRegisterViewModel formdata)
@@ -350,6 +265,7 @@ namespace NeuroSimHub.Controllers
          * URL : /api/account/login
          * Param : UserLoginViewModel
          * Description: Register Account
+         * Response Status: 200 Ok, 401 Unauthorized
          */
         [HttpPost("[action]")]
         public async Task<IActionResult> Login([FromForm] UserLoginViewModel formdata)
@@ -399,15 +315,17 @@ namespace NeuroSimHub.Controllers
                 // Save Database Change
                 await _dbContext.SaveChangesAsync();
 
+                _dbContext.Entry(user).Collection(u => u.ProjectUsers).Load();
+                _dbContext.Entry(user).Collection(u => u.BlobFiles).Load();
+                _dbContext.Entry(user).Collection(u => u.Followers).Load();
+                _dbContext.Entry(user).Collection(u => u.Following).Load();
+
                 // Return OK Request
                 return Ok(new
                 {
                     resultObject = user,
                     token = tokenHandler.WriteToken(token),
                     expiration = token.ValidTo,
-                    username = user.UserName,
-                    userRole = roles.FirstOrDefault(),
-                    userID = user.Id,
                     message = "Login Successful"
                 });
 
@@ -433,6 +351,7 @@ namespace NeuroSimHub.Controllers
          * URL : /api/account/updateuser/
          * Param : {userID}, ProjectViewModel
          * Description: Update Project
+         * Response Status: 200 Ok, 404 Not Found
          */
         [HttpPut("[action]/{userID}")]
         public async Task<IActionResult> UpdateUser([FromRoute] int userID, [FromForm] UserUpdateViewModel formdata)
@@ -456,8 +375,8 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                resultObject = user,
-                message = "Project successfully updated."
+                result = user,
+                message = "User has been updated"
             });
 
         }
@@ -469,6 +388,7 @@ namespace NeuroSimHub.Controllers
          * URL : /api/account/unfollow/
          * Param : {userID}/{followerID}
          * Description: Have the follower unfollow the user
+         * Response Status: 200 Ok, 404 Not Found
          */
         [HttpDelete("[action]/{userID}/{followerID}")]
         public async Task<IActionResult> Unfollow([FromRoute] int userID, [FromRoute] int followerID)
@@ -493,8 +413,106 @@ namespace NeuroSimHub.Controllers
 
             return Ok(new
             {
-                resultObject = userFollower,
-                message = "Follower Successfully Delete"
+                result = userFollower,
+                message = follower.UserName + " has unfollow " + user.UserName
+            });
+        }
+        #endregion
+
+        #region Extra
+        /*
+         * Type : GET
+         * URL : /api/account/getprojects/
+         * Param : {userID}
+         * Description: Get list of project user has connection to
+         * Response Status: 200 Ok, 204 No Content
+         */
+        [HttpGet("[action]/{userID}")]
+        public IActionResult GetProjects([FromRoute] int userID)
+        {
+            // Find User
+            //var user = _dbContext.Users.SingleOrDefault(x => x.Id == userID);
+            //if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var userProjects = _dbContext.ProjectUsers
+                .Include(pu => pu.Project)
+                    .ThenInclude(p => p.BlobFiles)
+                .Include(pu => pu.Project)
+                    .ThenInclude(p => p.ProjectUsers)
+                .Include(pu => pu.Project)
+                    .ThenInclude(p => p.ProjectTags)
+                    .ThenInclude(pt => pt.Tag)
+                .Where(pu => pu.UserID == userID)
+                .AsEnumerable();
+
+                
+            //if (userProjects.Count() == 0) return NoContent();
+
+            // Return Ok Status
+            return Ok(new
+            {
+                result = userProjects,
+                message = "Recieved User Project"
+            });
+        }
+
+        /*
+        * Type : GET
+        * URL : /api/account/getfollowers/
+        * Param : {userID}
+        * Description: Get follower from user id
+        * Response Status: 200 Ok, 204 No Content, 404 Not Found
+        */
+        [HttpGet("[action]/{userID}")]
+        public IActionResult GetFollowers([FromRoute] int userID)
+        {
+            // Find User
+            var user = _dbContext.Users.SingleOrDefault(x => x.Id == userID);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var userFollowers = _dbContext.UserUsers
+                .Include(uu => uu.Follower).ThenInclude(f => f.Followers)
+                .Include(uu => uu.Follower).ThenInclude(f => f.Following)
+                .Where(u => u.UserID == userID)
+                .ToList();
+                
+            if (userFollowers.Count() == 0) return NoContent();
+
+            return Ok(new
+            {
+                result = userFollowers,
+                message = "Recieved User Follower"
+            });
+        }
+
+        /*
+        * Type : GET
+        * URL : /api/account/getfollowings/
+        * Param : {userID}
+        * Description: Get user following from user id
+        * Response Status: 200 Ok, 204 No Content, 404 Not Found
+        */
+        [HttpGet("[action]/{userID}")]
+        public IActionResult GetFollowings([FromRoute] int userID)
+        {
+            // Find User
+            var user = _dbContext.Users
+                .Include(u => u.Following)
+                .Include(u => u.Followers)
+                .SingleOrDefault(x => x.Id == userID);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var userFollowings = _dbContext.UserUsers
+                .Include(uu => uu.User).ThenInclude(f => f.Followers)
+                .Include(uu => uu.User).ThenInclude(f => f.Following)
+                .Where(u => u.FollowerID == userID)
+                .ToList();
+            if (userFollowings.Count() == 0) return NoContent();
+
+            return Ok(new
+            {
+                result = userFollowings,
+                message = "Recieved User Following"
             });
         }
         #endregion

@@ -1,31 +1,31 @@
 import { Injectable } from '@angular/core';
-import { HttpClient} from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { HttpClient, HttpParams} from '@angular/common/http';
+import { BehaviorSubject, Observable, empty, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import { ApplicationUser } from '../interfaces/user';
 import { UserUser } from '../interfaces/user-user';
 import { Project } from '../interfaces/project';
+import { NotificationService } from './notification.service';
+import { ProjectUser } from '../interfaces/project-user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountService {
 
-  constructor(private http : HttpClient, private router: Router) { }
+  constructor(private http : HttpClient, private router: Router, private notfi : NotificationService) { }
 
   // Url to access Web API
   private baseUrl : string = '/api/account/'
 
   // Get
-  private urlGetProjectList : string = this.baseUrl + "getprojectlist/"
-  private urlGetUserList : string = this.baseUrl + "getuserlist"
   private urlGetUserByID : string = this.baseUrl + "getuserbyid/"
   private urlGetUserByName : string = this.baseUrl + "getuserbyname/"
-  private urlGetFollower : string = this.baseUrl + "getfollower/"
-  private urlGetFollowing : string = this.baseUrl + "getfollowing/"
-  private urlSearch : string = this.baseUrl + "search/"
+  private urlGetUserRange : string = this.baseUrl + "getuserrange?"
+  private urlGetUserList : string = this.baseUrl + "getuserlist"
+  private urlSearch : string = this.baseUrl + "search?"
 
   // Post
   private urlFollow : string = this.baseUrl + "follow"
@@ -38,108 +38,98 @@ export class AccountService {
   // Delete
   private urlUnfollow : string = this.baseUrl + "unfollow/"
 
+  // Unuse
+  private urlGetProjects : string = this.baseUrl + "getprojects/"
+  private urlGetFollowers : string = this.baseUrl + "getfollowers/"
+  private urlGetFollowings : string = this.baseUrl + "getfollowings/"
+
   //User properties
   private loginStatus = new BehaviorSubject<boolean>(this.checkLoginStatus())
-  private username = new BehaviorSubject<string>(localStorage.getItem('username'))
-  private userRole = new BehaviorSubject<string>(localStorage.getItem('userRole'))
+  private user = new BehaviorSubject<ApplicationUser>(null)
   private userID = new BehaviorSubject<number>(parseInt(localStorage.getItem('userID')))
-
-  getProjectList (userID : number) : Observable<Project[]>
-  {
-    return this.http.get<any>(this.urlGetProjectList + userID).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.resultObject
-      },
-      error =>{
-        console.log(error.message)
-        return error
-      })
-    );
-  }
-
-  getUserList () : Observable<ApplicationUser[]>
-  {
-    return this.http.get<any>(this.urlGetUserList).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.resultObject
-      },
-      error =>{
-        console.log(error.message)
-        return error
-      })
-    );
-  }
 
   getUserByID (userID : number) : Observable<ApplicationUser>
   {
-    return this.http.get<any>(this.urlGetUserByID + userID).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.resultObject[0]
-      },
-      error =>{
-        console.log(error.message)
-        return error
+    return this.http.get<any>(this.urlGetUserByID + userID)
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)    
+        return throwError(error)
       })
-    );
+    )
   }
 
   getUserByName (username : string) : Observable<ApplicationUser>
   {
-    return this.http.get<any>(this.urlGetUserByName + username).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.resultObject[0]
-      },
-      error =>{
-        console.log(error.message)
-        return error
+    return this.http.get<any>(this.urlGetUserByName + username)
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
       })
-    );
+    )
   }
 
-  getFollower (userID : number) : Observable<ApplicationUser[]>
+  getUserRange (ids : number[]) : Observable<ApplicationUser[]>
   {
-    return this.http.get<any>(this.urlGetFollower + userID).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.resultObject
-      },
-      error =>{
-        console.log(error.message)
-        return error
+    let params = new HttpParams()
+    ids.forEach(x => params = params.append("id", x.toString()))
+
+    return this.http.get<any>(this.urlGetUserRange, {params: params})
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
       })
-    );
+    )
   }
 
-  getFollowing (followerID : number) : Observable<ApplicationUser[]>
+  getUserList () : Observable<ApplicationUser[]>
   {
-    return this.http.get<any>(this.urlGetFollowing + followerID).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.resultObject
-      },
-      error =>{
-        console.log(error.message)
-        return error
+    return this.http.get<any>(this.urlGetUserList)
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
       })
-    );
+    )
   }
-
-  search (searchTerm: string) : Observable<ApplicationUser[]>
+  
+  search (searchTerms: string[]) : Observable<ApplicationUser[]>
   {
-    return this.http.get<any>(this.urlSearch + searchTerm).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.resultObject
-      },
-      error =>{
-        console.log(error.message)
-        return error
+    let params = new HttpParams()
+    searchTerms.forEach(function (x) {
+      params = params.append("term", x)
+    })
+
+    return this.http.get<any>(this.urlSearch, {params : params})
+    .pipe(
+      map(body => {
+        if(!body) return []
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
       })
-    );
+    )
   }
 
   follow (userID : number, followerID : number) : Observable<UserUser>
@@ -148,16 +138,17 @@ export class AccountService {
     body.append('userID', userID.toString())
     body.append('followerID', followerID.toString())
     
-    return this.http.post<any>(this.urlFollow, body).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.resultObject
-      },
-      error =>{
-        console.log(error.message)
-        return error
+    return this.http.post<any>(this.urlFollow, body)
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
       })
-    );
+    )
   }
 
   register (username: string, password: string, emailaddress: string)
@@ -167,16 +158,17 @@ export class AccountService {
     body.append('username', username)
     body.append('password', password)
 
-    return this.http.post<any>(this.urlRegister, body).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.resultObject
-      },
-      error =>{
+    return this.http.post<any>(this.urlRegister, body)
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
         console.log(error)
-        return error
+        return throwError(error)
       })
-    );
+    )
   }
 
   login (username: string, password: string)
@@ -185,60 +177,72 @@ export class AccountService {
     body.append('username', username)
     body.append('password', password)
 
-    return this.http.post<any>(this.urlLogin, body).pipe(
+    return this.http.post<any>(this.urlLogin, body)
+    .pipe(
       map(result => {
         if(result && result.token)
         {
           this.loginStatus.next(true)
+          console.log(result.resultObject)
+          this.user.next(result.resultObject)
           localStorage.setItem('loginStatus', '1')
           localStorage.setItem('jwt', result.token)
-          localStorage.setItem('username', result.username)
+          localStorage.setItem('userID', result.resultObject.id)
           localStorage.setItem('expiration', result.expiration)
-          localStorage.setItem('userRole', result.userRole)
-          localStorage.setItem('userID', result.userID)
-          this.username.next(localStorage.getItem('username'))
-          this.userRole.next(localStorage.getItem('userRole'))
-          this.userID.next(parseInt(localStorage.getItem('userID')))
         }
         return result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
       })
-    );
+      
+    )
   }
 
   updateUser (bio : string, userID : number) : Observable<ApplicationUser>
   {
     let body = new FormData()
     body.append('bio', bio)
-    return this.http.put<any>(this.urlUpdateUser + userID, body).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.resultObject
-      },
-      error =>{
-        console.log(error.message)
-        return error
+
+    return this.http.put<any>(this.urlUpdateUser + userID, body)
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
       })
-    );
+    )
   }
 
   unfollow (userID : number, followerID : number) : Observable<UserUser>
   {
-    return this.http.delete<any>(this.urlUnfollow + userID + '/' + followerID).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.resultObject
-      },
-      error =>{
-        console.log(error.message)
-        return error
+    return this.http.delete<any>(this.urlUnfollow + userID + '/' + followerID)
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
       })
-    );
+    )
   }
 
   checkLoginStatus(): boolean {
+    // Get Login Cookie
     var loginCookie = localStorage.getItem('loginStatus');
+
+    // Check Login Cookie
+    // 0 = Not Logged In
+    // 1 = Logged In 
     if(loginCookie == "1")
     {
+      // Return False If Null
       if(localStorage.getItem('jwt') === null || localStorage.getItem('jwt') === undefined) 
       {
           return false;
@@ -246,7 +250,6 @@ export class AccountService {
 
       // Get and Decode the Token
       const token = localStorage.getItem('jwt');
-      
       const decoded = jwt_decode(token)
 
       // Check if the cookie is valid
@@ -255,7 +258,6 @@ export class AccountService {
           return false;
       }
       
-
       // Get Current Time
       const date = new Date(0)
 
@@ -268,6 +270,7 @@ export class AccountService {
         return true;
       }
 
+      // Return False Since Token Expire
       return false;
     }
     return false;
@@ -281,9 +284,7 @@ export class AccountService {
     // Remove item from localStorage
     localStorage.setItem('loginStatus', '0')
     localStorage.removeItem('jwt')
-    localStorage.removeItem('username')
     localStorage.removeItem('expiration')
-    localStorage.removeItem('userRole')
     localStorage.removeItem('userID')
 
     // Navigate back to the login page
@@ -295,19 +296,69 @@ export class AccountService {
     return this.loginStatus.asObservable()
   }
 
-  get currentUsername()
+  get currentUser()
   {
-    return this.username.asObservable()
+    if(this.userID.value != null && this.user.value == null && this.loginStatus.value == true){
+      this.getUserByID(this.userID.value).subscribe(
+        result => {
+          this.user.next(result)
+        }
+      )
+    }
+
+    return this.user.asObservable()
   }
 
-  get currentUserRole()
+  // Error
+  getProjectList (userID : number) : Observable<ProjectUser[]>
   {
-    return this.userRole.asObservable()
+    return this.http.get<any>(this.urlGetProjects + userID)
+    .pipe(
+      map(body => {
+        console.log(body)
+        if(body == null)
+          return []
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
   }
 
-  get currentUserID()
+  getFollower (userID : number) : Observable<UserUser[]>
   {
-    return this.userID.asObservable()
+    return this.http.get<any>(this.urlGetFollowers + userID)
+    .pipe(
+      map(body => {
+        if(body == null)
+          return []
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
   }
 
+  getFollowing (followerID : number) : Observable<UserUser[]>
+  {
+    return this.http.get<any>(this.urlGetFollowings + followerID)
+    .pipe(
+      map(body => {
+        if(body == null)
+          return []
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
 }

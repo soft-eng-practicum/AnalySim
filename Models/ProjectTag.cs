@@ -12,11 +12,11 @@ namespace NeuroSimHub.Models
         [Key, Column(Order = 1)]
         [ForeignKey("Tag")]
         public int TagID { get; set; }
-        public Tag Tag { get; set; }
+        public Tag Tag{ get; set; }
 
         [Key, Column(Order = 2)]
         [ForeignKey("Project")]
         public int ProjectID { get; set; }
-        public Project Project { get; set; }
+        public Project Project{ get; set; }
     }
 }

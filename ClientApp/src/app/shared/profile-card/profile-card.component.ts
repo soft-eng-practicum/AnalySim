@@ -14,24 +14,28 @@ export class ProfileCardComponent implements OnInit {
     private router : Router) { }
 
   @Input() profile : ApplicationUser
-  userID : number
-  isFollowing : boolean
+  currentUser : ApplicationUser = null
+  isFollowing : boolean = false
 
-  ngOnInit(): void {
-    this.accountService.currentUserID.subscribe(result => this.userID = result)
-    this.isFollowing = this.profile.followers.some(x =>
-      x.followerID == this.userID  
-    )
+  ngOnInit() {
+    if(this.accountService.checkLoginStatus()){
+      this.accountService.currentUser.subscribe(
+        result => {
+            this.currentUser = result
+            this.isFollowing = this.profile.followers.some(x => x.followerID == this.currentUser.id)
+        }
+      )
+    }
   }
 
   followUser(){
     if(!this.accountService.checkLoginStatus())
       this.router.navigate(['/login'])
 
-    this.accountService.follow(this.profile.id, this.userID).subscribe(
+    this.accountService.follow(this.profile.id, this.currentUser.id).subscribe(
       result =>{
         this.isFollowing = true
-        this.reloadUser(result.userID)
+        this.profile.followers.push(result)
       }, error =>{
         console.log(error)
       }
@@ -39,21 +43,11 @@ export class ProfileCardComponent implements OnInit {
   }
 
   unFollowUser(){
-    this.accountService.unfollow(this.profile.id, this.userID).subscribe(
+    this.accountService.unfollow(this.profile.id, this.currentUser.id).subscribe(
       result =>{
         this.isFollowing = false
-        this.reloadUser(result.userID)       
-      }, error =>{
-        console.log(error)
-      }
-    )
- 
-  }
-
-  reloadUser(profileID : number){
-    this.accountService.getUserByID(profileID).subscribe(
-      result =>{
-        this.profile = result
+        let index = this.profile.followers.indexOf(result)
+        this.profile.followers.splice(index, 1)      
       }, error =>{
         console.log(error)
       }

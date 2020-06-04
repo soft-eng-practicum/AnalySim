@@ -11,7 +11,7 @@ import { NotificationService } from '../services/notification.service';
 })
 export class LoginComponent implements OnInit {
 
-  insertForm: FormGroup;
+  loginForm: FormGroup;
   username: FormControl;
   password: FormControl;
   returnUrl: string;
@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
 
      // Initialize FormGroup using FormBuilder
-    this.insertForm = this.formBuilder.group({
+    this.loginForm = this.formBuilder.group({
         "username" : this.username,
         "password" : this.password
     
@@ -48,10 +48,10 @@ export class LoginComponent implements OnInit {
 
   onSubmit()
   {
-    let userLogin = this.insertForm.value;
+    let userLogin = this.loginForm.value;
 
     this.isLoading = true;
-    this.insertForm.reset();
+    this.loginForm.reset();
     
 
     this.acct.login(userLogin.username, userLogin.password).subscribe(

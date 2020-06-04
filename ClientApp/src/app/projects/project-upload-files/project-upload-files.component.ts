@@ -27,7 +27,7 @@ export class ProjectUploadFilesComponent implements OnInit {
   ngOnInit(): void {
 
     this.fileStatus = FileStatus.Loading;
-    this.directory = this.acctService.currentUsername + "/" + this.key + "/";
+    this.directory = "" + "/" + this.key + "/";
     
     this.uploadFile();
   }

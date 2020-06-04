@@ -20,19 +20,24 @@ export class ExploreComponent implements OnInit {
   searchForm: FormGroup;
   searchCategory: FormControl;
   searchTerm: FormControl;
-  
 
   projects : Project[]
   users : ApplicationUser[]
 
   ngOnInit(): void {
+    this.projects = null
+    this.users = null
+
+    // Load Project
     this.projectService.getProjectList().subscribe(
       result =>{
         this.projects = result
+        console.log(result)
       }, error =>{
         console.log(error);      
       });
 
+    // Load User
     this.accountService.getUserList().subscribe(
       result =>{
         this.users = result
@@ -53,9 +58,11 @@ export class ExploreComponent implements OnInit {
 
   onSubmit(){
     let searchForm = this.searchForm.value
+    let searchTerms : string[] = searchForm.searchTerm.split(' ')
     switch(searchForm.searchCategory)
     {
         case "project":
+          this.projects = null
           if(searchForm.searchTerm == "" || !searchForm.searchTerm){
             this.projectService.getProjectList().subscribe(
               result =>{
@@ -65,7 +72,7 @@ export class ExploreComponent implements OnInit {
               });
           }
           else{
-          this.projectService.search(searchForm.searchTerm).subscribe(
+          this.projectService.search(searchTerms).subscribe(
             result =>{
               this.projects = result
             }, error =>{
@@ -74,6 +81,7 @@ export class ExploreComponent implements OnInit {
           }
         break
         case "profile":
+          this.users = null
           if(searchForm.searchTerm == "" || !searchForm.searchTerm){
             this.accountService.getUserList().subscribe(
               result =>{
@@ -83,7 +91,7 @@ export class ExploreComponent implements OnInit {
               });
           }
           else{
-          this.accountService.search(searchForm.searchTerm).subscribe(
+          this.accountService.search(searchTerms).subscribe(
             result =>{
               this.users = result
             }, error =>{

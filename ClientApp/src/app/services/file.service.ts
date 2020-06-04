@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
 import { BlobFile } from '../interfaces/blob-file';
 
 @Injectable({
@@ -31,10 +31,10 @@ export class FileService {
       map(result => {
         console.log(result.message)
         return result.resultObject
-      },
-      error =>{
+      }),
+      catchError(error => {
         console.log(error)
-        return error
+        return throwError(error)
       })
     );
   }
@@ -48,10 +48,10 @@ export class FileService {
       map(result => {
         console.log(result.message)
         return result.resultObject
-      },
-      error =>{
+      }),
+      catchError(error => {
         console.log(error)
-        return error
+        return throwError(error)
       })
     );
   }
@@ -61,10 +61,10 @@ export class FileService {
       map(result => {
         console.log(result.message)
         return result.resultObject
-      },
-      error =>{
+      }),
+      catchError(error => {
         console.log(error)
-        return error
+        return throwError(error)
       })
     );
   }

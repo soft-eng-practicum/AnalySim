@@ -20,9 +20,9 @@ namespace NeuroSimHub.Models
         [DataType(DataType.DateTime)]
         public DateTime LastOnline { get; set; }
 
-        public virtual ICollection<UserUser> Followers { get; } = new List<UserUser>();
-        public virtual ICollection<UserUser> Following { get; } = new List<UserUser>();
-        public virtual ICollection<ProjectUser> ProjectUsers { get; } = new List<ProjectUser>();
-        public virtual ICollection<BlobFile> BlobFiles { get; } = new List<BlobFile>();
+        public ICollection<UserUser> Followers { get; } = new List<UserUser>();
+        public ICollection<UserUser> Following { get; } = new List<UserUser>();
+        public ICollection<ProjectUser> ProjectUsers { get; } = new List<ProjectUser>();
+        public ICollection<BlobFile> BlobFiles { get; } = new List<BlobFile>();
     }
 }

@@ -2,7 +2,7 @@ import { ApplicationUser } from './user';
 import { Project } from './project';
 
 export interface BlobFile {
-    blobFileID?: number
+    blobFileID: number
     container: string
     directory: string
     name: string

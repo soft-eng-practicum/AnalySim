@@ -12,7 +12,7 @@ import { ApplicationUser } from 'src/app/interfaces/user';
 })
 export class ProfileSettingComponent implements OnInit {
 
-  profile : ApplicationUser
+  currentUser : ApplicationUser = null
   profileForm: FormGroup
   bio : FormControl
 
@@ -27,41 +27,34 @@ export class ProfileSettingComponent implements OnInit {
     if(!this.accountService.checkLoginStatus())
       this.router.navigate(['/login'])
 
-    let userID;
-    this.accountService.currentUserID.subscribe(result => userID = result)
-    this.accountService.getUserByID(userID).subscribe(
-      result => {
-        this.profile = result 
-        
-        this.bio = new FormControl(this.profile.bio);
-    
-        // Initialize FormGroup using FormBuilder
-        this.profileForm = this.formBuilder.group({
-          bio : this.bio
-        });
-      }, error =>{
-        console.log(error)
-      }
-    )
+    this.accountService.currentUser.subscribe(result => {
+      // Set User
+      this.currentUser = result
 
-    // Initialize Form Controls
-    
+      // Make Form Control
+      this.bio = new FormControl(this.currentUser.bio)
+
+      // Initialize FormGroup using FormBuilder
+      this.profileForm = this.formBuilder.group({
+        bio : this.bio
+      });
+    })
   }
 
   public useFileInput() {
     document.getElementById('fileInput').click();
   }
-
   
   // Add FormControl to FormGroup for file input
   public fileEvent($event) {
+    // Get Target File
     let file = $event.target.files[0]
-    this.fileService.uploadProfileImage(file, this.profile.id).subscribe(
+
+    // Upload File Or Replace If Already Exist
+    this.fileService.uploadProfileImage(file, this.currentUser.id).subscribe(
       result => {
-        let index = this.profile.blobFiles.findIndex(x => x.blobFileID == result.blobFileID)
-        console.log(this.profile.blobFiles[index])
-        this.profile.blobFiles[index] = result    
-        console.log(this.profile.blobFiles[index])
+        let index = this.currentUser.blobFiles.findIndex(x => x.blobFileID == result.blobFileID)
+        this.currentUser.blobFiles[index] = result    
       }, error => {
         console.log(error)
       }
@@ -69,7 +62,7 @@ export class ProfileSettingComponent implements OnInit {
   }
 
   clearProfile(){
-    let imageFileID = this.profile.blobFiles.find(x => x.container == 'profile').blobFileID
+    let imageFileID = this.currentUser.blobFiles.find(x => x.container == 'profile').blobFileID
     this.fileService.delete(imageFileID).subscribe(
       result => {
         console.log(result)
@@ -82,14 +75,13 @@ export class ProfileSettingComponent implements OnInit {
   onSubmit(){
     let form = this.profileForm.value
 
-    this.accountService.updateUser(form.bio, this.profile.id).subscribe(
+    this.accountService.updateUser(form.bio, this.currentUser.id).subscribe(
       result => {
-        this.profile = result
+        this.currentUser = result
       }, error =>{
         console.log(error)
       }
     )
-
   }
 
 }

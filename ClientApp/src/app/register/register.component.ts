@@ -25,7 +25,7 @@ export class RegisterComponent implements OnInit {
     private accountService : AccountService, 
     private router : Router,
     private formBuilder : FormBuilder,
-    private notfi : NotificationService          
+    private notfi : NotificationService
   ) {}
 
   ngOnInit() {

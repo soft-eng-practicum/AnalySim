@@ -32,31 +32,6 @@ namespace NeuroSimHub.Controllers
         #region GET REQUEST
         /*
          * Type : GET
-         * URL : /api/project/getprojectList
-         * Param : ProjectUserViewModel
-         * Description: Get Project List
-         */
-        [HttpGet("[action]")]
-        public IActionResult GetProjectList()
-        {
-
-            // Get All Project And Include To Many List
-            var project = _dbContext.Projects
-                .Include(p => p.ProjectUsers)
-                .Include(p => p.BlobFiles)
-                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
-                .ToList();
-
-            // Return Ok Request
-            return Ok(new
-            {
-                resultObject = project,
-                message = "Recieved Project"
-            });
-        }
-
-        /*
-         * Type : GET
          * URL : /api/project/getprojectbyid/
          * Param : {projectID}
          * Description: Get Project
@@ -65,19 +40,18 @@ namespace NeuroSimHub.Controllers
         public IActionResult GetProjectByID([FromRoute] int projectID)
         {
             // Find Project
-            var project = _dbContext.Projects.Where(p => p.ProjectID == projectID);
-            if (!project.Any()) return NotFound(new { message = "Project Not Found" });
-
             // Include To Many List
-            var query = project
-                .Include(p => p.ProjectUsers).ThenInclude(pu => pu.User)
+            var project = _dbContext.Projects
                 .Include(p => p.BlobFiles)
-                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag);
+                .Include(p => p.ProjectUsers)
+                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
+                .SingleOrDefault(p => p.ProjectID == projectID);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
 
             // Return Ok Request
             return Ok(new
             {
-                resultObject = query,
+                result = project,
                 message = "Recieved Project"
             });
         }
@@ -92,142 +66,93 @@ namespace NeuroSimHub.Controllers
         public IActionResult GetProjectByRoute([FromRoute] string owner, [FromRoute] string projectname)
         {
             // Find Project
-            var project = _dbContext.Projects.Where(p => p.ProjectUsers.Any(aup => aup.User.UserName == owner && aup.Project.Name == projectname));
-            if (!project.Any()) return NotFound(new { message = "Project Not Found"});
-
-            // Include To Many List
-            var query = project
-                .Include(p => p.ProjectUsers)
+            var project = _dbContext.Projects
                 .Include(p => p.BlobFiles)
-                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag);            
+                .Include(p => p.ProjectUsers)
+                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
+                .SingleOrDefault(p => p.ProjectUsers.Any(aup => aup.User.UserName == owner && aup.Project.Name == projectname));
+            if (project == null) return NotFound(new { message = "Project Not Found" });
 
             // Return Ok Request
             return Ok(new
             {
-                resultObject = query,
+                result = project,
                 message = "Recieved Project"
             });
         }
 
         /*
          * Type : GET
-         * URL : /api/project/getuserlist/
-         * Param : {projectID}
-         * Description: Get User List Of Project
+         * URL : /api/project/getprojectrange?
+         * Description: Get Project Range
          */
-        [HttpGet("[action]/{projectID}")]
-        public IActionResult GetUserList([FromRoute] int projectID)
+        [HttpGet("[action]")]
+        public IActionResult GetProjectRange([FromQuery(Name = "id")] List<int> idList)
         {
             // Find Project
-            var project = _dbContext.Projects.Where(p => p.ProjectID == projectID);
-            if (!project.Any()) return NotFound(new { message = "Project Not Found" });
+            var projects = _dbContext.Projects
+                .Include(p => p.BlobFiles)
+                .Include(p => p.ProjectUsers)
+                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
+                .Where(p => idList.Contains(p.ProjectID))
+                .ToList();
 
-            // Find Project List
-            var query = project
-                .SelectMany(p => _dbContext.ProjectUsers)
-                .Select(pu => new 
-                { 
-                    UserID = pu.UserID,
-                    UserRole = pu.UserRole,
-                    IsFollowing = pu.IsFollowing
-                }).ToList();
-
-            // Return Ok Status
+            // Return Ok Request
             return Ok(new
             {
-                resultObject = query,
-                message = "Recieved User Roles List."
+                result = projects,
+                message = "Recieved Project"
             });
         }
 
         /*
          * Type : GET
-         * URL : /api/project/search/
-         * Param : {searchTerm}
+         * URL : /api/project/getprojectList
+         * Description: Get Project List
+         */
+        [HttpGet("[action]")]
+        public IActionResult GetProjectList()
+        {
+
+            // Get All Project And Include To Many List
+            var projects = _dbContext.Projects
+                .Include(p => p.BlobFiles)
+                .Include(p => p.ProjectUsers)
+                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
+                .ToList();
+
+            // Return Ok Request
+            return Ok(new
+            {
+                result = projects,
+                message = "Recieved Project"
+            });
+        }
+
+        /*
+         * Type : GET
+         * URL : /api/project/search?
          * Description: Filter Project Using Search Term
          */
-        [HttpGet("[action]/{searchTerm}")]
-        public IActionResult Search([FromRoute] string searchTerm)
+        [HttpGet("[action]")]
+        public IActionResult Search([FromQuery(Name = "term")] List<string> searchTerms)
         {
-            // Split String Into Multiple Search Tag
-            var searchTermList = searchTerm.Split(" ");
+            var matchedTag = _dbContext.Tag
+                .ToList()
+                .Where(t => searchTerms.Any(st => t.Name.ToLower().Contains(st.ToLower())));
 
-            // Get List Of Tag
-            var tag = _dbContext.Tag.ToList();
-
-            // Set For Tag That Match
-            var matchedTag = new HashSet<int>();
-
-            // Look For Tag That Contains Any Of The Term In TermList
-            foreach (Tag t in tag) {
-                foreach (string term in searchTermList)
-                {
-                    // Add To Matched Tag
-                    if (t.Name.ToLower().Contains(term)) { matchedTag.Add(t.TagID); break; }
-                }
-            }
-
-            // Find Project That Have The Matched Tag
-            var projects = _dbContext.Projects.Where(p => p.ProjectTags.Any(pt => matchedTag.Contains(pt.Tag.TagID)));
-
-            var query = projects
-                .Include(p => p.ProjectUsers)
+            var matchedProject = _dbContext.Projects
                 .Include(p => p.BlobFiles)
-                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag);
+                .Include(p => p.ProjectUsers)
+                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
+                .ToList()
+                .Where(p => matchedTag.Any(mt => p.ProjectTags.Any(pt => pt.Tag.Name.ToLower() == mt.Name.ToLower())));
+            if (matchedProject.Count() == 0) return NoContent();
 
-            // Return Ok Status
             return Ok(new
             {
-                resultObject = query,
+                result = matchedProject,
                 message = "Recieved Search Result."
-            });
-        }
-
-        /*
-         * Type : GET
-         * URL : /api/project/getfilelist/
-         * Param : {projectID}
-         * Description: Get list of file from project
-         */
-        [HttpGet("[action]/{projectID}")]
-        public IActionResult GetFileList([FromRoute] int projectID)
-        {
-            var project = _dbContext.Projects.Where(p => p.ProjectID == projectID);
-
-            // Query File Of Project
-            var query = project
-                .SelectMany(p => p.BlobFiles);
-
-            // Return Ok Status
-            return Ok(new
-            {
-                resultObject = query,
-                message = "Project File Received"
-            });
-        }
-
-        /*
-         * Type : GET
-         * URL : /api/project/gettaglist/
-         * Param : {projectID}
-         * Description: Get list of tag from project
-         */
-        [HttpGet("[action]/{projectID}")]
-        public IActionResult GetTagList([FromRoute] int projectID)
-        {
-            // Find Project
-            var project = _dbContext.Projects.Where(p => p.ProjectID == projectID);
-            if (!project.Any()) return NotFound(new { message = "Project Not Found"});
-
-            var query = project
-                .SelectMany(p => _dbContext.ProjectTags)
-                .Select(pt => pt.Tag);
-
-            // Return Ok Status
-            return Ok(new
-            {
-                resultObject = query,
-                message = "Recieved Tag List."
             });
         }
         #endregion
@@ -248,7 +173,7 @@ namespace NeuroSimHub.Controllers
 
             // Check If Project Already Exist
             var project = _dbContext.Projects
-                .FirstOrDefault(p => p.ProjectUsers.Any(aup =>
+                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
                     aup.User.Id == formdata.UserID &&
                     aup.Project.Name == formdata.Name &&
                     aup.UserRole == "owner"));
@@ -271,44 +196,38 @@ namespace NeuroSimHub.Controllers
             await _dbContext.Projects.AddAsync(newProject);
             await _dbContext.SaveChangesAsync();
 
-            // Create ProjectUser
-            var newProjectUser = new ProjectUser
-            {
-                UserID = user.Id,
-                ProjectID = newProject.ProjectID,
-                UserRole = "owner",
-                IsFollowing = true
-            };
-
             // Add ProjectUser And Save Change
-            await _dbContext.AddAsync(newProjectUser);
+            await _dbContext.AddAsync(
+                new ProjectUser{
+                    UserID = user.Id,
+                    ProjectID = newProject.ProjectID,
+                    UserRole = "owner",
+                    IsFollowing = true
+                }
+            );
             await _dbContext.SaveChangesAsync();
 
             // Check If Default Tag Exist
-            Tag tagUserName = _dbContext.Tag.FirstOrDefault(t => t.Name == user.UserName);
-            Tag tagProjectName = _dbContext.Tag.FirstOrDefault(t => t.Name == formdata.Name);
+            Tag tagUserName = _dbContext.Tag.SingleOrDefault(t => t.Name == user.UserName);
+            Tag tagProjectName = _dbContext.Tag.SingleOrDefault(t => t.Name == formdata.Name);
 
             // Create Username Tag If Not Found
             if (tagUserName == null)
             {
-                tagUserName = new Tag { Name = user.UserName };
-
                 // Add Tag And Save Change
-                await _dbContext.Tag.AddAsync(tagUserName);
+                await _dbContext.Tag.AddAsync(new Tag { Name = user.UserName });
                 await _dbContext.SaveChangesAsync();
             }
 
             // Create Project Name Tag If Not Found
             if (tagProjectName == null)
             {
-                tagProjectName = new Tag { Name = formdata.Name };
-
                 // Add Tag And Save Change
-                await _dbContext.Tag.AddAsync(tagProjectName);
+                await _dbContext.Tag.AddAsync(new Tag { Name = formdata.Name });
                 await _dbContext.SaveChangesAsync();
             }
 
-            // Add Tag To Project
+            // Add Both Tag To Project
             await _dbContext.ProjectTags.AddRangeAsync(
                 new ProjectTag
                 {
@@ -328,7 +247,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Request
             return Ok(new
             {
-                resultObject = newProject,
+                result = newProject,
                 message = "Project Successfully Created"
             });
         }
@@ -344,9 +263,12 @@ namespace NeuroSimHub.Controllers
         {
             // Find Tag In Database
             var projectUser = _dbContext.ProjectUsers.Find(formdata.UserID, formdata.ProjectID);
+
+            // Update Project User If Exist
             if (projectUser != null)
             {
-                if(projectUser.UserRole != "follower") return Conflict(new {message = "Project User Already Exist"});
+                // If Project User Is Not Follower Return Error
+                if(projectUser.UserRole != "follower") return Conflict(new {result = formdata, message = "Project User Already Exist"});
 
                 // Add Tag To Project
                 projectUser.UserRole = formdata.UserRole;
@@ -358,7 +280,7 @@ namespace NeuroSimHub.Controllers
                 // Return Ok Status
                 return Ok(new
                 {
-                    resultObject = projectUser,
+                    result = projectUser,
                     message = "Project User Successfully Updated"
                 });
             }
@@ -381,7 +303,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                resultObject = projectUser,
+                result = projectUser,
                 message = "Project User Successfully Created"
             });
         }
@@ -397,26 +319,27 @@ namespace NeuroSimHub.Controllers
         public async Task<IActionResult> AddTag([FromForm] ProjectTagViewModel formdata)
         {
             // Find Tag In Database
-            Tag tag = _dbContext.Tag.FirstOrDefault(t => t.Name == formdata.TagName);
+            Tag tag = _dbContext.Tag.SingleOrDefault(t => t.Name == formdata.TagName);
             if (tag == null)
             {
 
-                // Add Tag To Project
+                // Create Tag
                 tag = new Tag
                 {
                     Name = formdata.TagName,
                 };
 
+                // Add Tag To Database
                 await _dbContext.Tag.AddAsync(tag);
                 await _dbContext.SaveChangesAsync();
             }
 
             // Find ProjectTag In Database
-            ProjectTag projectTag = _dbContext.ProjectTags.FirstOrDefault(pt => pt.ProjectID == formdata.ProjectID && pt.TagID == tag.TagID);
+            ProjectTag projectTag = _dbContext.ProjectTags.SingleOrDefault(pt => pt.ProjectID == formdata.ProjectID && pt.TagID == tag.TagID);
             if (projectTag != null) return Conflict(new { message = "Project Tag Already Exist" });
 
             
-            // Add Tag To Project
+            // Add Project Tag To Project
             projectTag = new ProjectTag
             {
                 ProjectID = formdata.ProjectID,
@@ -430,7 +353,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                resultObject = projectTag,
+                result = projectTag,
                 message = "Project Tag Added"
             });
         }
@@ -468,7 +391,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                resultObject = project,
+                result = project,
                 message = "Project successfully updated."
             });
 
@@ -498,7 +421,7 @@ namespace NeuroSimHub.Controllers
 
                 return Ok(new
                 {
-                    resultObject = userRole,
+                    result = userRole,
                     message = "Follower successfully deleted"
                 });
             }
@@ -516,7 +439,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                user = userRole,
+                result = userRole,
                 message = "Project successfully updated."
             });
         }
@@ -548,7 +471,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                resultObject = deleteProject,
+                result = deleteProject,
                 message = "Project successfully deleted."
             });
 
@@ -576,7 +499,7 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                resultObject = projectUser,
+                result = projectUser,
                 message = "User Role successfully deleted."
             });
         }
@@ -591,11 +514,14 @@ namespace NeuroSimHub.Controllers
         public async Task<IActionResult> RemoveTag([FromRoute] int projectID, [FromRoute] int tagID)
         {
             // Find ProjectTag In Database
-            ProjectTag projectTag = _dbContext.ProjectTags.FirstOrDefault(pt => pt.ProjectID == projectID && pt.TagID == tagID);
+            ProjectTag projectTag = _dbContext.ProjectTags.SingleOrDefault(pt => pt.ProjectID == projectID && pt.TagID == tagID);
             if (projectTag == null) return NotFound(new { message = "Project Tag Not Found"});
 
             // Remove Project Tag
             _dbContext.ProjectTags.Remove(projectTag);
+
+            // Save Change
+            await _dbContext.SaveChangesAsync();
 
             // Check If Last Tag
             var projectTagList = _dbContext.ProjectTags.Where(pt => pt.TagID == tagID).ToList();
@@ -617,11 +543,84 @@ namespace NeuroSimHub.Controllers
             // Return Ok Status
             return Ok(new
             {
-                resultObject = projectTag,
-                message = "Project Tag Successfully Deleted"
+                result = projectTag,
+                message = projectTag.Tag.Name  + " tag has been removed"
             });
         }
         #endregion
 
+        #region Extra
+        /*
+         * Type : GET
+         * URL : /api/project/getuserlist/
+         * Param : {projectID}
+         * Description: Get User List Of Project
+         */
+        [HttpGet("[action]/{projectID}")]
+        public IActionResult GetUserList([FromRoute] int projectID)
+        {
+            // Find Project
+            var users = _dbContext.ProjectUsers
+                .Include(pu => pu.User).ThenInclude(u => u.BlobFiles)
+                .Include(pu => pu.User).ThenInclude(u => u.Followers)
+                .Include(pu => pu.User).ThenInclude(u => u.Following)
+                .Include(pu => pu.User).ThenInclude(u => u.ProjectUsers)
+                .Where(pu => pu.ProjectID == projectID)
+                .ToList();
+            if (users.Count() == 0) return NoContent();
+
+            // Return Ok Status
+            return Ok(new
+            {
+                result = users,
+                message = "Recieved Project User"
+            });
+        }
+        /*
+         * Type : GET
+         * URL : /api/project/getfilelist/
+         * Param : {projectID}
+         * Description: Get list of file from project
+         */
+        [HttpGet("[action]/{projectID}")]
+        public IActionResult GetFileList([FromRoute] int projectID)
+        {
+            var files = _dbContext.BlobFiles
+                .ToList()
+                .Where(p => p.ProjectID == projectID);
+
+            // Return Ok Status
+            return Ok(new
+            {
+                result = files,
+                message = "Project File Received"
+            });
+        }
+
+        /*
+         * Type : GET
+         * URL : /api/project/gettaglist/
+         * Param : {projectID}
+         * Description: Get list of tag from project
+         */
+        [HttpGet("[action]/{projectID}")]
+        public IActionResult GetTagList([FromRoute] int projectID)
+        {
+            // Find Project
+            var project = _dbContext.Projects.Where(p => p.ProjectID == projectID);
+            if (!project.Any()) return NotFound(new { message = "Project Not Found" });
+
+            var query = project
+                .SelectMany(p => _dbContext.ProjectTags)
+                .Select(pt => pt.Tag);
+
+            // Return Ok Status
+            return Ok(new
+            {
+                result = query,
+                message = "Recieved Tag List."
+            });
+        }
+        #endregion
     }
 }

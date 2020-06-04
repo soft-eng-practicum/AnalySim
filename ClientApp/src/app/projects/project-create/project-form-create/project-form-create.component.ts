@@ -2,6 +2,8 @@ import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormBuilder, ValidatorFn, AbstractControl } from '@angular/forms';
 import { ProjectService } from 'src/app/services/project.service';
 import { Project } from 'src/app/interfaces/project';
+import { AccountService } from 'src/app/services/account.service';
+import { ApplicationUser } from 'src/app/interfaces/user';
 
 @Component({
   selector: 'app-project-form-create',
@@ -12,6 +14,7 @@ export class ProjectFormCreateComponent implements OnInit {
 
   constructor(
     private projectService : ProjectService,
+    private accountService : AccountService,
     private formBuilder : FormBuilder) { }
 
   // Form Control - Create Project
@@ -19,6 +22,8 @@ export class ProjectFormCreateComponent implements OnInit {
   name: FormControl
   description: FormControl
   visibility: FormControl
+
+  currentUser : ApplicationUser
   isLoading : boolean
 
   @Output() setProject = new EventEmitter<Project>();
@@ -26,6 +31,7 @@ export class ProjectFormCreateComponent implements OnInit {
   //files: FormArray;
 
   ngOnInit(): void {
+    this.accountService.currentUser.subscribe(result => this.currentUser = result)
     this.isLoading = false;
 
     // Initialize Form Controls
@@ -41,7 +47,6 @@ export class ProjectFormCreateComponent implements OnInit {
         //files : this.formBuilder.array([])
     });
     //this.files = <FormArray>this.projectForm.controls['files']
-
   }
 
   // Custom Validator
@@ -91,8 +96,7 @@ export class ProjectFormCreateComponent implements OnInit {
 
   onSubmit() {
     let projectForm = this.projectForm.value;
-
-    this.projectService.createProject(projectForm.name, projectForm.visibility, projectForm.description).subscribe(
+    this.projectService.createProject(this.currentUser, projectForm.name, projectForm.visibility, projectForm.description).subscribe(
       result =>{
         this.setProject.emit(result)
         console.log(result)

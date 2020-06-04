@@ -13,17 +13,21 @@ export class NotificationService {
 
   showSuccess(message, title){
     this.toastr.success(message, title)
+    console.log(title + ":" + message)
   }
 
   showInfo(message, title){
     this.toastr.info(message, title)
+    console.log(title + ":" + message)
   }
 
   showMessage(message, title){
     this.toastr.error(message, title)
+    console.log(title + ":" + message)
   }
 
   showWarning(message, title){
     this.toastr.warning(message, title)
+    console.log(title + ":" + message)
   }
 }

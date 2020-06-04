@@ -12,12 +12,12 @@ namespace NeuroSimHub.Models
         [Key, Column(Order = 1)]
         [ForeignKey("User")]
         public int UserID { get; set; }
-        public virtual ApplicationUser User { get; set; }
+        public ApplicationUser User { get; set; }
 
         [Key, Column(Order = 2)]
         [ForeignKey("Follower")]
         public int FollowerID { get; set; }
-        public virtual ApplicationUser Follower { get; set; }
+        public ApplicationUser Follower { get; set; }
         
     }
 }

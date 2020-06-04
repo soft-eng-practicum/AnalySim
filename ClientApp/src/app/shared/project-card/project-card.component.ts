@@ -5,6 +5,8 @@ import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
 import { ProjectUser } from 'src/app/interfaces/project-user';
 import { RoutePipe } from 'src/app/application-pipes/custom.pipe';
+import { Observable } from 'rxjs';
+import { ApplicationUser } from 'src/app/interfaces/user';
 
 @Component({
   selector: 'app-project-card',
@@ -21,47 +23,52 @@ export class ProjectCardComponent implements OnInit {
 
   @Input() project : Project;
 
-  userID : number
-  userData : ProjectUser = null
+  currentUser : ApplicationUser = null
+  projectUser : ProjectUser = null
 
   ngOnInit(): void {
-    this.accountService.currentUserID.subscribe(result => this.userID = result)
-    this.userData = this.project.projectUsers.find(x =>
-      x.userID == this.userID
-    )
+    // Get User And Check For Project User Match
+    if(this.accountService.checkLoginStatus()){
+      this.accountService.currentUser.subscribe(
+        result => {
+            this.currentUser = result  
+            this.projectUser = this.project.projectUsers.find(x => x.userID == result.id) || null
+      })
+    }
   }
 
   get isFollowing() : boolean{
-    if(this.userData != null && this.userData.isFollowing == true)
-      return true
-    else 
-      return false;
+    if(this.currentUser == null) return false
+    if(this.projectUser == null) return false
+    if(this.projectUser.isFollowing == true) return true
+    return false;
   }
 
   followProject(){
+    // Navigate To Login Page If User Not Logged In
     if(!this.accountService.checkLoginStatus())
       this.router.navigate(['/login'])
 
-    if(this.userData != null){
-      var user = {} as ProjectUser;
-      user.projectID = this.project.projectID
-      this.accountService.currentUserID.subscribe(result => user.userID = result)
-      user.isFollowing = true;
-      user.userRole = this.userData.userRole  
-      
-      this.projectService.updateUser(user).subscribe(
+    if(this.projectUser == null)
+    {
+      // Create Project User As Follower
+      this.projectService.addUser(this.project.projectID, this.currentUser.id, "follower", true).subscribe(
         result =>{
-          this.resetProject()
+          this.project.projectUsers.push(result) 
+          this.projectUser = result;  
         }, error =>{
           console.log(error)
         }
       )
     }
-    else
-    {
-      this.projectService.addUser(this.project.projectID, this.userID, "follower", true).subscribe(
-        result =>{      
-          this.resetProject()
+    else{
+      // Modify Project User And Set Following To True
+      this.projectUser.isFollowing = true;     
+      this.projectService.updateUser(this.projectUser).subscribe(
+        result =>{
+          let index = this.project.projectUsers.findIndex(pu => pu.userID == result.userID)
+          this.project.projectUsers[index] = result
+          this.projectUser = result;          
         }, error =>{
           console.log(error)
         }
@@ -70,29 +77,27 @@ export class ProjectCardComponent implements OnInit {
   }
 
   unFollowProject(){
-    this.userData.isFollowing = false
-    this.projectService.updateUser(this.userData).subscribe(
-      result =>{
-        this.resetProject()       
-      }, error =>{
-        console.log(error)
-      }
-    )
-
-    
+    this.projectUser.isFollowing = false
+    if(this.projectUser.userRole == "follower")
+      this.projectService.removeUser(this.projectUser.projectID, this.projectUser.userID).subscribe(
+        result => {
+          let index = this.project.projectUsers.indexOf(result)
+          this.project.projectUsers.splice(index, 1)
+          this.projectUser = null
+        }, error =>{
+          console.log(error)
+        }
+      )
+    else{
+      this.projectService.updateUser(this.projectUser).subscribe(
+        result => {
+          let index = this.project.projectUsers.findIndex(pu => pu.userID == result.userID)
+          this.project.projectUsers[index] = result
+          this.projectUser = result 
+        }, error =>{
+          console.log(error)
+        }
+      )
+    }
   }
-
-  resetProject(){
-    this.projectService.getProjectByID(this.project.projectID).subscribe(
-      result =>{
-        this.project = result
-        this.userData = this.project.projectUsers.find(x =>
-          x.userID == this.userID
-        )
-      }, error =>{
-        console.log(error)
-      }
-    )
-  }
-
 }

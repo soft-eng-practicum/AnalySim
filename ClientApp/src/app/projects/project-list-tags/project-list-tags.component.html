@@ -3,4 +3,4 @@
     <div class="card-body py-2 px-3">
         <app-project-tag *ngFor="let projectTag of projectTags; let lastItem = last" [class.mr-2]="!lastItem" [projectTag]="projectTag" (deletedTag)="updateProjectTag($event)"></app-project-tag>
     </div>
-</div>
+</div> <!-- Tag List End -->

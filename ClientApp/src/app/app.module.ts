@@ -8,17 +8,13 @@ import { ToastrModule } from 'ngx-toastr';
 import { ModalModule } from 'ngx-bootstrap/modal';
 
 import { AppComponent } from './app.component';
+import { NavbarComponent } from './navbar/navbar.component';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { FooterComponent } from './footer/footer.component';
-import { HeaderComponent } from './header/header.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { QuickstartComponent } from './dashboard/quickstart/quickstart.component';
 import { FavoritesComponent } from './dashboard/favorites/favorites.component';
-import { FileService } from './services/file.service';
-import { SidebarComponent } from './sidebar/sidebar.component';
-import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ExploreComponent } from './explore/explore.component';
 import { FileExplorerComponent } from './file-explorer/file-explorer.component';
 import { ProfileComponent } from './profile/profile.component';
@@ -26,6 +22,12 @@ import { ProjectCardComponent } from './shared/project-card/project-card.compone
 import { ProfileCardComponent } from './shared/profile-card/profile-card.component';
 import { ProfileSettingComponent } from './profile/profile-setting/profile-setting.component';
 import { ApplicationPipesModule } from './application-pipes/application-pipes.module';
+import { DashboardSocialComponent } from './dashboard/dashboard-social/dashboard-social.component';
+import { DashboardFollowingComponent } from './dashboard/dashboard-following/dashboard-following.component';
+import { DashboardQuickstartComponent } from './dashboard/dashboard-quickstart/dashboard-quickstart.component';
+
+import { FileService } from './services/file.service';
+import { NotFoundComponent } from './error/not-found/not-found.component';
 
 
 @NgModule({
@@ -35,18 +37,19 @@ import { ApplicationPipesModule } from './application-pipes/application-pipes.mo
     LoginComponent,
     RegisterComponent,
     FooterComponent,
-    HeaderComponent,
     DashboardComponent,
-    QuickstartComponent,
     FavoritesComponent,
-    SidebarComponent,
-    NotFoundComponent,
     ExploreComponent,
     FileExplorerComponent,
     ProfileComponent,
     ProjectCardComponent,
     ProfileCardComponent,
-    ProfileSettingComponent
+    ProfileSettingComponent,
+    DashboardSocialComponent,
+    DashboardFollowingComponent,
+    DashboardQuickstartComponent,
+    NavbarComponent,
+    NotFoundComponent
   ],
   imports: [
     BrowserModule,

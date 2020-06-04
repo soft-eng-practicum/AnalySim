@@ -16,6 +16,6 @@ namespace NeuroSimHub.Models
         [Index(IsUnique = true)]
         public string Name { get; set; }
 
-        public virtual ICollection<ProjectTag> ProjectTags { get; } = new List<ProjectTag>();
+        public ICollection<ProjectTag> ProjectTags { get; } = new List<ProjectTag>();
     }
 }

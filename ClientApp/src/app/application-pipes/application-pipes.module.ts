@@ -12,14 +12,14 @@ import { TimeElapsedPipe, RoleFilterPipe, RoutePipe, ProfileImagePipe, ProjectMe
     RoleFilterPipe,
     RoutePipe,
     ProfileImagePipe,
-    ProjectMemberPipe
+    ProjectMemberPipe,
   ],
   exports: [
     TimeElapsedPipe,
     RoleFilterPipe,
     RoutePipe,
     ProfileImagePipe,
-    ProjectMemberPipe
+    ProjectMemberPipe,
   ]
 })
 export class ApplicationPipesModule { }

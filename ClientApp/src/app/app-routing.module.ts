@@ -23,8 +23,7 @@ const routes: Routes = [];
       {path: "explore", component: ExploreComponent},
       {path: 'dashboard', component: DashboardComponent},
       {path: 'profile/:username', component : ProfileComponent},
-      {path: 'projects', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule)},
-      {path: 'errors', loadChildren: () => import('./errors/errors.module').then(m => m.ErrorsModule)},  
+      {path: 'projects', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule)},  
       {path: '**', redirectTo: '/home'}
     ])],
   exports: [RouterModule]

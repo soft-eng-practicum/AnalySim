@@ -1,14 +1,14 @@
-<!-- Form For Creating The Project -->
+<!-- Project Form Start -->
 <form class="form" [formGroup]="projectForm" (ngSubmit)="onSubmit()">
 
     <!-- Form Project Visibility -->
     <div class="form-group">
         <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" formControlName="visibility" id="inlineRadio1" value="public">
+        <input class="form-check-input" type="radio" formControlName="visibility" id="inlineRadio1" value="public" [readOnly]="isLoading">
         <label class="form-check-label" for="inlineRadio1">Public</label>
       </div>
       <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" formControlName="visibility" id="inlineRadio2" value="private">
+        <input class="form-check-input" type="radio" formControlName="visibility" id="inlineRadio2" value="private" [readOnly]="isLoading">
         <label class="form-check-label" for="inlineRadio2">Private</label>
       </div>
     </div>
@@ -16,7 +16,7 @@
     <!-- Form Project Name -->
     <div class="form-group">
         <label for="name">Project Name</label>
-        <input formControlName="name" type="text" class="form-control" placeholder="" required>
+        <input formControlName="name" type="text" class="form-control" placeholder="" required [readOnly]="isLoading">
         <div *ngIf="name.touched && name.errors" class="text-danger">
             <p class="mb-0 p-1" *ngIf="name.errors?.noSpaceSpecial">No Space or Special Character</p>
             <p class="mb-0 p-1" *ngIf="name.errors?.minlength">Minimum 5 Character</p>
@@ -27,7 +27,7 @@
     <!-- Form Description -->
     <div class="form-group">
         <label for="description">Description</label>
-        <textarea formControlName="description" type="text" class="form-control" placeholder=""></textarea>
+        <textarea formControlName="description" type="text" class="form-control" placeholder="" [readOnly]="isLoading"></textarea>
     </div>
 
     <!-- Form Create Project -->
@@ -41,7 +41,7 @@
             </div>
         </button>                
     </div>
-</form>
+</form> <!-- Project Form End -->
 
 
 

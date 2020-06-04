@@ -1,0 +1,80 @@
+<!-- Nav Bar Start -->
+<nav class="navbar navbar-expand-md navbar-toggleable-sm navbar-dark bg-header text-white">
+
+    <!-- Nav Brand Start -->
+    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">NeuroSimHub</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon "></span>
+    </button> <!-- Nav Brand End -->
+  
+    <!-- Nav Collapse Start-->
+    <div class="collapse navbar-collapse ml-3">
+      <!-- Nav Left Div Start -->
+      <div class="row mr-auto">
+  
+        <!-- Nav Item List Left Start -->
+        <ul class="navbar-nav"> 
+          <!-- Nav Dashboard -->
+          <li class="nav-item" *ngIf="(loginStatus$ | async) as loginStatus">
+            <a class="nav-link text-white" [routerLink]='["/dashboard"]' routerLinkActive = "border-bottom" >Dashboard</a>
+          </li>
+          <!-- Nav Explore -->
+          <li class="nav-item">
+            <a class="nav-link text-white" [routerLink]='["/explore"]' routerLinkActive = "border-bottom" >Explore</a>
+          </li>        
+        </ul> <!-- Nav Item List Left End -->
+  
+        <!-- Nav Search Bar -->
+        <form class="form-inline">
+          <div class="input-group input-group-sm ml-2">
+            <input type="text" class="form-control" placeholder="Search..." (keyup.enter)="notfi.showInfo('Not Implemented Yet','Search Bar');">
+            <div class="input-group-append">
+              <div class="input-group-text bg-white">
+                <i class="fa fa-search"></i>
+              </div>     
+            </div>          
+          </div>
+        </form>
+      </div> <!-- Nav Left Div End -->
+  
+      <!-- Nav Item List Right Start -->
+      <ul class="navbar-nav mr-2">
+        <!-- Logged Out Nav Item Start-->
+        <ul class="navbar-nav" *ngIf="!(loginStatus$ | async) as loginStatus">
+          <!-- Nav Home -->
+          <li class="nav-item">
+            <a class="nav-link text-white" [routerLink]='["/home"]' routerLinkActive = "border-bottom">Home</a>
+          </li>
+          <!-- Nav Contact Us -->
+          <li class="nav-item">
+            <a class="nav-link text-white" (click)="notfi.showInfo('Not Implemented Yet','Contact Us Page');">Contact Us</a>
+          </li>
+          <!-- Nav Register -->
+          <li class="nav-item">
+            <a class="nav-link text-white" *ngIf="loginStatus" [routerLink]='["/register"]' routerLinkActive = "border-bottom">Register</a>
+          </li>
+          <!-- Nav Login -->
+          <li class="nav-item">
+            <a class="nav-link text-white" *ngIf="loginStatus" [routerLink]='["/login"]' routerLinkActive = "border-bottom">Login</a>
+          </li>
+        </ul> <!-- Logged Out Nav Item End-->
+        
+        <!-- Logged In Nav Item Start -->
+        <ul class="navbar-nav" *ngIf="(loginStatus$ | async) as loginStatus">
+          <!-- Nav Profile Dropdown -->
+          <li class="nav-item dropdown" *ngIf="(currentUser$ | async) as currentUser">
+            <a class="nav-link text-white dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {{currentUser.userName}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" [routerLink]='["/profile/" + currentUser.userName]'>View Profile</a>
+              <a class="dropdown-item" [routerLink]='["/dashboard"]'>Dashboard</a>
+              <a class="dropdown-item" [routerLink]='["/setting/profile"]'>Setting</a>
+              <a class="dropdown-item" (click)="onLogout()">Log out</a>
+            </div>
+          </li>
+        </ul> <!-- Logged In Nav Item End -->
+      </ul> <!-- Nav Item List Right End -->  
+    </div> <!-- Nav Collapse End-->
+  </nav> <!-- Nav Bar End -->

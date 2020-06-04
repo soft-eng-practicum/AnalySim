@@ -5,7 +5,6 @@ import { ProjectsRoutingModule } from './projects-routing.module';
 import { ProjectCreateComponent } from './project-create/project-create.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ProjectUploadFilesComponent } from './project-upload-files/project-upload-files.component';
-import { ProjectMemberComponent } from './project-member/project-member.component';
 import { ProjectTagComponent } from './project-list-tags/project-tag/project-tag.component';
 import { ProjectUserComponent } from './project-list-users/project-user/project-user.component';
 import { ProjectFormCreateComponent } from './project-create/project-form-create/project-form-create.component';
@@ -20,7 +19,6 @@ import { ApplicationPipesModule } from '../application-pipes/application-pipes.m
   declarations: [
     ProjectCreateComponent,
     ProjectUploadFilesComponent,
-    ProjectMemberComponent,
     ProjectTagComponent,
     ProjectUserComponent,
     ProjectFormCreateComponent,

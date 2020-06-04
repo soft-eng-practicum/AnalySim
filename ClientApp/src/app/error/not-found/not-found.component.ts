@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {Location} from '@angular/common';
+import { Location } from '@angular/common';
 import { Observable } from 'rxjs';
 import { AccountService } from 'src/app/services/account.service';
 
@@ -20,7 +20,6 @@ export class NotFoundComponent implements OnInit {
   }
 
   backClicked() {
-    this.location.back();
     this.location.back();
   }
 

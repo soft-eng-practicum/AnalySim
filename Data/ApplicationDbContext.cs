@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using NeuroSimHub.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,11 +14,12 @@ namespace NeuroSimHub.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             base.OnModelCreating(modelBuilder);
 
             // Composite Key For Many To Many Relationship

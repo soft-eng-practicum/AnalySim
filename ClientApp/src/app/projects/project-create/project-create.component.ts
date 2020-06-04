@@ -21,13 +21,13 @@ export class ProjectCreateComponent implements OnInit {
     ) { }
 
 
-  ngOnInit(): void {
-    
+  ngOnInit(): void { 
   }
 
   setProject(project : Project){
     this.project = project
   }
+
   updateProjectTags(projectTags : ProjectTag[]){
     this.project.projectTags = projectTags
   }

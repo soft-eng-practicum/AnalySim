@@ -37,11 +37,11 @@ namespace NeuroSimHub.Models
 
         //Foreign Key To User
         [Required]
-        public virtual ApplicationUser User { get; set; }
+        public ApplicationUser User { get; set; }
         public int UserID { get; set; }
 
         //Foreign Key to Project
-        public virtual Project Project { get; set; }
+        public Project Project { get; set; }
         public int? ProjectID { get; set; }
 
     }

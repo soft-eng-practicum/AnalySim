@@ -16,31 +16,33 @@ export class RoutePipe implements PipeTransform {
             case "projectname":
                 return route.split("/")[1];
             default:
+                console.log("Error: Route Pipe")
                 return "null";           
         }
-        
     }
 }
 
 @Pipe({
-    name: 'role'
+    name: 'role',
+    pure: false
 })
 export class RoleFilterPipe implements PipeTransform {
     transform(project: Project, type: string): number {
         switch(type){
             case "follower":
-                return project.projectUsers.filter(x => 
-                    x.isFollowing == true
-                  ).length
+                return project.projectUsers
+                    .filter(x => 
+                        x.isFollowing == true
+                    ).length
             case "member":
-                return project.projectUsers.filter(x => 
-                    x.userRole == 'owner' || 
-                    x.userRole == 'admin' || 
-                    x.userRole == 'member'
-                  ).length
+                return project.projectUsers
+                    .filter(x => 
+                        x.userRole == 'owner' || 
+                        x.userRole == 'admin' || 
+                        x.userRole == 'member'
+                    ).length
             default:
                 return 0
-            
         }
     }
 }
@@ -86,7 +88,6 @@ export class TimeElapsedPipe implements PipeTransform {
     pure: false
 })
 export class ProfileImagePipe implements PipeTransform {
-    
     transform(profile: ApplicationUser): string {
         if(profile.blobFiles.length != 0)
         {
