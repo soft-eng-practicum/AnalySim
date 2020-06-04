@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mail;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
 using NeuroSimHub.Data;
 using NeuroSimHub.Models;
 using NeuroSimHub.ViewModels;
 using NeuroSimHub.ViewModels.Project;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NeuroSimHub.Controllers
 {
