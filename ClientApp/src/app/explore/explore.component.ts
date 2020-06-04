@@ -32,7 +32,6 @@ export class ExploreComponent implements OnInit {
     this.projectService.getProjectList().subscribe(
       result =>{
         this.projects = result
-        console.log(result)
       }, error =>{
         console.log(error);      
       });
@@ -68,7 +67,7 @@ export class ExploreComponent implements OnInit {
               result =>{
                 this.projects = result
               }, error =>{
-                console.log("Error");      
+                console.log(error);      
               });
           }
           else{
@@ -76,7 +75,7 @@ export class ExploreComponent implements OnInit {
             result =>{
               this.projects = result
             }, error =>{
-              console.log("Error");      
+              console.log(error);      
             });
           }
         break
@@ -87,7 +86,7 @@ export class ExploreComponent implements OnInit {
               result =>{
                 this.users = result
               }, error =>{
-                console.log("Error");      
+                console.log(error);      
               });
           }
           else{
@@ -95,7 +94,7 @@ export class ExploreComponent implements OnInit {
             result =>{
               this.users = result
             }, error =>{
-              console.log("Error");      
+              console.log(error);      
             });
           }
         break

@@ -40,7 +40,6 @@ export class ProjectFormTagsComponent implements OnInit {
       result => {
         this.projectTags.push(result)
         this.updateProjectTags.emit(this.projectTags)
-        console.log(result)
       }, error =>{
         console.log(error)
       }

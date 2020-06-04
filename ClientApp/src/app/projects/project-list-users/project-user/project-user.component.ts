@@ -32,10 +32,8 @@ export class ProjectUserComponent implements OnInit {
   }
 
   deleteUser(){
-    console.log(this.projectUser)
     this.projectService.removeUser(this.projectUser.projectID, this.projectUser.userID).subscribe(
       result => {
-        console.log(result)
         this.removedUser.emit(this.projectUser)
       }, error =>{
         console.log(error)

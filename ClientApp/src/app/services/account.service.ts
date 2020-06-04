@@ -179,18 +179,18 @@ export class AccountService {
 
     return this.http.post<any>(this.urlLogin, body)
     .pipe(
-      map(result => {
-        if(result && result.token)
+      map(body => {
+        if(body && body.token)
         {
           this.loginStatus.next(true)
-          console.log(result.resultObject)
-          this.user.next(result.resultObject)
+          console.log(body.result)
+          this.user.next(body.result)
           localStorage.setItem('loginStatus', '1')
-          localStorage.setItem('jwt', result.token)
-          localStorage.setItem('userID', result.resultObject.id)
-          localStorage.setItem('expiration', result.expiration)
+          localStorage.setItem('jwt', body.token)
+          localStorage.setItem('userID', body.result.id)
+          localStorage.setItem('expiration', body.expiration)
         }
-        return result
+        return body
       }),
       catchError(error => {
         console.log(error)

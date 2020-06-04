@@ -23,9 +23,6 @@ export class ProjectHomeComponent implements OnInit {
     let owner = this.route.snapshot.params['owner']
     let projectname = this.route.snapshot.params['projectname']
 
-    console.log(owner)
-    console.log(projectname)
-
     /*
     this.projectService.ReadProject(owner, projectname).subscribe(
       result =>{

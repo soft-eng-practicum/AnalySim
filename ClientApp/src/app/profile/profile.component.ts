@@ -47,7 +47,6 @@ export class ProfileComponent implements OnInit {
       this.accountService.getUserByName(username)
       .subscribe(
         result => {
-          console.log(result)
           this.profile = result
           this.loadProject(result)
           this.loadFollowing(result)
@@ -76,7 +75,6 @@ export class ProfileComponent implements OnInit {
 
     this.accountService.follow(this.profile.id, this.currentUser.id).subscribe(
       result =>{
-        console.log(result)
         this.profile.followers.push(result)
         this.followers = this.profile.followers.map(x => {return x.follower})
       }, error =>{
@@ -90,7 +88,6 @@ export class ProfileComponent implements OnInit {
       result =>{
         
         let index = this.profile.followers.findIndex(x => x.userID == result.userID && x.followerID == result.followerID)
-        console.log(index)
         if (index > -1) {
           this.profile.followers.splice(index, 1)
           this.followers = this.profile.followers
@@ -112,8 +109,6 @@ export class ProfileComponent implements OnInit {
         
         // Map Project in Project User
         this.profile.projectUsers.map(pu => pu.project = result.find(p => p.projectID == pu.projectID))
-        console.log(this.profile.projectUsers
-          .filter(x => x.userRole != "follower"))
         // Map Project
         this.projects = this.profile.projectUsers
           .filter(x => x.userRole != "follower")

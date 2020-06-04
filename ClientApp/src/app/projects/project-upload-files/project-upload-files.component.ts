@@ -36,7 +36,6 @@ export class ProjectUploadFilesComponent implements OnInit {
     this.fileService.upload(this.file.value, 'temp', this.directory).subscribe(
       result => {
         this.fileStatus = FileStatus.Success;
-        console.log(result);
       },
       error => {  
         this.fileStatus = FileStatus.Error;      

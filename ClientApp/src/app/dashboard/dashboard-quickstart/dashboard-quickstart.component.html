@@ -16,9 +16,9 @@
                     <div class="input-group input-group-sm">
                         <input type="text" class="form-control" placeholder="Search...">
                         <div class="input-group-append">
-                            <div class="input-group-text bg-white">
+                            <button class="input-group-text bg-white">
                                 <i class="fa fa-search"></i>
-                            </div>     
+                            </button>     
                         </div>          
                     </div>
                 </form>
@@ -31,25 +31,25 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="#">Project</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Organization</a>
-                        
-                    </li>
                 </ul>
             </div>
             <!-- Nav Tab End -->
 
-            Nav Content Start
+            <!-- Nav Content Start -->
             <div class="nav-tabs-content">
                 <div class="m-3">
                     <ul class="list-unstyled">
-                        <li *ngIf="projects == null">
-
+                        <li *ngIf="projects == null" class="d-flex justify-content-center">
+                            <div class="spinner-border">
+                                <span class="sr-only"></span>
+                            </div>
                         </li>
-                        <!-- <li *ngIf="projects.length == 0">No Project Found</li>
+                        <li *ngIf="projects != null && projects.length == 0" class="d-flex justify-content-center">
+                            <p class="mb-0">No Project Found</p>
+                        </li>
                         <li *ngFor="let project of projects">
-                            <a [routerLink]='[project.route]'>{{project.route}}</a>
-                        </li> -->
+                            <a [routerLink]='["/project/" + project.route]'><i class="fa fa-project-diagram fa-xs"></i> {{project.route}}</a>
+                        </li>
                     </ul>
                 </div>       
             </div>

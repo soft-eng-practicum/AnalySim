@@ -17,13 +17,12 @@ const routes: Routes = [];
       {path: 'home', component: HomeComponent},
       {path: '', component: HomeComponent, pathMatch: 'full'},  
       {path: "login", component: LoginComponent},
-      {path: "file", component: FileExplorerComponent},
       {path: "setting/profile", component: ProfileSettingComponent},
       {path: "register", component: RegisterComponent},
       {path: "explore", component: ExploreComponent},
       {path: 'dashboard', component: DashboardComponent},
       {path: 'profile/:username', component : ProfileComponent},
-      {path: 'projects', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule)},  
+      {path: 'project', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule)},  
       {path: '**', redirectTo: '/home'}
     ])],
   exports: [RouterModule]

@@ -21,15 +21,15 @@
                         </p>
                         <!-- Card Navigation -->
                         <div class="card-footer bg-light">
-                            <a class="btn btn-primary btn-lg mr-2 text-white" (click)="backClicked()">
+                            <button class="btn btn-outline-success btn-lg ml-2" (click)="backClicked()">
                                 Back
-                            </a>
-                            <a class="btn btn-success btn-lg ml-2" *ngIf="!(loginStatus$ | async)" [routerLink]='["/home"]'>
+                            </button>
+                            <button class="btn btn-outline-primary btn-lg ml-2" *ngIf="!(loginStatus$ | async)" [routerLink]='["/home"]'>
                                 Home
-                            </a>
-                            <a class="btn btn-success btn-lg ml-2" *ngIf="(loginStatus$ | async)" [routerLink]='["/dashboard"]'>
+                            </button>
+                            <button class="btn btn-outline-primary btn-lg ml-2" *ngIf="(loginStatus$ | async)" [routerLink]='["/dashboard"]'>
                                 Dashboard
-                            </a>
+                            </button>
                         </div>
                     </div> 
                 </div>
