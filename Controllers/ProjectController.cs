@@ -208,16 +208,20 @@ namespace NeuroSimHub.Controllers
             // Create Username Tag If Not Found
             if (tagUserName == null)
             {
+                tagUserName = new Tag { Name = user.UserName };
+
                 // Add Tag And Save Change
-                await _dbContext.Tag.AddAsync(new Tag { Name = user.UserName });
+                await _dbContext.Tag.AddAsync(tagUserName);
                 await _dbContext.SaveChangesAsync();
             }
 
             // Create Project Name Tag If Not Found
             if (tagProjectName == null)
             {
+                tagProjectName = new Tag { Name = formdata.Name };
+
                 // Add Tag And Save Change
-                await _dbContext.Tag.AddAsync(new Tag { Name = formdata.Name });
+                await _dbContext.Tag.AddAsync(tagProjectName);
                 await _dbContext.SaveChangesAsync();
             }
 

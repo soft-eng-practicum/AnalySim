@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { ApplicationUser } from 'src/app/interfaces/user';
 import { AccountService } from 'src/app/services/account.service';
 import { ProjectService } from 'src/app/services/project.service';
@@ -14,22 +14,15 @@ export class DashboardFollowingComponent implements OnInit {
   constructor(private accountService : AccountService,
     private projectService : ProjectService) { }
 
+  @Input() currentUser : ApplicationUser
   userID : number
-  currentUser : ApplicationUser
   projects : Project[]
   followings : ApplicationUser[]
   tabActive : boolean[] = [true, false]
 
   ngOnInit(): void {
-    this.accountService.getUserByID(21).subscribe(
-      result =>{
-        this.currentUser = result
-        this.loadProject(result)
-        this.loadFollowing(result)
-      }, error =>{
-        console.log(error)
-      }
-    )
+    this.loadProject(this.currentUser)
+    this.loadFollowing(this.currentUser)
   }
 
   changeTab(num : number)

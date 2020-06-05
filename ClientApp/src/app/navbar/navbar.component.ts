@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountService } from '../services/account.service';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { ApplicationUser } from '../interfaces/user';
 import { NotificationService } from '../services/notification.service';
 
@@ -15,11 +15,12 @@ export class NavbarComponent implements OnInit {
     public notfi : NotificationService){ }
 
   loginStatus$ : Observable<boolean>
-  currentUser$ : Observable<ApplicationUser>
+  currentUser$ : Observable<ApplicationUser> = null
+  latestUser : ApplicationUser
 
-  ngOnInit() {
+  async ngOnInit() {
     this.loginStatus$ = this.accountService.isLoggedIn
-    this.currentUser$ = this.accountService.currentUser
+    await this.accountService.currentUser.then((x) => this.currentUser$ = x)
   }
 
   onLogout(){

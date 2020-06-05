@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Project } from 'src/app/interfaces/project';
 import { AccountService } from 'src/app/services/account.service';
 import { ApplicationUser } from 'src/app/interfaces/user';
@@ -14,20 +14,12 @@ export class DashboardQuickstartComponent implements OnInit {
   constructor(private accountService : AccountService,
     private projectService : ProjectService) { }
 
+  @Input() currentUser : ApplicationUser
   userID : number
-  currentUser : ApplicationUser
   projects : Project[] = null
 
   ngOnInit(): void {
-    this.accountService.getUserByID(2).subscribe(
-      result =>{
-        this.currentUser = result
-        console.log(result)
-        this.loadProject(result)
-      }, error =>{
-        console.log(error)
-      }
-    )
+    this.loadProject(this.currentUser)
   }
 
   loadProject(profile : ApplicationUser){

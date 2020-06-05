@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using NeuroSimHub.Helpers;
 using System.Text;
 using NeuroSimHub.Models;
+using Microsoft.Extensions.Azure;
 
 namespace NeuroSimHub
 {
@@ -105,6 +106,11 @@ namespace NeuroSimHub
                 options.AddPolicy("RequireLoggedIn", policy => policy.RequireRole("Admin", "Customer", "Moderator").RequireAuthenticatedUser());
 
                 options.AddPolicy("RequireAdministratorRole", policy => policy.RequireRole("Admin").RequireAuthenticatedUser());
+            });
+
+            services.AddAzureClients(builder =>
+            {
+                builder.AddBlobServiceClient(Configuration["ConnectionStrings:AzureStorageConnectionString"]);
             });
 
         }

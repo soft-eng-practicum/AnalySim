@@ -4,6 +4,8 @@ import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
 import { FileService } from 'src/app/services/file.service';
 import { ApplicationUser } from 'src/app/interfaces/user';
+import { from, Observable } from 'rxjs';
+import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'app-profile-setting',
@@ -12,6 +14,7 @@ import { ApplicationUser } from 'src/app/interfaces/user';
 })
 export class ProfileSettingComponent implements OnInit {
 
+  currentUser$ : Observable<ApplicationUser>
   currentUser : ApplicationUser = null
   profileForm: FormGroup
   bio : FormControl
@@ -20,24 +23,23 @@ export class ProfileSettingComponent implements OnInit {
     private accountService : AccountService, 
     private router : Router,
     private formBuilder : FormBuilder,
-    private fileService: FileService        
+    private fileService: FileService,
+    private notif : NotificationService      
   ) {}
 
-  ngOnInit() {
+  async ngOnInit(): Promise<void> {
     if(!this.accountService.checkLoginStatus())
       this.router.navigate(['/login'])
 
-    this.accountService.currentUser.subscribe(result => {
-      // Set User
-      this.currentUser = result
+    await this.accountService.currentUser.then((x) => this.currentUser$ = x)
+    this.currentUser$.subscribe(x => this.currentUser = x)
 
-      // Make Form Control
-      this.bio = new FormControl(this.currentUser.bio)
+    // Make Form Control
+    this.bio = new FormControl(this.currentUser.bio)
 
-      // Initialize FormGroup using FormBuilder
-      this.profileForm = this.formBuilder.group({
-        bio : this.bio
-      });
+    // Initialize FormGroup using FormBuilder
+    this.profileForm = this.formBuilder.group({
+      bio : this.bio
     })
   }
 
@@ -78,6 +80,7 @@ export class ProfileSettingComponent implements OnInit {
     this.accountService.updateUser(form.bio, this.currentUser.id).subscribe(
       result => {
         this.currentUser = result
+        this.notif.showSuccess("Account has been sucessfully updated","Account Update")
       }, error =>{
         console.log(error)
       }

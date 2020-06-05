@@ -28,12 +28,13 @@ export class ProfileComponent implements OnInit {
   tabActive : boolean[] = [true, false, false]
   showError : boolean
 
-  currentUser : ApplicationUser
+  currentUser : ApplicationUser = null
 
   
-  ngOnInit(){
-    
-    this.accountService.currentUser.subscribe(result => this.currentUser = result)
+  async ngOnInit(){
+    if(this.accountService.checkLoginStatus()){
+      //let test = await this.accountService.currentUser()
+    }
 
     this.route.params.subscribe( params => {
       this.profile = undefined

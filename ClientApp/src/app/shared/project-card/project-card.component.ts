@@ -23,17 +23,15 @@ export class ProjectCardComponent implements OnInit {
 
   @Input() project : Project;
 
+  currentUser$ : Observable<ApplicationUser>
   currentUser : ApplicationUser = null
   projectUser : ProjectUser = null
 
-  ngOnInit(): void {
+  async ngOnInit() {
     // Get User And Check For Project User Match
     if(this.accountService.checkLoginStatus()){
-      this.accountService.currentUser.subscribe(
-        result => {
-            this.currentUser = result  
-            this.projectUser = this.project.projectUsers.find(x => x.userID == result.id) || null
-      })
+      await this.accountService.currentUser.then((x) => this.currentUser$ = x)
+      this.currentUser$.subscribe(x => this.currentUser = x)
     }
   }
 

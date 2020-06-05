@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { ApplicationUser } from 'src/app/interfaces/user';
 import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-profile-card',
@@ -14,17 +15,14 @@ export class ProfileCardComponent implements OnInit {
     private router : Router) { }
 
   @Input() profile : ApplicationUser
+  currentUser$ : Observable<ApplicationUser>
   currentUser : ApplicationUser = null
   isFollowing : boolean = false
 
-  ngOnInit() {
+  async ngOnInit() {
     if(this.accountService.checkLoginStatus()){
-      this.accountService.currentUser.subscribe(
-        result => {
-            this.currentUser = result
-            this.isFollowing = this.profile.followers.some(x => x.followerID == this.currentUser.id)
-        }
-      )
+      await this.accountService.currentUser.then((x) => this.currentUser$ = x)
+      this.currentUser$.subscribe(x => this.currentUser = x)
     }
   }
 

@@ -4,6 +4,8 @@ import { ProjectService } from 'src/app/services/project.service';
 import { Project } from 'src/app/interfaces/project';
 import { AccountService } from 'src/app/services/account.service';
 import { ApplicationUser } from 'src/app/interfaces/user';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-project-form-create',
@@ -15,7 +17,8 @@ export class ProjectFormCreateComponent implements OnInit {
   constructor(
     private projectService : ProjectService,
     private accountService : AccountService,
-    private formBuilder : FormBuilder) { }
+    private formBuilder : FormBuilder,
+    private router : Router) { }
 
   // Form Control - Create Project
   projectForm: FormGroup
@@ -23,6 +26,7 @@ export class ProjectFormCreateComponent implements OnInit {
   description: FormControl
   visibility: FormControl
 
+  currentUser$ : Observable<ApplicationUser>
   currentUser : ApplicationUser
   isLoading : boolean
 
@@ -30,10 +34,14 @@ export class ProjectFormCreateComponent implements OnInit {
 
   //files: FormArray;
 
-  ngOnInit(): void {
-    this.accountService.currentUser.subscribe(result => this.currentUser = result)
+  async ngOnInit() {
+    if(!this.accountService.checkLoginStatus())
+      this.router.navigate(['/login'])
+
     this.isLoading = false;
 
+    await this.accountService.currentUser.then((x) => this.currentUser$ = x)
+    this.currentUser$.subscribe(x => this.currentUser = x)
     // Initialize Form Controls
     this.name = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20), this.noSpaceSpecial()]);
     this.description = new FormControl('');
@@ -47,6 +55,8 @@ export class ProjectFormCreateComponent implements OnInit {
         //files : this.formBuilder.array([])
     });
     //this.files = <FormArray>this.projectForm.controls['files']
+
+    
   }
 
   // Custom Validator
@@ -96,8 +106,10 @@ export class ProjectFormCreateComponent implements OnInit {
 
   onSubmit() {
     let projectForm = this.projectForm.value;
+    console.log(this.projectForm.value)
     this.projectService.createProject(this.currentUser, projectForm.name, projectForm.visibility, projectForm.description).subscribe(
       result =>{
+        console.log(result)
         this.setProject.emit(result)
       },error =>{
         console.log(error)

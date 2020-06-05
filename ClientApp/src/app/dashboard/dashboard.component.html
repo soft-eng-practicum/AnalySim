@@ -1,14 +1,14 @@
 <!-- Container Start -->
-<div class="container my-5">
+<div class="container my-5" *ngIf="(currentUser$ | async) as currentUser">
     <!-- Row Start -->
     <div class="row">
         <!-- Profile Description Column Start -->
         <div class="col-md-4">
             <div class="row mb-3">
-                <app-dashboard-quickstart ></app-dashboard-quickstart>
+                <app-dashboard-quickstart [currentUser]="currentUser"></app-dashboard-quickstart>
             </div>
             <div class="row">
-                <app-dashboard-following></app-dashboard-following>
+                <app-dashboard-following [currentUser]="currentUser"></app-dashboard-following>
             </div>
         </div> <!-- Profile Description Column End -->
         <!-- Profile Follow List Column Start -->

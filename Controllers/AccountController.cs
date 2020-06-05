@@ -359,7 +359,12 @@ namespace NeuroSimHub.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             // Find Project
-            var user = _dbContext.Users.FirstOrDefault(u => u.Id == userID);
+            var user = _dbContext.Users
+                .Include(u => u.Followers)
+                .Include(u => u.Following)
+                .Include(u => u.ProjectUsers)
+                .Include(u => u.BlobFiles)
+                .FirstOrDefault(u => u.Id == userID);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
             // If the product was found

@@ -1,5 +1,5 @@
 <!-- Project Form Start -->
-<form class="form" [formGroup]="projectForm" (ngSubmit)="onSubmit()">
+<form class="form" [formGroup]="projectForm" (ngSubmit)="onSubmit()" *ngIf="currentUser != null">
 
     <!-- Form Project Visibility -->
     <div class="form-group">

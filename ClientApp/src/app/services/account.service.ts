@@ -183,7 +183,6 @@ export class AccountService {
         if(body && body.token)
         {
           this.loginStatus.next(true)
-          console.log(body)
           this.user.next(body.result)
           localStorage.setItem('loginStatus', '1')
           localStorage.setItem('jwt', body.token)
@@ -299,16 +298,25 @@ export class AccountService {
   get currentUser()
   {
     if(this.userID.value != null && this.user.value == null && this.loginStatus.value == true){
-      this.getUserByID(this.userID.value).subscribe(
-        result => {
-          this.user.next(result)
-        }, error =>{
-          this.logout()
-        }
-      )
+      let promise = new Promise<any>((resolve, reject) => {
+        this.getUserByID(this.userID.value)
+        .toPromise()
+        .then(
+          body =>{
+            console.log(body)
+            this.user.next(body)
+            resolve(this.user.asObservable())
+          }
+        )
+      })
+      return promise
     }
-
-    return this.user.asObservable()
+    else{
+      let promise = new Promise<any>((resolve, reject) =>{
+        resolve(this.user.asObservable())
+      })
+      return promise
+    } 
   }
 
   // Error

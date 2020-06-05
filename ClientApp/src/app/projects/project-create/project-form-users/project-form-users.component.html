@@ -7,7 +7,10 @@
                 <!-- Form Input -->
                 <input type="text" formControlName="userName" class="dropdown-toggle" style="width: 100%; border: none;"placeholder="Profile..." data-toggle="dropdown">
                 <!-- User List -->
-                <ul class="dropdown-menu" [ngClass]="{'emptyList': filteredUsers.length == 0}">
+                <ul class="dropdown-menu">
+                    <li class="dropdown-item" *ngIf="filteredUsers.length == 0">
+                        No Result Found
+                    </li>
                     <li class="dropdown-item" *ngFor="let user of filteredUsers" (click)=addUser(user) type="submit" value="Submit">
                         <img [src]="user | profileImage" class="mr-2" style="max-width: 20px;"> {{user.userName}}
                     </li>

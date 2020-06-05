@@ -69,7 +69,7 @@
           <!-- Nav Profile Dropdown -->
           <li class="nav-item dropdown" *ngIf="(currentUser$ | async) as currentUser">
             <a class="nav-link text-white dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <img [src]="currentUser | profileImage" class="card-img rounded-circle img-thumbnail pl-1" style="max-width: 30px;">
+              <!-- <img [src]="currentUser | profileImage" class="card-img rounded-circle img-thumbnail pl-1" style="max-width: 30px;"> -->
                {{currentUser.userName}}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
