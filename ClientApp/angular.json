@@ -28,7 +28,6 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/ngx-toastr/toastr.css",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css"
-              
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
@@ -131,5 +130,8 @@
       }
     }
   },
-  "defaultProject": "ClientApp"
+  "defaultProject": "ClientApp",
+  "cli": {
+    "analytics": "988bc715-fdda-44bd-843d-687a67d4e30c"
+  }
 }
