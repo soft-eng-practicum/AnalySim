@@ -101,7 +101,7 @@ namespace NeuroSimHub.Controllers
             {
                 smtp.ServerCertificateValidationCallback = (s, c, h, e) => true;
                 await smtp.ConnectAsync("smtp-mail.outlook.com", 587, SecureSocketOptions.StartTls); 
-                await smtp.AuthenticateAsync("Username", "Password"); 
+                await smtp.AuthenticateAsync("analysim@outlook.com", "ChfG2Ufq5gw5knr"); 
                 await smtp.SendAsync(message); 
                 await smtp.DisconnectAsync(true); 
             }
