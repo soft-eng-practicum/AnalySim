@@ -35,7 +35,7 @@ export class LoginComponent implements OnInit {
     this.isLoading = false;
 
     // get return url from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
 
      // Initialize FormGroup using FormBuilder
     this.loginForm = this.formBuilder.group({
@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
       result => {
         let token = (<any>result).token;      
         this.invalidLogin = false;
-        this.router.navigate(['/dashboard']);
+        this.router.navigateByUrl(this.returnUrl);
       },
       error => {
         this.isLoading = false;

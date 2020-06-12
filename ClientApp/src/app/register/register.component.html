@@ -28,7 +28,7 @@
                             <span class="text-danger"> *</span>
                             <input formControlName="emailAddress" type="email" class="form-control" placeholder="" [class.invalid]="emailAddress.touched && emailAddress.invalid" [class.valid]="emailAddress.valid" [readOnly]="isLoading" required autofocus>
                             <div *ngIf="emailAddress.touched && emailAddress.errors" class="text-danger">
-                                <span *ngIf="emailAddress.errors?.email">Please provide valid email.</span>
+                                <span [hidden]="!emailAddress.errors?.email">Please provide valid email.</span>
                             </div>
                         </div>
 
@@ -38,8 +38,8 @@
                             <span class="text-danger"> *</span>
                             <input formControlName="username" type="text" class="form-control" placeholder=""[class.invalid]="username.touched && username.invalid" [class.valid]="username.valid" [readOnly]="isLoading" required>
                             <div *ngIf="username.touched && username.errors" class="text-danger">
-                                <span *ngIf="username.errors?.minlength">Minimum 5 character</span>
-                                <span *ngIf="username.errors?.maxlength")>Maximum 10 character</span>
+                                <span [hidden]="!username.errors?.minlength">Minimum 5 character</span>
+                                <span [hidden]="!username.errors?.maxlength">Maximum 15 character</span>
                             </div>
                         </div>
                         
@@ -49,11 +49,11 @@
                             <span class="text-danger"> *</span>
                             <input formControlName="password" type="password" class="form-control" placeholder="" [class.invalid]="password.touched && password.invalid" [class.valid]="password.valid" [readOnly]="isLoading" required>
                             <div *ngIf="password.touched && password.errors" class="text-danger">
-                                <p class="mb-0 p-1" *ngIf="password.errors?.minlength">Minimum 5 character</p>
-                                <p class="mb-0 p-1"  *ngIf="password.errors?.noUpper">Must Contain 1 Uppercase Character</p>
-                                <p class="mb-0 p-1"  *ngIf="password.errors?.noLower">Must Contain 1 Lowercase Character</p>
-                                <p class="mb-0 p-1"  *ngIf="password.errors?.noNumeric">Must Contain 1 Numeric Character</p>
-                                <p class="mb-0 p-1"  *ngIf="password.errors?.noSpecial">Must Contain 1 Special Character</p>
+                                <p class="mb-0 p-1" [hidden]="!password.errors?.minlength">Minimum 5 character</p>
+                                <p class="mb-0 p-1" [hidden]="!password.errors?.noUpper">Must Contain 1 Uppercase Character</p>
+                                <p class="mb-0 p-1" [hidden]="!password.errors?.noLower">Must Contain 1 Lowercase Character</p>
+                                <p class="mb-0 p-1" [hidden]="!password.errors?.noNumeric">Must Contain 1 Numeric Character</p>
+                                <p class="mb-0 p-1" [hidden]="!password.errors?.noSpecial">Must Contain 1 Special Character</p>
                             </div>
                         </div>
 
@@ -63,7 +63,7 @@
                             <span class="text-danger"> *</span>
                             <input formControlName="confirmPassword" type="password" class="form-control" placeholder="" [class.invalid]="confirmPassword.touched && confirmPassword.invalid" [class.valid]="confirmPassword.valid" [readOnly]="isLoading" required>
                             <div *ngIf="confirmPassword.touched && confirmPassword.errors" class="text-danger">
-                                <span *ngIf="confirmPassword.errors?.noMatch">Password Must Match</span>
+                                <span [hidden]="!confirmPassword.errors?.noMatch">Password Must Match</span>
                             </div>
                         </div>
 

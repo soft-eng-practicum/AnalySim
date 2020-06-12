@@ -42,6 +42,7 @@ export class ProjectFormCreateComponent implements OnInit {
 
     await this.accountService.currentUser.then((x) => this.currentUser$ = x)
     this.currentUser$.subscribe(x => this.currentUser = x)
+    
     // Initialize Form Controls
     this.name = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20), this.noSpaceSpecial()]);
     this.description = new FormControl('');

@@ -63,7 +63,8 @@
                 <article class="card-body">
                     <div class="text-center">
                         <p class ="d-inline">Don't have an account? </p>
-                        <a [routerLink]='["/register"]'>Sign Up</a>
+                        <a [routerLink]='["/register"]' [queryParams]="{returnUrl: returnUrl}" *ngIf="returnUrl != ''">Sign Up</a>
+                        <a [routerLink]='["/register"]' *ngIf="returnUrl == ''">Sign Up</a>
                     </div>
                     
                 </article>

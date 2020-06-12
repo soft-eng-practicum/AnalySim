@@ -3,6 +3,7 @@ import { AccountService } from '../services/account.service';
 import { Observable, from } from 'rxjs';
 import { ApplicationUser } from '../interfaces/user';
 import { NotificationService } from '../services/notification.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -12,7 +13,8 @@ import { NotificationService } from '../services/notification.service';
 export class NavbarComponent implements OnInit {
 
   constructor(private accountService : AccountService,
-    public notfi : NotificationService){ }
+    public notfi : NotificationService,
+    private router : Router){ }
 
   loginStatus$ : Observable<boolean>
   currentUser$ : Observable<ApplicationUser> = null
@@ -21,6 +23,14 @@ export class NavbarComponent implements OnInit {
   async ngOnInit() {
     this.loginStatus$ = this.accountService.isLoggedIn
     await this.accountService.currentUser.then((x) => this.currentUser$ = x)
+  }
+
+  navigateHome(){
+    console.log(this.accountService.checkLoginStatus())
+    if(this.accountService.checkLoginStatus())
+      this.router.navigate(['/dashboard'])
+    else
+      this.router.navigate(['/home'])
   }
 
   onLogout(){

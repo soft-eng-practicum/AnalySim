@@ -20,21 +20,26 @@ export class RegisterComponent implements OnInit {
   isLoading : boolean;
   errorMessage: string;
   invalidRegister: boolean;
+  returnUrl: string;
 
   constructor(
     private accountService : AccountService, 
     private router : Router,
     private formBuilder : FormBuilder,
-    private notfi : NotificationService
+    private notfi : NotificationService,
+    private route : ActivatedRoute
   ) {}
 
   ngOnInit() {
     // Set up FormControl and its Validators
     this.emailAddress = new FormControl('', [Validators.required, Validators.email])
-    this.username = new FormControl('', [Validators.required, Validators.maxLength(15), Validators.minLength(5)])
+    this.username = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(15)])
     this.password = new FormControl('', [Validators.required, Validators.minLength(5), this.hasUpper(), this.hasLower(), this.hasNumeric(), this.hasSpecial()])
     this.confirmPassword = new FormControl('', [Validators.required, this.isMatch(this.password)])  
     this.errorList = [];
+
+    // get return url from route parameters or default to '/'
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
 
      // Initialize FormGroup using FormBuilder
     this.insertForm = this.formBuilder.group({
@@ -43,7 +48,15 @@ export class RegisterComponent implements OnInit {
       'password' : this.password,
       'confirmPassword' : this.confirmPassword   
     });
+
+    this.insertForm.get("username").valueChanges.subscribe(
+      val => {
+        console.log(this.password.errors)
+        console.log(this.username.errors)
+      }
+    )
   }
+
 
   onSubmit(){
     // Variable for FormGroupValue
@@ -59,7 +72,10 @@ export class RegisterComponent implements OnInit {
         this.invalidRegister = false;
 
         // Navigate to login page
-        this.router.navigate(['/login']);
+        if(this.returnUrl == "")
+          this.router.navigate(['/login'])
+        else
+          this.router.navigate(['/login'], {queryParams : {returnUrl: this.returnUrl}})
 
         // Send registration notification
         this.notfi.showSuccess('Account has been registered', 'Registration');
