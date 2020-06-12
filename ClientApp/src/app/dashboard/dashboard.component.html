@@ -5,15 +5,19 @@
         <!-- Profile Description Column Start -->
         <div class="col-md-4">
             <div class="row mb-3">
-                <app-dashboard-quickstart [currentUser]="currentUser"></app-dashboard-quickstart>
+                <div class="col-md-12">
+                    <app-dashboard-quickstart [currentUser]="currentUser"></app-dashboard-quickstart>
+                </div>        
             </div>
             <div class="row">
-                <app-dashboard-following [currentUser]="currentUser"></app-dashboard-following>
+                <div class="col-md-12">
+                    <app-dashboard-following [currentUser]="currentUser"></app-dashboard-following>
+                </div>
             </div>
         </div> <!-- Profile Description Column End -->
         <!-- Profile Follow List Column Start -->
         <div class="col-md-8">
-            <app-dashboard-social></app-dashboard-social>
+                <app-dashboard-social></app-dashboard-social>  
         </div> <!-- Profile Follow List Column End -->
     </div> <!-- Row End -->
 </div> <!-- Container End -->
