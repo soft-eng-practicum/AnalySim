@@ -21,14 +21,14 @@
         <a class="nav-link text-white " [routerLink]='["/explore"]' routerLinkActive = "border-bottom" >Explore</a>
       </li>
       <!-- Nav Search Bar -->
-      <li class="nav-item d-sm-none d-md-flex align-items-center">  
-        <form class="form">
+      <li class="nav-item d-flex align-items-center">
+        <form class="form d-none d-md-flex">
           <div class="input-group input-group-sm">
-            <input type="text" class="form-control border border-dark" placeholder="Search..." (keyup.enter)="notfi.showInfo('Not Implemented Yet','Search Bar');">
+            <input type="text" class="form-control border border-dark" placeholder="Test..." (keyup.enter)="notfi.showInfo('Not Implemented Yet','Search Bar');">
             <div class="input-group-append">
                 <button class="btn btn-outline-dark bg-white">
                   <i class="fa fa-search"></i>
-                </button> 
+              </button>
             </div>          
           </div>
         </form>

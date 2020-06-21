@@ -13,6 +13,7 @@ import { ProjectFormTagsComponent } from './project-create/project-form-tags/pro
 import { ProjectListTagsComponent} from './project-list-tags/project-list-tags.component';
 import { ProjectListUsersComponent} from './project-list-users/project-list-users.component';
 import { ApplicationPipesModule } from '../application-pipes/application-pipes.module';
+import { ProjectComponent } from './project/project.component';
 
 
 @NgModule({
@@ -26,6 +27,7 @@ import { ApplicationPipesModule } from '../application-pipes/application-pipes.m
     ProjectFormTagsComponent,
     ProjectListTagsComponent,
     ProjectListUsersComponent,
+    ProjectComponent,
   ],
   imports: [
     CommonModule,
