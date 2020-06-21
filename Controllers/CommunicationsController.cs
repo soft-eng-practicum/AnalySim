@@ -106,7 +106,11 @@ namespace NeuroSimHub.Controllers
                 await smtp.DisconnectAsync(true); 
             }
 
-            return Ok("Email was successfully sent");
+            return Ok(new 
+            { 
+                result = Model,
+                message = "Email was successfully sent"
+            });
         }
 
     }

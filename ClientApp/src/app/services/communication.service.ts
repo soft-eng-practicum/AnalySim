@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient} from '@angular/common/http';
+import { HttpClient, HttpHeaders} from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { NotificationService } from './notification.service';
@@ -32,14 +32,14 @@ export class CommunicationsService {
         Subject: subject,
         BodyHtml: bodyHtml,
         BodyText: bodyText,
-        Cc: [],
-        Bcc: []
+        CcAddresses: [],
+        BccAddresses: []
       };
 
-      cc.map(x => emailBody.Cc.push({ Name: x.name, Address: x.address }));
-      bcc.map(x => emailBody.Bcc.push({ Name: x.name, Address: x.address }));
+      cc.forEach(x => emailBody.CcAddresses.push({ Name: x.name, Address: x.address }));
+      bcc.forEach(x => emailBody.BccAddresses.push({ Name: x.name, Address: x.address }));
 
-      return this.http.post<any>(this.urlSendEmail, JSON.stringify(emailBody))
+      return this.http.post<any>(this.urlSendEmail, emailBody)
       .pipe(
         map(body => {
           console.log(body.message)

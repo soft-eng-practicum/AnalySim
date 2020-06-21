@@ -50,13 +50,6 @@ export class RegisterComponent implements OnInit {
       'password' : this.password,
       'confirmPassword' : this.confirmPassword   
     });
-
-    this.insertForm.get("username").valueChanges.subscribe(
-      val => {
-        console.log(this.password.errors)
-        console.log(this.username.errors)
-      }
-    )
   }
 
 
@@ -80,7 +73,11 @@ export class RegisterComponent implements OnInit {
         const subject: string = "Registration Complete";
         const bodyHtml: string = "<p>You have been successfully registered for the AnalySim website.</p>";
         const bodyText: string = "You have been successfully registered for the Analysim website.";
-        this.communicationsService.sendEmail(toEmail, fromEmail, [], [], subject, bodyText, bodyHtml);
+        this.communicationsService.sendEmail(toEmail, fromEmail, [], [], subject, bodyText, bodyHtml).subscribe(
+          result =>{
+            console.log(result)
+          }
+        );
 
         console.log("Email should have been sent");
 
