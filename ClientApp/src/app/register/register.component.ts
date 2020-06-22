@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { AccountService } from '../services/account.service';
+import { CommunicationsService } from '../services/communication.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
 
@@ -24,6 +25,7 @@ export class RegisterComponent implements OnInit {
 
   constructor(
     private accountService : AccountService, 
+    private communicationsService: CommunicationsService,
     private router : Router,
     private formBuilder : FormBuilder,
     private notfi : NotificationService,
@@ -48,13 +50,6 @@ export class RegisterComponent implements OnInit {
       'password' : this.password,
       'confirmPassword' : this.confirmPassword   
     });
-
-    this.insertForm.get("username").valueChanges.subscribe(
-      val => {
-        console.log(this.password.errors)
-        console.log(this.username.errors)
-      }
-    )
   }
 
 
@@ -70,6 +65,17 @@ export class RegisterComponent implements OnInit {
       result => {
         // Hide Error Message Box
         this.invalidRegister = false;
+        
+        const toEmail: any = { name: userReg.username, address: userReg.emailAddress };
+        const fromEmail: any = { name: "no-reply-analysim", address: "analysim@outlook.com" };
+        const subject: string = "Registration Complete";
+        const bodyHtml: string = "<p>You have been successfully registered for the AnalySim website.</p>";
+        const bodyText: string = "You have been successfully registered for the Analysim website.";
+        this.communicationsService.sendEmail(toEmail, fromEmail, [], [], subject, bodyText, bodyHtml).subscribe(
+          result =>{
+            //console.log(result)
+          }
+        );
 
         // Navigate to login page
         if(this.returnUrl == "")
