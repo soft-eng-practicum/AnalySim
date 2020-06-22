@@ -65,8 +65,6 @@ export class RegisterComponent implements OnInit {
       result => {
         // Hide Error Message Box
         this.invalidRegister = false;
-
-        console.log("Email should be sent after this.");
         
         const toEmail: any = { name: userReg.username, address: userReg.emailAddress };
         const fromEmail: any = { name: "no-reply-analysim", address: "analysim@outlook.com" };
@@ -75,11 +73,9 @@ export class RegisterComponent implements OnInit {
         const bodyText: string = "You have been successfully registered for the Analysim website.";
         this.communicationsService.sendEmail(toEmail, fromEmail, [], [], subject, bodyText, bodyHtml).subscribe(
           result =>{
-            console.log(result)
+            //console.log(result)
           }
         );
-
-        console.log("Email should have been sent");
 
         // Navigate to login page
         if(this.returnUrl == "")
