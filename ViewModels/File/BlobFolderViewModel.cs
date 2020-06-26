@@ -2,7 +2,7 @@
 
 namespace NeuroSimHub.ViewModels
 {
-    public class BlobMoveViewModel
+    public class BlobFolderViewModel
     {
         [Required]
         public int FileID { get; set; }

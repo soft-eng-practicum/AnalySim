@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NeuroSimHub.Data;
 using NeuroSimHub.Models;
+using NeuroSimHub.Services;
 using NeuroSimHub.ViewModels;
 using NeuroSimHub.ViewModels.Project;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,10 +21,12 @@ namespace NeuroSimHub.Controllers
     {
 
         private readonly ApplicationDbContext _dbContext;
+        private readonly IBlobService _blobService;
 
-        public ProjectController(ApplicationDbContext _dbContext) 
+        public ProjectController(ApplicationDbContext dbContext, IBlobService blobService) 
         {
-            this._dbContext = _dbContext;
+            _dbContext = dbContext;
+            _blobService = blobService;
         }
 
         #region GET REQUEST
@@ -355,6 +361,128 @@ namespace NeuroSimHub.Controllers
                 message = "Project Tag Added"
             });
         }
+
+        /*
+         * Type : POST
+         * URL : /api/blobstorage/upload
+         * Param : BlobUploadViewModel
+         * Description: Upload File To Azure Storage
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> UploadFile([FromForm] FileUploadProjectViewModel formdata)
+        {
+            try
+            {
+                // Reture Bad Request Status
+                if (formdata.File == null) return BadRequest("Null File");
+                if (formdata.File.Length == 0) return BadRequest("Empty File");
+
+                // Find User
+                var user = await _dbContext.Users.FindAsync(formdata.UserID);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                // Find Project
+                var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+                if (project == null) return NotFound(new { message = "Project Not Found" });
+
+                var filePath = project.Name + "/" + formdata.Directory + formdata.File.FileName;
+
+                BlobClient blobClient = await _blobService.UploadFileBlobResizeAsync(formdata.File, filePath, "projects", 250, 250);
+                BlobProperties blobProperties = blobClient.GetProperties();
+
+                // Create BlobFile
+                var newBlobFile = new BlobFile
+                {
+                    Container = "projects",
+                    Directory = formdata.Directory,
+                    Name = formdata.File.Name,
+                    Extension = Path.GetExtension(formdata.File.FileName),
+                    Size = (int)blobProperties.ContentLength,
+                    Uri = blobClient.Uri.AbsoluteUri.ToString(),
+                    DateCreated = blobProperties.CreatedOn.DateTime,
+                    UserID = formdata.UserID,
+                    ProjectID = formdata.ProjectID
+                };
+
+                // Update Database with entry
+                await _dbContext.BlobFiles.AddAsync(newBlobFile);
+                await _dbContext.SaveChangesAsync();
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    resultObject = newBlobFile,
+                    message = "File Successfully Uploaded"
+                });
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
+            }
+
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/blobstorage/upload
+         * Param : BlobUploadViewModel
+         * Description: Upload File To Azure Storage
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> CreateFolder([FromForm] FileUploadProjectViewModel formdata)
+        {
+            try
+            {
+
+                // Find User
+                var user = await _dbContext.Users.FindAsync(formdata.UserID);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                // Find Project
+                var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+                if (project == null) return NotFound(new { message = "Project Not Found" });
+
+                var filePath = project.Name + "/" + formdata.Directory + "$$$.$$";
+                BlobClient blobClient = await _blobService.CreateFolder(filePath, "projects");
+                BlobProperties blobProperties = blobClient.GetProperties();
+
+                // Create BlobFile
+                var newBlobFile = new BlobFile
+                {
+                    Container = "projects",
+                    Directory = formdata.Directory,
+                    Name = blobClient.Name,
+                    Extension = Path.GetExtension(blobClient.Name),
+                    Size = (int)blobProperties.ContentLength,
+                    Uri = blobClient.Uri.AbsoluteUri.ToString(),
+                    DateCreated = blobProperties.CreatedOn.DateTime,
+                    UserID = formdata.UserID,
+                    ProjectID = formdata.ProjectID
+                };
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    resultObject = newBlobFile,
+                    message = "File Successfully Uploaded"
+                });
+
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
+            }
+
+        }
+
         #endregion
 
         #region PUT REQUEST

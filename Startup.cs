@@ -14,6 +14,8 @@ using NeuroSimHub.Helpers;
 using System.Text;
 using NeuroSimHub.Models;
 using Microsoft.Extensions.Azure;
+using Azure.Storage.Blobs;
+using NeuroSimHub.Services;
 
 namespace NeuroSimHub
 {
@@ -108,10 +110,17 @@ namespace NeuroSimHub
                 options.AddPolicy("RequireAdministratorRole", policy => policy.RequireRole("Admin").RequireAuthenticatedUser());
             });
 
-            services.AddAzureClients(builder =>
-            {
-                builder.AddBlobServiceClient(Configuration["ConnectionStrings:AzureStorageConnectionString"]);
-            });
+            
+
+            services.AddSingleton(x =>
+                new BlobServiceClient(Configuration.GetConnectionString("AzureStorageConnectionString")));
+
+            services.AddSingleton<IBlobService, BlobService>();
+
+            //services.AddAzureClients(builder =>
+            //{
+            //    builder.AddBlobServiceClient(Configuration["ConnectionStrings:AzureStorageConnectionString"]);
+            //});
 
         }
 

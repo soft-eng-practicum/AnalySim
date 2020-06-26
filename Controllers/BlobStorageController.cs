@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AnalySim.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -34,7 +35,7 @@ namespace NeuroSimHub.Controllers
 
         public BlobStorageController(IConfiguration config, ApplicationDbContext _dbContext)
         {
-            storageConnString = config.GetConnectionString("AccessKey");
+            storageConnString = config.GetConnectionString("AzureStorageConnectionString");
             this._dbContext = _dbContext;
         }
 
@@ -109,200 +110,7 @@ namespace NeuroSimHub.Controllers
         #endregion
 
         #region POST REQUEST
-        /*
-         * Type : POST
-         * URL : /api/blobstorage/upload
-         * Param : BlobUploadViewModel
-         * Description: Upload File To Azure Storage
-         */
-        [HttpPost("[action]")]
-        public async Task<IActionResult> UploadProjectFile([FromForm] FileUploadProjectViewModel formdata)
-        {
-            try {
-                // Reture Bad Request Status
-                if (formdata.File == null) return BadRequest("Null File");
-                if (formdata.File.Length == 0) return BadRequest("Empty File");
-
-                // Find User
-                var user = await _dbContext.Users.FindAsync(formdata.UserID);
-                if (user == null) return NotFound(new { message = "User Not Found" });
-
-                // Find Project
-                var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
-                if (project == null) return NotFound(new { message = "Project Not Found" });
-
-                var fileDirectory = project.Name + "/" + formdata.Directory + formdata.File.FileName;
-
-                // Connection To Storage Account
-                if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
-                {
-
-                    // Create A Blob Client
-                    CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
-
-                    // Get Container Reference
-                    CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference("projects");
-
-                    // Get Block Blob Reference
-                    CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(fileDirectory);
-
-                    // Create Or Overwrite File
-                    using (var fileStream = formdata.File.OpenReadStream())
-                    {
-                        await cloudBlockBlob.UploadFromStreamAsync(fileStream);
-                    }
-
-                    // Create BlobFile
-                    var newBlobFile = new BlobFile
-                    {
-                        Container = "projects",
-                        Directory = formdata.Directory,
-                        Name = formdata.File.Name,
-                        Extension = Path.GetExtension(formdata.File.FileName),
-                        Size = (int)cloudBlockBlob.Properties.Length,
-                        Uri = cloudBlockBlob.Uri.ToString(),
-                        DateCreated = DateTime.Now,
-                        UserID = formdata.UserID,
-                        ProjectID = formdata.ProjectID  
-                    };
-
-                    // Update Database with entry
-                    await _dbContext.BlobFiles.AddAsync(newBlobFile);
-                    await _dbContext.SaveChangesAsync();
-                
-                    // Return Ok Status
-                    return Ok(new
-                    {
-                        resultObject = newBlobFile,
-                        message = "File Successfully Uploaded"
-                    });
-                }
-                else
-                {
-                    // Return 500 Internal Error If Server Not Found
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Server Connection Error");
-                }
-            }
-            catch (Exception e)
-            {
-                // Return Bad Request If There Is Any Error
-                return BadRequest(new 
-                { 
-                    error = e               
-                });
-            }
-
-        }
-
-        /*
-         * Type : POST
-         * URL : /api/blobstorage/uploadprofileimage
-         * Param : BlobUploadViewModel
-         * Description: Upload File To Azure Storage
-         */
-        [HttpPost("[action]")]
-        public async Task<IActionResult> UploadProfileImage([FromForm] FileUploadProfileViewModel formdata)
-        {
-            try
-            {
-                // Reture Bad Request Status
-                if (formdata.File == null) return BadRequest("Null File");
-                if (formdata.File.Length == 0) return BadRequest("Empty File");
-
-                // Find User
-                var user = await _dbContext.Users.FindAsync(formdata.UserID);
-                if (user == null) return NotFound(new { message = "User Not Found" });
-
-                //Create File Path With File
-                var filePath = user.UserName + "/profileImage" + Path.GetExtension(formdata.File.FileName);
-               
-                // Connection To Storage Account
-                if (CloudStorageAccount.TryParse(storageConnString, out CloudStorageAccount cloudStorageAccount))
-                {
-
-                    // Create A Blob Client
-                    CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
-
-                    // Get Container Reference
-                    CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference("profile");
-
-                    // Get Block Blob Reference
-                    CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(filePath);
-
-                    // Create Or Overwrite File
-                    using (var fileStream = formdata.File.OpenReadStream())
-                    {
-                        var encoder = GetEncoder(Path.GetExtension(formdata.File.FileName));
-                        using (var output = new MemoryStream())
-                        using (Image image = Image.Load(fileStream))
-                        {
-                            image.Mutate(x => x.Resize(256, 256));
-                            image.Save(output, encoder);
-                            output.Position = 0;
-                            await cloudBlockBlob.UploadFromStreamAsync(output);
-                        }                
-                    }
-
-                    // Find User
-                    var blobFile = _dbContext.BlobFiles.FirstOrDefault(x => x.Uri == cloudBlockBlob.Uri.AbsoluteUri.ToString());
-                    if (blobFile != null)
-                    {
-                        blobFile.Extension = Path.GetExtension(formdata.File.FileName);
-                        blobFile.Size = (int)cloudBlockBlob.Properties.Length;
-                        blobFile.Uri = cloudBlockBlob.Uri.AbsoluteUri.ToString();
-                        blobFile.DateCreated = DateTime.Now;
-
-                        // Set Entity State
-                        _dbContext.Entry(blobFile).State = EntityState.Modified;
-
-                        await _dbContext.SaveChangesAsync();
-
-                        return Ok(new { resultObject = blobFile, message = "Profile Image Updated" });
-                    }
-                        
-                        
-                        
-
-                    // Create BlobFile
-                    var newBlobFile = new BlobFile
-                    {
-                        Container = "profile",
-                        Directory = user.UserName + "/",
-                        Name = "profileImage",
-                        Extension = Path.GetExtension(formdata.File.FileName),
-                        Size = (int)cloudBlockBlob.Properties.Length,
-                        Uri = cloudBlockBlob.Uri.AbsoluteUri.ToString(),
-                        DateCreated = DateTime.Now,
-                        UserID = formdata.UserID
-                    };
-
-                    // Update Database with entry
-                    await _dbContext.BlobFiles.AddAsync(newBlobFile);
-                    await _dbContext.SaveChangesAsync();
-
-                    // Return Ok Status
-                    return Ok(new
-                    {
-                        resultObject = newBlobFile,
-                        message = "File Successfully Uploaded"
-                    });
-                }
-                else
-                {
-                    // Return 500 Internal Error If Server Not Found
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Server Connection Error");
-                }
-            }
-            catch (Exception e)
-            {
-                // Return Bad Request If There Is Any Error
-                return BadRequest(new
-                {
-                    error = e
-                });
-            }
-
-        }
+        
 
         /*
          * Type : POST
@@ -520,49 +328,6 @@ namespace NeuroSimHub.Controllers
         #endregion
 
 
-        private static IImageEncoder GetEncoder(string extension)
-        {
-            IImageEncoder encoder = null;
-
-            extension = extension.Replace(".", "");
-
-            var isSupported = Regex.IsMatch(extension, "gif|png|jpe?g", RegexOptions.IgnoreCase);
-
-            if (isSupported)
-            {
-                switch (extension)
-                {
-                    case "png":
-                        encoder = new PngEncoder();
-                        break;
-                    case "jpg":
-                        encoder = new JpegEncoder();
-                        break;
-                    case "jpeg":
-                        encoder = new JpegEncoder();
-                        break;
-                    case "gif":
-                        encoder = new GifEncoder();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            return encoder;
-        }
-
-        private static MemoryStream ResizeImage(Stream fileStream, int height, int width, string extension)
-        {
-            var encoder = GetEncoder(extension);
-            using (var output = new MemoryStream())
-            using (Image image = Image.Load(fileStream))
-            {
-                image.Mutate(x => x.Resize(256, 256));
-                image.Save(output, encoder);
-                output.Position = 0;
-                return output;
-            }
-        }
+        
     }
 }

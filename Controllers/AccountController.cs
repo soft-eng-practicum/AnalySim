@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AnalySim.Helpers;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -7,11 +11,16 @@ using Microsoft.IdentityModel.Tokens;
 using NeuroSimHub.Data;
 using NeuroSimHub.Helpers;
 using NeuroSimHub.Models;
+using NeuroSimHub.Services;
 using NeuroSimHub.ViewModels;
 using NeuroSimHub.ViewModels.Base;
+using NeuroSimHub.ViewModels.File;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -27,15 +36,15 @@ namespace NeuroSimHub.Controllers
         private readonly SignInManager<ApplicationUser> _signManager;
         private readonly AppSettings _appSettings;
         private readonly ApplicationDbContext _dbContext;
-        private readonly string storageConnString;
+        private readonly IBlobService _blobService;
 
-        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signManager, IOptions<AppSettings> _appSettings, ApplicationDbContext _dbContext, IConfiguration config) 
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signManager, IOptions<AppSettings> appSettings, ApplicationDbContext dbContext, IConfiguration config, IBlobService blobService) 
         {
-            this._userManager = _userManager;
-            this._signManager = _signManager;
-            this._appSettings = _appSettings.Value;
-            this._dbContext = _dbContext;
-            this.storageConnString = config.GetConnectionString("AccessKey");
+            _userManager = userManager;
+            _signManager = signManager;
+            _appSettings = appSettings.Value;
+            _dbContext = dbContext;
+            _blobService = blobService;
         }
 
         #region GET REQUEST
@@ -342,16 +351,91 @@ namespace NeuroSimHub.Controllers
             }
         }
 
+        /*
+         * Type : POST
+         * URL : /api/blobstorage/uploadprofileimage
+         * Param : BlobUploadViewModel
+         * Description: Upload File To Azure Storage
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> UploadProfileImage([FromForm] FileUploadProfileViewModel formdata)
+        {
+            try
+            {
+                // Reture Bad Request Status
+                if (formdata.File == null) return BadRequest("Null File");
+                if (formdata.File.Length == 0) return BadRequest("Empty File");
+
+                // Find User
+                var user = await _dbContext.Users.FindAsync(formdata.UserID);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                //Create File Path With File
+                var filePath = user.UserName + "/profileImage" + Path.GetExtension(formdata.File.FileName);
+
+                BlobClient blobClient = await _blobService.UploadFileBlobResizeAsync(formdata.File, filePath, "profile", 250, 250);
+                BlobProperties blobProperties = blobClient.GetProperties();
+
+                // Check For Existing
+                var blobFile = _dbContext.BlobFiles.FirstOrDefault(x => x.Uri == blobClient.Uri.AbsoluteUri.ToString());
+                if (blobFile != null)
+                {
+                    blobFile.Extension = Path.GetExtension(formdata.File.FileName);
+                    blobFile.Size = (int)blobProperties.ContentLength;
+                    blobFile.Uri = blobClient.Uri.AbsoluteUri.ToString();
+                    blobFile.DateCreated = blobProperties.CreatedOn.DateTime;
+
+                    // Set Entity State
+                    _dbContext.Entry(blobFile).State = EntityState.Modified;
+
+                    await _dbContext.SaveChangesAsync();
+
+                    return Ok(new { resultObject = blobFile, message = "Profile Image Updated" });
+                }
+
+                // Create BlobFile
+                var newBlobFile = new BlobFile
+                {
+                    Container = "profile",
+                    Directory = user.UserName + "/",
+                    Name = "profileImage",
+                    Extension = Path.GetExtension(formdata.File.FileName),
+                    Size = (int)blobProperties.ContentLength,
+                    Uri = blobClient.Uri.AbsoluteUri.ToString(),
+                    DateCreated = blobProperties.CreatedOn.DateTime,
+                    UserID = formdata.UserID
+                };
+
+                // Update Database with entry
+                await _dbContext.BlobFiles.AddAsync(newBlobFile);
+                await _dbContext.SaveChangesAsync();
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    resultObject = newBlobFile,
+                    message = "File Successfully Uploaded"
+                });
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
+            }
+        }
         #endregion
 
-        #region PUT REQUEST
-        /*
-         * Type : PUT
-         * URL : /api/account/updateuser/
-         * Param : {userID}, ProjectViewModel
-         * Description: Update Project
-         * Response Status: 200 Ok, 404 Not Found
-         */
+            #region PUT REQUEST
+            /*
+             * Type : PUT
+             * URL : /api/account/updateuser/
+             * Param : {userID}, ProjectViewModel
+             * Description: Update Project
+             * Response Status: 200 Ok, 404 Not Found
+             */
         [HttpPut("[action]/{userID}")]
         public async Task<IActionResult> UpdateUser([FromRoute] int userID, [FromForm] UserUpdateViewModel formdata)
         {

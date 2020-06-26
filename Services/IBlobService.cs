@@ -1,4 +1,6 @@
 ﻿using AnalySim.Models;
+using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,9 +12,13 @@ namespace NeuroSimHub.Services
 
         public Task<IEnumerable<string>> ListBlobsAsync();
 
-        public Task UploadFileBlobAsync(string filePath, string fileName);
+        public Task<BlobClient> CreateFolder(string filePath, string container);
 
-        public Task UploadContentBlobAsync(string content, string fileName);
+        public Task<BlobClient> UploadFileBlobAsync(IFormFile file, string filePath, string container);
+
+        public Task<BlobClient> UploadFileBlobResizeAsync(IFormFile file, string filePath, string container, int height, int width);
+
+        public Task UploadImageBlobAsync(string filePath, string fileName);
 
         public Task DeleteBlobAsync(string blobName);
     }
