@@ -100,7 +100,8 @@ namespace NeuroSimHub.Controllers
 
         /*
         * Type : GET
-        * URL : /api/account/getuserbyname?
+        * URL : /api/account/getuserrange?
+        * Param : List<int>
         * Description: Get user from their username
         * Response Status: 200 Ok, 404 Not Found
         */
@@ -151,7 +152,8 @@ namespace NeuroSimHub.Controllers
 
         /*
          * Type : GET
-         * URL : /api/account/search
+         * URL : /api/account/search?
+         * Param : List<string>
          * Description: Filter and return search result
          * Response Status: 200 Ok, 204 Not Found
          */
@@ -351,91 +353,17 @@ namespace NeuroSimHub.Controllers
             }
         }
 
-        /*
-         * Type : POST
-         * URL : /api/blobstorage/uploadprofileimage
-         * Param : BlobUploadViewModel
-         * Description: Upload File To Azure Storage
-         */
-        [HttpPost("[action]")]
-        public async Task<IActionResult> UploadProfileImage([FromForm] FileUploadProfileViewModel formdata)
-        {
-            try
-            {
-                // Reture Bad Request Status
-                if (formdata.File == null) return BadRequest("Null File");
-                if (formdata.File.Length == 0) return BadRequest("Empty File");
-
-                // Find User
-                var user = await _dbContext.Users.FindAsync(formdata.UserID);
-                if (user == null) return NotFound(new { message = "User Not Found" });
-
-                //Create File Path With File
-                var filePath = user.UserName + "/profileImage" + Path.GetExtension(formdata.File.FileName);
-
-                BlobClient blobClient = await _blobService.UploadFileBlobResizeAsync(formdata.File, filePath, "profile", 250, 250);
-                BlobProperties blobProperties = blobClient.GetProperties();
-
-                // Check For Existing
-                var blobFile = _dbContext.BlobFiles.FirstOrDefault(x => x.Uri == blobClient.Uri.AbsoluteUri.ToString());
-                if (blobFile != null)
-                {
-                    blobFile.Extension = Path.GetExtension(formdata.File.FileName);
-                    blobFile.Size = (int)blobProperties.ContentLength;
-                    blobFile.Uri = blobClient.Uri.AbsoluteUri.ToString();
-                    blobFile.DateCreated = blobProperties.CreatedOn.DateTime;
-
-                    // Set Entity State
-                    _dbContext.Entry(blobFile).State = EntityState.Modified;
-
-                    await _dbContext.SaveChangesAsync();
-
-                    return Ok(new { resultObject = blobFile, message = "Profile Image Updated" });
-                }
-
-                // Create BlobFile
-                var newBlobFile = new BlobFile
-                {
-                    Container = "profile",
-                    Directory = user.UserName + "/",
-                    Name = "profileImage",
-                    Extension = Path.GetExtension(formdata.File.FileName),
-                    Size = (int)blobProperties.ContentLength,
-                    Uri = blobClient.Uri.AbsoluteUri.ToString(),
-                    DateCreated = blobProperties.CreatedOn.DateTime,
-                    UserID = formdata.UserID
-                };
-
-                // Update Database with entry
-                await _dbContext.BlobFiles.AddAsync(newBlobFile);
-                await _dbContext.SaveChangesAsync();
-
-                // Return Ok Status
-                return Ok(new
-                {
-                    resultObject = newBlobFile,
-                    message = "File Successfully Uploaded"
-                });
-            }
-            catch (Exception e)
-            {
-                // Return Bad Request If There Is Any Error
-                return BadRequest(new
-                {
-                    error = e
-                });
-            }
-        }
+        
         #endregion
 
-            #region PUT REQUEST
-            /*
-             * Type : PUT
-             * URL : /api/account/updateuser/
-             * Param : {userID}, ProjectViewModel
-             * Description: Update Project
-             * Response Status: 200 Ok, 404 Not Found
-             */
+        #region PUT REQUEST
+        /*
+        * Type : PUT
+        * URL : /api/account/updateuser/
+        * Param : {userID}, ProjectViewModel
+        * Description: Update Project
+        * Response Status: 200 Ok, 404 Not Found
+        */
         [HttpPut("[action]/{userID}")]
         public async Task<IActionResult> UpdateUser([FromRoute] int userID, [FromForm] UserUpdateViewModel formdata)
         {
