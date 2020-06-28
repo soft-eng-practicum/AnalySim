@@ -1,4 +1,4 @@
-<div class="container mt-5 h-100">
+<div class="container mt-5 h-100" *ngIf="project != null">
     <div class="card">
         <!-- Card Header Start -->
         <div class="d-flex card-header flex-row align-items-center">
@@ -10,19 +10,19 @@
             <div class="d-inline-flex ml-auto">
                 <!-- Modify File Button Group Start -->
                 <div class="btn-group mr-3"  role="group">
-                    <button class="btn btn-secondary" type="button">
+                    <button type="button" class="btn btn-secondary" title="Create Folder">
                         <i class="fa fa-folder-plus"></i>
                     </button>
-                    <button class="btn btn-secondary" type="button">
+                    <button type="button" class="btn btn-secondary" title="Rename">
                         <i class="fa fa-edit"></i>
                     </button>
-                    <button class="btn btn-secondary" type="button">
+                    <button type="button" class="btn btn-secondary" title="Move">
                         <i class="fa fa-arrows-alt"></i>
                     </button>
-                    <button class="btn btn-secondary" type="button">
+                    <button type="button" class="btn btn-secondary" title="Copy">
                         <i class="fa fa-copy"></i>
                     </button>
-                    <button class="btn btn-secondary" type="button">
+                    <button type="button" class="btn btn-secondary" title="Delete">
                         <i class="fa fa-trash"></i>
                     </button>
                 </div>
@@ -30,13 +30,13 @@
                    
                 <!-- Network File Button Group Start -->
                 <div class="btn-group"  role="group">
-                    <button class="btn btn-secondary" type="button">
+                    <button type="button" class="btn btn-secondary" title="Refresh">
                         <i class="fa fa-sync"></i>
                     </button>
-                    <button class="btn btn-secondary" type="button">
+                    <button type="button" class="btn btn-secondary" title="Download">
                         <i class="fa fa-download"></i>
                     </button>
-                    <button class="btn btn-secondary" type="button">
+                    <button type="button" class="btn btn-secondary" title="Upload">
                         <i class="fa fa-upload"></i>
                     </button>
                 </div>  
@@ -45,12 +45,8 @@
             <!-- File Explorer Button End -->
         </div>
         <!-- Card Header End -->
-        <div class="card-body">
-            <table class="table">
-                <tr>
-                    
-                </tr>
-            </table>
-        </div>
+        <ul class="list-group ">
+            <app-file-explorer-item *ngFor="let blobFileItem of blobFileItemList" [blobFileItem] = blobFileItem (changeDirectory)="directoryFile($event)"></app-file-explorer-item>
+        </ul>
       </div>
 </div>

@@ -1,16 +1,20 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { ProjectCreateComponent } from './project-create/project-create.component';
-import { ProjectHomeComponent } from './project-home/project-home.component';
 import { AuthGuardService } from '../guards/auth-guard.service';
 import { ProjectComponent } from './project/project.component';
+import { FileExplorerComponent } from '../file-explorer/file-explorer.component';
 
 
 const routes: Routes = [
-    {path: '', component: ProjectComponent},
     {path: 'create', component : ProjectCreateComponent, canActivate : [AuthGuardService]},
     {path: ':owner/:projectname', component : ProjectComponent},
-    {path: '**', redirectTo: ''}
+    { path: ':owner/:projectname/files', 
+      children : [{
+        path: "**", component: FileExplorerComponent
+      }
+    ]},
+    {path: '**', redirectTo: 'files'}
 ];
 
 @NgModule({

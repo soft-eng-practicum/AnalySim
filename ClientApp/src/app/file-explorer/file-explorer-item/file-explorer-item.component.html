@@ -1,0 +1,10 @@
+<li class="list-group-item d-flex h-100">
+    <div class="mr-auto">
+        <i class="fa fa-file mr-1" *ngIf="blobFileItem.type == 'file'"></i>
+        <i class="fa fa-folder mr-1" *ngIf='blobFileItem.type === "folder"'></i>
+        <a (click)="navigate()">{{blobFileItem.name}}</a>
+    </div>
+    <div class="ml-auto" *ngIf="blobFileItem.type == 'file'">
+        4 days ago
+    </div>
+</li>

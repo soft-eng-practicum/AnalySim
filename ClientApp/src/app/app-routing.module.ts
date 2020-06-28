@@ -28,7 +28,7 @@ const routes: Routes = [];
       {path: 'dashboard', component: DashboardComponent},
       {path: 'profile/:username', component : ProfileComponent},
       {path: 'project', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule)},  
-      {path: '**', redirectTo: '/home'}
+      {path: '**', component: HomeComponent}
     ])],
   exports: [RouterModule]
 })
