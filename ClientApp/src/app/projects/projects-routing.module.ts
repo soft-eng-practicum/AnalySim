@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { ProjectCreateComponent } from './project-create/project-create.component';
 import { AuthGuardService } from '../guards/auth-guard.service';
 import { ProjectComponent } from './project/project.component';
-import { FileExplorerComponent } from '../file-explorer/file-explorer.component';
+import { ProjectFileExplorerComponent } from './project-file-explorer/project-file-explorer.component';
 
 
 const routes: Routes = [
@@ -11,7 +11,7 @@ const routes: Routes = [
     {path: ':owner/:projectname', component : ProjectComponent},
     { path: ':owner/:projectname/files', 
       children : [{
-        path: "**", component: FileExplorerComponent
+        path: "**", component: ProjectFileExplorerComponent
       }
     ]},
     {path: '**', redirectTo: 'files'}

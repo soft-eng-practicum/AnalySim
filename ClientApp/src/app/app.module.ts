@@ -16,7 +16,6 @@ import { FooterComponent } from './footer/footer.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { FavoritesComponent } from './dashboard/favorites/favorites.component';
 import { ExploreComponent } from './explore/explore.component';
-import { FileExplorerComponent } from './file-explorer/file-explorer.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ProjectCardComponent } from './shared/project-card/project-card.component';
 import { ProfileCardComponent } from './shared/profile-card/profile-card.component';
@@ -30,7 +29,6 @@ import { FileService } from './services/file.service';
 import { NotFoundComponent } from './error/not-found/not-found.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
 import { AboutUsComponent } from './about-us/about-us.component';
-import { FileExplorerItemComponent } from './file-explorer/file-explorer-item/file-explorer-item.component';
 
 
 @NgModule({
@@ -43,7 +41,6 @@ import { FileExplorerItemComponent } from './file-explorer/file-explorer-item/fi
     DashboardComponent,
     FavoritesComponent,
     ExploreComponent,
-    FileExplorerComponent,
     ProfileComponent,
     ProjectCardComponent,
     ProfileCardComponent,
@@ -55,7 +52,6 @@ import { FileExplorerItemComponent } from './file-explorer/file-explorer-item/fi
     NotFoundComponent,
     ContactUsComponent,
     AboutUsComponent,
-    FileExplorerItemComponent
   ],
   imports: [
     BrowserModule,

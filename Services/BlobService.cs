@@ -28,9 +28,16 @@ namespace NeuroSimHub.Services
 
         public async Task<BlobInfo> GetBlobAsync(BlobFile file)
         {
+            // Get Storage Container
             var containerClient = _blobServiceClient.GetBlobContainerClient(file.Container.ToLower());
+
+            // Get File Reference
             var blobClient = containerClient.GetBlobClient(file.Directory + file.Name + file.Extension);
+
+            // Download File
             var blobDownloadInfo = await blobClient.DownloadAsync();
+
+            // Return Downloaded File Info
             return new BlobInfo(blobDownloadInfo.Value.Content, blobDownloadInfo.Value.ContentType);
         }
 
@@ -47,12 +54,13 @@ namespace NeuroSimHub.Services
                 var blobFile = new BlobFile
                 {
                     Container = container,
-                    Directory = (Path.GetDirectoryName(blobItem.Name) + "/").Replace("\\", "/"),
+                    Directory = (Path.GetDirectoryName(blobItem.Name) + "/").StartsWith("/") ? "" : (Path.GetDirectoryName(blobItem.Name) + "/").Replace("\\", "/"),
                     Name = Path.GetFileNameWithoutExtension(blobItem.Name),
                     Extension = Path.GetExtension(blobItem.Name),
                     Size = (int)properties.ContentLength,
                     Uri = blobClient.Uri.ToString(),
-                    DateCreated = properties.CreatedOn.DateTime,
+                    DateCreated = properties.CreatedOn.LocalDateTime,
+                    LastModified = properties.LastModified.LocalDateTime,
                     UserID = 1,
                     ProjectID = 1
                 };
@@ -97,27 +105,35 @@ namespace NeuroSimHub.Services
 
         public async Task<BlobClient> CreateFolder(string container, string filePath)
         {
+            // Get Storage Container
             var containerClient = _blobServiceClient.GetBlobContainerClient(container.ToLower());
+
+            // Create Container If Storage Doesn't Exist
             containerClient.CreateIfNotExists();
 
+            // Get File Reference
             var blobClient = containerClient.GetBlobClient(filePath);
 
-            using (FileStream fs = File.Create("$$.$$$"))
+            // Upload PlaceHolder Since Empty Folder Can't Exist
+            using (FileStream fs = File.OpenRead("wwwroot/$$.$$$"))
             {
                 await blobClient.UploadAsync(fs);
                 fs.Dispose();
             }
 
-            File.Delete("$$.$$$");
-
+            // Return Blob Client
             return blobClient;
         }
 
         public async Task<BlobClient> UploadFileBlobAsync(IFormFile file, string container, string filePath)
         {
+            // Get Storage Container
             var containerClient = _blobServiceClient.GetBlobContainerClient(container.ToLower());
+
+            // Create Container If Storage Doesn't Exist
             containerClient.CreateIfNotExists();
 
+            // Get File Reference
             var blobClient = containerClient.GetBlobClient(filePath);
 
             // Create Or Overwrite File
@@ -126,14 +142,19 @@ namespace NeuroSimHub.Services
                 await blobClient.UploadAsync(fileStream, new BlobHttpHeaders { ContentType = file.Name.GetContentType() });
             }
 
+            // Return Blob Client
             return blobClient;
         }
 
         public async Task<BlobClient> UploadFileBlobResizeAsync(IFormFile file, string container, string filePath, int height, int width)
         {
+            // Get Storage Container
             var containerClient = _blobServiceClient.GetBlobContainerClient(container.ToLower());
+
+            // Create Container If Storage Doesn't Exist
             containerClient.CreateIfNotExists();
 
+            // Get File Reference
             var blobClient = containerClient.GetBlobClient(filePath);
 
             // Create Or Overwrite File
@@ -150,28 +171,43 @@ namespace NeuroSimHub.Services
                 }
             }
 
+            // Return Blob Client
             return blobClient;
         }
 
-        public async Task<BlobClient> MoveBlobAsync(BlobFile blobFile, string filePathTarget)
+        public async Task<BlobClient> MoveBlobAsync(BlobFile blobFile, string filePath)
         {
+            // Get Storage Container
             var containerClient = _blobServiceClient.GetBlobContainerClient(blobFile.Container.ToLower());
+
+            // Get Source File Reference
             var blobClientSource = containerClient.GetBlobClient(blobFile.Directory + blobFile.Name + blobFile.Extension);
-            var blobClientTarget = containerClient.GetBlobClient(filePathTarget);
 
+            // Get Target File Reference
+            var blobClientTarget = containerClient.GetBlobClient(filePath);
 
+            // Copy Source To Target Reference
             await blobClientTarget.StartCopyFromUriAsync(new Uri(blobFile.Uri));
+
+            // Delete Source Reference
             await blobClientSource.DeleteIfExistsAsync();
 
+            // Return Target Blob Client
             return blobClientTarget;
         }
 
         public async Task<BlobClient> DeleteBlobAsync(BlobFile blobFile)
         {
+            // Get Storage Container
             var containerClient = _blobServiceClient.GetBlobContainerClient(blobFile.Container.ToLower());
+
+            // Get File Reference
             var blobClient = containerClient.GetBlobClient(blobFile.Directory + blobFile.Name + blobFile.Extension);
+
+            // Delete File If Exist
             await blobClient.DeleteIfExistsAsync();
 
+            // Return Blob Client
             return blobClient;
         }
     }

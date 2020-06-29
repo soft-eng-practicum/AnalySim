@@ -9,7 +9,6 @@ import { ProfileComponent } from './profile/profile.component';
 import { ProfileSettingComponent } from './profile/profile-setting/profile-setting.component';
 import { AboutUsComponent } from './about-us/about-us.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
-import { FileExplorerComponent } from './file-explorer/file-explorer.component';
 
 const routes: Routes = [];
 
@@ -17,8 +16,7 @@ const routes: Routes = [];
   imports: [
     RouterModule.forRoot([
       {path: 'home', component: HomeComponent},
-      {path: '', redirectTo: '/home', pathMatch: 'full'},  
-      {path: "test", component: FileExplorerComponent},
+      {path: '', redirectTo: '/home', pathMatch: 'full'},
       {path: "login", component: LoginComponent},
       {path: "aboutus", component: AboutUsComponent},
       {path: "contactus", component: ContactUsComponent},

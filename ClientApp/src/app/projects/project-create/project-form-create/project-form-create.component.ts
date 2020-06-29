@@ -83,28 +83,6 @@ export class ProjectFormCreateComponent implements OnInit {
     }
   }
 
-  /*
-  public deleteFormControl(formControl : FormControl){
-    let formIndex = this.files.controls.findIndex(x => x === formControl)
-    this.files.removeAt(formIndex)
-  }
-
-  // Add FormControl to FormGroup for file input
-  public fileEvent($event) {
-
-    for (let file of $event.target.files)
-    {
-      // Check if FormControl already exist
-      if((this.files.controls.findIndex(x => x.value.name === file.name)) == -1)
-      {
-        // Add FormControl to files FormGroup
-        this.files.push(new FormControl(file))
-      }    
-    }
-
-  }
-  */
-
   onSubmit() {
     let projectForm = this.projectForm.value;
     console.log(this.projectForm.value)

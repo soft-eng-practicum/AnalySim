@@ -157,7 +157,7 @@ namespace AnalySim.Controllers
                     blobFile.Extension = Path.GetExtension(formdata.File.FileName);
                     blobFile.Size = (int)blobProperties.ContentLength;
                     blobFile.Uri = blobClient.Uri.AbsoluteUri.ToString();
-                    blobFile.DateCreated = blobProperties.CreatedOn.DateTime;
+                    blobFile.LastModified = blobProperties.LastModified.LocalDateTime;
 
                     // Set Entity State
                     _dbContext.Entry(blobFile).State = EntityState.Modified;
@@ -202,111 +202,6 @@ namespace AnalySim.Controllers
         }
 
         /*
-         * Type : POST
-         * URL : /api/test/createfolder
-         * Param : BlobUploadViewModel
-         * Description: Upload File To Azure Storage
-         */
-        [HttpPost("[action]")]
-        public async Task<IActionResult> CreateFolder([FromForm] FileUploadProjectViewModel formdata)
-        {
-            try
-            {
-
-                // Find User
-                var user = await _dbContext.Users.FindAsync(formdata.UserID);
-                if (user == null) return NotFound(new { message = "User Not Found" });
-
-                // Find Project
-                var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
-                if (project == null) return NotFound(new { message = "Project Not Found" });
-
-                var filePath = formdata.Directory + "$$$.$$";
-                BlobClient blobClient = await _blobService.CreateFolder(project.Name.ToLower(), filePath);
-
-                // Return Ok Status
-                return Ok(new
-                {
-                    message = "File Successfully Uploaded"
-                });
-
-            }
-            catch (Exception e)
-            {
-                // Return Bad Request If There Is Any Error
-                return BadRequest(new
-                {
-                    error = e
-                });
-            }
-
-        }  
-
-        /*
-         * Type : POST
-         * URL : /api/test/uploadfile
-         * Param : BlobUploadViewModel
-         * Description: Upload Folder To Azure Storage
-         */
-        [HttpPost("[action]")]
-        public async Task<IActionResult> UploadFile([FromForm] FileUploadProjectViewModel formdata)
-        {
-            try
-            {
-                // Reture Bad Request Status
-                if (formdata.File == null) return BadRequest("Null File");
-                if (formdata.File.Length == 0) return BadRequest("Empty File");
-
-                // Find User
-                var user = await _dbContext.Users.FindAsync(formdata.UserID);
-                if (user == null) return NotFound(new { message = "User Not Found" });
-
-                // Find Project
-                var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
-                if (project == null) return NotFound(new { message = "Project Not Found" });
-
-                var filePath = formdata.Directory + formdata.File.FileName;
-
-                BlobClient blobClient = await _blobService.UploadFileBlobAsync(formdata.File, project.Name.ToLower(), filePath);
-                BlobProperties properties = blobClient.GetProperties();
-
-                // Create BlobFile
-                var newBlobFile = new BlobFile
-                {
-                    Container = blobClient.BlobContainerName,
-                    Directory = formdata.Directory,
-                    Name = Path.GetFileNameWithoutExtension(formdata.File.FileName),
-                    Extension = Path.GetExtension(formdata.File.FileName),
-                    Size = (int)properties.ContentLength,
-                    Uri = blobClient.Uri.ToString(),
-                    DateCreated = properties.CreatedOn.DateTime,
-                    UserID = formdata.UserID,
-                    ProjectID = formdata.ProjectID
-                };
-
-                // Update Database with entry
-                await _dbContext.BlobFiles.AddAsync(newBlobFile);
-                await _dbContext.SaveChangesAsync();
-
-                // Return Ok Status
-                return Ok(new
-                {
-                    resultObject = newBlobFile,
-                    message = "File Successfully Uploaded"
-                });
-
-            }
-            catch (Exception e)
-            {
-                // Return Bad Request If There Is Any Error
-                return BadRequest(new
-                {
-                    error = e
-                });
-            }
-        }
-
-        /*
          * Type : PUT
          * URL : /api/test/movefile
          * Param : BlobUploadViewModel
@@ -331,6 +226,7 @@ namespace AnalySim.Controllers
 
                 blobFile.Directory = formdata.SubDirectory;
                 blobFile.Uri = blobClient.Uri.ToString();
+                blobFile.LastModified = properties.LastModified.LocalDateTime;
 
                 // Set Entity State
                 _dbContext.Entry(blobFile).State = EntityState.Modified;

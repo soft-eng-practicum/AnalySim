@@ -1,9 +1,10 @@
-<div class="container mt-5 h-100" *ngIf="project != null">
+<div class="container my-5 h-100" *ngIf="project != null">
     <div class="card">
         <!-- Card Header Start -->
         <div class="d-flex card-header flex-row align-items-center">
             <!-- File Route Start -->
-            <span>File</span>
+            <span class="mr-2">File</span>
+            <span>{{currentDirectory}}</span>
             <!-- File Route End -->
     
             <!-- File Explorer Button Start -->
@@ -30,14 +31,15 @@
                    
                 <!-- Network File Button Group Start -->
                 <div class="btn-group"  role="group">
-                    <button type="button" class="btn btn-secondary" title="Refresh">
+                    <button type="button" class="btn btn-secondary" title="Refresh" (click)="setDirectoryFile(currentDirectory)">
                         <i class="fa fa-sync"></i>
                     </button>
                     <button type="button" class="btn btn-secondary" title="Download">
                         <i class="fa fa-download"></i>
                     </button>
-                    <button type="button" class="btn btn-secondary" title="Upload">
+                    <button type="button" class="btn btn-secondary">
                         <i class="fa fa-upload"></i>
+                        <input type="file" title="Upload" (change)=fileEvent($event) multiple>
                     </button>
                 </div>  
                 <!-- Network File Button Group End -->         
@@ -45,8 +47,28 @@
             <!-- File Explorer Button End -->
         </div>
         <!-- Card Header End -->
-        <ul class="list-group ">
-            <app-file-explorer-item *ngFor="let blobFileItem of blobFileItemList" [blobFileItem] = blobFileItem (changeDirectory)="directoryFile($event)"></app-file-explorer-item>
+        <ul class="list-group">
+            <li class="list-group-item" *ngIf="blobFileItemList.length == 0 && validDirectory == false">Invalid Directory</li>
+            <app-project-file-explorer-item *ngFor="let blobFileItem of blobFileItemList" [blobFileItem]="blobFileItem" [isSelected]="blobFileItem.order == selectedItem" (changeDirectory)="setDirectoryFile($event)" (selectedItem)="setSelectedItem($event)"></app-project-file-explorer-item>
         </ul>
       </div>
 </div>
+
+<ng-template #uploadModal>
+    <!-- Modal -->
+    <div class="modal-content">
+    <div class="modal-header justify-content-center">
+        <h5 class="modal-title">Upload Progress</h5>
+    </div>
+    <div class="modal-body p-0">
+        <table class="table mb-0" *ngIf="uploadFileList.length > 0 ? true : modalRef.hide();">
+            <tr *ngFor="let fileItem of uploadFileList">
+                <app-project-upload-modal-item [uploadFileItem]="fileItem" (uploadedFile)="updateProjectFile($event)" (updatedFile)="updateFileUpload($event)" (removedFile)="removeFileUpload($event)"></app-project-upload-modal-item>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Close</button>
+    </div>
+    </div>
+</ng-template>

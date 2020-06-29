@@ -5,4 +5,5 @@ export interface BlobFileItem {
     name: string
     file: BlobFile
     redirect: string
+    order: number
 }

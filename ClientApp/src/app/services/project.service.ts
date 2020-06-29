@@ -53,6 +53,9 @@ export class ProjectService {
   private urlGetFileList : string = this.baseUrl + "getfilelist/"
   private urlGetTagList : string = this.baseUrl + "gettaglist/"
 
+  // Test
+  private urlUploadFile : string = this.baseUrl + "uploadfile/"
+
   getProjectByID (projectID: number) : Observable<Project>
   {
     return this.http.get<any>(this.urlGetProjectByID + projectID)
@@ -335,6 +338,25 @@ export class ProjectService {
         return throwError(error)
       })
     )
+  }
+
+  uploadFile(file: any, directory: string, userID: number, projectID: number ) : Observable<BlobFile>{
+    let body = new FormData()
+    body.append('file', file)
+    body.append('directory', directory)
+    body.append('userID', userID.toString())
+    body.append('projectID', projectID.toString())
+
+    return this.http.post<any>(this.urlUploadFile, body).pipe(
+      map(result => {
+        console.log(result.message)
+        return result.resultObject
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
   }
 
 }

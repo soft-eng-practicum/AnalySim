@@ -4,7 +4,7 @@ import { AccountService } from '../services/account.service';
 import { ApplicationUser } from '../interfaces/user';
 import { Project } from '../interfaces/project';
 import { ProjectService } from '../services/project.service';
-import { of, pipe } from 'rxjs';
+import { of, pipe, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { UserUser } from '../interfaces/user-user';
 
@@ -20,6 +20,8 @@ export class ProfileComponent implements OnInit {
     private accountService : AccountService,
     private projectService : ProjectService) { }
 
+  currentUser$ : Observable<ApplicationUser> = null
+
   profile : ApplicationUser
   projects : Project[]
   followings : ApplicationUser[]
@@ -33,7 +35,7 @@ export class ProfileComponent implements OnInit {
   
   async ngOnInit(){
     if(this.accountService.checkLoginStatus()){
-      //let test = await this.accountService.currentUser()
+      await this.accountService.currentUser.then((x) => this.currentUser$ = x)
     }
 
     this.route.params.subscribe( params => {
