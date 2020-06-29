@@ -11,7 +11,7 @@
             <div class="d-inline-flex ml-auto">
                 <!-- Modify File Button Group Start -->
                 <div class="btn-group mr-3"  role="group">
-                    <button type="button" class="btn btn-secondary" title="Create Folder">
+                    <button type="button" class="btn btn-secondary" title="Create Folder" (click)="toggleModalFolder()">
                         <i class="fa fa-folder-plus"></i>
                     </button>
                     <button type="button" class="btn btn-secondary" title="Rename">
@@ -55,20 +55,9 @@
 </div>
 
 <ng-template #uploadModal>
-    <!-- Modal -->
-    <div class="modal-content">
-    <div class="modal-header justify-content-center">
-        <h5 class="modal-title">Upload Progress</h5>
-    </div>
-    <div class="modal-body p-0">
-        <table class="table mb-0" *ngIf="uploadFileList.length > 0 ? true : modalRef.hide();">
-            <tr *ngFor="let fileItem of uploadFileList">
-                <app-project-upload-modal-item [uploadFileItem]="fileItem" (uploadedFile)="updateProjectFile($event)" (updatedFile)="updateFileUpload($event)" (removedFile)="removeFileUpload($event)"></app-project-upload-modal-item>
-            </tr>
-        </table>
-    </div>
-    <div class="modal-footer justify-content-center">
-        <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Close</button>
-    </div>
-    </div>
+    <app-modal-upload [uploadFileList]="uploadFileList" [uploadModalRef]="uploadModalRef" (updatedFileListEvent)="updateFileList($event)" (uploadedFileEvent)="addNewFile($event)"></app-modal-upload>
+</ng-template>
+
+<ng-template #folderModal>
+    <app-modal-folder [folderModalRef]="folderModalRef" [blobList]="blobFileItemList" [currentDirectory]="currentDirectory" [projectID]="project.projectID" (newFolderEvent)="addNewFile($event)"></app-modal-folder>
 </ng-template>

@@ -6,6 +6,7 @@ using NeuroSimHub.Data;
 using NeuroSimHub.Models;
 using NeuroSimHub.Services;
 using NeuroSimHub.ViewModels;
+using NeuroSimHub.ViewModels.File;
 using NeuroSimHub.ViewModels.Project;
 using System;
 using System.Collections.Generic;
@@ -682,7 +683,7 @@ namespace NeuroSimHub.Controllers
                 // Return Ok Status
                 return Ok(new
                 {
-                    resultObject = newBlobFile,
+                    result = newBlobFile,
                     message = "File Successfully Uploaded",    
                 });
 
@@ -704,7 +705,7 @@ namespace NeuroSimHub.Controllers
          * Description: Upload File To Azure Storage
          */
         [HttpPost("[action]")]
-        public async Task<IActionResult> CreateFolder([FromForm] FileUploadProjectViewModel formdata)
+        public async Task<IActionResult> CreateFolder([FromForm] FolderUploadProfileViewModel formdata)
         {
             try
             {
@@ -720,10 +721,31 @@ namespace NeuroSimHub.Controllers
 
                 var filePath = formdata.Directory + "$$$.$$";
                 BlobClient blobClient = await _blobService.CreateFolder(project.Name.ToLower(), filePath);
+                BlobProperties properties = blobClient.GetProperties();
+
+                // Create BlobFile
+                var newBlobFile = new BlobFile
+                {
+                    Container = blobClient.BlobContainerName,
+                    Directory = formdata.Directory,
+                    Name = "$$$",
+                    Extension = ".$$",
+                    Size = (int)properties.ContentLength,
+                    Uri = blobClient.Uri.ToString(),
+                    DateCreated = properties.CreatedOn.LocalDateTime,
+                    LastModified = properties.LastModified.LocalDateTime,
+                    UserID = formdata.UserID,
+                    ProjectID = formdata.ProjectID
+                };
+
+                // Update Database with entry
+                await _dbContext.BlobFiles.AddAsync(newBlobFile);
+                await _dbContext.SaveChangesAsync();
 
                 // Return Ok Status
                 return Ok(new
                 {
+                    result = newBlobFile,
                     message = "File Successfully Uploaded"
                 });
 

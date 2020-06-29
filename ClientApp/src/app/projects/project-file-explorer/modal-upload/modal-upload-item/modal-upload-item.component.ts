@@ -5,18 +5,18 @@ import { ProjectService } from 'src/app/services/project.service';
 import { UploadFileItem } from 'src/app/interfaces/upload-file-item';
 
 @Component({
-  selector: 'app-project-upload-modal-item',
-  templateUrl: './project-upload-modal-item.component.html',
-  styleUrls: ['./project-upload-modal-item.component.css']
+  selector: 'app-modal-upload-item',
+  templateUrl: './modal-upload-item.component.html',
+  styleUrls: ['./modal-upload-item.component.css']
 })
-export class ProjectUploadModalItemComponent implements OnInit {
+export class ModalUploadItemComponent implements OnInit {
 
   constructor(private projectSerivce : ProjectService, private acctService : AccountService) { }
 
   @Input() uploadFileItem : UploadFileItem
   @Output() uploadedFile = new EventEmitter<BlobFile>()
   @Output() updatedFile = new EventEmitter<UploadFileItem>()
-  @Output() removedFile = new EventEmitter<UploadFileItem>();
+  @Output() removedFile = new EventEmitter<UploadFileItem>()
   
 
 

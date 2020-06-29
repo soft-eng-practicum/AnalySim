@@ -25,8 +25,10 @@ export class ProjectFileExplorerComponent implements OnInit {
     private modalService : BsModalService, 
     private notfi : NotificationService) { }
 
-  @ViewChild('uploadModal') uploadModal : TemplateRef<any>;
-  modalRef : BsModalRef;
+  @ViewChild('uploadModal') uploadFileModal : TemplateRef<any>;
+  @ViewChild('folderModal') folderModal : TemplateRef<any>;
+  uploadModalRef : BsModalRef;
+  folderModalRef : BsModalRef;
 
   currentUser$ : Observable<ApplicationUser> = null
 
@@ -90,25 +92,25 @@ export class ProjectFileExplorerComponent implements OnInit {
     }
     else{
       // Show Upload Modal
-      this.modalRef = this.modalService.show(this.uploadModal)
+      this.toggleModalUpload()
     }
   }
 
-  updateProjectFile(blobFile : BlobFile){
+  toggleModalUpload(){
+    this.uploadModalRef = this.modalService.show(this.uploadFileModal)
+  }
+
+  toggleModalFolder(){
+    this.folderModalRef = this.modalService.show(this.folderModal)
+  }
+
+  updateFileList(uploadFileList : UploadFileItem[]){
+    this.uploadFileList = uploadFileList;
+  }
+
+  addNewFile(blobFile : BlobFile){
     this.project.blobFiles.push(blobFile)
-  }
-
-  updateFileUpload(uploadFileItem : UploadFileItem){
-    this.uploadFileList.map(x => {
-      if(x.file.name == uploadFileItem.file.name){
-        x = uploadFileItem
-      }
-      return x
-    })
-  }
-
-  removeFileUpload(uploadFileItem : UploadFileItem){
-    this.uploadFileList = this.uploadFileList.filter(x => x.file.name != uploadFileItem.file.name)
+    this.setDirectoryFile(this.currentDirectory)
   }
 
   setSelectedItem(itemNum : number){

@@ -30,9 +30,7 @@ export class ProjectFormCreateComponent implements OnInit {
   currentUser : ApplicationUser
   isLoading : boolean
 
-  @Output() setProject = new EventEmitter<Project>();
-
-  //files: FormArray;
+  @Output() setProject = new EventEmitter<Project>()
 
   async ngOnInit() {
     if(!this.accountService.checkLoginStatus())
@@ -44,19 +42,16 @@ export class ProjectFormCreateComponent implements OnInit {
     this.currentUser$.subscribe(x => this.currentUser = x)
     
     // Initialize Form Controls
-    this.name = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20), this.noSpaceSpecial()]);
-    this.description = new FormControl('');
-    this.visibility = new FormControl('');
+    this.name = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20), this.noSpaceSpecial()])
+    this.description = new FormControl('')
+    this.visibility = new FormControl('')
 
     // Initialize FormGroup using FormBuilder
     this.projectForm = this.formBuilder.group({
         name : this.name,
         description : this.description,
         visibility : this.visibility
-        //files : this.formBuilder.array([])
-    });
-    //this.files = <FormArray>this.projectForm.controls['files']
-
+    })
     
   }
 
@@ -67,7 +62,7 @@ export class ProjectFormCreateComponent implements OnInit {
 
       // Check if empty
       if(projectNameControl.value.length == ''){
-        return null;
+        return null
       }
 
       // Regular Expression for having Space or Special Character
@@ -75,10 +70,10 @@ export class ProjectFormCreateComponent implements OnInit {
 
       // Return Error Message if test false, otherwise return null
       if(!reg.test(projectNameControl.value)){
-        return {'noSpaceSpecial': true};
+        return {'noSpaceSpecial': true}
       }
       else{
-        return null;
+        return null
       }
     }
   }

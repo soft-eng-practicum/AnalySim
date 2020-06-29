@@ -15,7 +15,9 @@ import { ApplicationPipesModule } from '../application-pipes/application-pipes.m
 import { ProjectComponent } from './project/project.component';
 import { ProjectFileExplorerComponent } from './project-file-explorer/project-file-explorer.component';
 import { ProjectFileExplorerItemComponent } from './project-file-explorer/project-file-explorer-item/project-file-explorer-item.component';
-import { ProjectUploadModalItemComponent } from './project-file-explorer/project-upload-modal-item/project-upload-modal-item.component';
+import { ModalFolderComponent } from './project-file-explorer/modal-folder/modal-folder.component';
+import { ModalUploadComponent } from './project-file-explorer/modal-upload/modal-upload.component';
+import { ModalUploadItemComponent } from './project-file-explorer/modal-upload/modal-upload-item/modal-upload-item.component';
 
 
 @NgModule({
@@ -31,7 +33,9 @@ import { ProjectUploadModalItemComponent } from './project-file-explorer/project
     ProjectComponent,
     ProjectFileExplorerComponent,
     ProjectFileExplorerItemComponent,
-    ProjectUploadModalItemComponent,
+    ModalFolderComponent,
+    ModalUploadComponent,
+    ModalUploadItemComponent,
   ],
   imports: [
     CommonModule,

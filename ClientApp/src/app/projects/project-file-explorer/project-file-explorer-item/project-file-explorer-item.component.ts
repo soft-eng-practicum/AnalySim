@@ -46,11 +46,7 @@ export class ProjectFileExplorerItemComponent implements OnInit {
     var days =  Math.floor(hours/24)
     var months =  Math.floor(days/31)
     var years =  Math.floor(months/12)
-
-    console.log(this.blobFileItem.file)
-    console.log(timeThen)
-    console.log(timeNow)
-
+    
     if(years > 12){
       return years + " year ago"
     }

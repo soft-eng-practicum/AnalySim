@@ -54,7 +54,8 @@ export class ProjectService {
   private urlGetTagList : string = this.baseUrl + "gettaglist/"
 
   // Test
-  private urlUploadFile : string = this.baseUrl + "uploadfile/"
+  private urlUploadFile : string = this.baseUrl + "uploadfile"
+  private urlCreateFolder : string = this.baseUrl + "createFolder"
 
   getProjectByID (projectID: number) : Observable<Project>
   {
@@ -348,9 +349,27 @@ export class ProjectService {
     body.append('projectID', projectID.toString())
 
     return this.http.post<any>(this.urlUploadFile, body).pipe(
-      map(result => {
-        console.log(result.message)
-        return result.resultObject
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
+  createFolder(directory: string, userID: number, projectID: number ) : Observable<BlobFile>{
+    let body = new FormData()
+    body.append('directory', directory)
+    body.append('userID', userID.toString())
+    body.append('projectID', projectID.toString())
+
+    return this.http.post<any>(this.urlCreateFolder, body).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
       }),
       catchError(error => {
         console.log(error)
