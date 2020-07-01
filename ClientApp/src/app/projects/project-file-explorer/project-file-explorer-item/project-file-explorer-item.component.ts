@@ -27,13 +27,15 @@ export class ProjectFileExplorerItemComponent implements OnInit {
   }
 
   navigate(){
-    let currentRoute
-    this.route.parent.url.subscribe(x => {
-      currentRoute = x.join('/')
-    })
-    this.router.navigate(['project/' + currentRoute + '/' + this.blobFileItem.redirect])
-    this.changeDirectory.emit(this.blobFileItem.redirect)
-    this.selectedItem.emit(null)
+    if( this.blobFileItem.redirect != null){
+      let currentRoute
+      this.route.parent.url.subscribe(x => {
+        currentRoute = x.join('/')
+      })
+      this.router.navigate(['project/' + currentRoute + '/' + this.blobFileItem.redirect])
+      this.changeDirectory.emit(this.blobFileItem.redirect)
+      this.selectedItem.emit(null)
+    }
   }
 
   get timeSince() : string{
@@ -46,7 +48,7 @@ export class ProjectFileExplorerItemComponent implements OnInit {
     var days =  Math.floor(hours/24)
     var months =  Math.floor(days/31)
     var years =  Math.floor(months/12)
-    
+
     if(years > 12){
       return years + " year ago"
     }

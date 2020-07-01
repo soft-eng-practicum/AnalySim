@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace NeuroSimHub.Controllers
@@ -155,6 +156,34 @@ namespace NeuroSimHub.Controllers
                 result = matchedProject,
                 message = "Recieved Search Result."
             });
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/test/downloadfile/
+         * Param : {fileID}
+         * Description: Upload File To Azure Storage
+         */
+        [HttpGet("[action]/{fileID}")]
+        public async Task<IActionResult> DownloadFile([FromRoute] int fileID)
+        {
+            try
+            {
+
+                // Find Project
+                var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
+                if (blobFile == null) return NotFound();
+
+                BlobDownloadInfo data = await _blobService.GetBlobAsync(blobFile);
+
+                return File(data.Content, data.ContentType, blobFile.Name + blobFile.Extension);
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest();
+            }
+
         }
         #endregion
 
@@ -362,6 +391,138 @@ namespace NeuroSimHub.Controllers
                 message = "Project Tag Added"
             });
         }
+
+        /*
+         * Type : POST
+         * URL : /api/project/uploadfile
+         * Param : FileUploadProjectViewModel
+         * Description: Upload Folder To Azure Storage
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> UploadFile([FromForm] FileUploadProjectViewModel formdata)
+        {
+            try
+            {
+                if (formdata.Directory == null) { formdata.Directory = ""; }
+
+                // Reture Bad Request Status
+                if (formdata.File == null) return BadRequest("Null File");
+                if (formdata.File.Length == 0) return BadRequest("Empty File");
+
+                // Find User
+                var user = await _dbContext.Users.FindAsync(formdata.UserID);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                // Find Project
+                var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+                if (project == null) return NotFound(new { message = "Project Not Found" });
+
+                // Set File Path
+                var filePath = formdata.Directory + formdata.File.FileName;
+
+                // Upload Blob File
+                BlobClient blobClient = await _blobService.UploadFileBlobAsync(formdata.File, project.Name.ToLower(), filePath);
+                BlobProperties properties = blobClient.GetProperties();
+
+                // Create BlobFile
+                var newBlobFile = new BlobFile
+                {
+                    Container = blobClient.BlobContainerName,
+                    Directory = formdata.Directory,
+                    Name = Path.GetFileNameWithoutExtension(formdata.File.FileName),
+                    Extension = Path.GetExtension(formdata.File.FileName),
+                    Size = (int)properties.ContentLength,
+                    Uri = blobClient.Uri.ToString(),
+                    DateCreated = properties.CreatedOn.LocalDateTime,
+                    LastModified = properties.LastModified.LocalDateTime,
+                    UserID = formdata.UserID,
+                    ProjectID = formdata.ProjectID
+                };
+
+                // Update Database with entry
+                await _dbContext.BlobFiles.AddAsync(newBlobFile);
+                await _dbContext.SaveChangesAsync();
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    result = newBlobFile,
+                    message = "File Successfully Uploaded",
+                });
+
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
+            }
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/project/createfolder
+         * Param : FileUploadProjectViewModel
+         * Description: Upload Folder To Azure Storage
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> CreateFolder([FromForm] FolderUploadProfileViewModel formdata)
+        {
+            try
+            {
+                if (formdata.Directory == null) { formdata.Directory = ""; }
+
+                // Find User
+                var user = await _dbContext.Users.FindAsync(formdata.UserID);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                // Find Project
+                var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+                if (project == null) return NotFound(new { message = "Project Not Found" });
+
+                var filePath = formdata.Directory + "$$$.$$";
+                BlobClient blobClient = await _blobService.CreateFolder(project.Name.ToLower(), filePath);
+                BlobProperties properties = blobClient.GetProperties();
+
+                // Create BlobFile
+                var newBlobFile = new BlobFile
+                {
+                    Container = blobClient.BlobContainerName,
+                    Directory = formdata.Directory,
+                    Name = "$$$",
+                    Extension = ".$$",
+                    Size = (int)properties.ContentLength,
+                    Uri = blobClient.Uri.ToString(),
+                    DateCreated = properties.CreatedOn.LocalDateTime,
+                    LastModified = properties.LastModified.LocalDateTime,
+                    UserID = formdata.UserID,
+                    ProjectID = formdata.ProjectID
+                };
+
+                // Update Database with entry
+                await _dbContext.BlobFiles.AddAsync(newBlobFile);
+                await _dbContext.SaveChangesAsync();
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    result = newBlobFile,
+                    message = "File Successfully Uploaded"
+                });
+
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
+            }
+
+        }
         #endregion
 
         #region PUT REQUEST
@@ -552,6 +713,47 @@ namespace NeuroSimHub.Controllers
                 message = projectTag.Tag.Name  + " tag has been removed"
             });
         }
+
+        /*
+         * Type : DELETE
+         * URL : /api/project/deletefile/
+         * Param : {fileID}
+         * Description: Delete File From Azure Storage
+         */
+        [HttpDelete("[action]/{fileID}")]
+        public async Task<IActionResult> DeleteFile([FromRoute] int fileID)
+        {
+            try
+            {
+                // Find File
+                var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
+                if (blobFile == null) return NotFound(new { message = "File Not Found" });
+
+                await _blobService.DeleteBlobAsync(blobFile);
+
+                // Delete Blob Files From Database
+                _dbContext.BlobFiles.Remove(blobFile);
+
+                // Save Change to Database
+                await _dbContext.SaveChangesAsync();
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    result = blobFile,
+                    message = "File Successfully Deleted"
+                });
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
+            }
+
+        }
         #endregion
 
         #region Extra
@@ -629,123 +831,56 @@ namespace NeuroSimHub.Controllers
         #endregion
 
         #region Testing
-        /*
-         * Type : POST
-         * URL : /api/project/uploadfile
-         * Param : FileUploadProjectViewModel
-         * Description: Upload Folder To Azure Storage
-         */
-        [HttpPost("[action]")]
-        public async Task<IActionResult> UploadFile([FromForm] FileUploadProjectViewModel formdata)
+        [HttpGet("[action]")]
+        public async Task<IActionResult> AuditFile()
         {
-            try
+            // Find Project
+            var project = await _dbContext.Projects.FindAsync(1);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            var relatedDirectory = await _blobService.ListBlobsAsync(project.Name.ToLower());
+
+            // Update Database with entry
+            _dbContext.BlobFiles.AddRange(relatedDirectory);
+            await _dbContext.SaveChangesAsync();
+
+            // Return Ok Status
+            return Ok(new
             {
-                if (formdata.Directory == null) { formdata.Directory = ""; }
-
-                // Reture Bad Request Status
-                if (formdata.File == null) return BadRequest("Null File");
-                if (formdata.File.Length == 0) return BadRequest("Empty File");
-
-                // Find User
-                var user = await _dbContext.Users.FindAsync(formdata.UserID);
-                if (user == null) return NotFound(new { message = "User Not Found" });
-
-                // Find Project
-                var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
-                if (project == null) return NotFound(new { message = "Project Not Found" });
-
-                // Set File Path
-                var filePath = formdata.Directory + formdata.File.FileName;
-
-                // Upload Blob File
-                BlobClient blobClient = await _blobService.UploadFileBlobAsync(formdata.File, project.Name.ToLower(), filePath);
-                BlobProperties properties = blobClient.GetProperties();
-
-                // Create BlobFile
-                var newBlobFile = new BlobFile
-                {
-                    Container = blobClient.BlobContainerName,
-                    Directory = formdata.Directory,
-                    Name = Path.GetFileNameWithoutExtension(formdata.File.FileName),
-                    Extension = Path.GetExtension(formdata.File.FileName),
-                    Size = (int)properties.ContentLength,
-                    Uri = blobClient.Uri.ToString(),
-                    DateCreated = properties.CreatedOn.LocalDateTime,
-                    LastModified = properties.LastModified.LocalDateTime,
-                    UserID = formdata.UserID,
-                    ProjectID = formdata.ProjectID
-                };
-
-                // Update Database with entry
-                await _dbContext.BlobFiles.AddAsync(newBlobFile);
-                await _dbContext.SaveChangesAsync();
-
-                // Return Ok Status
-                return Ok(new
-                {
-                    result = newBlobFile,
-                    message = "File Successfully Uploaded",    
-                });
-
-            }
-            catch (Exception e)
-            {
-                // Return Bad Request If There Is Any Error
-                return BadRequest(new
-                {
-                    error = e
-                });
-            }
+                result = relatedDirectory,
+                message = "File Successfully Uploaded"
+            });
         }
 
+
         /*
-         * Type : POST
-         * URL : /api/project/createfolder
-         * Param : FileUploadProjectViewModel
+         * Type : GET
+         * URL : /api/test/getrelated?
+         * Param : 
          * Description: Upload File To Azure Storage
          */
-        [HttpPost("[action]")]
-        public async Task<IActionResult> CreateFolder([FromForm] FolderUploadProfileViewModel formdata)
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetRelated([FromQuery(Name = "directory")] string directory)
         {
             try
             {
-                if (formdata.Directory == null) { formdata.Directory = ""; }
+                if (directory == null || directory == "/")
+                {
+                    directory = "";
+                }
 
-                // Find User
-                var user = await _dbContext.Users.FindAsync(formdata.UserID);
-                if (user == null) return NotFound(new { message = "User Not Found" });
 
                 // Find Project
-                var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+                var project = await _dbContext.Projects.FindAsync(1);
                 if (project == null) return NotFound(new { message = "Project Not Found" });
 
-                var filePath = formdata.Directory + "$$$.$$";
-                BlobClient blobClient = await _blobService.CreateFolder(project.Name.ToLower(), filePath);
-                BlobProperties properties = blobClient.GetProperties();
-
-                // Create BlobFile
-                var newBlobFile = new BlobFile
-                {
-                    Container = blobClient.BlobContainerName,
-                    Directory = formdata.Directory,
-                    Name = "$$$",
-                    Extension = ".$$",
-                    Size = (int)properties.ContentLength,
-                    Uri = blobClient.Uri.ToString(),
-                    DateCreated = properties.CreatedOn.LocalDateTime,
-                    LastModified = properties.LastModified.LocalDateTime,
-                    UserID = formdata.UserID,
-                    ProjectID = formdata.ProjectID
-                };
-
-                // Update Database with entry
-                await _dbContext.BlobFiles.AddAsync(newBlobFile);
-                await _dbContext.SaveChangesAsync();
+                var relatedDirectory = await _blobService.ListBlobsAsync(project.Name.ToLower(), directory);
 
                 // Return Ok Status
                 return Ok(new
                 {
-                    result = newBlobFile,
+                    directory = directory,
+                    result = relatedDirectory,
                     message = "File Successfully Uploaded"
                 });
 
@@ -759,6 +894,57 @@ namespace NeuroSimHub.Controllers
                 });
             }
 
+        }
+
+        /*
+         * Type : PUT
+         * URL : /api/test/movefile
+         * Param : BlobUploadViewModel
+         * Description: Upload Folder To Azure Storage
+         */
+        [HttpPut("[action]")]
+        public async Task<IActionResult> MoveFile([FromForm] BlobMoveViewModel formdata)
+        {
+            try
+            {
+                // Check Model State
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+
+                // Find User
+                var blobFile = await _dbContext.BlobFiles.FindAsync(formdata.FileID);
+                if (blobFile == null) return NotFound(new { message = "File Not Found" });
+
+                var filePath = formdata.SubDirectory + blobFile.Name + blobFile.Extension;
+
+                BlobClient blobClient = await _blobService.MoveBlobAsync(blobFile, filePath);
+                BlobProperties properties = blobClient.GetProperties();
+
+                blobFile.Directory = formdata.SubDirectory;
+                blobFile.Uri = blobClient.Uri.ToString();
+                blobFile.LastModified = properties.LastModified.LocalDateTime;
+
+                // Set Entity State
+                _dbContext.Entry(blobFile).State = EntityState.Modified;
+
+                // Update Database with entry
+                await _dbContext.SaveChangesAsync();
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    result = blobFile,
+                    message = "File Successfully Moved"
+                });
+
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
+            }
         }
         #endregion
     }

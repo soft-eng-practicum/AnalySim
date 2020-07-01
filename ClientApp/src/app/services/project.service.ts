@@ -11,6 +11,7 @@ import { Tag } from '../interfaces/tag';
 import { ProjectTag } from '../interfaces/project-tag';
 import { ApplicationUser } from '../interfaces/user';
 import { NotificationService } from './notification.service';
+import { saveAs } from 'file-saver';
 
 @Injectable({
   providedIn: 'root'
@@ -32,12 +33,16 @@ export class ProjectService {
   private urlGetProjectRange : string = this.baseUrl + "getprojectrange?"
   private urlGetProjectList : string = this.baseUrl + "getprojectList"
   private urlSearch : string = this.baseUrl + "search/"
+  private urlDownloadFile : string = this.baseUrl + "downloadFile/"
   
 
   // Post
   private urlCreateProject : string = this.baseUrl + "createproject"
   private urlAddUser : string = this.baseUrl + "adduser"
   private urlAddTag : string = this.baseUrl + "addtag"
+  private urlUploadFile : string = this.baseUrl + "uploadfile"
+  private urlCreateFolder : string = this.baseUrl + "createFolder"
+  
 
   // Put
   private urlUpdateProject : string = this.baseUrl + "updateproject/"
@@ -47,15 +52,13 @@ export class ProjectService {
   private urlDeleteProject : string = this.baseUrl + "deleteproject/"
   private urlRemoveUser : string = this.baseUrl + "removeuser/"
   private urlRemoveTag : string = this.baseUrl + "removetag/"
+  private urlDeleteFile : string = this.baseUrl + "deleteFile/"
 
   // Extra
   private urlGetUserList : string = this.baseUrl + "getuserlist/"
   private urlGetFileList : string = this.baseUrl + "getfilelist/"
   private urlGetTagList : string = this.baseUrl + "gettaglist/"
 
-  // Test
-  private urlUploadFile : string = this.baseUrl + "uploadfile"
-  private urlCreateFolder : string = this.baseUrl + "createFolder"
 
   getProjectByID (projectID: number) : Observable<Project>
   {
@@ -141,6 +144,24 @@ export class ProjectService {
     )
   }
 
+  downloadFile(blobFileID : number){
+    return this.http.get(this.urlDownloadFile + blobFileID, { responseType: "blob" }).pipe(
+      map(body => {
+        if (body.type != 'text/plain') {
+          return new Blob([body])
+        }  
+        else {  
+          alert('File not found in Blob!');
+          return null 
+        }
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
   createProject (currentUser : ApplicationUser, projectName : string, visibility : string, description : string) : Observable<Project>
   {
     let body = new FormData()
@@ -201,6 +222,43 @@ export class ProjectService {
         return throwError(error)
       })
     )
+  }
+
+  uploadFile(file: any, directory: string, userID: number, projectID: number ) : Observable<BlobFile>{
+    let body = new FormData()
+    body.append('file', file)
+    body.append('directory', directory)
+    body.append('userID', userID.toString())
+    body.append('projectID', projectID.toString())
+
+    return this.http.post<any>(this.urlUploadFile, body).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
+  createFolder(directory: string, userID: number, projectID: number ) : Observable<BlobFile>{
+    let body = new FormData()
+    body.append('directory', directory)
+    body.append('userID', userID.toString())
+    body.append('projectID', projectID.toString())
+
+    return this.http.post<any>(this.urlCreateFolder, body).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
   }
 
   updateProject (updateProject: Project) : Observable<Project>
@@ -292,6 +350,19 @@ export class ProjectService {
     )
   }
 
+  deleteFile(blobFileID : number) : Observable<BlobFile>{
+    return this.http.delete<any>(this.urlDeleteFile + blobFileID).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
   // Extra
   getUserList (projectID: number) : Observable<ProjectUser[]>
   {
@@ -340,42 +411,4 @@ export class ProjectService {
       })
     )
   }
-
-  uploadFile(file: any, directory: string, userID: number, projectID: number ) : Observable<BlobFile>{
-    let body = new FormData()
-    body.append('file', file)
-    body.append('directory', directory)
-    body.append('userID', userID.toString())
-    body.append('projectID', projectID.toString())
-
-    return this.http.post<any>(this.urlUploadFile, body).pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    );
-  }
-
-  createFolder(directory: string, userID: number, projectID: number ) : Observable<BlobFile>{
-    let body = new FormData()
-    body.append('directory', directory)
-    body.append('userID', userID.toString())
-    body.append('projectID', projectID.toString())
-
-    return this.http.post<any>(this.urlCreateFolder, body).pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    );
-  }
-
 }

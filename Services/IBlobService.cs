@@ -1,5 +1,6 @@
 ﻿using AnalySim.Models;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
 using NeuroSimHub.Models;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace NeuroSimHub.Services
 {
     public interface IBlobService
     {
-        public Task<BlobInfo> GetBlobAsync(BlobFile file);
+        public Task<BlobDownloadInfo> GetBlobAsync(BlobFile file);
 
         public Task<List<BlobFile>> ListBlobsAsync(string container);
 

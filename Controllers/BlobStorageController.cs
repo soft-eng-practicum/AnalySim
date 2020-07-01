@@ -177,7 +177,7 @@ namespace NeuroSimHub.Controllers
                     // Return Ok Status
                     return Ok(new
                     {
-                        resultObject = newBlobFile,
+                        result = newBlobFile,
                         message = "File Successfully Uploaded"
                     });
                 }
@@ -304,7 +304,7 @@ namespace NeuroSimHub.Controllers
                     // Return Ok Status
                     return Ok(new
                     {
-                        resultObject = blobFile,
+                        result = blobFile,
                         message = "File Successfully Deleted"
                     });
                 }

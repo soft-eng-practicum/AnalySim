@@ -26,7 +26,7 @@ namespace NeuroSimHub.Services
             _blobServiceClient = blobServiceClient;
         }
 
-        public async Task<BlobInfo> GetBlobAsync(BlobFile file)
+        public async Task<BlobDownloadInfo> GetBlobAsync(BlobFile file)
         {
             // Get Storage Container
             var containerClient = _blobServiceClient.GetBlobContainerClient(file.Container.ToLower());
@@ -35,10 +35,10 @@ namespace NeuroSimHub.Services
             var blobClient = containerClient.GetBlobClient(file.Directory + file.Name + file.Extension);
 
             // Download File
-            var blobDownloadInfo = await blobClient.DownloadAsync();
+            BlobDownloadInfo blobDownloadInfo = await blobClient.DownloadAsync();
 
             // Return Downloaded File Info
-            return new BlobInfo(blobDownloadInfo.Value.Content, blobDownloadInfo.Value.ContentType);
+            return blobDownloadInfo;
         }
 
         public async Task<List<BlobFile>> ListBlobsAsync(string container)
