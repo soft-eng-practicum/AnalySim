@@ -10,6 +10,7 @@ export interface BlobFile {
     size: number
     uri: string
     dateCreated: Date
+    lastModified: Date
     user : ApplicationUser
     userID : number
     project : Project

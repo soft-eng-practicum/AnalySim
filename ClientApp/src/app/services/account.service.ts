@@ -9,6 +9,7 @@ import { UserUser } from '../interfaces/user-user';
 import { Project } from '../interfaces/project';
 import { NotificationService } from './notification.service';
 import { ProjectUser } from '../interfaces/project-user';
+import { BlobFile } from '../interfaces/blob-file';
 
 @Injectable({
   providedIn: 'root'
@@ -31,12 +32,14 @@ export class AccountService {
   private urlFollow : string = this.baseUrl + "follow"
   private urlRegister : string = this.baseUrl + "register"
   private urlLogin : string = this.baseUrl + "login"
+  private urlUploadProfileImage : string = this.baseUrl + "uploadprofileimage"
 
   // Post
   private urlUpdateUser : string = this.baseUrl + "updateuser/"
 
   // Delete
   private urlUnfollow : string = this.baseUrl + "unfollow/"
+  private urlDeleteProfileImage : string = this.baseUrl + "deleteprofileimage/"
 
   // Unuse
   private urlGetProjects : string = this.baseUrl + "getprojects/"
@@ -199,6 +202,24 @@ export class AccountService {
     )
   }
 
+  uploadProfileImage(file: any, userID: number) : Observable<BlobFile>{
+    let body = new FormData()
+    body.append('file', file)
+    body.append('userID', userID.toString())
+
+    return this.http.post<any>(this.urlUploadProfileImage, body).pipe(
+      map(body => {
+        console.log(body)
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
   updateUser (bio : string, userID : number) : Observable<ApplicationUser>
   {
     let body = new FormData()
@@ -230,6 +251,19 @@ export class AccountService {
         return throwError(error)
       })
     )
+  }
+
+  deleteProfileImage(blobFileID : number) : Observable<BlobFile>{
+    return this.http.delete<any>(this.urlDeleteProfileImage + blobFileID).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
   }
 
   checkLoginStatus(): boolean {

@@ -252,7 +252,7 @@ namespace NeuroSimHub.Controllers
                 // Return Ok Request
                 return Ok(new
                 {
-                    resultObject = user,
+                    result = user,
                     message = "Registration Successful"
                 });
             }
@@ -284,7 +284,7 @@ namespace NeuroSimHub.Controllers
             var user = await _userManager.FindByNameAsync(formdata.Username);
 
             // Get The User Role
-            var roles = await _userManager.GetRolesAsync(user);
+            //var roles = await _userManager.GetRolesAsync(user);
 
             // Generate Key Token
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_appSettings.Secret));
@@ -306,7 +306,7 @@ namespace NeuroSimHub.Controllers
                         new Claim(JwtRegisteredClaimNames.Sub, formdata.Username),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new Claim(ClaimTypes.Role, roles.FirstOrDefault()),
+                        //new Claim(ClaimTypes.Role, roles.FirstOrDefault()),
                         new Claim("LoggedOn", DateTime.Now.ToString())
                     }),
 
@@ -353,7 +353,82 @@ namespace NeuroSimHub.Controllers
             }
         }
 
-        
+        /*
+         * Type : POST
+         * URL : /api/account/uploadprofileimage
+         * Param : BlobUploadViewModel
+         * Description: Upload File To Azure Storage
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> UploadProfileImage([FromForm] FileUploadProfileViewModel formdata)
+        {
+            try
+            {
+                // Reture Bad Request Status
+                if (formdata.File == null) return BadRequest("Null File");
+                if (formdata.File.Length == 0) return BadRequest("Empty File");
+
+                // Find User
+                var user = await _dbContext.Users.FindAsync(formdata.UserID);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                //Create File Path With File
+                var filePath = user.UserName + "/profileImage" + Path.GetExtension(formdata.File.FileName);
+
+                BlobClient blobClient = await _blobService.UploadFileBlobResizeAsync(formdata.File, "profile", filePath, 250, 250);
+                BlobProperties blobProperties = blobClient.GetProperties();
+
+                // Check For Existing
+                var blobFile = _dbContext.BlobFiles.FirstOrDefault(x => x.Uri == blobClient.Uri.AbsoluteUri.ToString());
+                if (blobFile != null)
+                {
+                    blobFile.Extension = Path.GetExtension(formdata.File.FileName);
+                    blobFile.Size = (int)blobProperties.ContentLength;
+                    blobFile.Uri = blobClient.Uri.AbsoluteUri.ToString();
+                    blobFile.LastModified = blobProperties.LastModified.LocalDateTime;
+
+                    // Set Entity State
+                    _dbContext.Entry(blobFile).State = EntityState.Modified;
+
+                    await _dbContext.SaveChangesAsync();
+
+                    return Ok(new { result = blobFile, message = "Profile Image Updated" });
+                }
+
+                // Create BlobFile
+                var newBlobFile = new BlobFile
+                {
+                    Container = "profile",
+                    Directory = user.UserName + "/",
+                    Name = "profileImage",
+                    Extension = Path.GetExtension(formdata.File.FileName),
+                    Size = (int)blobProperties.ContentLength,
+                    Uri = blobClient.Uri.AbsoluteUri.ToString(),
+                    DateCreated = blobProperties.CreatedOn.LocalDateTime,
+                    LastModified = blobProperties.LastModified.LocalDateTime,
+                    UserID = formdata.UserID
+                };
+
+                // Update Database with entry
+                await _dbContext.BlobFiles.AddAsync(newBlobFile);
+                await _dbContext.SaveChangesAsync();
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    result = newBlobFile,
+                    message = "File Successfully Uploaded"
+                });
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
+            }
+        }
         #endregion
 
         #region PUT REQUEST
@@ -530,6 +605,47 @@ namespace NeuroSimHub.Controllers
                 result = userFollowings,
                 message = "Recieved User Following"
             });
+        }
+
+        /*
+         * Type : DELETE
+         * URL : /api/account/deleteprofileimage/
+         * Param : {fileID}
+         * Description: Delete File From Azure Storage
+         */
+        [HttpDelete("[action]/{fileID}")]
+        public async Task<IActionResult> DeleteProfileImage([FromRoute] int fileID)
+        {
+            try
+            {
+                // Find File
+                var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
+                if (blobFile == null) return NotFound(new { message = "File Not Found" });
+
+                await _blobService.DeleteBlobAsync(blobFile);
+
+                // Delete Blob Files From Database
+                _dbContext.BlobFiles.Remove(blobFile);
+
+                // Save Change to Database
+                await _dbContext.SaveChangesAsync();
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    result = blobFile,
+                    message = "File Successfully Deleted"
+                });
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
+            }
+
         }
         #endregion
     }
