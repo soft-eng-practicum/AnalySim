@@ -11,22 +11,25 @@ import { UploadFileItem } from 'src/app/interfaces/upload-file-item';
 })
 export class ModalUploadItemComponent implements OnInit {
 
-  constructor(private projectSerivce : ProjectService, private acctService : AccountService) { }
+  constructor(private projectSerivce : ProjectService, private accountService : AccountService) { }
 
   @Input() uploadFileItem : UploadFileItem
   @Output() uploadedFile = new EventEmitter<BlobFile>()
   @Output() updatedFile = new EventEmitter<UploadFileItem>()
   @Output() removedFile = new EventEmitter<UploadFileItem>()
   
+  currentUserID : number
 
 
   ngOnInit(): void {
+    this.accountService.currentUserID.subscribe(x => this.currentUserID = x)
+
     if(this.uploadFileItem.uploadStatus == "loading")
       this.uploadFile();
   }
 
   uploadFile(){
-    this.projectSerivce.uploadFile(this.uploadFileItem.file, this.uploadFileItem.directory, 1, this.uploadFileItem.projectID).subscribe(
+    this.projectSerivce.uploadFile(this.uploadFileItem.file, this.uploadFileItem.directory, this.currentUserID, this.uploadFileItem.projectID).subscribe(
       result => {
         console.log(result)
         this.uploadFileItem.uploadStatus = "success";

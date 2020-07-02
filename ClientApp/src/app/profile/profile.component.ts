@@ -74,7 +74,7 @@ export class ProfileComponent implements OnInit {
 
   followUser(){
     if(!this.accountService.checkLoginStatus())
-      this.router.navigate(['/login'])
+      this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
 
     this.accountService.follow(this.profile.id, this.currentUser.id).subscribe(
       result =>{

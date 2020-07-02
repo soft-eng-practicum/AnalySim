@@ -7,14 +7,14 @@ import { ProjectFileExplorerComponent } from './project-file-explorer/project-fi
 
 
 const routes: Routes = [
-    {path: 'create', component : ProjectCreateComponent, canActivate : [AuthGuardService]},
-    {path: ':owner/:projectname', component : ProjectComponent},
-    { path: ':owner/:projectname/files', 
+    { path: 'create', component : ProjectCreateComponent, canActivate : [AuthGuardService]},
+    { path: ':owner/:projectname', component : ProjectComponent},
+    { path: ':owner/:projectname',
       children : [{
-        path: "**", component: ProjectFileExplorerComponent
+        path: "**", component: ProjectComponent
       }
     ]},
-    {path: '**', redirectTo: 'files'}
+    { path: '**', redirectTo: 'create'}
 ];
 
 @NgModule({

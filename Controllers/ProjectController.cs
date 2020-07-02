@@ -72,7 +72,7 @@ namespace NeuroSimHub.Controllers
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectUsers)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
-                .SingleOrDefault(p => p.ProjectUsers.Any(aup => aup.User.UserName == owner && aup.Project.Name == projectname));
+                .SingleOrDefault(p => p.Route.ToLower() == owner.ToLower() + "/" + projectname.ToLower());
             if (project == null) return NotFound(new { message = "Project Not Found" });
 
             // Return Ok Request
@@ -572,6 +572,7 @@ namespace NeuroSimHub.Controllers
         [HttpPut("[action]")]
         public async Task<IActionResult> UpdateUser([FromForm] ProjectUserViewModel formdata)
         {
+
             // Find Many To Many
             var userRole = await _dbContext.ProjectUsers.FindAsync(formdata.UserID, formdata.ProjectID);
             if (userRole == null) return NotFound(new { message = "User Not Found"});

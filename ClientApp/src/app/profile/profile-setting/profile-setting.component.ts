@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
-import { FileService } from 'src/app/services/file.service';
 import { ApplicationUser } from 'src/app/interfaces/user';
 import { from, Observable } from 'rxjs';
 import { NotificationService } from 'src/app/services/notification.service';
@@ -28,7 +27,7 @@ export class ProfileSettingComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     if(!this.accountService.checkLoginStatus())
-      this.router.navigate(['/login'])
+      this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
 
     await this.accountService.currentUser.then((x) => this.currentUser$ = x)
     this.currentUser$.subscribe(x => this.currentUser = x)

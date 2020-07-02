@@ -1,56 +1,54 @@
-<!-- Containter Start -->
-<div class="container my-5" *ngIf="project != null">
-    <!-- Card Start -->
-    <div class="card">
-        <!-- Card Header Start -->
-        <div class="d-flex card-header flex-row align-items-center">
-            <!-- File Route Start -->
-            <span class="mr-2">File</span>
-            <span>{{currentDirectory}}</span>
-    
-            <!-- File Explorer Button Start -->
-            <div class="d-inline-flex ml-auto">
-                <!-- Private Button Group Start -->
-                <div class="btn-group mr-3"  role="group" *ngIf="currentUser$ as curentUser">
-                    <button type="button" class="btn btn-secondary" title="Create Folder" (click)="toggleModalFolder()">
-                        <i class="fa fa-folder-plus"></i>
-                    </button>
-                    <button type="button" class="btn btn-secondary disabled" title="Rename">
-                        <i class="fa fa-edit"></i>
-                    </button>
-                    <button type="button" class="btn btn-secondary disabled" title="Move">
-                        <i class="fa fa-arrows-alt"></i>
-                    </button>
-                    <button type="button" class="btn btn-secondary disabled" title="Copy">
-                        <i class="fa fa-copy"></i>
-                    </button>
-                    <button type="button" class="btn btn-secondary" title="Delete" (click)="delete()">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                    <button type="button" class="btn btn-secondary">
-                        <i class="fa fa-upload"></i>
-                        <input type="file" title="Upload" *ngIf="isValidDirectory" (change)=fileEvent($event) multiple>
-                    </button>
-                </div> <!-- Private Button Group End -->
-                   
-                <!-- Public Button Group Start -->
-                <div class="btn-group"  role="group">
-                    <button type="button" class="btn btn-secondary" title="Refresh" (click)="setDirectoryFile(currentDirectory)">
-                        <i class="fa fa-sync"></i>
-                    </button>
-                    <button type="button" class="btn btn-secondary" title="Download" (click)="saveFile()">
-                        <i class="fa fa-download"></i>
-                    </button>
-                </div> <!-- Public Button Group End -->         
-            </div> <!-- File Explorer Button End -->
-        </div> <!-- Card Header End -->
+<!-- Card Start -->
+<div class="card" *ngIf="project != null">
+    <!-- Card Header Start -->
+    <div class="d-flex card-header flex-row align-items-center">
+        <!-- File Route Start -->
+        <span class="mr-2">File</span>
+        <span>{{currentDirectory}}</span>
 
-        <!-- File Explorer Content Start -->
-        <ul class="list-group">
-            <app-project-file-explorer-item *ngFor="let blobFileItem of blobFileItemList" [blobFileItem]="blobFileItem" [isSelected]="blobFileItem.order == selectedItem" (changeDirectory)="setDirectoryFile($event)" (selectedItem)="setSelectedItem($event)"></app-project-file-explorer-item>
-        </ul> <!-- File Explorer Content End -->
-    </div> <!-- Card End -->
-</div> <!-- Container End -->
+        <!-- File Explorer Button Start -->
+        <div class="d-inline-flex ml-auto">
+            <!-- Private Button Group Start -->
+            <div class="btn-group mr-3"  role="group" *ngIf="isMember">
+                <button type="button" class="btn btn-secondary" title="Create Folder" (click)="toggleModalFolder()">
+                    <i class="fa fa-folder-plus"></i>
+                </button>
+                <button type="button" class="btn btn-secondary disabled" title="Rename">
+                    <i class="fa fa-edit"></i>
+                </button>
+                <button type="button" class="btn btn-secondary disabled" title="Move">
+                    <i class="fa fa-arrows-alt"></i>
+                </button>
+                <button type="button" class="btn btn-secondary disabled" title="Copy">
+                    <i class="fa fa-copy"></i>
+                </button>
+                <button type="button" class="btn btn-secondary" title="Delete" (click)="delete()">
+                    <i class="fa fa-trash"></i>
+                </button>
+                <button type="button" class="btn btn-secondary">
+                    <i class="fa fa-upload"></i>
+                    <input type="file" title="Upload" *ngIf="isValidDirectory" (change)=fileEvent($event) multiple>
+                </button>
+            </div> <!-- Private Button Group End -->
+                
+            <!-- Public Button Group Start -->
+            <div class="btn-group"  role="group">
+                <button type="button" class="btn btn-secondary" title="Refresh" (click)="setDirectoryFile(currentDirectory)">
+                    <i class="fa fa-sync"></i>
+                </button>
+                <button type="button" class="btn btn-secondary" title="Download" (click)="saveFile()">
+                    <i class="fa fa-download"></i>
+                </button>
+            </div> <!-- Public Button Group End -->         
+        </div> <!-- File Explorer Button End -->
+    </div> <!-- Card Header End -->
+
+    <!-- File Explorer Content Start -->
+    <ul class="list-group">
+        <li class="list-group-item" *ngIf="project.blobFiles.length == 0"> No File Found </li>
+        <app-project-file-explorer-item *ngFor="let blobFileItem of blobFileItemList" [blobFileItem]="blobFileItem" [isSelected]="blobFileItem.order == selectedItem" [currentDirectory]="currentDirectory" (changeDirectory)="setDirectoryFile($event)" (selectedItem)="setSelectedItem($event)"></app-project-file-explorer-item>
+    </ul> <!-- File Explorer Content End -->
+</div> <!-- Card End -->
 
 <ng-template #uploadModal>
     <app-modal-upload [uploadFileList]="uploadFileList" [uploadModalRef]="uploadModalRef" (updatedFileListEvent)="updateFileList($event)" (uploadedFileEvent)="addNewFile($event)"></app-modal-upload>

@@ -25,7 +25,6 @@ import { DashboardSocialComponent } from './dashboard/dashboard-social/dashboard
 import { DashboardFollowingComponent } from './dashboard/dashboard-following/dashboard-following.component';
 import { DashboardQuickstartComponent } from './dashboard/dashboard-quickstart/dashboard-quickstart.component';
 
-import { FileService } from './services/file.service';
 import { NotFoundComponent } from './error/not-found/not-found.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
 import { AboutUsComponent } from './about-us/about-us.component';
@@ -65,7 +64,6 @@ import { AboutUsComponent } from './about-us/about-us.component';
     ToastrModule.forRoot()
   ],
   providers: [
-    FileService
   ],
   bootstrap: [AppComponent]
 })

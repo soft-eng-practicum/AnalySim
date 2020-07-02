@@ -353,6 +353,11 @@ export class AccountService {
     } 
   }
 
+  get currentUserID()
+  {
+    return this.userID.asObservable()
+  }
+
   // Error
   getProjectList (userID : number) : Observable<ProjectUser[]>
   {

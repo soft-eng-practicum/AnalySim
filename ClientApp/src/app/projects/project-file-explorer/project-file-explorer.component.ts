@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef, Input } from '@angular/core';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../interfaces/project';
 import { BlobFileItem } from '../../interfaces/blob-file-item';
@@ -21,8 +21,6 @@ export class ProjectFileExplorerComponent implements OnInit {
 
   constructor(
     private projectService : ProjectService,
-    private accountService : AccountService,
-    private route: ActivatedRoute, 
     private modalService : BsModalService, 
     private notfi : NotificationService) { }
 
@@ -31,11 +29,12 @@ export class ProjectFileExplorerComponent implements OnInit {
   uploadModalRef : BsModalRef;
   folderModalRef : BsModalRef;
 
-  currentUser$ : Observable<ApplicationUser> = null
+  @Input() project : Project
+  @Input() currentUser : ApplicationUser
+  @Input() currentDirectory : string
+  @Input() isMember : boolean
 
-  project : Project = null
-  blobFileItemList : BlobFileItem[]
-  currentDirectory : string = null
+  blobFileItemList : BlobFileItem[] = []
   validDirectory : boolean = true
   selectedItem : number = null
 
@@ -43,32 +42,8 @@ export class ProjectFileExplorerComponent implements OnInit {
   uploadFileList : UploadFileItem[] = []
 
   async ngOnInit() {
-    if(this.accountService.checkLoginStatus()){
-      await this.accountService.currentUser.then((x) => this.currentUser$ = x)
-    }
-
-    // Set Directory Param When First Load
-    this.route.url.subscribe(segments =>{
-      // If No Param, then default to single slash
-      if(segments.length == 0){
-        this.currentDirectory = ""
-      }
-      else if(segments.join("/").indexOf(".") > -1){
-        this.currentDirectory = segments.join("/")
-      }
-      // Join Param By Slash To Create Directory Path
-      else{
-        this.currentDirectory = segments.join("/") + "/"
-      }
-    });
-
-    // Set Project
-    this.projectService.getProjectByID(1).subscribe(
-      result =>{
-        this.project = result
-        this.setDirectoryFile(this.currentDirectory)
-      }
-    )
+    console.log(this.project)
+    this.setDirectoryFile(this.currentDirectory)
   }
 
   public fileEvent($event) {
@@ -113,7 +88,7 @@ export class ProjectFileExplorerComponent implements OnInit {
   }
 
   get isValidDirectory(){
-    return !this.blobFileItemList.some(x => x.name == "Invalid Directory" || x.name == "Invalid File")
+    return !this.blobFileItemList.some(x => x.name == "Invalid Directory" || x.name == "Invalid File") 
   }
 
   delete(){
@@ -176,167 +151,183 @@ export class ProjectFileExplorerComponent implements OnInit {
     this.selectedItem = itemNum
   }
 
-  setDirectoryFile(directory : string){
+  public setDirectoryFile(directory : string){
     // Set Current Directory
     this.currentDirectory = directory
 
-    // Check If Directory Is File
-    if(!(this.currentDirectory.indexOf(".") > -1)){
+    var defaultRoute = "project/" + this.project.route
 
-      // Check If Directory Is valid
-      if(!this.project.blobFiles.find(x => x.directory == directory)){
-        // Return Nothing If No Valid Path
-        this.blobFileItemList = [
+    if(this.project.blobFiles.length != 0){
+      // Check If Directory Is File
+      if(!(this.currentDirectory.indexOf(".") > -1)){
+
+        // Check If Directory Is valid
+        if(!this.project.blobFiles.find(x => x.directory == directory)){
+          console.log(this.currentDirectory)
+          console.log("test")
+          // Return Nothing If No Valid Path
+          this.blobFileItemList = [
+            {
+              type: "none",
+              name: ". . .",
+              file: null,
+              defaultroute: defaultRoute,
+              redirect: "",
+              order: 0
+            },
+            {
+              type: "none",
+              name: "Invalid Directory",
+              file: null,
+              defaultroute: null,
+              redirect: null,
+              order: 1
+            }
+          ]
+        } 
+        else{
+
+          let fileItemList : BlobFileItem[] = [];
+
+          // Input Directory Num
+          var currentDirectoryNum = directory.split("/").length-1;
+
+          // Check If File 
+          this.project.blobFiles.forEach(file => 
           {
-            type: "none",
-            name: ". . .",
-            file: null,
-            redirect: "",
-            order: 0
-          },
-          {
-            type: "none",
-            name: "Invalid Directory",
-            file: null,
-            redirect: null,
-            order: 1
+
+            // Get Full Path Of File
+            let fullName = file.directory + file.name + file.extension
+
+            // File Directory Num
+            var fileDirectoryNum = fullName.split("/").length-1
+
+            // Total Directory Num
+            var totalDirectoryNum = fileDirectoryNum - currentDirectoryNum
+
+            // Check Match Starting Directory
+            if (fullName.startsWith(directory)){
+              switch (totalDirectoryNum){
+                // Match Current Directory File
+                case 0:
+                  var fileItem : BlobFileItem = {
+                    type: "file",
+                    name: file.name + file.extension,
+                    file: file,
+                    defaultroute: defaultRoute + "/",
+                    redirect: file.directory + file.name + file.extension,
+                    order: null
+                  }
+                  fileItemList.push(fileItem)
+                  break;
+                // Match Next Folder Directory
+                case 1:
+                  let newDirectory = file.directory.replace(directory, "")
+                  var fileItem : BlobFileItem = {
+                    type: "folder",
+                    name: newDirectory.substring(0, newDirectory.lastIndexOf("/")),
+                    file: null,
+                    defaultroute: defaultRoute + "/",
+                    redirect: file.directory,
+                    order: null
+                  }
+                  fileItemList.push(fileItem)
+                  break;
+              }
+            }
+          })
+
+          // If One Slash, Redirect to Root
+          if(currentDirectoryNum == 1){
+            var fileItem : BlobFileItem = {
+              type: "none",
+              name: ". . .",
+              file: null,
+              defaultroute: defaultRoute,
+              redirect: "",
+              order: null
+            }
+            fileItemList.push(fileItem)
           }
-        ]
-      } 
-      else{
+          // If More Then One Slash, Redirect to Previous Directory
+          else if(currentDirectoryNum > 1){
+            var fileItem : BlobFileItem = {
+              type: "none",
+              name: ". . .",
+              file: null,
+              defaultroute: defaultRoute + "/",
+              redirect: directory.substring(0 , directory.substring(0, directory.lastIndexOf("/")).lastIndexOf("/") + 1),
+              order: null
+            }
+            fileItemList.push(fileItem)
+          }
 
+          // Remove Duplicate
+          fileItemList = fileItemList.filter((item, index) => { return fileItemList.findIndex(file => file.name == item.name) == index })
+
+          // Sort By Name
+          fileItemList.sort((a,b) => (a.name > b.name) ? 1 : -1)
+
+          // Sort By Type
+          fileItemList.sort((a,b) => (a.type < b.type) ? 1 : -1)
+
+          // Remove Placeholder File
+          fileItemList = fileItemList.filter(x => x.name != "$$$.$$")
+
+          // Set Order Number
+          fileItemList.map((item, index) => item.order = index)
+
+          // Set File List
+          this.blobFileItemList = fileItemList
+        }
+      }
+      else{
+        // Set File List
         let fileItemList : BlobFileItem[] = [];
 
-        // Input Directory Num
-        var currentDirectoryNum = directory.split("/").length-1;
-
-        // Check If File 
-        this.project.blobFiles.forEach(file => 
-        {
-
-          // Get Full Path Of File
-          let fullName = file.directory + file.name + file.extension
-
-          // File Directory Num
-          var fileDirectoryNum = fullName.split("/").length-1
-
-          // Total Directory Num
-          var totalDirectoryNum = fileDirectoryNum - currentDirectoryNum
-
-          // Check Match Starting Directory
-          if (fullName.startsWith(directory)){
-            switch (totalDirectoryNum){
-              // Match Current Directory File
-              case 0:
-                var fileItem : BlobFileItem = {
-                  type: "file",
-                  name: file.name + file.extension,
-                  file: file,
-                  redirect: file.directory + file.name + file.extension,
-                  order: null
-                }
-                fileItemList.push(fileItem)
-                break;
-              // Match Next Folder Directory
-              case 1:
-                let newDirectory = file.directory.replace(directory, "")
-                var fileItem : BlobFileItem = {
-                  type: "folder",
-                  name: newDirectory.substring(0, newDirectory.lastIndexOf("/")),
-                  file: null,
-                  redirect: file.directory,
-                  order: null
-                }
-                fileItemList.push(fileItem)
-                break;
+        var file = this.project.blobFiles.find(x => this.currentDirectory == x.directory + x.name + x.extension)
+        if(file == undefined ){
+          this.blobFileItemList = [
+            {
+              type: "none",
+              name: ". . .",
+              file: null,
+              defaultroute: defaultRoute,
+              redirect: "",
+              order: 0
+            },
+            {
+              type: "none",
+              name: "Invalid File",
+              file: null,
+              defaultroute: null,
+              redirect: null,
+              order: 1
             }
-          }
-        })
-
-        // If One Slash, Redirect to Root
-        if(currentDirectoryNum == 1){
-          var fileItem : BlobFileItem = {
-            type: "none",
-            name: ". . .",
-            file: null,
-            redirect: "",
-            order: null
-          }
-          fileItemList.push(fileItem)
+          ]
         }
-        // If More Then One Slash, Redirect to Previous Directory
-        else if(currentDirectoryNum > 1){
-          var fileItem : BlobFileItem = {
-            type: "none",
-            name: ". . .",
-            file: null,
-            redirect: directory.substring(0 , directory.substring(0, directory.lastIndexOf("/")).lastIndexOf("/") + 1),
-            order: null
-          }
-          fileItemList.push(fileItem)
-        }
-
-        // Remove Duplicate
-        fileItemList = fileItemList.filter((item, index) => { return fileItemList.findIndex(file => file.name == item.name) == index })
-
-        // Sort By Name
-        fileItemList.sort((a,b) => (a.name > b.name) ? 1 : -1)
-
-        // Sort By Type
-        fileItemList.sort((a,b) => (a.type < b.type) ? 1 : -1)
-
-        // Remove Placeholder File
-        fileItemList = fileItemList.filter(x => x.name != "$$$.$$")
-
-        // Set Order Number
-        fileItemList.map((item, index) => item.order = index)
-
-        // Set File List
-        this.blobFileItemList = fileItemList
+        else {
+          fileItemList.push( 
+            {
+              type: "none",
+              name: ". . .",
+              file: null,
+              defaultroute: defaultRoute + "/",
+              redirect: directory.substring(0 , directory.lastIndexOf("/")+1),
+              order: 0
+            },
+            {
+              type: "file",
+              name: file.name + file.extension,
+              file: file,
+              defaultroute: null,
+              redirect: null,
+              order: 1
+            }
+          )
+          this.blobFileItemList = fileItemList
+        }      
       }
-    }
-    else{
-      // Set File List
-      let fileItemList : BlobFileItem[] = [];
-
-      var file = this.project.blobFiles.find(x => this.currentDirectory == x.directory + x.name + x.extension)
-      if(file == undefined ){
-        this.blobFileItemList = [
-          {
-            type: "none",
-            name: ". . .",
-            file: null,
-            redirect: "",
-            order: 0
-          },
-          {
-            type: "none",
-            name: "Invalid File",
-            file: null,
-            redirect: null,
-            order: 1
-          }
-        ]
-      }
-      else {
-        fileItemList.push( 
-          {
-            type: "none",
-            name: ". . .",
-            file: null,
-            redirect: directory.substring(0 , directory.lastIndexOf("/")+1),
-            order: 0
-          },
-          {
-            type: "file",
-            name: file.name + file.extension,
-            file: file,
-            redirect: null,
-            order: 1
-          }
-        )
-        this.blobFileItemList = fileItemList
-      }      
     }
   }
 

@@ -1,5 +1,59 @@
-<div class="container-fluid h-100">
-    <div class="row h-100">
+<div class="container my-5"*ngIf="project">
+    <div class="row">
+        <div class="col-md-12 mb-3 d-flex">
+            <!-- Project Route Link -->
+            <div class="d-flex align-items-center">
+                <span class="h5 card-link mb-0" *ngIf="(project.route | route:'owner') as owner">
+                    <a [routerLink]='["/profile/" + owner]'>{{project.route | route:"owner"}}</a>
+                </span>
+                <span class="h4 mb-0 mx-1">  /  </span>
+                <span class="h5 card-link mb-0" *ngIf="(project.route | route:'projectname') as projectname">
+                    <a [routerLink]='["/project/" + (project.route | route:"owner") + "/" + projectname]'>{{ projectname }}</a>
+                </span>
+            </div>
+
+            <!-- Follow/UnFollow Project -->
+            <div class="d-inline-flex ml-auto">
+                <!-- Follow Project Button -->
+                <button class="btn btn-primary mr-1" type="button" *ngIf="!isFollowing" (click)="followProject()">
+                    Follow
+                    <span class="badge badge-light font-weight-light ml-1">
+                        {{ project | role:"follower" }}
+                    </span>
+                </button>
+
+                <!-- UnFollow Project Button -->
+                <button class="btn btn-primary mr-1" type="button" *ngIf="isFollowing" (click)="unFollowProject()">
+                    Unfollow
+                    <span class="badge badge-light font-weight-light ml-1">
+                        {{ project | role:"follower" }}
+                    </span>
+                </button>
+
+                <!-- Follow Project Button -->
+                <button class="btn btn-success" type="button" *ngIf="!isMember" (click)="joinProject()">
+                    Join
+                    <span class="badge badge-light font-weight-light ml-1">
+                        {{ project | role:"member" }}
+                    </span>
+                </button>
+
+                <!-- UnFollow Project Button -->
+                <button class="btn btn-danger" type="button" *ngIf="isMember" (click)="leaveProject()">
+                    Leave
+                    <span class="badge badge-light font-weight-light ml-1">
+                        {{ project | role:"member" }}
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="row ">
+        <div class="col-md-12">
+            <app-project-file-explorer [project]="project" [currentUser]="currentUser" [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
+        </div>
+    </div>
+    <!-- <div class="row h-100">
         <div class="col-md-2 p-0">
             <aside class="h-100 py-5 px-4" style="background-color:#222">
                 <ul class="list-group list-group-flush text-white">
@@ -8,13 +62,12 @@
                     <li class="list-group-item"><i class="fa fa-folder fa-fw"></i> File Explorer</li>
                     <li class="list-group-item"><i class="fa fa-cog fa-fw"></i> Setting</li>
                 </ul>
-            </aside>
-            
+            </aside>   
         </div>
         <div class="col-md-10">
             <div class="sticky-top">
                 ...
             </div>
         </div>
-    </div>
+    </div> -->
 </div>

@@ -34,7 +34,7 @@ export class ProjectFormCreateComponent implements OnInit {
 
   async ngOnInit() {
     if(!this.accountService.checkLoginStatus())
-      this.router.navigate(['/login'])
+      this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
 
     this.isLoading = false;
 

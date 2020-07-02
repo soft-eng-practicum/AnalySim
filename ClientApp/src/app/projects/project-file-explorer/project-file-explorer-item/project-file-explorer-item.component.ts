@@ -12,6 +12,7 @@ export class ProjectFileExplorerItemComponent implements OnInit {
   constructor(private route: ActivatedRoute, private router: Router) { }
 
   @Input() isSelected : boolean
+  @Input() currentDirectory : string
   @Input() blobFileItem : BlobFileItem
   @Output() changeDirectory = new EventEmitter<String>();
   @Output() selectedItem = new EventEmitter<number>();
@@ -28,11 +29,7 @@ export class ProjectFileExplorerItemComponent implements OnInit {
 
   navigate(){
     if( this.blobFileItem.redirect != null){
-      let currentRoute
-      this.route.parent.url.subscribe(x => {
-        currentRoute = x.join('/')
-      })
-      this.router.navigate(['project/' + currentRoute + '/' + this.blobFileItem.redirect])
+      this.router.navigate([this.blobFileItem.defaultroute + this.blobFileItem.redirect])
       this.changeDirectory.emit(this.blobFileItem.redirect)
       this.selectedItem.emit(null)
     }

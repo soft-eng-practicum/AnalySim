@@ -8,7 +8,7 @@
         </span>
         <span class="h4 mb-0 mx-1">  /  </span>
         <span class="h5 card-link mb-0" *ngIf="(project.route | route:'projectname') as projectname">
-            <a [routerLink]='["/projects/" + (project.route | route:"owner") + "/" + projectname]'>{{ projectname }}</a>
+            <a [routerLink]='["/project/" + (project.route | route:"owner") + "/" + projectname]'>{{ projectname }}</a>
         </span>
 
         <!-- Follow/UnFollow Project -->
