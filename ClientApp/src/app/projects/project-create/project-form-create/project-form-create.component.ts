@@ -80,7 +80,7 @@ export class ProjectFormCreateComponent implements OnInit {
 
   onSubmit() {
     let projectForm = this.projectForm.value;
-    console.log(this.projectForm.value)
+
     this.projectService.createProject(this.currentUser, projectForm.name, projectForm.visibility, projectForm.description).subscribe(
       result =>{
         console.log(result)

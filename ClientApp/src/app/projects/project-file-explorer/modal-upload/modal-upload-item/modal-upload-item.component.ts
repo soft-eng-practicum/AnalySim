@@ -31,7 +31,6 @@ export class ModalUploadItemComponent implements OnInit {
   uploadFile(){
     this.projectSerivce.uploadFile(this.uploadFileItem.file, this.uploadFileItem.directory, this.currentUserID, this.uploadFileItem.projectID).subscribe(
       result => {
-        console.log(result)
         this.uploadFileItem.uploadStatus = "success";
         this.uploadedFile.emit(result)
         this.updatedFile.emit(this.uploadFileItem)

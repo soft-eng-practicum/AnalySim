@@ -82,7 +82,6 @@ export class ProfileSettingComponent implements OnInit {
           // Remove Item From Project File
           let index = this.currentUser.blobFiles.indexOf(result,0)
           this.currentUser.blobFiles.splice(index, 1);
-          console.log(result)
         },error => {
           console.log(error)
         }

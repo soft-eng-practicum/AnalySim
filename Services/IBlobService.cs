@@ -12,6 +12,8 @@ namespace NeuroSimHub.Services
     {
         public Task<BlobDownloadInfo> GetBlobAsync(BlobFile file);
 
+        public Task<BlobContainerClient> CreateContainer(BlobContainerClient containerClient);
+
         public Task<List<BlobFile>> ListBlobsAsync(string container);
 
         public Task<IEnumerable<string>> ListBlobsAsync(string container, string directory);

@@ -49,12 +49,6 @@ export class RegisterComponent implements OnInit {
       'confirmPassword' : this.confirmPassword   
     });
 
-    this.insertForm.get("username").valueChanges.subscribe(
-      val => {
-        console.log(this.password.errors)
-        console.log(this.username.errors)
-      }
-    )
   }
 
 

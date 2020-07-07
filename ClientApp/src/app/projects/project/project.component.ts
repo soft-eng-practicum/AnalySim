@@ -142,9 +142,6 @@ export class ProjectComponent implements OnInit {
   }
 
   joinProject(){
-    console.log(this.project)
-    console.log(this.projectUser)
-    console.log(this.currentUser)
     // Navigate To Login Page If User Not Logged In
     if(!this.accountService.checkLoginStatus()){
       this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})

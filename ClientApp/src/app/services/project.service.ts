@@ -65,7 +65,7 @@ export class ProjectService {
     return this.http.get<any>(this.urlGetProjectByID + projectID)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -80,7 +80,7 @@ export class ProjectService {
     return this.http.get<any>(this.urlGetProjectByRoute + owner + "/" + projectName)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -98,7 +98,7 @@ export class ProjectService {
     return this.http.get<any>(this.urlGetProjectRange, {params: params})
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -113,7 +113,7 @@ export class ProjectService {
     return this.http.get<any>(this.urlGetProjectList)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -134,7 +134,7 @@ export class ProjectService {
     .pipe(
       map(body => {
         if(!body) return []
-        console.log(body.message)
+
         return body.result
       }),
       catchError(error => {
@@ -174,7 +174,7 @@ export class ProjectService {
     return this.http.post<any>(this.urlCreateProject, body)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -195,7 +195,7 @@ export class ProjectService {
     return this.http.post<any>(this.urlAddUser, body)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -214,7 +214,7 @@ export class ProjectService {
     return this.http.post<any>(this.urlAddTag, body)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -233,7 +233,7 @@ export class ProjectService {
 
     return this.http.post<any>(this.urlUploadFile, body).pipe(
       map(body => {
-        console.log(body.message)
+        console.log(body.result)
         return body.result
       }),
       catchError(error => {
@@ -251,7 +251,7 @@ export class ProjectService {
 
     return this.http.post<any>(this.urlCreateFolder, body).pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -271,7 +271,7 @@ export class ProjectService {
     return this.http.put<any>(this.urlUpdateProject, body)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -293,7 +293,7 @@ export class ProjectService {
     return this.http.put<any>(this.urlupdateUser, body)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -309,7 +309,7 @@ export class ProjectService {
     return this.http.delete<any>(this.urlDeleteProject + projectID)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -325,7 +325,7 @@ export class ProjectService {
     return this.http.delete<any>(this.urlRemoveUser + projectID + '/' + userID)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -341,7 +341,7 @@ export class ProjectService {
     return this.http.delete<any>(this.urlRemoveTag + projectID + '/' + tagID)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -354,7 +354,7 @@ export class ProjectService {
   deleteFile(blobFileID : number) : Observable<BlobFile>{
     return this.http.delete<any>(this.urlDeleteFile + blobFileID).pipe(
       map(body => {
-        console.log(body.message)
+        console.log(body)
         return body.result
       }),
       catchError(error => {
@@ -371,7 +371,7 @@ export class ProjectService {
     return this.http.get<any>(this.urlGetUserList + projectID)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -387,7 +387,7 @@ export class ProjectService {
     return this.http.get<any>(this.urlGetFileList + projectID)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -403,7 +403,7 @@ export class ProjectService {
     return this.http.get<any>(this.urlGetTagList + projectID)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {

@@ -26,6 +26,25 @@ namespace NeuroSimHub.Services
             _blobServiceClient = blobServiceClient;
         }
 
+        public async Task<BlobContainerClient> CreateContainer(BlobContainerClient containerClient)
+        {
+            // Create Container
+            await containerClient.CreateIfNotExistsAsync();
+
+            // Get File Reference
+            var blobClient = containerClient.GetBlobClient("$$$.$$");
+
+            // Upload PlaceHolder Since Empty Folder Can't Exist
+            using (FileStream fs = File.OpenRead("wwwroot/$$.$$$"))
+            {
+                await blobClient.UploadAsync(fs);
+                fs.Dispose();
+            }
+
+            // Return Container Client
+            return containerClient;
+        }
+
         public async Task<BlobDownloadInfo> GetBlobAsync(BlobFile file)
         {
             // Get Storage Container
@@ -108,8 +127,11 @@ namespace NeuroSimHub.Services
             // Get Storage Container
             var containerClient = _blobServiceClient.GetBlobContainerClient(container.ToLower());
 
-            // Create Container If Storage Doesn't Exist
-            containerClient.CreateIfNotExists();
+            bool isExist = containerClient.Exists();
+            if (!isExist)
+            {
+                containerClient = await CreateContainer(containerClient);
+            }
 
             // Get File Reference
             var blobClient = containerClient.GetBlobClient(filePath);
@@ -131,7 +153,11 @@ namespace NeuroSimHub.Services
             var containerClient = _blobServiceClient.GetBlobContainerClient(container.ToLower());
 
             // Create Container If Storage Doesn't Exist
-            containerClient.CreateIfNotExists();
+            bool isExist = containerClient.Exists();
+            if (!isExist)
+            {
+                containerClient = await CreateContainer(containerClient);
+            }
 
             // Get File Reference
             var blobClient = containerClient.GetBlobClient(filePath);
@@ -152,7 +178,11 @@ namespace NeuroSimHub.Services
             var containerClient = _blobServiceClient.GetBlobContainerClient(container.ToLower());
 
             // Create Container If Storage Doesn't Exist
-            containerClient.CreateIfNotExists();
+            bool isExist = containerClient.Exists();
+            if (!isExist)
+            {
+                containerClient = await CreateContainer(containerClient);
+            }
 
             // Get File Reference
             var blobClient = containerClient.GetBlobClient(filePath);

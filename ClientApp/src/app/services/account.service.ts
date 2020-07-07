@@ -56,7 +56,6 @@ export class AccountService {
     return this.http.get<any>(this.urlGetUserByID + userID)
     .pipe(
       map(body => {
-        console.log(body.message)
         return body.result
       }),
       catchError(error => {
@@ -71,7 +70,6 @@ export class AccountService {
     return this.http.get<any>(this.urlGetUserByName + username)
     .pipe(
       map(body => {
-        console.log(body.message)
         return body.result
       }),
       catchError(error => {
@@ -89,7 +87,6 @@ export class AccountService {
     return this.http.get<any>(this.urlGetUserRange, {params: params})
     .pipe(
       map(body => {
-        console.log(body.message)
         return body.result
       }),
       catchError(error => {
@@ -104,7 +101,6 @@ export class AccountService {
     return this.http.get<any>(this.urlGetUserList)
     .pipe(
       map(body => {
-        console.log(body.message)
         return body.result
       }),
       catchError(error => {
@@ -125,7 +121,6 @@ export class AccountService {
     .pipe(
       map(body => {
         if(!body) return []
-        console.log(body.message)
         return body.result
       }),
       catchError(error => {
@@ -144,7 +139,7 @@ export class AccountService {
     return this.http.post<any>(this.urlFollow, body)
     .pipe(
       map(body => {
-        console.log(body.message)
+
         return body.result
       }),
       catchError(error => {
@@ -164,7 +159,7 @@ export class AccountService {
     return this.http.post<any>(this.urlRegister, body)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -210,7 +205,7 @@ export class AccountService {
     return this.http.post<any>(this.urlUploadProfileImage, body).pipe(
       map(body => {
         console.log(body)
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -228,7 +223,7 @@ export class AccountService {
     return this.http.put<any>(this.urlUpdateUser + userID, body)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -243,7 +238,7 @@ export class AccountService {
     return this.http.delete<any>(this.urlUnfollow + userID + '/' + followerID)
     .pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -256,7 +251,7 @@ export class AccountService {
   deleteProfileImage(blobFileID : number) : Observable<BlobFile>{
     return this.http.delete<any>(this.urlDeleteProfileImage + blobFileID).pipe(
       map(body => {
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -337,7 +332,6 @@ export class AccountService {
         .toPromise()
         .then(
           body =>{
-            console.log(body)
             this.user.next(body)
             resolve(this.user.asObservable())
           }
@@ -367,7 +361,7 @@ export class AccountService {
         console.log(body)
         if(body == null)
           return []
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -384,7 +378,7 @@ export class AccountService {
       map(body => {
         if(body == null)
           return []
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {
@@ -401,7 +395,7 @@ export class AccountService {
       map(body => {
         if(body == null)
           return []
-        console.log(body.message)
+        
         return body.result
       }),
       catchError(error => {

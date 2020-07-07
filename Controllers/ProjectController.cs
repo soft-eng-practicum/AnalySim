@@ -24,11 +24,13 @@ namespace NeuroSimHub.Controllers
 
         private readonly ApplicationDbContext _dbContext;
         private readonly IBlobService _blobService;
+        private readonly BlobServiceClient _blobServiceClient;
 
-        public ProjectController(ApplicationDbContext dbContext, IBlobService blobService) 
+        public ProjectController(ApplicationDbContext dbContext, IBlobService blobService, BlobServiceClient blobServiceClient) 
         {
             _dbContext = dbContext;
             _blobService = blobService;
+            _blobServiceClient = blobServiceClient;
         }
 
         #region GET REQUEST
@@ -849,6 +851,33 @@ namespace NeuroSimHub.Controllers
             return Ok(new
             {
                 result = relatedDirectory,
+                message = "File Successfully Uploaded"
+            });
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> Test()
+        {
+            // Find Project
+            var project = await _dbContext.Projects.FindAsync(3);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+
+            // Get Storage Container
+            var containerClient = _blobServiceClient.GetBlobContainerClient(project.Name.ToLower());
+
+            // Create Container If Storage Doesn't Exist
+            bool isExist = containerClient.Exists();
+            if (!isExist)
+            {
+                containerClient.Create();
+            }
+
+
+            // Return Ok Status
+            return Ok(new
+            {
+                result = containerClient,
                 message = "File Successfully Uploaded"
             });
         }
