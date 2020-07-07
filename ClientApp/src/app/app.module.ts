@@ -16,7 +16,6 @@ import { FooterComponent } from './footer/footer.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { FavoritesComponent } from './dashboard/favorites/favorites.component';
 import { ExploreComponent } from './explore/explore.component';
-import { FileExplorerComponent } from './file-explorer/file-explorer.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ProjectCardComponent } from './shared/project-card/project-card.component';
 import { ProfileCardComponent } from './shared/profile-card/profile-card.component';
@@ -26,7 +25,6 @@ import { DashboardSocialComponent } from './dashboard/dashboard-social/dashboard
 import { DashboardFollowingComponent } from './dashboard/dashboard-following/dashboard-following.component';
 import { DashboardQuickstartComponent } from './dashboard/dashboard-quickstart/dashboard-quickstart.component';
 
-import { FileService } from './services/file.service';
 import { NotFoundComponent } from './error/not-found/not-found.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
 import { AboutUsComponent } from './about-us/about-us.component';
@@ -42,7 +40,6 @@ import { AboutUsComponent } from './about-us/about-us.component';
     DashboardComponent,
     FavoritesComponent,
     ExploreComponent,
-    FileExplorerComponent,
     ProfileComponent,
     ProjectCardComponent,
     ProfileCardComponent,
@@ -53,7 +50,7 @@ import { AboutUsComponent } from './about-us/about-us.component';
     NavbarComponent,
     NotFoundComponent,
     ContactUsComponent,
-    AboutUsComponent
+    AboutUsComponent,
   ],
   imports: [
     BrowserModule,
@@ -67,7 +64,6 @@ import { AboutUsComponent } from './about-us/about-us.component';
     ToastrModule.forRoot()
   ],
   providers: [
-    FileService
   ],
   bootstrap: [AppComponent]
 })

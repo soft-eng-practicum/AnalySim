@@ -1,0 +1,20 @@
+:host {
+    height : 100%
+}
+
+.test {
+    background-color: aqua;
+}
+
+.test2 {
+    background-color: rebeccapurple;
+}
+
+.test3 {
+    background-color:black;
+}
+
+.list-group-item{
+    color: rgba(255,255,255,.5);
+    background-color: #343a40 !important;
+}

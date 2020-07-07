@@ -84,15 +84,14 @@ export class TimeElapsedPipe implements PipeTransform {
 }
 
 @Pipe({
-    name: 'profileImage',
-    pure: false
+    name: 'profileImage'
 })
 export class ProfileImagePipe implements PipeTransform {
     transform(profile: ApplicationUser): string {
         if(profile.blobFiles.length != 0)
         {
             var blobFile = profile.blobFiles.find(x => x.container == 'profile')
-            if(blobFile != null) { return blobFile.uri + "?" + blobFile.dateCreated }
+            if(blobFile != null) { return blobFile.uri + "?" + blobFile.lastModified }
         }  
         return "../../assets/img/default-profile.png"         
     }

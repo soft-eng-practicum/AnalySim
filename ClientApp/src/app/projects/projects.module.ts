@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { ProjectsRoutingModule } from './projects-routing.module';
 import { ProjectCreateComponent } from './project-create/project-create.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ProjectUploadFilesComponent } from './project-upload-files/project-upload-files.component';
 import { ProjectTagComponent } from './project-list-tags/project-tag/project-tag.component';
 import { ProjectUserComponent } from './project-list-users/project-user/project-user.component';
 import { ProjectFormCreateComponent } from './project-create/project-form-create/project-form-create.component';
@@ -13,12 +12,17 @@ import { ProjectFormTagsComponent } from './project-create/project-form-tags/pro
 import { ProjectListTagsComponent} from './project-list-tags/project-list-tags.component';
 import { ProjectListUsersComponent} from './project-list-users/project-list-users.component';
 import { ApplicationPipesModule } from '../application-pipes/application-pipes.module';
+import { ProjectComponent } from './project/project.component';
+import { ProjectFileExplorerComponent } from './project-file-explorer/project-file-explorer.component';
+import { ProjectFileExplorerItemComponent } from './project-file-explorer/project-file-explorer-item/project-file-explorer-item.component';
+import { ModalFolderComponent } from './project-file-explorer/modal-folder/modal-folder.component';
+import { ModalUploadComponent } from './project-file-explorer/modal-upload/modal-upload.component';
+import { ModalUploadItemComponent } from './project-file-explorer/modal-upload/modal-upload-item/modal-upload-item.component';
 
 
 @NgModule({
   declarations: [
     ProjectCreateComponent,
-    ProjectUploadFilesComponent,
     ProjectTagComponent,
     ProjectUserComponent,
     ProjectFormCreateComponent,
@@ -26,6 +30,12 @@ import { ApplicationPipesModule } from '../application-pipes/application-pipes.m
     ProjectFormTagsComponent,
     ProjectListTagsComponent,
     ProjectListUsersComponent,
+    ProjectComponent,
+    ProjectFileExplorerComponent,
+    ProjectFileExplorerItemComponent,
+    ModalFolderComponent,
+    ModalUploadComponent,
+    ModalUploadItemComponent,
   ],
   imports: [
     CommonModule,

@@ -4,7 +4,6 @@ import { ProjectService } from 'src/app/services/project.service';
 import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
 import { ProjectUser } from 'src/app/interfaces/project-user';
-import { RoutePipe } from 'src/app/application-pipes/custom.pipe';
 import { Observable } from 'rxjs';
 import { ApplicationUser } from 'src/app/interfaces/user';
 
@@ -45,7 +44,7 @@ export class ProjectCardComponent implements OnInit {
   followProject(){
     // Navigate To Login Page If User Not Logged In
     if(!this.accountService.checkLoginStatus())
-      this.router.navigate(['/login'])
+      this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
 
     if(this.projectUser == null)
     {

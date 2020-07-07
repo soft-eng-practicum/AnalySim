@@ -16,7 +16,7 @@ namespace NeuroSimHub.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.3")
+                .HasAnnotation("ProductVersion", "3.1.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -50,21 +50,21 @@ namespace NeuroSimHub.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "cf137ab9-140d-4a55-8071-a6a52dec0778",
+                            ConcurrencyStamp = "16e7cba7-7a87-4cf0-bd84-39225d7dae57",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "d89e7e0d-d2fc-4104-a030-6900bb58050d",
+                            ConcurrencyStamp = "d02c6f49-3def-4438-9fb2-3429e267b296",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "b501fdc5-f2f2-4a4e-a6b6-a5d36f1126dc",
+                            ConcurrencyStamp = "bd10ab98-6884-4ad1-9c84-1ec936069d2e",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });
@@ -267,6 +267,9 @@ namespace NeuroSimHub.Migrations
                     b.Property<string>("Extension")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()

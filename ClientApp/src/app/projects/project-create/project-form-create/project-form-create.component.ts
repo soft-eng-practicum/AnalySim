@@ -30,13 +30,11 @@ export class ProjectFormCreateComponent implements OnInit {
   currentUser : ApplicationUser
   isLoading : boolean
 
-  @Output() setProject = new EventEmitter<Project>();
-
-  //files: FormArray;
+  @Output() setProject = new EventEmitter<Project>()
 
   async ngOnInit() {
     if(!this.accountService.checkLoginStatus())
-      this.router.navigate(['/login'])
+      this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
 
     this.isLoading = false;
 
@@ -44,19 +42,16 @@ export class ProjectFormCreateComponent implements OnInit {
     this.currentUser$.subscribe(x => this.currentUser = x)
     
     // Initialize Form Controls
-    this.name = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20), this.noSpaceSpecial()]);
-    this.description = new FormControl('');
-    this.visibility = new FormControl('');
+    this.name = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20), this.noSpaceSpecial()])
+    this.description = new FormControl('')
+    this.visibility = new FormControl('')
 
     // Initialize FormGroup using FormBuilder
     this.projectForm = this.formBuilder.group({
         name : this.name,
         description : this.description,
         visibility : this.visibility
-        //files : this.formBuilder.array([])
-    });
-    //this.files = <FormArray>this.projectForm.controls['files']
-
+    })
     
   }
 
@@ -67,7 +62,7 @@ export class ProjectFormCreateComponent implements OnInit {
 
       // Check if empty
       if(projectNameControl.value.length == ''){
-        return null;
+        return null
       }
 
       // Regular Expression for having Space or Special Character
@@ -75,39 +70,17 @@ export class ProjectFormCreateComponent implements OnInit {
 
       // Return Error Message if test false, otherwise return null
       if(!reg.test(projectNameControl.value)){
-        return {'noSpaceSpecial': true};
+        return {'noSpaceSpecial': true}
       }
       else{
-        return null;
+        return null
       }
     }
   }
-
-  /*
-  public deleteFormControl(formControl : FormControl){
-    let formIndex = this.files.controls.findIndex(x => x === formControl)
-    this.files.removeAt(formIndex)
-  }
-
-  // Add FormControl to FormGroup for file input
-  public fileEvent($event) {
-
-    for (let file of $event.target.files)
-    {
-      // Check if FormControl already exist
-      if((this.files.controls.findIndex(x => x.value.name === file.name)) == -1)
-      {
-        // Add FormControl to files FormGroup
-        this.files.push(new FormControl(file))
-      }    
-    }
-
-  }
-  */
 
   onSubmit() {
     let projectForm = this.projectForm.value;
-    console.log(this.projectForm.value)
+
     this.projectService.createProject(this.currentUser, projectForm.name, projectForm.visibility, projectForm.description).subscribe(
       result =>{
         console.log(result)

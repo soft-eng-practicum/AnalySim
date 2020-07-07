@@ -16,7 +16,7 @@ const routes: Routes = [];
   imports: [
     RouterModule.forRoot([
       {path: 'home', component: HomeComponent},
-      {path: '', redirectTo: '/home', pathMatch: 'full'},  
+      // {path: '', redirectTo: '/home', pathMatch: 'full'},
       {path: "login", component: LoginComponent},
       {path: "aboutus", component: AboutUsComponent},
       {path: "contactus", component: ContactUsComponent},
@@ -26,7 +26,7 @@ const routes: Routes = [];
       {path: 'dashboard', component: DashboardComponent},
       {path: 'profile/:username', component : ProfileComponent},
       {path: 'project', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule)},  
-      {path: '**', redirectTo: '/home'}
+      {path: '**', component: HomeComponent}
     ])],
   exports: [RouterModule]
 })

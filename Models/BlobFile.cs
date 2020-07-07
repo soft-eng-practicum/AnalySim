@@ -30,6 +30,10 @@ namespace NeuroSimHub.Models
         [DataType(DataType.DateTime)]
         public DateTime DateCreated { get; set; }
 
+        [Required]
+        [DataType(DataType.DateTime)]
+        public DateTime LastModified { get; set; }
+
         //Foreign Key To User
         [Required]
         public ApplicationUser User { get; set; }

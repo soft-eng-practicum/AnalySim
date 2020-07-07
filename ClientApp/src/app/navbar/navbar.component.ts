@@ -18,7 +18,6 @@ export class NavbarComponent implements OnInit {
 
   loginStatus$ : Observable<boolean>
   currentUser$ : Observable<ApplicationUser> = null
-  latestUser : ApplicationUser
 
   async ngOnInit() {
     this.loginStatus$ = this.accountService.isLoggedIn

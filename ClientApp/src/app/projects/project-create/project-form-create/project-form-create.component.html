@@ -45,26 +45,3 @@
 
 
 
-<!-- Form Tag 
-    <div class="form-group">
-        <label for="file">File</label>
-
-        <div class="custom-file mb-4">
-            <input formContolName="fileUpload" type="file" class="custom-file-input" (change)=fileEvent($event) multiple>
-            <label class="custom-file-label" for="customFile">Choose file</label>
-        </div>
-
-        Drop Zone
-        <div class="upload-drop-zone d-flex justify-content-center align-items-center" id="drop-zone" *ngIf="files.length == 0">
-            <p class="text-center m-0">Drag and drop files here</p>              
-        </div>
-
-        
-        <table class="table" *ngIf="files.length > 0">
-            <tr *ngFor="let file of files.controls">
-                <app-upload-files [file]=file [key]=key (deleteFormControl)="deleteFormControl($event)"></app-upload-files>
-            </tr>
-        </table>
-        
-    </div>
--->
