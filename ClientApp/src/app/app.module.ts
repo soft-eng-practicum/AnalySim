@@ -30,6 +30,7 @@ import { FileService } from './services/file.service';
 import { NotFoundComponent } from './error/not-found/not-found.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
 import { AboutUsComponent } from './about-us/about-us.component';
+import { FileViewerComponent } from './file-viewer/file-viewer.component';
 
 
 @NgModule({
@@ -53,7 +54,8 @@ import { AboutUsComponent } from './about-us/about-us.component';
     NavbarComponent,
     NotFoundComponent,
     ContactUsComponent,
-    AboutUsComponent
+    AboutUsComponent,
+    FileViewerComponent
   ],
   imports: [
     BrowserModule,

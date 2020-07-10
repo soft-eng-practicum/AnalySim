@@ -1,10 +1,15 @@
 <input type="file" #csvReader name="Upload CSV" id="txtFileUpload" (change)="onFileSelect($event)" accept=".csv" />
 <table class="minimalistBlack">    
     <thead>    
-      <tr *ngFor="let headerName of header;let i = index;">
-          <th>{{headerName}}</th>
+      <tr>
+        <th *ngFor="let headerName of header">
+          {{headerName}}
+        </th>
       </tr>    
     </thead>    
-    <tbody [innerHTML]="data">
+    <tbody>
+      <tr *ngFor="let dataRow of data">
+        <td *ngFor="let dataCell of dataRow">{{dataCell}}</td>
+      </tr>
     </tbody>    
   </table> 
