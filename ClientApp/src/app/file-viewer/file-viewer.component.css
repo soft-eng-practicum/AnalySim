@@ -1,8 +1,14 @@
+.input-file {
+    margin: 1rem 0 0 1rem;
+}
 table.minimalistBlack {  
-    border: 3px solid #000;  
-    width: 100%;  
-    text-align: left;  
-    border-collapse: collapse  
+    display: block;
+    margin: 1rem auto;
+    width: 98%;  
+    text-align: left;
+    position: relative;
+    overflow: auto;
+    height: 775px;
 }  
   
 table.minimalistBlack td,  
@@ -15,19 +21,17 @@ table.minimalistBlack tbody td {
     font-size: 13px  
 }  
   
-table.minimalistBlack thead {  
-    background: #cfcfcf;  
-    background: -moz-linear-gradient(top, #dbdbdb 0, #d3d3d3 66%, #cfcfcf 100%);  
-    background: -webkit-linear-gradient(top, #dbdbdb 0, #d3d3d3 66%, #cfcfcf 100%);  
-    background: linear-gradient(to bottom, #dbdbdb 0, #d3d3d3 66%, #cfcfcf 100%);  
-    border-bottom: 3px solid #000  
-}  
-  
 table.minimalistBlack thead th {  
     font-size: 15px;  
     font-weight: 700;  
     color: #000;  
-    text-align: left  
+    text-align: left;
+    position: sticky;
+    top: 0;
+    background: #cfcfcf;  
+    background: -moz-linear-gradient(top, #dbdbdb 0, #d3d3d3 66%, #cfcfcf 100%);  
+    background: -webkit-linear-gradient(top, #dbdbdb 0, #d3d3d3 66%, #cfcfcf 100%);  
+    background: linear-gradient(to bottom, #dbdbdb 0, #d3d3d3 66%, #cfcfcf 100%);
 }  
   
 table.minimalistBlack tfoot {  
