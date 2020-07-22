@@ -212,7 +212,7 @@ namespace NeuroSimHub.Controllers
             return Ok(new
             {
                 result = userFollower,
-                message = user.UserName +  " is now following " + follower.UserName
+                message = follower.UserName +  " is now following " + user.UserName
             });
         }
 
@@ -235,8 +235,8 @@ namespace NeuroSimHub.Controllers
             {
                 Email = formdata.EmailAddress,
                 UserName = formdata.Username,
-                DateCreated = DateTime.Now,
-                LastOnline = DateTime.Now,
+                DateCreated = DateTimeOffset.UtcNow,
+                LastOnline = DateTimeOffset.UtcNow,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
 
@@ -404,8 +404,8 @@ namespace NeuroSimHub.Controllers
                     Extension = Path.GetExtension(formdata.File.FileName),
                     Size = (int)blobProperties.ContentLength,
                     Uri = blobClient.Uri.AbsoluteUri.ToString(),
-                    DateCreated = blobProperties.CreatedOn.LocalDateTime,
-                    LastModified = blobProperties.LastModified.LocalDateTime,
+                    DateCreated = blobProperties.CreatedOn.UtcDateTime,
+                    LastModified = blobProperties.LastModified.UtcDateTime,
                     UserID = formdata.UserID
                 };
 

@@ -219,8 +219,8 @@ namespace NeuroSimHub.Controllers
                 Name = formdata.Name,
                 Visibility = formdata.Visibility,
                 Description = formdata.Description,
-                DateCreated = DateTime.Now,
-                LastUpdated = DateTime.Now,
+                DateCreated = DateTimeOffset.UtcNow,
+                LastUpdated = DateTimeOffset.UtcNow,
                 Route = user.UserName + "/" + formdata.Name
             };
 
@@ -435,8 +435,8 @@ namespace NeuroSimHub.Controllers
                     Extension = Path.GetExtension(formdata.File.FileName),
                     Size = (int)properties.ContentLength,
                     Uri = blobClient.Uri.ToString(),
-                    DateCreated = properties.CreatedOn.LocalDateTime,
-                    LastModified = properties.LastModified.LocalDateTime,
+                    DateCreated = properties.CreatedOn.UtcDateTime,
+                    LastModified = properties.LastModified.UtcDateTime,
                     UserID = formdata.UserID,
                     ProjectID = formdata.ProjectID
                 };
@@ -497,8 +497,8 @@ namespace NeuroSimHub.Controllers
                     Extension = ".$$",
                     Size = (int)properties.ContentLength,
                     Uri = blobClient.Uri.ToString(),
-                    DateCreated = properties.CreatedOn.LocalDateTime,
-                    LastModified = properties.LastModified.LocalDateTime,
+                    DateCreated = properties.CreatedOn.UtcDateTime,
+                    LastModified = properties.LastModified.UtcDateTime,
                     UserID = formdata.UserID,
                     ProjectID = formdata.ProjectID
                 };
@@ -683,7 +683,9 @@ namespace NeuroSimHub.Controllers
         public async Task<IActionResult> RemoveTag([FromRoute] int projectID, [FromRoute] int tagID)
         {
             // Find ProjectTag In Database
-            ProjectTag projectTag = _dbContext.ProjectTags.SingleOrDefault(pt => pt.ProjectID == projectID && pt.TagID == tagID);
+            ProjectTag projectTag = _dbContext.ProjectTags
+                .Include(pt => pt.Tag)
+                .SingleOrDefault(pt => pt.ProjectID == projectID && pt.TagID == tagID);
             if (projectTag == null) return NotFound(new { message = "Project Tag Not Found"});
 
             // Remove Project Tag

@@ -11,12 +11,10 @@ namespace NeuroSimHub.Models
         public string Bio { get; set; }
 
         [Required]
-        [DataType(DataType.DateTime)]
-        public DateTime DateCreated { get; set; }
+        public DateTimeOffset DateCreated { get; set; }
 
         [Required]
-        [DataType(DataType.DateTime)]
-        public DateTime LastOnline { get; set; }
+        public DateTimeOffset LastOnline { get; set; }
 
         public ICollection<UserUser> Followers { get; } = new List<UserUser>();
         public ICollection<UserUser> Following { get; } = new List<UserUser>();

@@ -21,12 +21,10 @@ namespace NeuroSimHub.Models
         public string Description { get; set; }
 
         [Required]
-        [DataType(DataType.DateTime)]
-        public DateTime DateCreated { get; set; }
+        public DateTimeOffset DateCreated { get; set; }
 
         [Required]
-        [DataType(DataType.DateTime)]
-        public DateTime LastUpdated { get; set; }
+        public DateTimeOffset LastUpdated { get; set; }
 
         [Required]
         [Index(IsUnique = true)]

@@ -35,13 +35,12 @@ export class LoginComponent implements OnInit {
     this.isLoading = false;
 
     // get return url from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || 'dashboard';
 
      // Initialize FormGroup using FormBuilder
     this.loginForm = this.formBuilder.group({
         "username" : this.username,
         "password" : this.password
-    
     });
 
   }

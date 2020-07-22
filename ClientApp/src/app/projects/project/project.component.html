@@ -31,7 +31,7 @@
                 </button>
 
                 <!-- Follow Project Button -->
-                <button class="btn btn-success" type="button" *ngIf="!isMember" (click)="joinProject()">
+                <button class="btn btn-success" type="button" *ngIf="!isMember && !isOwner" (click)="joinProject()">
                     Join
                     <span class="badge badge-light font-weight-light ml-1">
                         {{ project | role:"member" }}
@@ -39,7 +39,7 @@
                 </button>
 
                 <!-- UnFollow Project Button -->
-                <button class="btn btn-danger" type="button" *ngIf="isMember" (click)="leaveProject()">
+                <button class="btn btn-danger" type="button" *ngIf="isMember && !isOwner" (click)="leaveProject()">
                     Leave
                     <span class="badge badge-light font-weight-light ml-1">
                         {{ project | role:"member" }}

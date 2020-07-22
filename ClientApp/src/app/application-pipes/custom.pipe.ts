@@ -54,6 +54,7 @@ export class TimeElapsedPipe implements PipeTransform {
     transform(lastUpdate: Date): string {
         var timeThen = new Date(lastUpdate)
         var timeNow = new Date()
+
         var elapsed = Math.floor(timeNow.getTime() - timeThen.getTime())
         var secs = Math.floor(elapsed/1000);
         var mins = Math.floor(secs/60);
@@ -79,6 +80,9 @@ export class TimeElapsedPipe implements PipeTransform {
         }
         else if(secs > 0){
           return secs + " Second"
+        }
+        else{
+            return ""
         }
     }
 }

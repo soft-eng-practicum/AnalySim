@@ -66,7 +66,7 @@ export class ProjectFormCreateComponent implements OnInit {
       }
 
       // Regular Expression for having Space or Special Character
-      var reg = new RegExp('^[a-zA-Z0-9\-\_]*$');
+      var reg = new RegExp('^[a-zA-Z0-9\-]*$');
 
       // Return Error Message if test false, otherwise return null
       if(!reg.test(projectNameControl.value)){

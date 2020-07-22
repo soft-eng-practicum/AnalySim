@@ -1,20 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MailKit.Net.Smtp;
-using MailKit;
 using System.Threading.Tasks;
 using MimeKit;
 using NeuroSimHub.Models;
 using MimeKit.Text;
-using System.Net.Http;
-using System.Net;
 using MailKit.Security;
+using Microsoft.Extensions.Configuration;
 
 namespace NeuroSimHub.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class CommunicationsController : ControllerBase
     {
+        private readonly string mailNetAccountString;
+        private readonly string mailNetPasswordString;
+
+        public CommunicationsController(IConfiguration config)
+        {
+            mailNetAccountString = config.GetConnectionString("MailNetAccount");
+            mailNetPasswordString = config.GetConnectionString("MailNetPassword");
+        }
+
         /*
          * Type : POST
          * URL : /api/communications/sendEmail
@@ -101,7 +109,7 @@ namespace NeuroSimHub.Controllers
             {
                 smtp.ServerCertificateValidationCallback = (s, c, h, e) => true;
                 await smtp.ConnectAsync("smtp-mail.outlook.com", 587, SecureSocketOptions.StartTls); 
-                await smtp.AuthenticateAsync("analysim@outlook.com", "ChfG2Ufq5gw5knr"); 
+                await smtp.AuthenticateAsync(mailNetAccountString, mailNetPasswordString);
                 await smtp.SendAsync(message); 
                 await smtp.DisconnectAsync(true); 
             }

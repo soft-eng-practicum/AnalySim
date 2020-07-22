@@ -82,6 +82,13 @@ export class ProjectComponent implements OnInit {
     return false;
   }
 
+  get isOwner() : boolean{
+    if(this.currentUser == null) return false
+    if(this.projectUser == null) return false
+    if(this.projectUser.userRole == "owner") return true
+    return false;
+  }
+
   followProject(){
     // Navigate To Login Page If User Not Logged In
     if(!this.accountService.checkLoginStatus()){

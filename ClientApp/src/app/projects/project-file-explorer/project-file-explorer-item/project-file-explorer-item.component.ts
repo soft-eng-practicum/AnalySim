@@ -38,6 +38,7 @@ export class ProjectFileExplorerItemComponent implements OnInit {
   get timeSince() : string{
     var timeThen = new Date(this.blobFileItem.file.dateCreated)
     var timeNow = new Date()
+
     var elapsed = Math.floor(timeNow.getTime() - timeThen.getTime())
     var secs = Math.floor(elapsed/1000)
     var mins =  Math.floor(secs/60)

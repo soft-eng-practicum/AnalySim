@@ -36,6 +36,7 @@ export class ProfileComponent implements OnInit {
   async ngOnInit(){
     if(this.accountService.checkLoginStatus()){
       await this.accountService.currentUser.then((x) => this.currentUser$ = x)
+      this.currentUser$.subscribe(x => this.currentUser = x)
     }
 
     this.route.params.subscribe( params => {
@@ -59,6 +60,8 @@ export class ProfileComponent implements OnInit {
       })
     })
     
+    
+
   }
 
   changeTab(num : number)
@@ -89,7 +92,6 @@ export class ProfileComponent implements OnInit {
   unFollowUser(){
     this.accountService.unfollow(this.profile.id, this.currentUser.id).subscribe(
       result =>{
-        
         let index = this.profile.followers.findIndex(x => x.userID == result.userID && x.followerID == result.followerID)
         if (index > -1) {
           this.profile.followers.splice(index, 1)

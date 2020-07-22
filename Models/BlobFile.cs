@@ -27,12 +27,10 @@ namespace NeuroSimHub.Models
         public string Uri { get; set; }
 
         [Required]
-        [DataType(DataType.DateTime)]
-        public DateTime DateCreated { get; set; }
+        public DateTimeOffset DateCreated { get; set; }
 
         [Required]
-        [DataType(DataType.DateTime)]
-        public DateTime LastModified { get; set; }
+        public DateTimeOffset LastModified { get; set; }
 
         //Foreign Key To User
         [Required]

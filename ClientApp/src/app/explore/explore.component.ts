@@ -39,6 +39,7 @@ export class ExploreComponent implements OnInit {
     this.termParam = JSON.parse(this.route.snapshot.queryParams['term'] || '[]')
     this.categoryParam = this.route.snapshot.queryParams['category'] || 'project'
 
+
     let searchTermString = ""
     this.termParam.forEach(x => searchTermString += x + " ")
 
@@ -57,7 +58,7 @@ export class ExploreComponent implements OnInit {
     }
 
     // Initialize Form Controls
-    this.searchCategory = new FormControl('project');
+    this.searchCategory = new FormControl(this.categoryParam);
     this.searchTerm = new FormControl(searchTermString);
 
     // Initialize FormGroup using FormBuilder

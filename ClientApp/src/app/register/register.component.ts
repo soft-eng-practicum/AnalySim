@@ -73,7 +73,9 @@ export class RegisterComponent implements OnInit {
         const bodyText: string = "You have been successfully registered for the Analysim website.";
         this.communicationsService.sendEmail(toEmail, fromEmail, [], [], subject, bodyText, bodyHtml).subscribe(
           result =>{
-            //console.log(result)
+            console.log(result)
+          }, error =>{
+            console.log(error)
           }
         );
 

@@ -31,6 +31,7 @@ export class ProjectCardComponent implements OnInit {
     if(this.accountService.checkLoginStatus()){
       await this.accountService.currentUser.then((x) => this.currentUser$ = x)
       this.currentUser$.subscribe(x => this.currentUser = x)
+      this.projectUser = this.project.projectUsers.find(x => x.userID == this.currentUser.id) || null
     }
   }
 

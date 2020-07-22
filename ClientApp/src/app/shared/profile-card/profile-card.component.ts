@@ -17,7 +17,6 @@ export class ProfileCardComponent implements OnInit {
   @Input() profile : ApplicationUser
   currentUser$ : Observable<ApplicationUser>
   currentUser : ApplicationUser = null
-  isFollowing : boolean = false
 
   async ngOnInit() {
     if(this.accountService.checkLoginStatus()){
@@ -26,13 +25,18 @@ export class ProfileCardComponent implements OnInit {
     }
   }
 
+  get isFollowing() : boolean{
+    if(this.currentUser == null) return false
+    if(this.profile.followers.findIndex(x => x.followerID == this.currentUser.id) > -1) return true
+    return false;
+  }
+
   followUser(){
     if(!this.accountService.checkLoginStatus())
       this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
 
     this.accountService.follow(this.profile.id, this.currentUser.id).subscribe(
       result =>{
-        this.isFollowing = true
         this.profile.followers.push(result)
       }, error =>{
         console.log(error)
@@ -43,9 +47,8 @@ export class ProfileCardComponent implements OnInit {
   unFollowUser(){
     this.accountService.unfollow(this.profile.id, this.currentUser.id).subscribe(
       result =>{
-        this.isFollowing = false
         let index = this.profile.followers.indexOf(result)
-        this.profile.followers.splice(index, 1)      
+        this.profile.followers.splice(index, 1)
       }, error =>{
         console.log(error)
       }
