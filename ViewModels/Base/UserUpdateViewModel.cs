@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NeuroSimHub.ViewModels.Base
+namespace AnalySim.ViewModels.Base
 {
     public class UserUpdateViewModel
     {

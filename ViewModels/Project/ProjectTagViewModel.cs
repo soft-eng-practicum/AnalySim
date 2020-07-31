@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NeuroSimHub.ViewModels.Project
+namespace AnalySim.ViewModels.Project
 {
     public class ProjectTagViewModel
     {

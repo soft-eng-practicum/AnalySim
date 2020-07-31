@@ -2,12 +2,12 @@
 using MailKit.Net.Smtp;
 using System.Threading.Tasks;
 using MimeKit;
-using NeuroSimHub.Models;
+using AnalySim.Models;
 using MimeKit.Text;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 
-namespace NeuroSimHub.Controllers
+namespace AnalySim.Controllers
 {
 
     [Route("api/[controller]")]

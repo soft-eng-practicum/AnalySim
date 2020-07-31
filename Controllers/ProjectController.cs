@@ -2,12 +2,12 @@
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NeuroSimHub.Data;
-using NeuroSimHub.Models;
-using NeuroSimHub.Services;
-using NeuroSimHub.ViewModels;
-using NeuroSimHub.ViewModels.File;
-using NeuroSimHub.ViewModels.Project;
+using AnalySim.Data;
+using AnalySim.Models;
+using AnalySim.Services;
+using AnalySim.ViewModels;
+using AnalySim.ViewModels.File;
+using AnalySim.ViewModels.Project;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +15,7 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
-namespace NeuroSimHub.Controllers
+namespace AnalySim.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -183,7 +183,7 @@ namespace NeuroSimHub.Controllers
             catch (Exception e)
             {
                 // Return Bad Request If There Is Any Error
-                return BadRequest();
+                return BadRequest(e);
             }
 
         }

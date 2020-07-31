@@ -1,4 +1,4 @@
-﻿using NeuroSimHub.Models;
+﻿using AnalySim.Models;
 using Microsoft.VisualBasic;
 using MimeKit;
 using System;
@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace NeuroSimHub.Models
+namespace AnalySim.Models
 {
     public class SendMailParamaters
     {

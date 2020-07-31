@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace NeuroSimHub.Models
+namespace AnalySim.Models
 {
     public class ApplicationUser : IdentityUser<int>
     {

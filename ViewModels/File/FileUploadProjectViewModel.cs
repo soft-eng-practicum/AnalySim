@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace NeuroSimHub.ViewModels
+namespace AnalySim.ViewModels
 {
     public class FileUploadProjectViewModel
     {

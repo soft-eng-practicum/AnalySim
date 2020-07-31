@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NeuroSimHub.Models
+namespace AnalySim.Models
 {
     public class UserLoginViewModel
     {

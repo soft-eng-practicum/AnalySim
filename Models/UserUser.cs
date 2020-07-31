@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace NeuroSimHub.Models
+namespace AnalySim.Models
 {
     public class UserUser 
     {

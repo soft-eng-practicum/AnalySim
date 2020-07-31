@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace NeuroSimHub.Models
+namespace AnalySim.Models
 {
     public class BlobFile
     {

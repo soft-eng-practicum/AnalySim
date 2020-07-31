@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace NeuroSimHub.ViewModels.File
+namespace AnalySim.ViewModels.File
 {
     public class FolderUploadProfileViewModel
     {

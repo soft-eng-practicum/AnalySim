@@ -2,11 +2,10 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
-using NeuroSimHub.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace NeuroSimHub.Services
+namespace AnalySim.Services
 {
     public interface IBlobService
     {

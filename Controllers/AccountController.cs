@@ -8,13 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NeuroSimHub.Data;
-using NeuroSimHub.Helpers;
-using NeuroSimHub.Models;
-using NeuroSimHub.Services;
-using NeuroSimHub.ViewModels;
-using NeuroSimHub.ViewModels.Base;
-using NeuroSimHub.ViewModels.File;
+using AnalySim.Data;
+using AnalySim.Models;
+using AnalySim.Services;
+using AnalySim.ViewModels;
+using AnalySim.ViewModels.Base;
+using AnalySim.ViewModels.File;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using System;
@@ -26,7 +25,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NeuroSimHub.Controllers
+namespace AnalySim.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

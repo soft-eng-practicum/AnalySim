@@ -6,7 +6,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using AnalySim.Extensions;
 using BlobInfo = AnalySim.Models.BlobInfo;
-using NeuroSimHub.Models;
+using AnalySim.Models;
 using Microsoft.AspNetCore.Http;
 using AnalySim.Helpers;
 using SixLabors.ImageSharp;
@@ -15,7 +15,7 @@ using System;
 using System.Linq;
 using System.Reflection.Metadata;
 
-namespace NeuroSimHub.Services
+namespace AnalySim.Services
 {
     public class BlobService : IBlobService
     {

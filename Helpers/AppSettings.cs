@@ -1,4 +1,4 @@
-﻿namespace NeuroSimHub.Helpers
+﻿namespace AnalySim.Helpers
 {
     public class AppSettings
     {
