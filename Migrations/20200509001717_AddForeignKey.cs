@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace NeuroSimHub.Migrations
+namespace AnalySim.Migrations
 {
     public partial class AddForeignKey : Migration
     {

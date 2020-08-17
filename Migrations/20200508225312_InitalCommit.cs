@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace NeuroSimHub.Migrations
+namespace AnalySim.Migrations
 {
     public partial class InitalCommit : Migration
     {
