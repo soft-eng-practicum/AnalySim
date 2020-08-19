@@ -152,17 +152,6 @@ namespace AnalySim
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}"
                 );
-
-                endpoints.MapControllerRoute(
-                    name: "read project",
-                    pattern: "{controller}/{action=Index}/{username?}/{projectname?}"
-                );
-
-                endpoints.MapControllerRoute(
-                    name: "delete user role",
-                    pattern: "{controller}/{action=Index}/{projectid?}/{userid?}"
-                );
-
             });
 
             app.UseSpa(spa =>
@@ -172,8 +161,7 @@ namespace AnalySim
 
                 spa.Options.SourcePath = "ClientApp";
 
-                if (env.IsDevelopment())
-                {
+                if (env.IsDevelopment()){
                     spa.UseProxyToSpaDevelopmentServer("http://localhost:4200");
                 }
 
