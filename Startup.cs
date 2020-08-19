@@ -5,19 +5,19 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
-using NeuroSimHub.Data;
+using AnalySim.Data;
 using Microsoft.AspNetCore.Identity;
 using System;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using NeuroSimHub.Helpers;
+using AnalySim.Helpers;
 using System.Text;
-using NeuroSimHub.Models;
+using AnalySim.Models;
 using Microsoft.Extensions.Azure;
 using Azure.Storage.Blobs;
-using NeuroSimHub.Services;
+using AnalySim.Services;
 
-namespace NeuroSimHub
+namespace AnalySim
 {
     public class Startup
     {

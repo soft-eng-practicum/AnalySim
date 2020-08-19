@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NeuroSimHub.Data;
+using AnalySim.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace NeuroSimHub.Migrations
+namespace AnalySim.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20200718160422_ChangeDateTime")]
@@ -173,7 +173,7 @@ namespace NeuroSimHub.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.ApplicationUser", b =>
+            modelBuilder.Entity("AnalySim.Models.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -248,7 +248,7 @@ namespace NeuroSimHub.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.BlobFile", b =>
+            modelBuilder.Entity("AnalySim.Models.BlobFile", b =>
                 {
                     b.Property<int>("BlobFileID")
                         .ValueGeneratedOnAdd()
@@ -299,7 +299,7 @@ namespace NeuroSimHub.Migrations
                     b.ToTable("BlobFiles");
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.Project", b =>
+            modelBuilder.Entity("AnalySim.Models.Project", b =>
                 {
                     b.Property<int>("ProjectID")
                         .ValueGeneratedOnAdd()
@@ -334,7 +334,7 @@ namespace NeuroSimHub.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.ProjectTag", b =>
+            modelBuilder.Entity("AnalySim.Models.ProjectTag", b =>
                 {
                     b.Property<int>("ProjectID")
                         .HasColumnType("integer");
@@ -349,7 +349,7 @@ namespace NeuroSimHub.Migrations
                     b.ToTable("ProjectTags");
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.ProjectUser", b =>
+            modelBuilder.Entity("AnalySim.Models.ProjectUser", b =>
                 {
                     b.Property<int>("UserID")
                         .HasColumnType("integer");
@@ -371,7 +371,7 @@ namespace NeuroSimHub.Migrations
                     b.ToTable("ProjectUsers");
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.Tag", b =>
+            modelBuilder.Entity("AnalySim.Models.Tag", b =>
                 {
                     b.Property<int>("TagID")
                         .ValueGeneratedOnAdd()
@@ -387,7 +387,7 @@ namespace NeuroSimHub.Migrations
                     b.ToTable("Tag");
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.UserUser", b =>
+            modelBuilder.Entity("AnalySim.Models.UserUser", b =>
                 {
                     b.Property<int>("UserID")
                         .HasColumnType("integer");
@@ -413,7 +413,7 @@ namespace NeuroSimHub.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("NeuroSimHub.Models.ApplicationUser", null)
+                    b.HasOne("AnalySim.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -422,7 +422,7 @@ namespace NeuroSimHub.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("NeuroSimHub.Models.ApplicationUser", null)
+                    b.HasOne("AnalySim.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -437,7 +437,7 @@ namespace NeuroSimHub.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NeuroSimHub.Models.ApplicationUser", null)
+                    b.HasOne("AnalySim.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -446,65 +446,65 @@ namespace NeuroSimHub.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("NeuroSimHub.Models.ApplicationUser", null)
+                    b.HasOne("AnalySim.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.BlobFile", b =>
+            modelBuilder.Entity("AnalySim.Models.BlobFile", b =>
                 {
-                    b.HasOne("NeuroSimHub.Models.Project", "Project")
+                    b.HasOne("AnalySim.Models.Project", "Project")
                         .WithMany("BlobFiles")
                         .HasForeignKey("ProjectID");
 
-                    b.HasOne("NeuroSimHub.Models.ApplicationUser", "User")
+                    b.HasOne("AnalySim.Models.ApplicationUser", "User")
                         .WithMany("BlobFiles")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.ProjectTag", b =>
+            modelBuilder.Entity("AnalySim.Models.ProjectTag", b =>
                 {
-                    b.HasOne("NeuroSimHub.Models.Project", "Project")
+                    b.HasOne("AnalySim.Models.Project", "Project")
                         .WithMany("ProjectTags")
                         .HasForeignKey("ProjectID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NeuroSimHub.Models.Tag", "Tag")
+                    b.HasOne("AnalySim.Models.Tag", "Tag")
                         .WithMany("ProjectTags")
                         .HasForeignKey("TagID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.ProjectUser", b =>
+            modelBuilder.Entity("AnalySim.Models.ProjectUser", b =>
                 {
-                    b.HasOne("NeuroSimHub.Models.Project", "Project")
+                    b.HasOne("AnalySim.Models.Project", "Project")
                         .WithMany("ProjectUsers")
                         .HasForeignKey("ProjectID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NeuroSimHub.Models.ApplicationUser", "User")
+                    b.HasOne("AnalySim.Models.ApplicationUser", "User")
                         .WithMany("ProjectUsers")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NeuroSimHub.Models.UserUser", b =>
+            modelBuilder.Entity("AnalySim.Models.UserUser", b =>
                 {
-                    b.HasOne("NeuroSimHub.Models.ApplicationUser", "Follower")
+                    b.HasOne("AnalySim.Models.ApplicationUser", "Follower")
                         .WithMany("Following")
                         .HasForeignKey("FollowerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NeuroSimHub.Models.ApplicationUser", "User")
+                    b.HasOne("AnalySim.Models.ApplicationUser", "User")
                         .WithMany("Followers")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
