@@ -174,9 +174,6 @@ namespace AnalySim
 
                 if (env.IsDevelopment())
                 {
-                    System.Diagnostics.Debug.WriteLine("Test");
-                    //spa.Options.StartupTimeout = new TimeSpan(0,1,30);
-                    //spa.UseAngularCliServer(npmScript: "start");
                     spa.UseProxyToSpaDevelopmentServer("http://localhost:4200");
                 }
 
