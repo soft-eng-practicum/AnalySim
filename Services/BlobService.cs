@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using AnalySim.Extensions;
-using BlobInfo = AnalySim.Models.BlobInfo;
 using AnalySim.Models;
 using Microsoft.AspNetCore.Http;
 using AnalySim.Helpers;
@@ -13,7 +11,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.Linq;
-using System.Reflection.Metadata;
 
 namespace AnalySim.Services
 {

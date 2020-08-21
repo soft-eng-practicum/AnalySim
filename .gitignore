@@ -232,3 +232,8 @@ _Pvt_Extensions
 
 # App Setting
 appsettings.json
+appsettings.Development.json
+
+# Logging
+logs/
+Logs/

@@ -16,6 +16,8 @@ using AnalySim.Models;
 using Microsoft.Extensions.Azure;
 using Azure.Storage.Blobs;
 using AnalySim.Services;
+using AnalySim.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace AnalySim
 {
@@ -31,91 +33,29 @@ namespace AnalySim
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
+            // Add MVC
             services.AddMvc();
+
+            services.ConfigureCors();
+
+            services.ConfigureBlobsService(Configuration);
+
+            services.ConfigureAuthorization();
+
+            services.ConfigureIdentity();
+
+            services.ConfigureDatabase(Configuration);
+
+            services.ConfigureJWT(Configuration);
+
+            services.ConfigureSpa();
+
+            services.ConfigureLoggerService();
 
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
-            // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/dist";
-            });
-
-            //Enable Cors
-            services.AddCors(options =>
-            {
-                options.AddPolicy("EnableCORS", builder =>
-                {
-                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().Build();
-                });
-            });
-
-            services.AddEntityFrameworkNpgsql()
-                .AddDbContext<ApplicationDbContext>( opt => 
-                opt.UseNpgsql(Configuration.GetConnectionString("DBConnectionString")));
-
-
-            services.AddIdentity<ApplicationUser, IdentityRole<int>>( options =>
-            {
-                options.Password.RequireDigit = true;
-                options.Password.RequiredLength = 6;
-                options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireLowercase = true;
-                options.User.RequireUniqueEmail = true;
-                // Lockout settings.
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.AllowedForNewUsers = true;
-            })
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-
-
-            var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
-
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
-
-            // Authentication Middleware
-            services.AddAuthentication(o =>
-            {
-                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                o.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-
-            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidIssuer = appSettings.Site,
-                    ValidAudience = appSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
-
-
-                };
-            });
-
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("RequireLoggedIn", policy => policy.RequireRole("Admin", "Customer", "Moderator").RequireAuthenticatedUser());
-
-                options.AddPolicy("RequireAdministratorRole", policy => policy.RequireRole("Admin").RequireAuthenticatedUser());
-            });
-
-            
-
-            services.AddSingleton(x =>
-                new BlobServiceClient(Configuration.GetConnectionString("AzureStorageConnectionString")));
-
-            services.AddSingleton<IBlobService, BlobService>();
 
         }
 
@@ -133,18 +73,25 @@ namespace AnalySim
                 app.UseHsts();
             }
 
-            app.UseCors("EnableCORS");
-            
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
             if (!env.IsDevelopment())
             {
                 app.UseSpaStaticFiles();
             }
+
+            app.UseCors("CorsPolicy");
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.All
+            });
+
             app.UseRouting();
 
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

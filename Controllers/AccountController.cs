@@ -1,7 +1,6 @@
 ﻿using AnalySim.Helpers;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,8 +13,6 @@ using AnalySim.Services;
 using AnalySim.ViewModels;
 using AnalySim.ViewModels.Base;
 using AnalySim.ViewModels.File;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -31,31 +28,36 @@ namespace AnalySim.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
+        public IConfiguration Configuration { get; }
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signManager;
-        private readonly AppSettings _appSettings;
         private readonly ApplicationDbContext _dbContext;
         private readonly IBlobService _blobService;
+        private readonly ILoggerManager _loggerManager;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signManager, IOptions<AppSettings> appSettings, ApplicationDbContext dbContext, IConfiguration config, IBlobService blobService) 
+        public AccountController(IConfiguration configuration, UserManager<ApplicationUser> userManager, 
+            SignInManager<ApplicationUser> signManager, ApplicationDbContext dbContext, 
+            IBlobService blobService, ILoggerManager loggerManager) 
         {
+            Configuration = configuration;
+
             _userManager = userManager;
             _signManager = signManager;
-            _appSettings = appSettings.Value;
             _dbContext = dbContext;
             _blobService = blobService;
+            _loggerManager = loggerManager;
         }
 
         #region GET REQUEST
         /*
          * Type : GET
          * URL : /api/account/getuserbyid/
-         * Param : {userID}
-         * Description: Get user from their id
+         * Description: Return ApplicationUser from id
          * Response Status: 200 Ok, 404 Not Found
          */
-        [HttpGet("[action]/{userID}")]
-        public IActionResult GetUserByID([FromRoute] int userID)
+        [HttpGet("[action]/{id}")]
+        public IActionResult GetUserByID([FromRoute] int id)
         {
             // Find User
             var user = _dbContext.Users
@@ -63,7 +65,7 @@ namespace AnalySim.Controllers
                 .Include(u => u.Following)
                 .Include(u => u.ProjectUsers)
                 .Include(u => u.BlobFiles)
-                .SingleOrDefault(x => x.Id == userID);
+                .SingleOrDefault(x => x.Id == id);
             if (user == null) return NotFound(new { message = "User Not Found" });
             return Ok(new 
             {
@@ -75,8 +77,7 @@ namespace AnalySim.Controllers
         /*
         * Type : GET
         * URL : /api/account/getuserbyname/
-        * Param : {username}
-        * Description: Get user from their username
+        * Description: Return ApplicationUser from username
         * Response Status: 200 Ok, 404 Not Found
         */
         [HttpGet("[action]/{username}")]
@@ -100,8 +101,7 @@ namespace AnalySim.Controllers
         /*
         * Type : GET
         * URL : /api/account/getuserrange?
-        * Param : List<int>
-        * Description: Get user from their username
+        * Description: Return ApplicationUser(s) from list of id
         * Response Status: 200 Ok, 404 Not Found
         */
         [HttpGet("[action]")]
@@ -127,8 +127,7 @@ namespace AnalySim.Controllers
         /*
          * Type : GET
          * URL : /api/account/getuserlist
-         * Param : None
-         * Description: Get list of all user
+         * Description: Return all ApplicationUser
          * Response Status: 200 Ok
          */
         [HttpGet("[action]")]
@@ -152,8 +151,7 @@ namespace AnalySim.Controllers
         /*
          * Type : GET
          * URL : /api/account/search?
-         * Param : List<string>
-         * Description: Filter and return search result
+         * Description: Return list of matched ApplicationUser from list of searchterms
          * Response Status: 200 Ok, 204 Not Found
          */
         [HttpGet("[action]")]
@@ -180,12 +178,11 @@ namespace AnalySim.Controllers
         /*
          * Type : POST
          * URL : /api/account/follow
-         * Param : UserFollowViewModel
-         * Description: Have a user follow another user
+         * Description: Create and return new UserUser
          * Response Status: 200 Ok, 404 Not Found
          */
         [HttpPost("[action]")]
-        public async Task<IActionResult> Follow([FromForm] UserFollowViewModel formdata)
+        public async Task<IActionResult> Follow([FromForm] AccountFollowVM formdata)
         {
             // Find User
             var user = await _dbContext.Users.FindAsync(formdata.UserID);
@@ -218,12 +215,11 @@ namespace AnalySim.Controllers
         /*
          * Type : POST
          * URL : /api/account/register
-         * Param : UserRegisterViewModel
-         * Description: Register Account
+         * Description: Create and return new ApplicationUser
          * Response Status: 200 Ok, 400 Bad Request
          */
         [HttpPost("[action]")]
-        public async Task<IActionResult> Register([FromForm] UserRegisterViewModel formdata)
+        public async Task<IActionResult> Register([FromForm] AccountRegisterVM formdata)
         {
 
             // Hold Error List
@@ -273,12 +269,15 @@ namespace AnalySim.Controllers
          * Type : POST
          * URL : /api/account/login
          * Param : UserLoginViewModel
-         * Description: Register Account
+         * Description: Login and return Application User, login token, and expiration time
          * Response Status: 200 Ok, 401 Unauthorized
          */
         [HttpPost("[action]")]
-        public async Task<IActionResult> Login([FromForm] UserLoginViewModel formdata)
+        public async Task<IActionResult> Login([FromForm] AccountLoginVM formdata)
         {
+            var jwtSettings = Configuration.GetSection("JwtSettings");
+            var secretKey = jwtSettings.GetSection("Secret").Value;
+
             // Get The User
             var user = await _userManager.FindByNameAsync(formdata.Username);
 
@@ -286,10 +285,10 @@ namespace AnalySim.Controllers
             //var roles = await _userManager.GetRolesAsync(user);
 
             // Generate Key Token
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_appSettings.Secret));
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.GetSection("Secret").Value));
 
             // Generate Expiration Time For Token
-            double tokenExpiryTime = Convert.ToDouble(_appSettings.ExpireTime);
+            double tokenExpiryTime = Convert.ToDouble(jwtSettings.GetSection("ExpireTime").Value);
 
             // Check Login Status
             if (user != null && await _userManager.CheckPasswordAsync(user, formdata.Password))
@@ -310,8 +309,8 @@ namespace AnalySim.Controllers
                     }),
 
                     SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature),
-                    Issuer = _appSettings.Site,
-                    Audience = _appSettings.Audience,
+                    Issuer = jwtSettings.GetSection("Issuer").Value,
+                    Audience = jwtSettings.GetSection("Audience").Value,
                     Expires = DateTime.UtcNow.AddMinutes(tokenExpiryTime)
                 };
 
@@ -355,11 +354,10 @@ namespace AnalySim.Controllers
         /*
          * Type : POST
          * URL : /api/account/uploadprofileimage
-         * Param : BlobUploadViewModel
          * Description: Upload File To Azure Storage
          */
         [HttpPost("[action]")]
-        public async Task<IActionResult> UploadProfileImage([FromForm] FileUploadProfileViewModel formdata)
+        public async Task<IActionResult> UploadProfileImage([FromForm] AccountUploadVM formdata)
         {
             try
             {
@@ -439,12 +437,12 @@ namespace AnalySim.Controllers
         * Response Status: 200 Ok, 404 Not Found
         */
         [HttpPut("[action]/{userID}")]
-        public async Task<IActionResult> UpdateUser([FromRoute] int userID, [FromForm] UserUpdateViewModel formdata)
+        public IActionResult UpdateUser([FromRoute] int userID, [FromForm] AccountUpdateVM formdata)
         {
             // Check Model State
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            // Find Project
+            // Find User
             var user = _dbContext.Users
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
@@ -453,14 +451,11 @@ namespace AnalySim.Controllers
                 .FirstOrDefault(u => u.Id == userID);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
-            // If the product was found
+            // Update Bio
             user.Bio = formdata.Bio;
 
-            // Set Entity State
-            _dbContext.Entry(user).State = EntityState.Modified;
-
             // Save Change
-            await _dbContext.SaveChangesAsync();
+            _dbContext.SaveChanges();
 
             // Return Ok Status
             return Ok(new
