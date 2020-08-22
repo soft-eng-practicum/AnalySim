@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AnalySim.ViewModels.File
 {
-    public class FileUploadProfileViewModel
+    public class AccountUploadVM
     {
-        [Required]
+        [Required(ErrorMessage = "File is a required field.")]
         public IFormFile File { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "User ID is a required field.")]
         public int UserID { get; set; }
     }
 }

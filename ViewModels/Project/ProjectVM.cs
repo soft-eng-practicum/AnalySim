@@ -2,17 +2,15 @@
 
 namespace AnalySim.ViewModels
 {
-    public class ProjectViewModel
+    public class ProjectVM
     {
-        [Required]
+        [Required(ErrorMessage = "Project Name is a required field.")]
         [Display(Name = "Project Name")]
         public string Name { get; set; }
 
-        [Required]
-        [Display(Name = "Visibility")]
+        [Required(ErrorMessage = "Visibility is a required field.")]
         public string Visibility { get; set; }
 
-        [Display(Name = "Description")]
         public string Description { get; set; }
 
         [Required]

@@ -2,7 +2,7 @@
 
 namespace AnalySim.Models
 {
-    public class UserLoginViewModel
+    public class AccountLoginVM
     {
         [Required]
         [Display(Name="User Name")]

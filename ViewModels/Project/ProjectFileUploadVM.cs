@@ -4,18 +4,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AnalySim.ViewModels
 {
-    public class FileUploadProjectViewModel
+    public class ProjectFileUploadVM
     {
 
-        [Required]
+        [Required(ErrorMessage = "File is a required field.")]
         public IFormFile File { get; set; }
 
         public string Directory { get; set; } = "";
 
-        [Required]
+        [Required(ErrorMessage = "User ID is a required field.")]
         public int UserID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Project ID is a required field.")]
         public int ProjectID { get; set; }
     }
 }

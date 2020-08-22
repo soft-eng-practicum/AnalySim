@@ -2,9 +2,9 @@
 
 namespace AnalySim.ViewModels.Base
 {
-    public class UserUpdateViewModel
+    public class AccountUpdateVM
     {
-        [Required]
+        [Required(ErrorMessage = "Bio is a required field.")]
         public string Bio { get; set; }
     }
 }

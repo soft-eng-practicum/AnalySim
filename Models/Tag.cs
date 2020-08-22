@@ -10,7 +10,7 @@ namespace AnalySim.Models
         [KeyAttribute]
         public int TagID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Tag Name is a required field.")]
         [Index(IsUnique = true)]
         public string Name { get; set; }
 

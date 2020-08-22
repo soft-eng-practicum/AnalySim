@@ -2,12 +2,12 @@
 
 namespace AnalySim.ViewModels
 {
-    public class UserFollowViewModel
+    public class AccountFollowVM
     {
-        [Required]
+        [Required(ErrorMessage = "User ID is a required field.")]
         public int UserID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Follower ID is a required field.")]
         public int FollowerID { get; set; }
 
     }

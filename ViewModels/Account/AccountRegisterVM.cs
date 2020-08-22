@@ -2,17 +2,17 @@
 
 namespace AnalySim.Models
 {
-    public class UserRegisterViewModel
+    public class AccountRegisterVM
     {
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "Email Address is a required field.")]
+        [DataType(DataType.EmailAddress)]
         public string EmailAddress { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Username is a required field.")]
         [Display(Name = "User Name")]
         public string Username { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Password is a required field.")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
     }

@@ -10,10 +10,10 @@ namespace AnalySim.Models
 
         public string Bio { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "User Date Created is a required field.")]
         public DateTimeOffset DateCreated { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "User Last Online is a required field.")]
         public DateTimeOffset LastOnline { get; set; }
 
         public ICollection<UserUser> Followers { get; } = new List<UserUser>();
