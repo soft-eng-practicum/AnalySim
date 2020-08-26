@@ -13,42 +13,34 @@ export class CommunicationsService {
   constructor(private http : HttpClient, private router: Router, private notfi : NotificationService) { }
 
   // Url to access Web API
-  private baseUrl : string = '/api/communications/'
+  private baseUrl : string = '/api/communication/'
 
   // Post
   private urlSendEmail : string = this.baseUrl +  "sendEmail";
 
-  sendEmail (to: any, from: any, cc: any[], bcc: any[], subject: string, bodyText: string, bodyHtml: string) : Observable<string>
+  sendEmail (emailAddress : string, username : string, subject : string, bodyText : string, bodyHTML : string) : Observable<string>
   {
-    let emailBody = {
-        From: {
-          Name: from.name,
-          Address: from.address,
-        },
-        To: {
-          Name: to.name,
-          Address: to.address,
-        },
-        Subject: subject,
-        BodyHtml: bodyHtml,
-        BodyText: bodyText,
-        CcAddresses: [],
-        BccAddresses: []
-      };
 
-      cc.forEach(x => emailBody.CcAddresses.push({ Name: x.name, Address: x.address }));
-      bcc.forEach(x => emailBody.BccAddresses.push({ Name: x.name, Address: x.address }));
+    let body = new FormData()
+    body.append('emailAddress', emailAddress)
+    body.append('username', username)
+    body.append('subject', subject)
+    body.append('bodyText', bodyText)
+    body.append('bodyHTML', bodyHTML)
+    
+    //cc.forEach(x => emailBody.CcAddresses.push({ Name: x.name, Address: x.address }));
+    //bcc.forEach(x => emailBody.BccAddresses.push({ Name: x.name, Address: x.address }));
 
-      return this.http.post<any>(this.urlSendEmail, emailBody)
-      .pipe(
-        map(body => {
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)    
-          return throwError(error)
-        })
-      )
+    return this.http.post<any>(this.urlSendEmail, body)
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)    
+        return throwError(error)
+      })
+    )
   }
 }

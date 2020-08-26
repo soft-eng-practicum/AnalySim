@@ -28,20 +28,18 @@ namespace AnalySim.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        public IConfiguration Configuration { get; }
-
+        private readonly JwtSettings _jwtSettings;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signManager;
         private readonly ApplicationDbContext _dbContext;
         private readonly IBlobService _blobService;
         private readonly ILoggerManager _loggerManager;
 
-        public AccountController(IConfiguration configuration, UserManager<ApplicationUser> userManager, 
+        public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<ApplicationUser> userManager, 
             SignInManager<ApplicationUser> signManager, ApplicationDbContext dbContext, 
             IBlobService blobService, ILoggerManager loggerManager) 
         {
-            Configuration = configuration;
-
+            _jwtSettings = jwtSettings.Value;
             _userManager = userManager;
             _signManager = signManager;
             _dbContext = dbContext;
@@ -275,8 +273,6 @@ namespace AnalySim.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Login([FromForm] AccountLoginVM formdata)
         {
-            var jwtSettings = Configuration.GetSection("JwtSettings");
-            var secretKey = jwtSettings.GetSection("Secret").Value;
 
             // Get The User
             var user = await _userManager.FindByNameAsync(formdata.Username);
@@ -285,10 +281,10 @@ namespace AnalySim.Controllers
             //var roles = await _userManager.GetRolesAsync(user);
 
             // Generate Key Token
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.GetSection("Secret").Value));
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtSettings.Secret));
 
             // Generate Expiration Time For Token
-            double tokenExpiryTime = Convert.ToDouble(jwtSettings.GetSection("ExpireTime").Value);
+            double tokenExpiryTime = Convert.ToDouble(_jwtSettings.ExpireTime);
 
             // Check Login Status
             if (user != null && await _userManager.CheckPasswordAsync(user, formdata.Password))
@@ -309,8 +305,8 @@ namespace AnalySim.Controllers
                     }),
 
                     SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature),
-                    Issuer = jwtSettings.GetSection("Issuer").Value,
-                    Audience = jwtSettings.GetSection("Audience").Value,
+                    Issuer = _jwtSettings.Issuer,
+                    Audience = _jwtSettings.Audience,
                     Expires = DateTime.UtcNow.AddMinutes(tokenExpiryTime)
                 };
 

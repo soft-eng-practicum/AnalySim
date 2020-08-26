@@ -55,25 +55,25 @@ export class RegisterComponent implements OnInit {
 
   onSubmit(){
     // Variable for FormGroupValue
-    let userReg = this.insertForm.value;
+    let userReg = this.insertForm.value
 
     // Show loading icon
-    this.isLoading = true;
+    this.isLoading = true
 
     // Register the Account
     this.accountService.register(userReg.username, userReg.password, userReg.emailAddress).subscribe(
       result => {
         // Hide Error Message Box
-        this.invalidRegister = false;
+        this.invalidRegister = false
         
-        const toEmail: any = { name: userReg.username, address: userReg.emailAddress };
-        const fromEmail: any = { name: "no-reply-analysim", address: "analysim@outlook.com" };
-        const subject: string = "Registration Complete";
-        const bodyHtml: string = "<p>You have been successfully registered for the AnalySim website.</p>";
-        const bodyText: string = "You have been successfully registered for the Analysim website.";
-        this.communicationsService.sendEmail(toEmail, fromEmail, [], [], subject, bodyText, bodyHtml).subscribe(
+        const username = userReg.username
+        const emailAddress = userReg.emailAddress
+        const subject: string = "Registration Complete"
+        const bodyHtml: string = "<p>You have been successfully registered for the AnalySim website.</p>"
+        const bodyText: string = "You have been successfully registered for the Analysim website."
+        this.communicationsService.sendEmail(emailAddress, username, subject, bodyText, bodyHtml).subscribe(
           result =>{
-            console.log(result)
+            //console.log(result)
           }, error =>{
             console.log(error)
           }

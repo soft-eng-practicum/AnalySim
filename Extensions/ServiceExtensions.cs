@@ -1,4 +1,5 @@
 ﻿using AnalySim.Data;
+using AnalySim.Helpers;
 using AnalySim.Models;
 using AnalySim.Services;
 using Azure.Storage.Blobs;
@@ -72,6 +73,8 @@ namespace AnalySim.Extensions
             var jwtSettings = configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings.GetSection("Secret").Value;
 
+            services.Configure<JwtSettings>(jwtSettings);
+
             // Authentication Middleware
             services.AddAuthentication(o =>
             {
@@ -109,6 +112,14 @@ namespace AnalySim.Extensions
         public static void ConfigureLoggerService(this IServiceCollection services)
         {
             services.AddScoped<ILoggerManager, LoggerManager>();
+        }
+
+        public static void ConfigureMailService(this IServiceCollection services, IConfiguration configuration)
+        {
+            var emailSettings = configuration.GetSection("EmailSettings");
+
+            services.Configure<EmailSettings>(emailSettings);
+            services.AddTransient<IMailNetService, MailNetService>();
         }
 
     }

@@ -197,7 +197,7 @@ namespace AnalySim.Controllers
         * Description: Create Project
         */
         [HttpPost("[action]")]
-        public async Task<IActionResult> CreateProject([FromForm] ProjectViewModel formdata)
+        public async Task<IActionResult> CreateProject([FromForm] ProjectVM formdata)
         {
             // Find User
             var user = await _dbContext.Users.FindAsync(formdata.UserID);
@@ -295,7 +295,7 @@ namespace AnalySim.Controllers
          * Description: Add User To Project
          */
         [HttpPost("[action]")]
-        public async Task<IActionResult> AddUser([FromForm] ProjectUserViewModel formdata)
+        public async Task<IActionResult> AddUser([FromForm] ProjectUserVM formdata)
         {
             // Find Tag In Database
             var projectUser = _dbContext.ProjectUsers.Find(formdata.UserID, formdata.ProjectID);
@@ -352,7 +352,7 @@ namespace AnalySim.Controllers
          */
         [HttpPost("[action]")]
         //[Authorize(Policy = "RequireLoggedIn")]
-        public async Task<IActionResult> AddTag([FromForm] ProjectTagViewModel formdata)
+        public async Task<IActionResult> AddTag([FromForm] ProjectTagVM formdata)
         {
             // Find Tag In Database
             Tag tag = _dbContext.Tag.SingleOrDefault(t => t.Name == formdata.TagName);
@@ -401,7 +401,7 @@ namespace AnalySim.Controllers
          * Description: Upload Folder To Azure Storage
          */
         [HttpPost("[action]")]
-        public async Task<IActionResult> UploadFile([FromForm] FileUploadProjectViewModel formdata)
+        public async Task<IActionResult> UploadFile([FromForm] ProjectFileUploadVM formdata)
         {
             try
             {
@@ -535,7 +535,7 @@ namespace AnalySim.Controllers
          * Description: Update Project
          */
         [HttpPut("[action]/{id}")]
-        public async Task<IActionResult> UpdateProject([FromRoute] int projectID, [FromForm] ProjectViewModel formdata)
+        public async Task<IActionResult> UpdateProject([FromRoute] int projectID, [FromForm] ProjectVM formdata)
         {
             // Check Model State
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -572,7 +572,7 @@ namespace AnalySim.Controllers
          * Description: Update Project
          */
         [HttpPut("[action]")]
-        public async Task<IActionResult> UpdateUser([FromForm] ProjectUserViewModel formdata)
+        public async Task<IActionResult> UpdateUser([FromForm] ProjectUserVM formdata)
         {
 
             // Find Many To Many
@@ -935,7 +935,7 @@ namespace AnalySim.Controllers
          * Description: Upload Folder To Azure Storage
          */
         [HttpPut("[action]")]
-        public async Task<IActionResult> MoveFile([FromForm] BlobMoveViewModel formdata)
+        public async Task<IActionResult> MoveFile([FromForm] ProjectFileMoveVM formdata)
         {
             try
             {
