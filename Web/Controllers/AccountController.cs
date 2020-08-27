@@ -3,7 +3,6 @@ using Azure.Storage.Blobs.Models;
 using Core.Entities;
 using Core.Helper;
 using Core.Interfaces;
-using Core.Services;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -53,7 +52,7 @@ namespace Web.Controllers
          * Description: Return ApplicationUser from id
          * Response Status: 200 Ok, 404 Not Found
          */
-        [HttpGet("[action]/{id}")]
+        [HttpGet("GetUser/{id}", Name = "test")]
         public IActionResult GetUserByID([FromRoute] int id)
         {
             // Find User
@@ -63,7 +62,7 @@ namespace Web.Controllers
                 .Include(u => u.ProjectUsers)
                 .Include(u => u.BlobFiles)
                 .SingleOrDefault(x => x.Id == id);
-            if (user == null) return NotFound(new { message = "User Not Found" });
+            if (user == null) return NotFound();
             return Ok(new 
             {
                 result = user,
