@@ -52,7 +52,7 @@ namespace Web.Controllers
          * Description: Return ApplicationUser from id
          * Response Status: 200 Ok, 404 Not Found
          */
-        [HttpGet("GetUser/{id}", Name = "test")]
+        [HttpGet("[action]/{id}")]
         public IActionResult GetUserByID([FromRoute] int id)
         {
             // Find User
