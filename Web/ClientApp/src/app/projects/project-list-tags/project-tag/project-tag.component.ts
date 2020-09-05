@@ -24,7 +24,6 @@ export class ProjectTagComponent implements OnInit {
     this.projectService.removeTag(this.projectTag.projectID, this.projectTag.tagID).subscribe(
       result => {
         this.deletedTag.emit(this.projectTag)
-        console.log(result)
       }, error =>{
         console.log(error)
       }

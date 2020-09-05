@@ -53,7 +53,6 @@ export class ProfileSettingComponent implements OnInit {
     // Upload File Or Replace If Already Exist
     this.accountService.uploadProfileImage(file, this.currentUser.id).subscribe(
       result => {
-        console.log(result)
         let index = this.currentUser.blobFiles.findIndex(x => x.blobFileID == result.blobFileID)
         if(index > -1)
           this.currentUser.blobFiles[index] = result

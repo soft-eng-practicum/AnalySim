@@ -83,7 +83,6 @@ export class ProjectFormCreateComponent implements OnInit {
 
     this.projectService.createProject(this.currentUser, projectForm.name, projectForm.visibility, projectForm.description).subscribe(
       result =>{
-        console.log(result)
         this.setProject.emit(result)
       },error =>{
         console.log(error)

@@ -34,6 +34,7 @@ export class ProjectFileExplorerComponent implements OnInit {
   blobFileItemList : BlobFileItem[] = []
   validDirectory : boolean = true
   selectedItem : number = null
+  filePreview : boolean = false
 
   uploadInProgress : boolean = false
   uploadFileList : UploadFileItem[] = []
@@ -120,6 +121,7 @@ export class ProjectFileExplorerComponent implements OnInit {
   }
 
   saveFile(){
+    /*
     if(this.selectedItem != null){
       // Get Current Selected Item
       var item = this.blobFileItemList[this.selectedItem]
@@ -128,6 +130,8 @@ export class ProjectFileExplorerComponent implements OnInit {
         var fileName = item.file.name + item.file.extension
         this.projectService.downloadFile(item.file.blobFileID).subscribe(
           result =>{
+            console.log(result)
+            console.log(fileName)
             saveAs(result, fileName);
           },error =>{
             console.log(error)
@@ -135,6 +139,14 @@ export class ProjectFileExplorerComponent implements OnInit {
         )
       }
     }
+    */
+    
+   if(this.selectedItem != null){
+    // Get Current Selected Item
+    var item = this.blobFileItemList[this.selectedItem]
+    window.open(item.file.uri, "_blank");
+   }
+
   }
 
   updateFileList(uploadFileList : UploadFileItem[]){
@@ -162,6 +174,8 @@ export class ProjectFileExplorerComponent implements OnInit {
     this.currentDirectory = directory
 
     var defaultRoute = "project/" + this.project.route
+
+    this.filePreview = false
 
     if(this.project.blobFiles.length != 0){
       // Check If Directory Is File
@@ -290,8 +304,9 @@ export class ProjectFileExplorerComponent implements OnInit {
         let fileItemList : BlobFileItem[] = [];
 
         var file = this.project.blobFiles.find(x => this.currentDirectory == x.directory + x.name + x.extension)
+        // Check if file exist
         if(file == undefined ){
-          this.blobFileItemList = [
+          fileItemList = [
             {
               type: "none",
               name: ". . .",
@@ -329,8 +344,12 @@ export class ProjectFileExplorerComponent implements OnInit {
               order: 1
             }
           )
-          this.blobFileItemList = fileItemList
-        }      
+          this.filePreview = true
+          
+        }
+
+        //Set Blob File Item
+        this.blobFileItemList = fileItemList     
       }
     }
   }
