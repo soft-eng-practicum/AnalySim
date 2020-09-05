@@ -30,6 +30,9 @@ namespace Core.Services
             // Create Container
             await containerClient.CreateIfNotExistsAsync();
 
+            // Set Access Policy To Blob
+            containerClient.SetAccessPolicyAsync(PublicAccessType.Blob);
+
             // Get File Reference
             var blobClient = containerClient.GetBlobClient("$$$.$$");
 
