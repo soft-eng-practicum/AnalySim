@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
-import { ApplicationUser } from 'src/app/interfaces/user';
+import { User } from 'src/app/interfaces/user';
 import { from, Observable } from 'rxjs';
 import { NotificationService } from 'src/app/services/notification.service';
 
@@ -13,8 +13,8 @@ import { NotificationService } from 'src/app/services/notification.service';
 })
 export class ProfileSettingComponent implements OnInit {
 
-  currentUser$ : Observable<ApplicationUser>
-  currentUser : ApplicationUser = null
+  currentUser$ : Observable<User>
+  currentUser : User = null
   profileForm: FormGroup
   bio : FormControl
 

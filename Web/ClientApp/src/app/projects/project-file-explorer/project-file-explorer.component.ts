@@ -5,7 +5,7 @@ import { BlobFileItem } from '../../interfaces/blob-file-item';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { saveAs } from 'file-saver';
 import { NotificationService } from '../../services/notification.service';
-import { ApplicationUser } from '../../interfaces/user';
+import { User } from '../../interfaces/user';
 import { BlobFile } from '../../interfaces/blob-file';
 import { UploadFileItem } from '../../interfaces/upload-file-item';
 
@@ -27,7 +27,7 @@ export class ProjectFileExplorerComponent implements OnInit {
   folderModalRef : BsModalRef;
 
   @Input() project : Project
-  @Input() currentUser : ApplicationUser
+  @Input() currentUser : User
   @Input() currentDirectory : string
   @Input() isMember : boolean
 

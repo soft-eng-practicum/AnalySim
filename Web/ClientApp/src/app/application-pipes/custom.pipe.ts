@@ -1,7 +1,7 @@
 import { PipeTransform, Pipe } from "@angular/core";
 import { Project } from '../interfaces/project';
 import { AccountService } from '../services/account.service';
-import { ApplicationUser } from '../interfaces/user';
+import { User } from '../interfaces/user';
 import { ProjectUser } from '../interfaces/project-user';
 import { filter } from 'rxjs/operators';
 
@@ -91,7 +91,7 @@ export class TimeElapsedPipe implements PipeTransform {
     name: 'profileImage'
 })
 export class ProfileImagePipe implements PipeTransform {
-    transform(profile: ApplicationUser): string {
+    transform(profile: User): string {
         if(profile.blobFiles.length != 0)
         {
             var blobFile = profile.blobFiles.find(x => x.container == 'profile')

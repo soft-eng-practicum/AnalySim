@@ -3,7 +3,7 @@ import { ProjectService } from '../services/project.service';
 import { Project } from '../interfaces/project';
 import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { AccountService } from '../services/account.service';
-import { ApplicationUser } from '../interfaces/user';
+import { User } from '../interfaces/user';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JsonPipe } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
@@ -29,7 +29,7 @@ export class ExploreComponent implements OnInit {
   categoryParam : string
 
   projects : Project[]
-  users : ApplicationUser[]
+  users : User[]
 
   ngOnInit(): void {
     this.projects = null

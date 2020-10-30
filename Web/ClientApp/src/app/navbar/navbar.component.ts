@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountService } from '../services/account.service';
 import { Observable, from } from 'rxjs';
-import { ApplicationUser } from '../interfaces/user';
+import { User } from '../interfaces/user';
 import { NotificationService } from '../services/notification.service';
 import { Router } from '@angular/router';
 
@@ -17,7 +17,7 @@ export class NavbarComponent implements OnInit {
     private router : Router){ }
 
   loginStatus$ : Observable<boolean>
-  currentUser$ : Observable<ApplicationUser> = null
+  currentUser$ : Observable<User> = null
 
   async ngOnInit() {
     this.loginStatus$ = this.accountService.isLoggedIn

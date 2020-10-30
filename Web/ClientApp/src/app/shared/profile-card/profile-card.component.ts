@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ApplicationUser } from 'src/app/interfaces/user';
+import { User } from 'src/app/interfaces/user';
 import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -14,9 +14,9 @@ export class ProfileCardComponent implements OnInit {
   constructor(private accountService : AccountService,
     private router : Router) { }
 
-  @Input() profile : ApplicationUser
-  currentUser$ : Observable<ApplicationUser>
-  currentUser : ApplicationUser = null
+  @Input() profile : User
+  currentUser$ : Observable<User>
+  currentUser : User = null
 
   async ngOnInit() {
     if(this.accountService.checkLoginStatus()){

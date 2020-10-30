@@ -1,8 +1,8 @@
-import { ApplicationUser } from './user';
+import { User } from './user';
 
 export interface UserUser {
     userID: number;
-    user : ApplicationUser
+    user : User
     followerID: number;
-    follower : ApplicationUser
+    follower : User
 }

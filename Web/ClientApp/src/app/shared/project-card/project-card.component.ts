@@ -5,7 +5,7 @@ import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
 import { ProjectUser } from 'src/app/interfaces/project-user';
 import { Observable } from 'rxjs';
-import { ApplicationUser } from 'src/app/interfaces/user';
+import { User } from 'src/app/interfaces/user';
 
 @Component({
   selector: 'app-project-card',
@@ -22,8 +22,8 @@ export class ProjectCardComponent implements OnInit {
 
   @Input() project : Project;
 
-  currentUser$ : Observable<ApplicationUser>
-  currentUser : ApplicationUser = null
+  currentUser$ : Observable<User>
+  currentUser : User = null
   projectUser : ProjectUser = null
 
   async ngOnInit() {

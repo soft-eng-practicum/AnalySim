@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Project } from 'src/app/interfaces/project';
 import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { ProjectService } from 'src/app/services/project.service';
-import { ApplicationUser } from 'src/app/interfaces/user';
+import { User } from 'src/app/interfaces/user';
 import { AccountService } from 'src/app/services/account.service';
 
 @Component({
@@ -20,8 +20,8 @@ export class ProjectFormUsersComponent implements OnInit {
   // Form Control - Project Tag/Role
   @Input() project : Project
   @Output() updateProject = new EventEmitter<Project>()
-  users : ApplicationUser[] = []
-  filteredUsers : ApplicationUser[] = []
+  users : User[] = []
+  filteredUsers : User[] = []
   userForm: FormGroup
   userName: FormControl
 
@@ -48,12 +48,12 @@ export class ProjectFormUsersComponent implements OnInit {
     )
   }
 
-  public filterUser(val : string) : ApplicationUser[]{
+  public filterUser(val : string) : User[]{
     let count = 0
     if(val == null || val == "")
       return []
 
-    var existingUser : ApplicationUser[] = []
+    var existingUser : User[] = []
     this.project.projectUsers
     .forEach(x => { 
       if(x.userRole != "follower"){
@@ -74,7 +74,7 @@ export class ProjectFormUsersComponent implements OnInit {
     
   }
 
-  public addUser(user : ApplicationUser){
+  public addUser(user : User){
     this.projectService.addUser(this.project.projectID, user.id, "member", false).subscribe(
       result => {
         this.project.projectUsers.push(result)

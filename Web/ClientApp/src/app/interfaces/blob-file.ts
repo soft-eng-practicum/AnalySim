@@ -1,4 +1,4 @@
-import { ApplicationUser } from './user';
+import { User } from './user';
 import { Project } from './project';
 
 export interface BlobFile {
@@ -11,7 +11,7 @@ export interface BlobFile {
     uri: string
     dateCreated: Date
     lastModified: Date
-    user : ApplicationUser
+    user : User
     userID : number
     project : Project
     projectID : number

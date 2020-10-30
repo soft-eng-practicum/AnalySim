@@ -3,7 +3,7 @@ import { FormGroup, FormControl, Validators, FormBuilder, ValidatorFn, AbstractC
 import { ProjectService } from 'src/app/services/project.service';
 import { Project } from 'src/app/interfaces/project';
 import { AccountService } from 'src/app/services/account.service';
-import { ApplicationUser } from 'src/app/interfaces/user';
+import { User } from 'src/app/interfaces/user';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -26,8 +26,8 @@ export class ProjectFormCreateComponent implements OnInit {
   description: FormControl
   visibility: FormControl
 
-  currentUser$ : Observable<ApplicationUser>
-  currentUser : ApplicationUser
+  currentUser$ : Observable<User>
+  currentUser : User
   isLoading : boolean
 
   @Output() setProject = new EventEmitter<Project>()

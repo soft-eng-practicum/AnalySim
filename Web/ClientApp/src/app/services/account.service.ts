@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, empty, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
-import { ApplicationUser } from '../interfaces/user';
+import { User } from '../interfaces/user';
 import { UserUser } from '../interfaces/user-user';
 import { Project } from '../interfaces/project';
 import { NotificationService } from './notification.service';
@@ -48,10 +48,10 @@ export class AccountService {
 
   //User properties
   private loginStatus = new BehaviorSubject<boolean>(this.checkLoginStatus())
-  private user = new BehaviorSubject<ApplicationUser>(null)
+  private user = new BehaviorSubject<User>(null)
   private userID = new BehaviorSubject<number>(parseInt(localStorage.getItem('userID')))
 
-  getUserByID (userID : number) : Observable<ApplicationUser>
+  getUserByID (userID : number) : Observable<User>
   {
     return this.http.get<any>(this.urlGetUserByID + userID)
     .pipe(
@@ -66,7 +66,7 @@ export class AccountService {
     )
   }
 
-  getUserByName (username : string) : Observable<ApplicationUser>
+  getUserByName (username : string) : Observable<User>
   {
     return this.http.get<any>(this.urlGetUserByName + username)
     .pipe(
@@ -81,7 +81,7 @@ export class AccountService {
     )
   }
 
-  getUserRange (ids : number[]) : Observable<ApplicationUser[]>
+  getUserRange (ids : number[]) : Observable<User[]>
   {
     let params = new HttpParams()
     ids.forEach(x => params = params.append("id", x.toString()))
@@ -99,7 +99,7 @@ export class AccountService {
     )
   }
 
-  getUserList () : Observable<ApplicationUser[]>
+  getUserList () : Observable<User[]>
   {
     return this.http.get<any>(this.urlGetUserList)
     .pipe(
@@ -114,7 +114,7 @@ export class AccountService {
     )
   }
   
-  search (searchTerms: string[]) : Observable<ApplicationUser[]>
+  search (searchTerms: string[]) : Observable<User[]>
   {
     let params = new HttpParams()
     searchTerms.forEach(function (x) {
@@ -219,7 +219,7 @@ export class AccountService {
     );
   }
 
-  updateUser (bio : string, userID : number) : Observable<ApplicationUser>
+  updateUser (bio : string, userID : number) : Observable<User>
   {
     let body = new FormData()
     body.append('bio', bio)
@@ -303,10 +303,10 @@ export class AccountService {
       }
 
       // Return False Since Token Expire
-      this.user = new BehaviorSubject<ApplicationUser>(null)
+      this.user = new BehaviorSubject<User>(null)
       return false;
     }
-    this.user = new BehaviorSubject<ApplicationUser>(null)
+    this.user = new BehaviorSubject<User>(null)
     return false;
   }
 
