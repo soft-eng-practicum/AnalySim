@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Core.Entities
 {
-    public class ApplicationUser : IdentityUser<int>
+    public class User : IdentityUser<int>
     {
 
         public string Bio { get; set; }

@@ -5,7 +5,7 @@ using Core.Entities;
 
 namespace Infrastructure.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
+    public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -22,9 +22,9 @@ namespace Infrastructure.Data
             modelBuilder.Entity<ProjectTag>().HasKey(pt => new { pt.ProjectID, pt.TagID });
             modelBuilder.Entity<UserUser>().HasKey(uu => new { uu.UserID, uu.FollowerID });
 
-            // Many To Many Relationship (ProjectUser -> ApplicationUser)
+            // Many To Many Relationship (ProjectUser -> User)
             modelBuilder.Entity<ProjectUser>()
-                        .HasOne<ApplicationUser>(i => i.User)
+                        .HasOne<User>(i => i.User)
                         .WithMany(pu => pu.ProjectUsers)
                         .HasForeignKey(pu => pu.UserID);
 
@@ -48,18 +48,18 @@ namespace Infrastructure.Data
 
             // Many To Many Relationship (UserUser -> User)
             modelBuilder.Entity<UserUser>()
-                        .HasOne<ApplicationUser>(uu => uu.User)
+                        .HasOne<User>(uu => uu.User)
                         .WithMany(u => u.Followers)
                         .HasForeignKey(uu => uu.UserID);
 
             // Many To Many Relationship (UserUser -> User)
             modelBuilder.Entity<UserUser>()
-                        .HasOne<ApplicationUser>(uu => uu.Follower)
+                        .HasOne<User>(uu => uu.Follower)
                         .WithMany(u => u.Following)
                         .HasForeignKey(uu => uu.FollowerID);
 
-            // One To Many Relationship (ApplicationUser -> Blob)
-            modelBuilder.Entity<ApplicationUser>()
+            // One To Many Relationship (User -> Blob)
+            modelBuilder.Entity<User>()
                         .HasMany(u => u.BlobFiles)
                         .WithOne(u => u.User)
                         .HasForeignKey(u => u.UserID);

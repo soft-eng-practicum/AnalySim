@@ -27,14 +27,14 @@ namespace Web.Controllers
     public class AccountController : ControllerBase
     {
         private readonly JwtSettings _jwtSettings;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signManager;
         private readonly ApplicationDbContext _dbContext;
         private readonly IBlobService _blobService;
         private readonly ILoggerManager _loggerManager;
 
-        public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<ApplicationUser> userManager, 
-            SignInManager<ApplicationUser> signManager, ApplicationDbContext dbContext, 
+        public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager, 
+            SignInManager<User> signManager, ApplicationDbContext dbContext, 
             IBlobService blobService, ILoggerManager loggerManager) 
         {
             _jwtSettings = jwtSettings.Value;
@@ -49,7 +49,7 @@ namespace Web.Controllers
         /*
          * Type : GET
          * URL : /api/account/getuserbyid/
-         * Description: Return ApplicationUser from id
+         * Description: Return User from id
          * Response Status: 200 Ok, 404 Not Found
          */
         [HttpGet("[action]/{id}")]
@@ -73,7 +73,7 @@ namespace Web.Controllers
         /*
         * Type : GET
         * URL : /api/account/getuserbyname/
-        * Description: Return ApplicationUser from username
+        * Description: Return User from username
         * Response Status: 200 Ok, 404 Not Found
         */
         [HttpGet("[action]/{username}")]
@@ -97,7 +97,7 @@ namespace Web.Controllers
         /*
         * Type : GET
         * URL : /api/account/getuserrange?
-        * Description: Return ApplicationUser(s) from list of id
+        * Description: Return User(s) from list of id
         * Response Status: 200 Ok, 404 Not Found
         */
         [HttpGet("[action]")]
@@ -123,7 +123,7 @@ namespace Web.Controllers
         /*
          * Type : GET
          * URL : /api/account/getuserlist
-         * Description: Return all ApplicationUser
+         * Description: Return all User
          * Response Status: 200 Ok
          */
         [HttpGet("[action]")]
@@ -147,7 +147,7 @@ namespace Web.Controllers
         /*
          * Type : GET
          * URL : /api/account/search?
-         * Description: Return list of matched ApplicationUser from list of searchterms
+         * Description: Return list of matched User from list of searchterms
          * Response Status: 200 Ok, 204 Not Found
          */
         [HttpGet("[action]")]
@@ -211,7 +211,7 @@ namespace Web.Controllers
         /*
          * Type : POST
          * URL : /api/account/register
-         * Description: Create and return new ApplicationUser
+         * Description: Create and return new User
          * Response Status: 200 Ok, 400 Bad Request
          */
         [HttpPost("[action]")]
@@ -222,7 +222,7 @@ namespace Web.Controllers
             List<string> errorList = new List<string>();
 
             // Create User Object
-            var user = new ApplicationUser
+            var user = new User
             {
                 Email = formdata.EmailAddress,
                 UserName = formdata.Username,

@@ -35,7 +35,7 @@ namespace Core.Entities
 
         //Foreign Key To User
         [Required(ErrorMessage = "User is a required field.")]
-        public ApplicationUser User { get; set; }
+        public User User { get; set; }
         [Required(ErrorMessage = "User ID is a required field.")]
         public int UserID { get; set; }
 

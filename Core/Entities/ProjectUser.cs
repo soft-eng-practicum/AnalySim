@@ -8,7 +8,7 @@ namespace Core.Entities
         [Key, Column(Order = 1)]
         [ForeignKey("User")]
         public int UserID { get; set; }
-        public ApplicationUser User { get; set; }
+        public User User { get; set; }
 
         [Key, Column(Order = 2)]
         [ForeignKey("Project")]
