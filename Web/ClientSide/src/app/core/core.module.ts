@@ -1,15 +1,21 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-import { CoreRoutingModule } from './core-routing.module';
-import { FooterComponent } from './footer/footer.component';
+import { NgModule, Optional, SkipSelf } from '@angular/core';
+import { throwIfAlreadyLoaded } from '@core/guard/module-import.guard';
 
 
 @NgModule({
-  declarations: [FooterComponent],
-  imports: [
-    CommonModule,
-    CoreRoutingModule
+  imports: [HttpClientModule],
+  providers: [
+    AuthGuard,
+    NoAuthGuard,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptor,
+      multi: true
+    }
   ]
 })
-export class CoreModule { }
+export class CoreModule {
+  constructor(@Optional() @SkipSelf() parentModule: CoreModule) {
+    throwIfAlreadyLoaded(parentModule, 'CoreModule');
+  }
+}
