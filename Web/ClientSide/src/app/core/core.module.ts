@@ -3,15 +3,9 @@ import { throwIfAlreadyLoaded } from '@core/guard/module-import.guard';
 
 
 @NgModule({
-  imports: [HttpClientModule],
+  imports: [
+  ],
   providers: [
-    AuthGuard,
-    NoAuthGuard,
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: TokenInterceptor,
-      multi: true
-    }
   ]
 })
 export class CoreModule {

@@ -72,10 +72,10 @@ export class ErrorService {
   whichError(errorCode: number, errorMessage: string){
     switch(errorCode) {
       case CustomErrorCodes.UN_KNOWN:
-        this._ui.openErrorSnackbar('server is Down');
+        //this._ui.openErrorSnackbar('server is Down');
         break;
       case ClientError.HTTP_400_BAD_REQUEST:
-        this._ui.openErrorSnackbar('Type Corrent Crendientials');
+        //this._ui.openErrorSnackbar('Type Corrent Crendientials');
         break;
       default:
         alert('Unknown Error Code');
@@ -85,7 +85,7 @@ export class ErrorService {
   userNotification(notificationCode: number, notification: string){
     switch (notificationCode){
       case SuccessCodes.HTTP_200_OK:
-        this._ui.openNofificationSnaceBar(notification);
+        //this._ui.openNofificationSnaceBar(notification);
         break;
       default:
         alert('Unknown Success Action')
