@@ -25,6 +25,9 @@
       "@data/*": [
         "src/app/data/*"
       ],
+      "@layout/*": [
+        "src/app/layout/*"
+      ],
       "@env": [
         "src/environments/environment"
       ],
