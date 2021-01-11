@@ -2,7 +2,7 @@ import { BlobFile } from 'src/app/interfaces/blob-file';
 import { ProjectUser } from './project-user';
 import { UserUser } from './user-user';
 
-export interface ApplicationUser {
+export interface User {
     id: number
     userName: string
     email: string

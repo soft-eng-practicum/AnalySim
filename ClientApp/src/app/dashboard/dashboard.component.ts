@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ApplicationUser } from '../interfaces/user';
+import { User } from '../interfaces/user';
 import { AccountService } from '../services/account.service';
 import { Observable, from } from 'rxjs';
 
@@ -12,7 +12,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(private accountService : AccountService) { }
 
-  currentUser$ : Observable<ApplicationUser> = null
+  currentUser$ : Observable<User> = null
 
   async ngOnInit() {
     await this.accountService.currentUser.then((x) => this.currentUser$ = x)

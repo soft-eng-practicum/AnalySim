@@ -1,11 +1,11 @@
 import { Project } from './project';
-import { ApplicationUser } from './user';
+import { User } from './user';
 
 export interface ProjectUser {
     projectID: number
     project : Project
     userID: number
-    user : ApplicationUser
+    user : User
     userRole: string
     isFollowing: boolean
 }

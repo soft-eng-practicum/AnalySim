@@ -214,7 +214,7 @@ namespace AnalySim.Controllers
             if (project != null) return Conflict(new { message = "Project Already Exist" });
 
             // Create Project
-            var newProject = new Project
+            var newProject = new Projects
             {
                 Name = formdata.Name,
                 Visibility = formdata.Visibility,

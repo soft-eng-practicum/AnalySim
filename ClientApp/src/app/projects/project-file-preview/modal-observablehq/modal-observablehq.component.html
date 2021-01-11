@@ -1,0 +1,31 @@
+<!-- Modal -->
+<div class="modal-content">
+    <div class="modal-header justify-content-center">
+        <h5 class="modal-title">Load Observable Notebook</h5>
+    </div>
+
+    <!-- Register Form Start -->
+    <form class="form" [formGroup]="notebookForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+            <!-- Form Group Username -->
+            <div class="form-group">
+                <label for="notebookLink">Notebook Link:</label>
+                <input formControlName="notebookLink" type="text" class="form-control" placeholder=""[class.invalid]="notebookLink.touched && notebookLink.invalid" [class.valid]="notebookLink.valid" [readOnly]="isLoading" required>
+                <div *ngIf="notebookLink.touched && notebookLink.errors" class="text-danger">
+                    <span [hidden]="!notebookLink.errors?.fromObservable">URL must be from domain ObservableHQ</span>
+                    <span [hidden]="!notebookLink.errors?.isValidURL">Not a valid URL</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer justify-content-center">
+            <!-- Form Group Register -->
+            <div class="form-group">
+                <button type="submit" class="btn btn-success" value="Submit" [disabled]="notebookLink.invalid">
+                    <span>Load Notebook</span>
+                </button>
+            </div>
+            <button type="button" class="btn btn-secondary" (click)="usePreset()">Use Preset</button>
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+        </div>
+    </form> <!-- Register Form End -->
+</div>

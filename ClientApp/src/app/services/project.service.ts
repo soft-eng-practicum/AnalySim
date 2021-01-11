@@ -9,7 +9,7 @@ import { ProjectUser } from '../interfaces/project-user';
 import { BlobFile } from '../interfaces/blob-file';
 import { Tag } from '../interfaces/tag';
 import { ProjectTag } from '../interfaces/project-tag';
-import { ApplicationUser } from '../interfaces/user';
+import { User } from '../interfaces/user';
 import { NotificationService } from './notification.service';
 import { saveAs } from 'file-saver';
 
@@ -162,7 +162,7 @@ export class ProjectService {
     )
   }
 
-  createProject (currentUser : ApplicationUser, projectName : string, visibility : string, description : string) : Observable<Project>
+  createProject (currentUser : User, projectName : string, visibility : string, description : string) : Observable<Project>
   {
     let body = new FormData()
     body.append('name', projectName)

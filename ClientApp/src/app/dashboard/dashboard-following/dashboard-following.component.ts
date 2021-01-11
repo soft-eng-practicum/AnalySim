@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ApplicationUser } from 'src/app/interfaces/user';
+import { User } from 'src/app/interfaces/user';
 import { AccountService } from 'src/app/services/account.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { Project } from 'src/app/interfaces/project';
@@ -14,10 +14,10 @@ export class DashboardFollowingComponent implements OnInit {
   constructor(private accountService : AccountService,
     private projectService : ProjectService) { }
 
-  @Input() currentUser : ApplicationUser
+  @Input() currentUser : User
   userID : number
   projects : Project[]
-  followings : ApplicationUser[]
+  followings : User[]
   tabActive : boolean[] = [true, false]
 
   ngOnInit(): void {
@@ -36,7 +36,7 @@ export class DashboardFollowingComponent implements OnInit {
     }); 
   }
 
-  loadFollowing(profile : ApplicationUser){
+  loadFollowing(profile : User){
     let userIDs : number[] = profile.following.map(f => f.userID)
 
     this.accountService.getUserRange(userIDs).subscribe(
@@ -52,7 +52,7 @@ export class DashboardFollowingComponent implements OnInit {
     )
   }
 
-  loadProject(profile : ApplicationUser){
+  loadProject(profile : User){
     let projectIDs : number[] = profile.projectUsers.map(pu => pu.projectID)
     
     this.projectService.getProjectRange(projectIDs).subscribe(

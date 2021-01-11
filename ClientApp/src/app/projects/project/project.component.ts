@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router, RouterStateSnapshot } from '@angular/router';
-import { ApplicationUser } from 'src/app/interfaces/user';
+import { User } from 'src/app/interfaces/user';
 import { Observable } from 'rxjs';
 import { Project } from 'src/app/interfaces/project';
 import { AccountService } from 'src/app/services/account.service';
@@ -24,8 +24,8 @@ export class ProjectComponent implements OnInit {
   @ViewChildren(ProjectFileExplorerComponent) fileExplorer: ProjectFileExplorerComponent
 
   project : Project = null
-  currentUser$ : Observable<ApplicationUser> = null
-  currentUser : ApplicationUser = null
+  currentUser$ : Observable<User> = null
+  currentUser : User = null
   projectUser : ProjectUser = null
   fileDirectory : string
   

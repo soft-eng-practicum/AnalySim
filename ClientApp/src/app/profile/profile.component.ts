@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AccountService } from '../services/account.service';
-import { ApplicationUser } from '../interfaces/user';
+import { User } from '../interfaces/user';
 import { Project } from '../interfaces/project';
 import { ProjectService } from '../services/project.service';
 import { of, pipe, Observable } from 'rxjs';
@@ -20,17 +20,17 @@ export class ProfileComponent implements OnInit {
     private accountService : AccountService,
     private projectService : ProjectService) { }
 
-  currentUser$ : Observable<ApplicationUser> = null
+  currentUser$ : Observable<User> = null
 
-  profile : ApplicationUser
+  profile : User
   projects : Project[]
-  followings : ApplicationUser[]
-  followers : ApplicationUser[]
+  followings : User[]
+  followers : User[]
   
   tabActive : boolean[] = [true, false, false]
   showError : boolean
 
-  currentUser : ApplicationUser = null
+  currentUser : User = null
 
   
   async ngOnInit(){
@@ -106,7 +106,7 @@ export class ProfileComponent implements OnInit {
     )
   }
 
-  loadProject(profile : ApplicationUser){
+  loadProject(profile : User){
     let projectIDs : number[] = profile.projectUsers.map(pu => pu.projectID)
     
     this.projectService.getProjectRange(projectIDs).subscribe(
@@ -124,7 +124,7 @@ export class ProfileComponent implements OnInit {
     )
   }
 
-  loadFollower(profile : ApplicationUser){
+  loadFollower(profile : User){
     let userIDs : number[] = profile.followers.map(f => f.followerID)
 
     this.accountService.getUserRange(userIDs).subscribe(
@@ -140,7 +140,7 @@ export class ProfileComponent implements OnInit {
     )
   }
 
-  loadFollowing(profile : ApplicationUser){
+  loadFollowing(profile : User){
     let userIDs : number[] = profile.following.map(f => f.userID)
 
     this.accountService.getUserRange(userIDs).subscribe(

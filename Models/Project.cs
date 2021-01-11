@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AnalySim.Models
 {
-    public class Project
+    public class Projects
     {
         [KeyAttribute]
         public int ProjectID { get; set; }

@@ -18,6 +18,9 @@ import { ProjectFileExplorerItemComponent } from './project-file-explorer/projec
 import { ModalFolderComponent } from './project-file-explorer/modal-folder/modal-folder.component';
 import { ModalUploadComponent } from './project-file-explorer/modal-upload/modal-upload.component';
 import { ModalUploadItemComponent } from './project-file-explorer/modal-upload/modal-upload-item/modal-upload-item.component';
+import { ProjectFilePreviewComponent } from './project-file-preview/project-file-preview.component';
+import { ObservablehqComponent } from './project-file-preview/observablehq/observablehq.component';
+import { ModalObservablehqComponent } from './project-file-preview/modal-observablehq/modal-observablehq.component';
 
 
 @NgModule({
@@ -36,6 +39,9 @@ import { ModalUploadItemComponent } from './project-file-explorer/modal-upload/m
     ModalFolderComponent,
     ModalUploadComponent,
     ModalUploadItemComponent,
+    ProjectFilePreviewComponent,
+    ObservablehqComponent,
+    ModalObservablehqComponent,
   ],
   imports: [
     CommonModule,

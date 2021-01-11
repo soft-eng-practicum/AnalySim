@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
-import { ApplicationUser } from 'src/app/interfaces/user';
+import { User } from 'src/app/interfaces/user';
 import { from, Observable } from 'rxjs';
 import { NotificationService } from 'src/app/services/notification.service';
 
@@ -13,8 +13,8 @@ import { NotificationService } from 'src/app/services/notification.service';
 })
 export class ProfileSettingComponent implements OnInit {
 
-  currentUser$ : Observable<ApplicationUser>
-  currentUser : ApplicationUser = null
+  currentUser$ : Observable<User>
+  currentUser : User = null
   profileForm: FormGroup
   bio : FormControl
 
@@ -53,7 +53,6 @@ export class ProfileSettingComponent implements OnInit {
     // Upload File Or Replace If Already Exist
     this.accountService.uploadProfileImage(file, this.currentUser.id).subscribe(
       result => {
-        console.log(result)
         let index = this.currentUser.blobFiles.findIndex(x => x.blobFileID == result.blobFileID)
         if(index > -1)
           this.currentUser.blobFiles[index] = result

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Project } from 'src/app/interfaces/project';
 import { AccountService } from 'src/app/services/account.service';
-import { ApplicationUser } from 'src/app/interfaces/user';
+import { User } from 'src/app/interfaces/user';
 import { ProjectService } from 'src/app/services/project.service';
 
 @Component({
@@ -14,7 +14,7 @@ export class DashboardQuickstartComponent implements OnInit {
   constructor(private accountService : AccountService,
     private projectService : ProjectService) { }
 
-  @Input() currentUser : ApplicationUser
+  @Input() currentUser : User
   userID : number
   projects : Project[] = null
 
@@ -22,7 +22,7 @@ export class DashboardQuickstartComponent implements OnInit {
     this.loadProject(this.currentUser)
   }
 
-  loadProject(profile : ApplicationUser){
+  loadProject(profile : User){
     let projectIDs : number[] = profile.projectUsers.map(pu => pu.projectID)
     
     this.projectService.getProjectRange(projectIDs).subscribe(

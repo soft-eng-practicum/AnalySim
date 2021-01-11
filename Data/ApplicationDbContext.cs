@@ -30,7 +30,7 @@ namespace AnalySim.Data
 
             // Many To Many Relationship (ProjectUser -> Project)
             modelBuilder.Entity<ProjectUser>()
-                        .HasOne<Project>(p => p.Project)
+                        .HasOne<Projects>(p => p.Project)
                         .WithMany(pu => pu.ProjectUsers)
                         .HasForeignKey(pu => pu.ProjectID);
 
@@ -42,7 +42,7 @@ namespace AnalySim.Data
 
             // Many To Many Relationship (ProjectTag -> Project)
             modelBuilder.Entity<ProjectTag>()
-                        .HasOne<Project>(p => p.Project)
+                        .HasOne<Projects>(p => p.Project)
                         .WithMany(pt => pt.ProjectTags)
                         .HasForeignKey(pt => pt.ProjectID);
 
@@ -65,7 +65,7 @@ namespace AnalySim.Data
                         .HasForeignKey(u => u.UserID);
 
             // One To Many Relationship (Project -> Blob)
-            modelBuilder.Entity<Project>()
+            modelBuilder.Entity<Projects>()
                         .HasMany(p => p.BlobFiles)
                         .WithOne(p => p.Project)
                         .HasForeignKey(p => p.ProjectID);
@@ -80,7 +80,7 @@ namespace AnalySim.Data
         
         public DbSet<Tag> Tag { get; set; }
         public DbSet<BlobFile> BlobFiles { get; set; }
-        public DbSet<Project> Projects { get; set; }
+        public DbSet<Projects> Projects { get; set; }
         public DbSet<ProjectUser> ProjectUsers { get; set; }
         public DbSet<ProjectTag> ProjectTags { get; set; }
         public DbSet<UserUser> UserUsers { get; set; }
