@@ -37,7 +37,7 @@ export class ExploreComponent implements OnInit {
 
     // get return url from route parameters or default to '/'
     this.termParam = JSON.parse(this.route.snapshot.queryParams['term'] || '[]')
-    this.categoryParam = this.route.snapshot.queryParams['category'] || 'project'
+    this.categoryParam = this.route.snapshot.queryParams['category'] || '[]'
 
 
     let searchTermString = ""
@@ -66,6 +66,11 @@ export class ExploreComponent implements OnInit {
         searchCategory : this.searchCategory,
         searchTerm : this.searchTerm
     });
+
+    this.searchCategory.valueChanges.subscribe(val =>{
+      this.searchForm.value.searchCategory = val
+      this.onSubmit()
+    })
   }
 
   searchProject(searchTerms : string[]){
@@ -108,8 +113,12 @@ export class ExploreComponent implements OnInit {
   }
 
   onSubmit(){
+
     let searchForm = this.searchForm.value
+
     let searchTerms : string[] = Array.from(new Set(searchForm.searchTerm.split(" ").filter(x => x.length != 0)))
+
+    console.log(searchForm.searchCategory)
 
     switch(searchForm.searchCategory)
     {

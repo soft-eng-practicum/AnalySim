@@ -80,6 +80,14 @@ export class ModalObservablehqComponent implements OnInit {
     this.notebookForm.reset()
   }
 
+  usePreset(){
+    // Show loading icon
+    this.isLoading = true;
+
+    this.closeModal()
+    this.loadNotebookEvent.emit('observablehq.com/@cengique/csv-dataset-visualization')
+  }
+
   onSubmit(){
     // Variable for FormGroupValue
     let notebookValue = this.notebookForm.value;
