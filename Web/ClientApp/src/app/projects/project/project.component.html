@@ -21,7 +21,6 @@
                         {{ project | role:"follower" }}
                     </span>
                 </button>
-
                 <!-- UnFollow Project Button -->
                 <button class="btn btn-primary mr-1" type="button" *ngIf="isFollowing" (click)="unFollowProject()">
                     Unfollow
@@ -48,11 +47,24 @@
             </div>
         </div>
     </div>
+
+    <!-- MAKE CHANGES HERE -->
+    <div>
+    <p>class="card mb-5">{{project.description}}</p>
+<ul class="list-group list-group-flush">
+      <li class="list-group-item">
+        <span class="badge badge-pill badge-info font-weight-light mr-2" *ngFor="let projectTag of project.projectTags">
+            {{projectTag.tag.name}}
+        </span>
+      </li>
+    </ul>
+</div>
     <div class="row ">
         <div class="col-md-12">
             <app-project-file-explorer [project]="project" [currentUser]="currentUser" [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
         </div>
     </div>
+
     <!-- <div class="row h-100">
         <div class="col-md-2 p-0">
             <aside class="h-100 py-5 px-4" style="background-color:#222">

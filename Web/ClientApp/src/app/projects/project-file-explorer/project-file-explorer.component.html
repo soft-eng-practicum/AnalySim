@@ -1,8 +1,12 @@
 <!-- Card Start -->
+
 <div class="card mb-5" *ngIf="project != null">
+
     <!-- Card Header Start -->
     <div class="d-flex card-header flex-row align-items-center">
+        
         <!-- File Route Start -->
+        
         <span class="mr-2">File</span>
         <span>{{currentDirectory}}</span>
 
@@ -48,7 +52,10 @@
         <li class="list-group-item" *ngIf="project.blobFiles.length == 0"> No File Found </li>
         <app-project-file-explorer-item *ngFor="let blobFileItem of blobFileItemList" [blobFileItem]="blobFileItem" [isSelected]="blobFileItem.order == selectedItem" [currentDirectory]="currentDirectory" (changeDirectory)="setDirectoryFile($event)" (selectedItem)="setSelectedItem($event)"></app-project-file-explorer-item>
     </ul> <!-- File Explorer Content End -->
-</div> <!-- Card End -->
+    <div class="card-footer">
+        <span><i class="fa fa-user mr-2"></i>{{ project | role:"member" }}</span>  
+        <span class="float-right">Last Updated {{ project.lastUpdated | timeElapsed}} Ago</span>
+    </div> 
 
 <app-project-file-preview *ngIf="filePreview" [blobFile]="blobFileItemList[1].file"></app-project-file-preview>
 

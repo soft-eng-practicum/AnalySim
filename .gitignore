@@ -237,3 +237,10 @@ appsettings.Development.json
 # Logging
 logs/
 Logs/
+Web\\Logs*
+
+#
+.DS_Store
+
+#Web
+Web/\\Logs*
