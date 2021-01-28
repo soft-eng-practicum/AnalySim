@@ -53,16 +53,15 @@
         <app-project-file-explorer-item *ngFor="let blobFileItem of blobFileItemList" [blobFileItem]="blobFileItem" [isSelected]="blobFileItem.order == selectedItem" [currentDirectory]="currentDirectory" (changeDirectory)="setDirectoryFile($event)" (selectedItem)="setSelectedItem($event)"></app-project-file-explorer-item>
     </ul> <!-- File Explorer Content End -->
     <div class="card-footer">
+        
         <span><i class="fa fa-user mr-2"></i>{{ project | role:"member" }}</span>  
         <span class="float-right">Last Updated {{ project.lastUpdated | timeElapsed}} Ago</span>
     </div> 
-
 <app-project-file-preview *ngIf="filePreview" [blobFile]="blobFileItemList[1].file"></app-project-file-preview>
 
 <ng-template #uploadModal>
     <app-modal-upload [uploadFileList]="uploadFileList" [uploadModalRef]="uploadModalRef" (updatedFileListEvent)="updateFileList($event)" (uploadedFileEvent)="addNewFile($event)"></app-modal-upload>
 </ng-template>
-
 <ng-template #folderModal>
     <app-modal-folder [folderModalRef]="folderModalRef" [blobList]="blobFileItemList" [currentDirectory]="currentDirectory" [projectID]="project.projectID" (newFolderEvent)="addNewFile($event)"></app-modal-folder>
 </ng-template>

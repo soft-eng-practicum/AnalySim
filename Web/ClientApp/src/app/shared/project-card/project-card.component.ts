@@ -74,6 +74,7 @@ export class ProjectCardComponent implements OnInit {
     }
   }
 
+
   unFollowProject(){
     this.projectUser.isFollowing = false
     if(this.projectUser.userRole == "follower")
