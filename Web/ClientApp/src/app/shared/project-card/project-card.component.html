@@ -47,7 +47,7 @@
 
     <!-- Card Footer Start -->
     <div class="card-footer">
-        <span ><i class="fa fa-user mr-2"></i>{{ project | role:"member" }}</span>  
+        <button (click)="displayUsers()"><i class="fa fa-user mr-2"></i>{{ project | role:"member" }}</button>  
         <span class="float-right">Last Updated {{ project.lastUpdated | timeElapsed}} Ago</span>
     </div> <!-- Card Footer End -->
 </div> <!-- Card End -->

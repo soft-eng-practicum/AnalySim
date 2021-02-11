@@ -1,5 +1,6 @@
 <div class="container my-5"*ngIf="project">
     <div class="row">
+        <app-member-list></app-member-list>
         <div class="col-md-12 mb-3 d-flex">
             <!-- Project Route Link -->
             <div class="d-flex align-items-center">
@@ -48,7 +49,7 @@
         </div>
     </div>
 
-    <!-- MAKE CHANGES HERE -->
+
     <div>
     <p>{{project.description}}</p>
 <ul class="list-group list-group-flush">
@@ -64,6 +65,7 @@
             <app-project-file-explorer [project]="project" [currentUser]="currentUser" [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
         </div>
     </div>
+
 
     <!-- <div class="row h-100">
         <div class="col-md-2 p-0">

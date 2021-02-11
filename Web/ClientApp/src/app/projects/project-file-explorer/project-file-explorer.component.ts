@@ -88,6 +88,16 @@ export class ProjectFileExplorerComponent implements OnInit {
     return !this.blobFileItemList.some(x => x.name == "Invalid Directory" || x.name == "Invalid File") 
   }
 
+  displayUsers(){
+  
+    var projectmembers = []
+    var myObj = this.project.projectUsers;
+    (myObj).forEach(element => {projectmembers.push("User " + element.userID + ". " )
+      
+    });
+    alert(projectmembers)
+  }
+
   delete(){
     
     if(this.selectedItem != null){

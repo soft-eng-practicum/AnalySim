@@ -1,0 +1,8 @@
+<table>
+    <tr>
+        <th>Project Members</th>
+    </tr>
+    <tr *ngFor = "let members of membersTest">
+        <td><a href="/profile/{{(members|async).userName}}">{{(members|async).userName}}</a></td>
+    </tr>
+</table>

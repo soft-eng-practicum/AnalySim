@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Core.Entities
 {
     public class Project
+
     {
         [KeyAttribute]
         public int ProjectID { get; set; }
@@ -25,6 +26,7 @@ namespace Core.Entities
 
         [Required(ErrorMessage = "Project Last Updated is a required field.")]
         public DateTimeOffset LastUpdated { get; set; }
+
 
         [Required(ErrorMessage = "Project Route is a required field.")]
         [Index(IsUnique = true)]

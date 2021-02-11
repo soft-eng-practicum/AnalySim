@@ -52,7 +52,6 @@
                         </li>
                     </ul>
                     <!-- User List -->
-
                     <ul class="list-group list-group-flush" *ngIf="searchForm.value.searchCategory == 'profile'">
                         <li *ngIf="users != null && users.length == 0" class="d-flex justify-content-center">
                             <p class="mb-0">No Result Found</p>
@@ -63,7 +62,6 @@
                             </div>
                         </li>
                         <li class="list-group-item border-0 p-0" *ngFor="let user of users; let lastItem = last" [class.mb-4]="!lastItem">
-                            <p>TEST TES TEST</p>
 
                             <app-profile-card [profile]=user></app-profile-card>
                         </li>

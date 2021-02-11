@@ -8,6 +8,7 @@ import { ProjectService } from 'src/app/services/project.service';
 import { ProjectFileExplorerComponent } from '../project-file-explorer/project-file-explorer.component';
 import { ProjectUser } from 'src/app/interfaces/project-user';
 
+
 @Component({
   selector: 'app-project',
   templateUrl: './project.component.html',
@@ -39,6 +40,7 @@ export class ProjectComponent implements OnInit {
 
     let owner = this.route.snapshot.params['owner']
     let projectname = this.route.snapshot.params['projectname']
+    let projectUsers = this.route.snapshot.params['projectUsers']
 
     // Set Project
     this.projectService.getProjectByRoute(owner, projectname).subscribe(
@@ -48,7 +50,10 @@ export class ProjectComponent implements OnInit {
           this.projectUser = this.project.projectUsers.find(x => x.userID == this.currentUser.id)
         }
       }
+
     )
+
+    console.log(this.route.snapshot)
 
     // Set Directory Param When First Load
     this.route.url.subscribe(segments =>{
@@ -87,6 +92,11 @@ export class ProjectComponent implements OnInit {
     if(this.projectUser == null) return false
     if(this.projectUser.userRole == "owner") return true
     return false;
+  }
+
+  getProjectUsers({user}){
+    var userreturn = this.accountService.getUserByID(user)
+    return userreturn
   }
 
   followProject(){
@@ -147,6 +157,7 @@ export class ProjectComponent implements OnInit {
       )
     }
   }
+
 
   joinProject(){
     // Navigate To Login Page If User Not Logged In

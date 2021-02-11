@@ -6,6 +6,9 @@ import { Router } from '@angular/router';
 import { ProjectUser } from 'src/app/interfaces/project-user';
 import { Observable } from 'rxjs';
 import { User } from 'src/app/interfaces/user';
+import { of, } from 'rxjs';
+import { map, switchAll } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-project-card',
@@ -41,6 +44,62 @@ export class ProjectCardComponent implements OnInit {
     if(this.projectUser.isFollowing == true) return true
     return false;
   }
+
+  async displayUsers(){
+  
+    var projectmembers = []
+    var myObj = this.project.projectUsers;
+
+
+      await (myObj).forEach(element => { 
+      this.accountService.getUserByID(element.userID).subscribe(
+       user => {projectmembers.push(user.userName)
+      console.log(user.userName)})
+      projectmembers.push(element.userID)
+
+     });
+     alert(projectmembers)
+    console.log(projectmembers)
+    var results = this.accountService.getUserRange(projectmembers)
+    console.log(results)
+
+
+  }
+
+
+  
+  displayUsers1(){
+
+    var projectmembers = []
+
+    of((this.accountService.getUserByID(1),
+    this.accountService.getUserByID(2)).subscribe(
+      user => {projectmembers.push(user.userName)
+     console.log(projectmembers)})
+
+    )
+  }
+      
+  displayUsers2(){
+
+    var projectmembers = []
+
+    of((this.accountService.getUserByID(1),
+    this.accountService.getUserByID(2)).subscribe(
+      user => {projectmembers.push(user.userName)
+     console.log(projectmembers)})
+
+    )
+  }
+
+
+/*
+    displayUserTest(){
+      map(userID => this.accountService.getUserByID(userID))(of(this.project.projectUsers)).subscribe(user => console.log(user.userName));
+
+    }
+    */
+
 
   followProject(){
     // Navigate To Login Page If User Not Logged In

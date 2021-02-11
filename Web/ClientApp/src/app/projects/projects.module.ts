@@ -21,6 +21,7 @@ import { ModalUploadItemComponent } from './project-file-explorer/modal-upload/m
 import { ProjectFilePreviewComponent } from './project-file-preview/project-file-preview.component';
 import { ObservablehqComponent } from './project-file-preview/observablehq/observablehq.component';
 import { ModalObservablehqComponent } from './project-file-preview/modal-observablehq/modal-observablehq.component';
+import { MemberListComponent } from './member-list/member-list.component';
 
 
 @NgModule({
@@ -42,6 +43,7 @@ import { ModalObservablehqComponent } from './project-file-preview/modal-observa
     ProjectFilePreviewComponent,
     ObservablehqComponent,
     ModalObservablehqComponent,
+    MemberListComponent,
   ],
   imports: [
     CommonModule,
