@@ -17,6 +17,8 @@ import { ProjectFileExplorerComponent } from './project-file-explorer/project-fi
 import { ProjectFileExplorerItemComponent } from './project-file-explorer/project-file-explorer-item/project-file-explorer-item.component';
 import { ModalFolderComponent } from './project-file-explorer/modal-folder/modal-folder.component';
 import { ModalUploadComponent } from './project-file-explorer/modal-upload/modal-upload.component';
+import { ModalEditComponent } from './project-file-explorer/modal-edit/modal-edit.component';
+
 import { ModalUploadItemComponent } from './project-file-explorer/modal-upload/modal-upload-item/modal-upload-item.component';
 import { ProjectFilePreviewComponent } from './project-file-preview/project-file-preview.component';
 import { ObservablehqComponent } from './project-file-preview/observablehq/observablehq.component';
@@ -39,6 +41,7 @@ import { MemberListComponent } from './member-list/member-list.component';
     ProjectFileExplorerItemComponent,
     ModalFolderComponent,
     ModalUploadComponent,
+    ModalEditComponent,
     ModalUploadItemComponent,
     ProjectFilePreviewComponent,
     ObservablehqComponent,

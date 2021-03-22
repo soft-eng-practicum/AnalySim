@@ -7,13 +7,13 @@ import { ProjectService } from 'src/app/services/project.service';
 import { AccountService } from 'src/app/services/account.service';
 
 @Component({
-  selector: 'app-modal-folder',
-  templateUrl: './modal-folder.component.html',
-  styleUrls: ['./modal-folder.component.css']
+  selector: 'app-modal-edit',
+  templateUrl: './modal-edit.component.html',
+  styleUrls: ['./modal-edit.component.css']
 })
-export class ModalFolderComponent implements OnInit {
+export class ModalEditComponent implements OnInit {
 
-  @Input() folderModalRef : BsModalRef
+  @Input() renameModalRef : BsModalRef
   @Input() blobList : BlobFileItem[]
   @Input() currentDirectory : string
   @Input() projectID : number
@@ -87,7 +87,7 @@ export class ModalFolderComponent implements OnInit {
   }
 
   closeModal(){
-    this.folderModalRef.hide()
+    this.renameModalRef.hide()
     this.folderForm.reset()
   }
 
@@ -99,7 +99,7 @@ export class ModalFolderComponent implements OnInit {
     this.isLoading = true;
 
     // Register the Account
-    this.projectService.createFolder(this.currentDirectory + folderValue.folderName + "/", this.currentUserID , this.projectID).subscribe(
+    this.projectService.updateFile(this.currentDirectory + folderValue.folderName + "/", this.currentUserID , this.projectID).subscribe(
       result => {
         this.isLoading = false;
         this.closeModal()

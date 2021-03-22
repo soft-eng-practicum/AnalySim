@@ -47,6 +47,7 @@ export class ProjectService {
   // Put
   private urlUpdateProject : string = this.baseUrl + "updateproject/"
   private urlupdateUser : string = this.baseUrl + "updateuser"
+  private urlUpdateFile : string = this.baseUrl + "updateFile"
 
   // Delete
   private urlDeleteProject : string = this.baseUrl + "deleteproject/"
@@ -259,6 +260,27 @@ export class ProjectService {
         return throwError(error)
       })
     );
+  }
+
+  //Service to update a file name
+  updateFile(directory: string, userID: number, projectID: number) : Observable<BlobFile>{
+
+    let body = new FormData()
+    body.append('directory', directory)
+    body.append('userID', userID.toString())
+    body.append('projectID', projectID.toString())
+
+    return this.http.put<any>(this.urlUpdateFile, body)
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
   }
 
   updateProject (updateProject: Project) : Observable<Project>

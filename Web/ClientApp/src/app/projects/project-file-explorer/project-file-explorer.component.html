@@ -17,7 +17,7 @@
                 <button type="button" class="btn btn-secondary" title="Create Folder" (click)="toggleModalFolder()">
                     <i class="fa fa-folder-plus"></i>
                 </button>
-                <button type="button" class="btn btn-secondary disabled" title="Rename">
+                <button type="button" class="btn btn-secondary disabled" title="Rename" (click)="edit()">
                     <i class="fa fa-edit"></i>
                 </button>
                 <button type="button" class="btn btn-secondary disabled" title="Move">
@@ -65,3 +65,7 @@
 <ng-template #folderModal>
     <app-modal-folder [folderModalRef]="folderModalRef" [blobList]="blobFileItemList" [currentDirectory]="currentDirectory" [projectID]="project.projectID" (newFolderEvent)="addNewFile($event)"></app-modal-folder>
 </ng-template>
+<ng-template #renameModal>
+    <app-modal-edit [renameModalRef]="renameModalRef" [blobList]="blobFileItemList" [currentDirectory]="currentDirectory" [projectID]="project.projectID" (newFolderEvent)="addNewFile($event)"></app-modal-edit>
+</ng-template>
+

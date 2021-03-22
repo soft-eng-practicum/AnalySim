@@ -23,8 +23,11 @@ export class ProjectFileExplorerComponent implements OnInit {
 
   @ViewChild('uploadModal') uploadFileModal : TemplateRef<any>;
   @ViewChild('folderModal') folderModal : TemplateRef<any>;
+  @ViewChild('renameModal') renameModal: TemplateRef<any>;
+
   uploadModalRef : BsModalRef;
   folderModalRef : BsModalRef;
+  renameModalRef: BsModalRef;
 
   @Input() project : Project
   @Input() currentUser : User
@@ -70,6 +73,14 @@ export class ProjectFileExplorerComponent implements OnInit {
     }
   }
 
+  toggleModalRename(){
+    console.log("toggled...")
+    // Show Rename Modal
+    if(this.isValidDirectory){
+      this.renameModalRef = this.modalService.show(this.renameModal)
+    }
+
+  }
   toggleModalUpload(){
     // Show Upload Modal
     if(this.isValidDirectory){
@@ -97,6 +108,24 @@ export class ProjectFileExplorerComponent implements OnInit {
     });
     alert(projectmembers)
   }
+
+  edit(){
+    if(this.selectedItem != null){
+
+      var item = this.blobFileItemList[this.selectedItem] //get selected item
+      this.selectedItem = null;
+
+      // check if item type is folder
+      if(item.type == "folder"){
+
+        this.toggleModalRename() //file model pops up and user can enter folder name
+      }
+
+      
+    }
+  }
+
+
 
   delete(){
     

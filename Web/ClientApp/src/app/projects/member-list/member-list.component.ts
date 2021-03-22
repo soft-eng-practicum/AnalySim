@@ -22,7 +22,8 @@ export class MemberListComponent implements OnInit {
     private accountService : AccountService,
     private projectService : ProjectService) { }
 
-
+  currentUser$ : Observable<User> = null
+  currentUser : User = null
   project : Project = null
   projectmembers: []
   memberIDs : number[]
@@ -32,23 +33,41 @@ export class MemberListComponent implements OnInit {
   usernamelist: String[] = []
   headers = ["Project Members","Project Members"]
   testlist: String[] = []
+  projectUser: ProjectUser = null
  
 
   async ngOnInit() {
    
+    if(this.accountService.checkLoginStatus()){
+      await this.accountService.currentUser.then((x) => this.currentUser$ = x)
+      this.currentUser$.subscribe(x => this.currentUser = x)
+    }
 
     let owner = this.route.snapshot.params['owner']
     let projectname = this.route.snapshot.params['projectname']
-    let projectmambers = this.route.snapshot.params['projectUsers']
+    let projectmembers = this.route.snapshot.params['projectUsers']
 
-    this.projectService.getUserList(1).subscribe(user => {
-    user.forEach(element => {this.membersTest.push(this.accountService.getUserByID(element.userID))
+    // Set Project
+    this.projectService.getProjectByRoute(owner, projectname).subscribe(
+      result =>{
+        this.project = result
+        if (this.currentUser != null && this.project.projectUsers.find(x => x.userID == this.currentUser.id) != undefined){
+          this.projectUser = this.project.projectUsers.find(x => x.userID == this.currentUser.id)
+          console.log("Project Set!")
+
         
-      });
-    })
-   
- 
+        }
 
-
+            //Once project is set, Get UserList based off of projectid
+            this.projectService.getUserList(this.project.projectID).subscribe(user => {
+              user.forEach(element => {this.membersTest.push(this.accountService.getUserByID(element.userID))
+        
+              });
+            })
+      }
+      
+    )
+     
+  
   }
 }
