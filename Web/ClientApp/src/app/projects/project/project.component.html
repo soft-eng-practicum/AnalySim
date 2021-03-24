@@ -1,7 +1,10 @@
 <div class="container my-5"*ngIf="project">
+    <app-member-list class="membersList"></app-member-list>
+
     <div class="row">
-        <app-member-list></app-member-list>
+
         <div class="col-md-12 mb-3 d-flex">
+
             <!-- Project Route Link -->
             <div class="d-flex align-items-center">
                 <span class="h5 card-link mb-0" *ngIf="(project.route | route:'owner') as owner">
