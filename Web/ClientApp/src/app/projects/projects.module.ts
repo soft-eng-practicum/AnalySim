@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 
 import { ProjectsRoutingModule } from './projects-routing.module';
 import { ProjectCreateComponent } from './project-create/project-create.component';
+import { ProjectEditComponent } from './project-edit/project-edit.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ProjectTagComponent } from './project-list-tags/project-tag/project-tag.component';
 import { ProjectUserComponent } from './project-list-users/project-user/project-user.component';
 import { ProjectFormCreateComponent } from './project-create/project-form-create/project-form-create.component';
+import { ProjectFormEditComponent } from './project-edit/project-form-edit/project-form-edit.component';
 import { ProjectFormUsersComponent } from './project-create/project-form-users/project-form-users.component';
 import { ProjectFormTagsComponent } from './project-create/project-form-tags/project-form-tags.component';
 import { ProjectListTagsComponent} from './project-list-tags/project-list-tags.component';
@@ -31,9 +33,11 @@ import { MemberListComponent } from './member-list/member-list.component';
     ProjectCreateComponent,
     ProjectTagComponent,
     ProjectUserComponent,
+    ProjectEditComponent,
     ProjectFormCreateComponent,
     ProjectFormUsersComponent,
     ProjectFormTagsComponent,
+    ProjectFormEditComponent,
     ProjectListTagsComponent,
     ProjectListUsersComponent,
     ProjectComponent,

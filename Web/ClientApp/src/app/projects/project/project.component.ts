@@ -158,6 +158,10 @@ export class ProjectComponent implements OnInit {
     }
   }
 
+  editProject(){
+    alert("Edited!")
+  }
+
 
   joinProject(){
     // Navigate To Login Page If User Not Logged In

@@ -33,6 +33,13 @@
                     </span>
                 </button>
 
+                 <!-- Edit Project Button -->
+                 <button class="btn btn-success" [routerLink]='["/project/edit"]' type="submit" *ngIf="isOwner">
+                    Edit
+                </button>
+
+
+
                 <!-- Follow Project Button -->
                 <button class="btn btn-success" type="button" *ngIf="!isMember && !isOwner" (click)="joinProject()">
                     Join
