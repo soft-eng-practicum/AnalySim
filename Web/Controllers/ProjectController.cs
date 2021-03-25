@@ -532,21 +532,32 @@ namespace Web.Controllers
          * Param : {projectID}, ProjectViewModel
          * Description: Update Project
          */
-        [HttpPut("[action]/{id}")]
+        [HttpPut("[action]/{projectID}")]
         public async Task<IActionResult> UpdateProject([FromRoute] int projectID, [FromForm] ProjectVM formdata)
         {
             // Check Model State
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
+
             // Find Project
             var project = _dbContext.Projects.FirstOrDefault(p => p.ProjectID == projectID);
             if (project == null) return NotFound(new { message = "Project Not Found"});
+
+   
+            // Check If Project Already Exist
+            var user = _dbContext.Users
+                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == p.Id &&
+                    aup.ProjectID == projectID &&
+                    aup.Project.Name == formdata.Name &&
+                    aup.UserRole == "owner"));
 
             // If the product was found
             project.Name = formdata.Name;
             project.Visibility = formdata.Visibility;
             project.Description = formdata.Description;
             project.LastUpdated = DateTime.Now;
+            project.Route = user.UserName + "/" + formdata.Name;
 
             // Set Entity State
             _dbContext.Entry(project).State = EntityState.Modified;

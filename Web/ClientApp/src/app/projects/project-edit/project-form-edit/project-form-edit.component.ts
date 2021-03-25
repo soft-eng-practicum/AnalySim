@@ -4,8 +4,10 @@ import { ProjectService } from 'src/app/services/project.service';
 import { Project } from 'src/app/interfaces/project';
 import { AccountService } from 'src/app/services/account.service';
 import { User } from 'src/app/interfaces/user';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
+import { ProjectUser } from 'src/app/interfaces/project-user';
+
 
 @Component({
   selector: 'app-project-form-edit',
@@ -18,9 +20,11 @@ export class ProjectFormEditComponent implements OnInit {
     private projectService : ProjectService,
     private accountService : AccountService,
     private formBuilder : FormBuilder,
+    private route: ActivatedRoute,
     private router : Router) { }
 
-  // Form Control - Create Project
+
+  // Form Control - Edit Project
   projectForm: FormGroup
   name: FormControl
   description: FormControl
@@ -32,6 +36,8 @@ export class ProjectFormEditComponent implements OnInit {
 
   currentProject$ : Observable<Project> = null
   project: Project
+  projectUser: ProjectUser = null
+
 
   @Output() setProject = new EventEmitter<Project>()
 
@@ -42,10 +48,12 @@ export class ProjectFormEditComponent implements OnInit {
     this.isLoading = false;
 
 
+
     await this.accountService.currentUser.then((x) => this.currentUser$ = x)
     this.currentUser$.subscribe(x => this.currentUser = x)
 
-    await this.projectService.getProjectByID(1).subscribe(result => this.project = result);
+
+    await this.projectService.getProjectByID(23).subscribe(result => this.project = result);
     console.log(this.project)
     
     // Initialize Form Controls
@@ -62,9 +70,7 @@ export class ProjectFormEditComponent implements OnInit {
     
   }
 
-  updateProject(){
-      alert("Project has been updated!");
-  }
+ 
   // Custom Validator
   noSpaceSpecial() : ValidatorFn
   {
@@ -88,16 +94,29 @@ export class ProjectFormEditComponent implements OnInit {
     }
   }
 
+
   onSubmit() {
+
+    //setting the values of the project form
     let projectForm = this.projectForm.value;
 
+
+    this.project.description = projectForm.description;
+    this.project.name = projectForm.name;
+    this.project.visibility = projectForm.visibility;
+
+    console.log(projectForm.name)
+
+    //updates project based on those parameters
     this.projectService.updateProject(this.project).subscribe(
       result =>{
-        this.setProject.emit(result)
-      },error =>{
+        console.log("made it here . . . ")
+     },error =>{
         console.log(error)
       }
     )
+
+
 
   }
 

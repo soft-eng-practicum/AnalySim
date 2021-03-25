@@ -2,6 +2,17 @@
 <form class="form" [formGroup]="projectForm" (ngSubmit)="onSubmit()" *ngIf="currentUser != null">
 
     <h4 class="card-title text-center mb-4 mt-1">Edit Project</h4>
+    <!-- Form Project Visibility -->
+    <div class="form-group">
+        <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" formControlName="visibility" id="inlineRadio1" value="public" [readOnly]="isLoading">
+        <label class="form-check-label" for="inlineRadio1">Public</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" formControlName="visibility" id="inlineRadio2" value="private" [readOnly]="isLoading" disabled>
+        <label class="form-check-label" for="inlineRadio2">Private</label>
+      </div>
+    </div>
 
     <!-- Form Project Name -->
     <div class="form-group">
@@ -22,14 +33,14 @@
 
     <!-- Form Create Project -->
     <div class="form-group mb-0">
-        <button type="button" class="btn btn-success btn-block" (click)="updateProject()" [routerLink]='["/dashboard"]'>
+        <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="projectForm.invalid">
             <div *ngIf="!isLoading">
                 <span>Update Project</span>
             </div>
             <div *ngIf="isLoading" class="spinner-border" role="status" >
                 <span class="sr-only"></span>
             </div>
-        </button>                
+        </button>              
     </div>
 </form> <!-- Project Form End -->
 

@@ -290,7 +290,7 @@ export class ProjectService {
     body.append('visibility', updateProject.visibility)
     body.append('description', updateProject.description)
 
-    return this.http.put<any>(this.urlUpdateProject, body)
+    return this.http.put<any>(this.urlUpdateProject + updateProject.projectID, body)
     .pipe(
       map(body => {
         console.log(body.message)
