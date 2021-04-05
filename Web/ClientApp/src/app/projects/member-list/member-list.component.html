@@ -4,25 +4,26 @@
       border-collapse: collapse;
       width: 100%;
     }
-    
+    #members th {
+      font-weight: 100;
+    }
     #members td, #members th {
       border: 1px solid #ddd;
       padding: 8px;
     }
     
-    #members tr:nth-child(even){background-color: #f2f2f2;}
     
-    #members tr:hover {background-color: #ddd;}
+    #members tr:hover {background-color: #f3f3f3;}
     
     #members th {
       padding-top: 12px;
       padding-bottom: 12px;
       text-align: left;
-      background-color: #8b8b8b;
-      color: white;
+      background-color: #f3f3f3;
+      color: black;
     }
     </style>
-<table id="members">
+<table *ngIf="members==null"id="members">
     <tr>
         <th>Project Members</th>
     </tr>

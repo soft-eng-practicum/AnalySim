@@ -535,6 +535,7 @@ namespace Web.Controllers
         [HttpPut("[action]/{projectID}")]
         public async Task<IActionResult> UpdateProject([FromRoute] int projectID, [FromForm] ProjectVM formdata)
         {
+
             // Check Model State
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -552,12 +553,12 @@ namespace Web.Controllers
                     aup.Project.Name == formdata.Name &&
                     aup.UserRole == "owner"));
 
-            // If the product was found
+            // If the project was found
             project.Name = formdata.Name;
             project.Visibility = formdata.Visibility;
             project.Description = formdata.Description;
             project.LastUpdated = DateTime.Now;
-            project.Route = user.UserName + "/" + formdata.Name;
+          //  project.Route = user.UserName + "/" + formdata.Name;
 
             // Set Entity State
             _dbContext.Entry(project).State = EntityState.Modified;
