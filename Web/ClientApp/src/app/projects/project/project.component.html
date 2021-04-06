@@ -1,5 +1,4 @@
 <div class="container my-5"*ngIf="project">
-    <app-member-list class="membersList"></app-member-list>
 
     <div class="row">
 
@@ -70,8 +69,11 @@
       </li>
     </ul>
 </div>
+
     <div class="row ">
-        <div class="col-md-12">
+        <app-member-list class="col-md-2 col-sm-12"></app-member-list>
+
+        <div class="col-md-10 col-sm-12">
             <app-project-file-explorer [project]="project" [currentUser]="currentUser" [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
         </div>
     </div>

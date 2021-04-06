@@ -53,7 +53,8 @@ export class ProjectFormEditComponent implements OnInit {
     this.currentUser$.subscribe(x => this.currentUser = x)
 
 
-    await this.projectService.getProjectByID(23).subscribe(result => this.project = result);
+    //fix route
+    await this.projectService.getProjectByID(30).subscribe(result => this.project = result);
     console.log(this.project)
     
     // Initialize Form Controls
@@ -110,7 +111,7 @@ export class ProjectFormEditComponent implements OnInit {
     //updates project based on those parameters
     this.projectService.updateProject(this.project).subscribe(
       result =>{
-        console.log("made it here . . . ")
+        console.log("project updated")
      },error =>{
         console.log(error)
       }

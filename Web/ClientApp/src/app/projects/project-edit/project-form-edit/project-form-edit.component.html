@@ -33,7 +33,7 @@
 
     <!-- Form Create Project -->
     <div class="form-group mb-0">
-        <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="projectForm.invalid">
+        <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="projectForm.invalid" [routerLink]='["/project/" + project.route]'>
             <div *ngIf="!isLoading">
                 <span>Update Project</span>
             </div>
