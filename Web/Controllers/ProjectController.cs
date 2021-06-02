@@ -70,7 +70,7 @@ namespace Web.Controllers
             // Find Project
             var project = _dbContext.Projects
                 .Include(p => p.BlobFiles)
-                .Include(p => p.ProjectUsers)
+                .Include(p => p.ProjectUsers).ThenInclude(pu => pu.User)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                 .SingleOrDefault(p => p.Route.ToLower() == owner.ToLower() + "/" + projectname.ToLower());
             if (project == null) return NotFound(new { message = "Project Not Found" });

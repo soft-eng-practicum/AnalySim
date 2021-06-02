@@ -1,35 +1,13 @@
-<style>
-    #members {
-      font-family: Arial, Helvetica, sans-serif;
-      border-collapse: collapse;
-      width: 100%;
-    }
-    
-    #members td, #members th {
-      border: 1px solid #ddd;
-      padding: 8px;
-    }
-    
-    #members tr:nth-child(even){background-color: #f2f2f2;}
-    
-    #members tr:hover {background-color: #ddd;}
-    
-    #members th {
-      padding-top: 12px;
-      padding-bottom: 12px;
-      text-align: left;
-      background-color: #8b8b8b;
-      color: white;
-    }
-    </style>
-<table id="members">
+<!-- Project Members Table -->
+<table class="table table-sm table-bordered">
+  <thead class="thead-light">
     <tr>
-        <th>Project Members</th>
+      <th scope="col">Project Members</th>
     </tr>
-    
-
-    <tr *ngFor = "let members of membersTest" >
-        <td><a href="/profile/{{(members|async).userName}}">{{(members|async).userName}}</a></td>
-</tr>
-
+  </thead>
+  <tbody>
+    <tr *ngFor = "let members of membersList" >
+      <td><a [routerLink]='["/profile/" + members.userName]'> {{members.userName}}</a></td>
+    </tr>
+  </tbody>
 </table>
