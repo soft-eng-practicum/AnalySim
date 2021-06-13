@@ -1,5 +1,4 @@
 <div class="container my-5"*ngIf="project">
-    <!-- <app-member-list class="membersList"></app-member-list> -->
 
     <div class="row">
 
@@ -34,14 +33,14 @@
                 </button>
 
                  <!-- Edit Project Button -->
-                 <button class="btn btn-success" [routerLink]='["/project/edit"]' type="submit" *ngIf="isOwner">
+                 <button class="btn btn-success mr-1" [routerLink]='["/project/edit"]' type="submit" *ngIf="isOwner">
                     Edit
                 </button>
 
 
 
                 <!-- Follow Project Button -->
-                <button class="btn btn-success" type="button" *ngIf="!isMember && !isOwner" (click)="joinProject()">
+                <button class="btn btn-success mr-1" type="button" *ngIf="!isMember && !isOwner" (click)="joinProject()">
                     Join
                     <span class="badge badge-light font-weight-light ml-1">
                         {{ project | role:"member" }}
@@ -49,11 +48,19 @@
                 </button>
 
                 <!-- UnFollow Project Button -->
-                <button class="btn btn-danger" type="button" *ngIf="isMember && !isOwner" (click)="leaveProject()">
+                <button class="btn btn-danger mr-1" type="button" *ngIf="isMember && !isOwner" (click)="leaveProject()">
                     Leave
                     <span class="badge badge-light font-weight-light ml-1">
                         {{ project | role:"member" }}
                     </span>
+                </button>
+
+                <!-- Fork Project Button -->
+                <button class="btn btn-secondary" type="button" data-toggle="modal" data-target="#myModal" *ngIf="currentUser!=null">
+                   Fork
+                </button>
+                <button class="btn btn-secondary" type="button" *ngIf="currentUser==null" (click)="forkProject()">
+                    Fork
                 </button>
             </div>
         </div>
@@ -61,24 +68,50 @@
 
 
     <div>
-    <p>{{project.description}}</p>
-<ul class="list-group list-group-flush">
-      <li class="list-group-item">
-        <span class="badge badge-pill badge-info font-weight-light mr-2" *ngFor="let projectTag of project.projectTags">
-            {{projectTag.tag.name}}
-        </span>
-      </li>
-    </ul>
-</div>
-        <div class="row">
-            <div class="col-12 col-md-10">
-                <app-project-file-explorer [project]="project" [currentUser]="currentUser" [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
-            </div>
-            <div class="col-3 col-md-2">
-                <app-member-list [project]="project"></app-member-list>
+        <p>{{project.description}}</p>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <span class="badge badge-pill badge-info font-weight-light mr-2" *ngFor="let projectTag of project.projectTags">
+                        {{projectTag.tag.name}}
+                    </span>
+                </li>
+            </ul>
+    </div>
+    
+
+    <div class="row">
+        <div class="col-12 col-md-10">
+            <app-project-file-explorer [project]="project" [currentUser]="currentUser" [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
+        </div>
+        <div class="col-3 col-md-2">
+            <app-member-list [project]="project"></app-member-list>
+        </div>
+    </div>
+
+    <!-- Fork Modal -->
+    <div class="modal" tabindex="-1" id="myModal" role="dialog">
+        <div class="modal-dialog" >
+            <div class="modal-content">
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">Fork {{project.name}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <!-- Body -->
+                <div class="modal-body" *ngIf="currentUser!=null">
+                    <p>This project will be forked into your dashboard as {{currentUser.userName}}/{{project.name}}.</p>
+                </div>
+                <!-- Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" (click)="forkProject()">Fork Project</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
-      </div>
+    </div>
+</div>
 
     <!-- <div class="row h-100">
         <div class="col-md-2 p-0">

@@ -222,4 +222,11 @@ export class ProjectComponent implements OnInit {
     }
   }
 
+  forkProject(){
+    if(!this.accountService.checkLoginStatus()){
+      this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
+    }
+  }
+
+
 }
