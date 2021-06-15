@@ -7,6 +7,7 @@ import { AccountService } from 'src/app/services/account.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { ProjectFileExplorerComponent } from '../project-file-explorer/project-file-explorer.component';
 import { ProjectUser } from 'src/app/interfaces/project-user';
+import { error } from 'protractor';
 
 
 @Component({
@@ -225,8 +226,16 @@ export class ProjectComponent implements OnInit {
   forkProject(){
     if(!this.accountService.checkLoginStatus()){
       this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
-    }
+    }else{
+      this.projectService.forkProject(this.currentUser.id, this.project.projectID).subscribe(
+        result =>{
+          this.router.navigate([result.route])
+        },error =>{
+          console.log(error)
+        }
+      )
   }
+}
 
 
 }

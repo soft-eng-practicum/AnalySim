@@ -189,6 +189,59 @@ namespace Web.Controllers
 
         #region POST REQUEST
         /*
+       * Type : POST
+       * URL : /api/project/createproject
+       * Param : ProjectViewModel
+       * Description: Create Project
+       */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ForkProject([FromForm] ProjectForkVM formdata)
+        {
+            // Find User
+            var user = await _dbContext.Users.FindAsync(formdata.UserID);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            // Find Project
+            var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            // Create Project
+            var newProject = new Project
+            {
+                Name = project.Name,
+                Visibility = project.Visibility,
+                Description = project.Description,
+                DateCreated = DateTimeOffset.UtcNow,
+                LastUpdated = DateTimeOffset.UtcNow,
+                Route = user.UserName + "/" + project.Name
+            };
+
+            // Add Project And Save Change
+            await _dbContext.Projects.AddAsync(newProject);
+            await _dbContext.SaveChangesAsync();
+
+            // Add ProjectUser And Save Change
+            await _dbContext.AddAsync(
+                new ProjectUser
+                {
+                    UserID = user.Id,
+                    ProjectID = newProject.ProjectID,
+                    UserRole = "owner",
+                    IsFollowing = true
+                }
+            );
+            await _dbContext.SaveChangesAsync();
+
+            // Return Ok Request
+            return Ok(new
+            {
+                result = newProject,
+                message = "Project Successfully Created"
+            });
+
+        }
+
+        /*
         * Type : POST
         * URL : /api/project/createproject
         * Param : ProjectViewModel
