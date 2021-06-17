@@ -7,7 +7,6 @@ import { AccountService } from 'src/app/services/account.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { ProjectFileExplorerComponent } from '../project-file-explorer/project-file-explorer.component';
 import { ProjectUser } from 'src/app/interfaces/project-user';
-import { error } from 'protractor';
 
 
 @Component({
