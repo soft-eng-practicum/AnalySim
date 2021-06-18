@@ -26,6 +26,7 @@ import { ProjectFilePreviewComponent } from './project-file-preview/project-file
 import { ObservablehqComponent } from './project-file-preview/observablehq/observablehq.component';
 import { ModalObservablehqComponent } from './project-file-preview/modal-observablehq/modal-observablehq.component';
 import { MemberListComponent } from './member-list/member-list.component';
+import { ModalForkComponent } from './project/modal-fork/modal-fork.component';
 
 
 @NgModule({
@@ -51,6 +52,7 @@ import { MemberListComponent } from './member-list/member-list.component';
     ObservablehqComponent,
     ModalObservablehqComponent,
     MemberListComponent,
+    ModalForkComponent,
   ],
   imports: [
     CommonModule,

@@ -56,10 +56,7 @@
                 </button>
 
                 <!-- Fork Project Button -->
-                <button class="btn btn-secondary" type="button" data-toggle="modal" data-target="#myModal" *ngIf="currentUser!=null">
-                   Fork
-                </button>
-                <button class="btn btn-secondary" type="button" *ngIf="currentUser==null" (click)="forkProject()">
+                <button class="btn btn-secondary" type="button" (click)="forkProject()">
                     Fork
                 </button>
             </div>
@@ -88,30 +85,9 @@
         </div>
     </div>
 
-    <!-- Fork Modal -->
-    <div class="modal" tabindex="-1" id="myModal" role="dialog">
-        <div class="modal-dialog" >
-            <div class="modal-content">
-                <!-- Header -->
-                <div class="modal-header">
-                    <h5 class="modal-title">Fork {{project.name}}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <!-- Body -->
-                <div class="modal-body" *ngIf="currentUser!=null">
-                    <p>This project will be forked into your dashboard as {{currentUser.userName}}/{{project.name}}.</p>
-                </div>
-                <!-- Footer -->
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" (click)="forkProject()">Fork Project</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <ng-template #forkModal>
+        <app-modal-fork [forkModalRef]="forkModalRef" [project]="project" [currentUser]="currentUser"></app-modal-fork>
+    </ng-template>
 
     <!-- <div class="row h-100">
         <div class="col-md-2 p-0">
