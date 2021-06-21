@@ -190,9 +190,9 @@ namespace Web.Controllers
         #region POST REQUEST
         /*
        * Type : POST
-       * URL : /api/project/createproject
+       * URL : /api/project/forkproject
        * Param : ProjectViewModel
-       * Description: Create Project
+       * Description: Fork Project
        */
         [HttpPost("[action]")]
         public async Task<IActionResult> ForkProject([FromForm] ProjectForkVM formdata)

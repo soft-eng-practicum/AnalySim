@@ -233,14 +233,6 @@ export class ProjectComponent implements OnInit {
       this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
     }else{
       this.toggleModalFork()//fork model pops up
-
-      // this.projectService.forkProject(this.currentUser.id, this.project.projectID).subscribe(
-      //   result =>{
-      //     this.router.navigate([result.route])
-      //   },error =>{
-      //     console.log(error)
-      //   }
-      // )
   }
 }
 
