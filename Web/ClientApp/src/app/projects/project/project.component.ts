@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ViewChildren } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router, RouterStateSnapshot } from '@angular/router';
 import { User } from 'src/app/interfaces/user';
 import { Observable } from 'rxjs';
@@ -7,6 +7,7 @@ import { AccountService } from 'src/app/services/account.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { ProjectFileExplorerComponent } from '../project-file-explorer/project-file-explorer.component';
 import { ProjectUser } from 'src/app/interfaces/project-user';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
 
 @Component({
@@ -20,9 +21,13 @@ export class ProjectComponent implements OnInit {
     private router : Router,
     private route: ActivatedRoute,
     private accountService : AccountService,
-    private projectService : ProjectService) { }
+    private projectService : ProjectService,
+    private modalService : BsModalService, ) { }
 
+  @ViewChild('forkModal') forkModal : TemplateRef<any>
   @ViewChildren(ProjectFileExplorerComponent) fileExplorer: ProjectFileExplorerComponent
+
+  forkModalRef : BsModalRef;
 
   project : Project = null
   currentUser$ : Observable<User> = null
@@ -168,7 +173,7 @@ export class ProjectComponent implements OnInit {
     if(!this.accountService.checkLoginStatus()){
       this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
     }
-    else{
+    else{ 
       if(this.projectUser == null)
       {
         // Create Project User
@@ -188,7 +193,7 @@ export class ProjectComponent implements OnInit {
           result =>{
             let index = this.project.projectUsers.findIndex(pu => pu.userID == result.userID)
             this.project.projectUsers[index] = result
-            this.projectUser = result;          
+            this.projectUser = result;     
           }, error =>{
             console.log(error)
           }
@@ -221,5 +226,21 @@ export class ProjectComponent implements OnInit {
       )
     }
   }
+
+  forkProject(){
+    // if user is not log in
+    if(!this.accountService.checkLoginStatus()){
+      this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
+    }else{
+      this.toggleModalFork()//fork model pops up
+  }
+}
+
+toggleModalFork(){
+  console.log("toggled...")
+  // Show Rename Modal
+    this.forkModalRef = this.modalService.show(this.forkModal)
+}
+
 
 }
