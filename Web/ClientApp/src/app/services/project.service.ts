@@ -186,11 +186,15 @@ export class ProjectService {
     )
   }
   
-  forkProject(userID : number, projectID : number) : Observable<Project>
+  forkProject(userID : number, projectID : number, blobFilesID : number []) : Observable<Project>
   {
     let body = new FormData()
     body.append('userID', userID.toString())
     body.append('projectID', projectID.toString())
+    for(let i=0; i< blobFilesID.length; i++ ){
+      body.append('BlobFilesID', blobFilesID[i].toString())
+    }
+    body.getAll('BlobFilesID')
 
     return this.http.post<any>(this.urlForkProject, body)
     .pipe(
@@ -345,7 +349,7 @@ export class ProjectService {
     )
   }
 
-  deleteProject (projectID: string) : Observable<Project>
+  deleteProject (projectID : number) : Observable<Project>
   {
 
     return this.http.delete<any>(this.urlDeleteProject + projectID)

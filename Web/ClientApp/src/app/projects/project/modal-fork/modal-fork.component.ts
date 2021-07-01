@@ -51,17 +51,25 @@ export class ModalForkComponent implements OnInit {
   closeModal() {
     this.forkModalRef.hide()
   }
-
   // create a new project in user's dashboad 
   forkProject() {
-    this.projectService.forkProject(this.currentUser.id, this.project.projectID).subscribe(
+    console.log(this.project)
+
+    // get project's blobfiles ID
+    var blobFilesID : number [] = []
+    for(let i=0; i< this.project.blobFiles.length; i++ ){
+      blobFilesID.push(this.project.blobFiles[i].blobFileID)
+    }
+
+    console.log(this.project.projectID)
+    
+    this.projectService.forkProject(this.currentUser.id, this.project.projectID, blobFilesID).subscribe(
       result => {
-        this.router.navigate([result.route])
+        this.router.navigate(['/dashboard'])
       }, error => {
         console.log(error)
       }
     )
     this.closeModal()
   }
-
 }

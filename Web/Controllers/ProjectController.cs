@@ -24,7 +24,7 @@ namespace Web.Controllers
         private readonly IBlobService _blobService;
         private readonly BlobServiceClient _blobServiceClient;
 
-        public ProjectController(ApplicationDbContext dbContext, IBlobService blobService, BlobServiceClient blobServiceClient) 
+        public ProjectController(ApplicationDbContext dbContext, IBlobService blobService, BlobServiceClient blobServiceClient)
         {
             _dbContext = dbContext;
             _blobService = blobService;
@@ -213,7 +213,7 @@ namespace Web.Controllers
                 Description = project.Description,
                 DateCreated = DateTimeOffset.UtcNow,
                 LastUpdated = DateTimeOffset.UtcNow,
-                Route = user.UserName + "/" + project.Name
+                Route = user.UserName + "/" + project.Name,
             };
 
             // Add Project And Save Change
@@ -232,11 +232,40 @@ namespace Web.Controllers
             );
             await _dbContext.SaveChangesAsync();
 
+            // Add BlobFiles 
+            for (int i = 0; i < formdata.BlobFilesID.Length; i++)
+            {
+                // Find File
+                var file = await _dbContext.BlobFiles.FindAsync(formdata.BlobFilesID[i]);
+
+                // Create new file
+                await _dbContext.BlobFiles.AddAsync(
+                 new BlobFile
+                 {
+                     Container = file.Container,
+                     Directory = file.Directory,
+                     Name = file.Name,
+                     Extension = file.Extension,
+                     Size = file.Size,
+                     Uri = file.Uri,
+                     DateCreated = DateTimeOffset.UtcNow,
+                     LastModified = DateTimeOffset.UtcNow,
+                     User = user,
+                     UserID = user.Id,
+                     Project = newProject,
+                     ProjectID = newProject.ProjectID,
+                 }
+                 );
+
+                //Save Change
+                await _dbContext.SaveChangesAsync();
+            }
+
             // Return Ok Request
             return Ok(new
             {
                 result = newProject,
-                message = "Project Successfully Created"
+                message = "Project Successfully Forked"
             });
 
         }
@@ -281,7 +310,8 @@ namespace Web.Controllers
 
             // Add ProjectUser And Save Change
             await _dbContext.AddAsync(
-                new ProjectUser{
+                new ProjectUser
+                {
                     UserID = user.Id,
                     ProjectID = newProject.ProjectID,
                     UserRole = "owner",
@@ -355,7 +385,7 @@ namespace Web.Controllers
             if (projectUser != null)
             {
                 // If Project User Is Not Follower Return Error
-                if(projectUser.UserRole != "follower") return Conflict(new {result = formdata, message = "Project User Already Exist"});
+                if (projectUser.UserRole != "follower") return Conflict(new { result = formdata, message = "Project User Already Exist" });
 
                 // Add Tag To Project
                 projectUser.UserRole = formdata.UserRole;
@@ -425,7 +455,7 @@ namespace Web.Controllers
             ProjectTag projectTag = _dbContext.ProjectTags.SingleOrDefault(pt => pt.ProjectID == formdata.ProjectID && pt.TagID == tag.TagID);
             if (projectTag != null) return Conflict(new { message = "Project Tag Already Exist" });
 
-            
+
             // Add Project Tag To Project
             projectTag = new ProjectTag
             {
@@ -594,9 +624,9 @@ namespace Web.Controllers
 
             // Find Project
             var project = _dbContext.Projects.FirstOrDefault(p => p.ProjectID == projectID);
-            if (project == null) return NotFound(new { message = "Project Not Found"});
+            if (project == null) return NotFound(new { message = "Project Not Found" });
 
-   
+
             // Check If Project Already Exist
             var user = _dbContext.Users
                 .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
@@ -639,7 +669,7 @@ namespace Web.Controllers
 
             // Find Many To Many
             var userRole = await _dbContext.ProjectUsers.FindAsync(formdata.UserID, formdata.ProjectID);
-            if (userRole == null) return NotFound(new { message = "User Not Found"});
+            if (userRole == null) return NotFound(new { message = "User Not Found" });
 
             //Remove Follower If Not Following
             if (formdata.UserRole == "follower" && formdata.IsFollowing == false)
@@ -656,7 +686,7 @@ namespace Web.Controllers
                     message = "Follower successfully deleted"
                 });
             }
-            
+
             // Update Role
             userRole.UserRole = formdata.UserRole;
             userRole.IsFollowing = formdata.IsFollowing;
@@ -691,7 +721,7 @@ namespace Web.Controllers
 
             // Find Project
             var deleteProject = await _dbContext.Projects.FindAsync(projectID);
-            if (deleteProject == null) return NotFound(new { message = "Project Not Found"});
+            if (deleteProject == null) return NotFound(new { message = "Project Not Found" });
 
             // Remove Project
             _dbContext.Projects.Remove(deleteProject);
@@ -719,7 +749,7 @@ namespace Web.Controllers
         {
             // Find Many To Many
             var projectUser = await _dbContext.ProjectUsers.FindAsync(userID, projectID);
-            if (projectUser == null) return NotFound( new { message = "User Not Found"});
+            if (projectUser == null) return NotFound(new { message = "User Not Found" });
 
             // Remove User Role
             _dbContext.ProjectUsers.Remove(projectUser);
@@ -748,7 +778,7 @@ namespace Web.Controllers
             ProjectTag projectTag = _dbContext.ProjectTags
                 .Include(pt => pt.Tag)
                 .SingleOrDefault(pt => pt.ProjectID == projectID && pt.TagID == tagID);
-            if (projectTag == null) return NotFound(new { message = "Project Tag Not Found"});
+            if (projectTag == null) return NotFound(new { message = "Project Tag Not Found" });
 
             // Remove Project Tag
             _dbContext.ProjectTags.Remove(projectTag);
@@ -777,7 +807,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = projectTag,
-                message = projectTag.Tag.Name  + " tag has been removed"
+                message = projectTag.Tag.Name + " tag has been removed"
             });
         }
 

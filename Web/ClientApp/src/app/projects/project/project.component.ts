@@ -242,5 +242,14 @@ toggleModalFork(){
     this.forkModalRef = this.modalService.show(this.forkModal)
 }
 
+// deleteProject(){
+//   this.projectService.deleteProject(this.project.projectID).subscribe(
+//     result => {
+//     }, error =>{
+//       console.log(error)
+//     }
+//   )
+// }
+
 
 }

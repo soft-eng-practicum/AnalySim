@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace Web.ViewModels.Project
 {
@@ -9,5 +10,8 @@ namespace Web.ViewModels.Project
 
         [Required(ErrorMessage = "Project ID is a required field.")]
         public int ProjectID { get; set; }
+
+        [Required(ErrorMessage = "BlobFiles ID is a required field.")]
+        public int[] BlobFilesID { get; set; }
     }
 }
