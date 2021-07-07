@@ -35,6 +35,8 @@ namespace Core.Entities
         public List<ProjectTag> ProjectTags { get; set; }
         public ICollection<ProjectUser> ProjectUsers { get; } = new List<ProjectUser>();
         public ICollection<BlobFile> BlobFiles { get; set; } = new List<BlobFile>();
+
+        public Project ForkedFrom { get; set; }
     }
 }
 

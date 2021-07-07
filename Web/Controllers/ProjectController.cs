@@ -214,6 +214,7 @@ namespace Web.Controllers
                 DateCreated = DateTimeOffset.UtcNow,
                 LastUpdated = DateTimeOffset.UtcNow,
                 Route = user.UserName + "/" + project.Name,
+                ForkedFrom = project
             };
 
             // Add Project And Save Change
