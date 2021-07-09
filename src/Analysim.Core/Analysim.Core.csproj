@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>Analysim.Core</AssemblyName>
+    <RootNamespace>Analysim.Core</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

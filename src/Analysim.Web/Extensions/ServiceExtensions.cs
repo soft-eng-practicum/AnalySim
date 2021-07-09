@@ -66,7 +66,8 @@ namespace Web.Extensions
         public static void ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddEntityFrameworkNpgsql()
-                .AddDbContext<ApplicationDbContext>(opt => opt.UseNpgsql(configuration.GetConnectionString("DBConnectionString")));
+                .AddDbContext<ApplicationDbContext>(opt => opt.UseNpgsql(configuration.GetConnectionString("DBConnectionString"),
+            x => x.MigrationsAssembly("Analysim.Infrastructure")));
         }
 
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
