@@ -273,6 +273,60 @@ namespace Web.Controllers
 
         /*
         * Type : POST
+        * URL : /api/project/forkprojectwithoutblob
+        * Param : ProjectViewModel
+        * Description: Fork Project Without Blob
+        */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ForkProjectWithoutBlob([FromForm] ProjectForkVM formdata)
+        {
+            // Find User
+            var user = await _dbContext.Users.FindAsync(formdata.UserID);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            // Find Project
+            var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            // Create Project
+            var newProject = new Project
+            {
+                Name = project.Name,
+                Visibility = project.Visibility,
+                Description = project.Description,
+                DateCreated = DateTimeOffset.UtcNow,
+                LastUpdated = DateTimeOffset.UtcNow,
+                Route = user.UserName + "/" + project.Name,
+                //ForkedFrom = project
+            };
+
+            // Add Project And Save Change
+            await _dbContext.Projects.AddAsync(newProject);
+            await _dbContext.SaveChangesAsync();
+
+            // Add ProjectUser And Save Change
+            await _dbContext.AddAsync(
+                new ProjectUser
+                {
+                    UserID = user.Id,
+                    ProjectID = newProject.ProjectID,
+                    UserRole = "owner",
+                    IsFollowing = true
+                }
+            );
+            await _dbContext.SaveChangesAsync();
+
+            // Return Ok Request
+            return Ok(new
+            {
+                result = newProject,
+                message = "Project Successfully Forked"
+            });
+
+        }
+
+        /*
+        * Type : POST
         * URL : /api/project/createproject
         * Param : ProjectViewModel
         * Description: Create Project

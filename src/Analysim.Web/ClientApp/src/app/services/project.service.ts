@@ -43,7 +43,7 @@ export class ProjectService {
   private urlUploadFile : string = this.baseUrl + "uploadfile"
   private urlCreateFolder : string = this.baseUrl + "createFolder"
   private urlForkProject : string = this.baseUrl + "forkproject"
-  
+  private urlForkProjectWithoutBlob : string = this.baseUrl + "forkprojectwithoutblob"
 
   // Put
   private urlUpdateProject : string = this.baseUrl + "updateproject/"
@@ -208,6 +208,27 @@ export class ProjectService {
       })
     )
   }
+
+  forkProjectWithoutBlob(userID : number, projectID : number) : Observable<Project>
+  {
+    let body = new FormData()
+    body.append('userID', userID.toString())
+    body.append('projectID', projectID.toString())
+
+    return this.http.post<any>(this.urlForkProjectWithoutBlob, body)
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
+  
 
   addUser (projectID : number, userID : number, userRole: string, isFollowing : boolean) : Observable<ProjectUser>
   {
