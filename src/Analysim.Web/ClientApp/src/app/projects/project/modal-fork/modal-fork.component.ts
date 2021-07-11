@@ -34,11 +34,12 @@ export class ModalForkComponent implements OnInit {
         // Map Project
         this.projects = this.currentUser.projectUsers
           .filter(x => x.userRole != "follower")
+          .filter(x => x.userRole != "member")
           .map(x => x.project)
 
         //check if project already exists 
         for (var i = 0; i < this.projects.length; i++) {
-          if (this.projects[i].name == this.project.name) {
+          if (this.projects[i].route == this.project.route) {
             this.isExisted = true
           }
         }
