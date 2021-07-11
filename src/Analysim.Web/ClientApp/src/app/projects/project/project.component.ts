@@ -43,9 +43,11 @@ export class ProjectComponent implements OnInit {
       this.currentUser$.subscribe(x => this.currentUser = x)
     }
 
-    let owner = this.route.snapshot.params['owner']
-    let projectname = this.route.snapshot.params['projectname']
-    let projectUsers = this.route.snapshot.params['projectUsers']
+    this.route.params.subscribe( params => {
+    
+      let owner = params['owner']
+      let projectname = params['projectname']
+      let projectUsers = params['projectUsers']
 
     // Set Project
     this.projectService.getProjectByRoute(owner, projectname).subscribe(
@@ -75,7 +77,7 @@ export class ProjectComponent implements OnInit {
         this.fileDirectory = newSegments.join("/") + "/"
       }
     });
-
+  })
   }
 
   get isFollowing() : boolean{

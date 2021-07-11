@@ -22,6 +22,7 @@ export class ModalForkComponent implements OnInit {
 
   isExisted: boolean
   projects: Project[] = []
+  newProject: Project = null
 
   ngOnInit() : void {
     // find all project associate with user 
@@ -66,11 +67,15 @@ export class ModalForkComponent implements OnInit {
     
     this.projectService.forkProject(this.currentUser.id, this.project.projectID, blobFilesID).subscribe(
       result => {
-        this.router.navigate(['/dashboard'])
+        this.isExisted = true
+        this.newProject = result
       }, error => {
         console.log(error)
       }
     )
+  }
+  onNavigateToNewProject(){
     this.closeModal()
+    this.router.navigate(['/project/' + this.currentUser.userName +'/'+ this.newProject.name])
   }
 }
