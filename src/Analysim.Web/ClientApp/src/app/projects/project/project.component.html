@@ -56,7 +56,11 @@
                 </button>
 
                 <!-- Fork Project Button -->
-                <button class="btn btn-secondary" type="button" title="Make a copy of this project in your account" (click)="forkProject()">
+                <button class="btn btn-secondary" type="button" title="Make a copy of this project in your account" *ngIf="!isOwner" (click)="forkProject()" >
+                    Fork
+                </button>
+                
+                <button class="btn btn-secondary" type="button" title="Cannot fork beacause you own this project" *ngIf="isOwner" [disabled]="isOwner">
                     Fork
                 </button>
             </div>

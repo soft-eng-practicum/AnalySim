@@ -40,7 +40,7 @@ export class ModalForkComponent implements OnInit {
 
         //check if project already exists 
         for (var i = 0; i < this.projects.length; i++) {
-          if (this.projects[i].route == this.project.route) {
+          if (this.projects[i].route == this.currentUser.userName + "/" + this.project.name) {
             this.isExisted = true
           }
         }
