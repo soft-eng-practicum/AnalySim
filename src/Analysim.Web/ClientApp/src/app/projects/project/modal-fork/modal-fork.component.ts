@@ -56,10 +56,8 @@ export class ModalForkComponent implements OnInit {
   forkProjectClick(){
     if(this.project.blobFiles.length > 0){
       this.forkProject()
-      console.log("have blob files")
     }else{
       this.forkProjectWithoutBlob()
-      console.log("does not have blob files")
     }
   }
 
@@ -78,6 +76,7 @@ export class ModalForkComponent implements OnInit {
         this.newProject = result
       }, error => {
         console.log(error)
+        this.isExisted = true
       }
     )
   }
@@ -91,6 +90,7 @@ export class ModalForkComponent implements OnInit {
         this.newProject = result
       }, error => {
         console.log(error)
+        this.isExisted = true
       }
     )
   }

@@ -205,6 +205,16 @@ namespace Web.Controllers
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
 
+            // Check If Project Already Exist
+            var checkProject = _dbContext.Projects
+                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == formdata.UserID &&
+                    aup.Project.Name == project.Name &&
+                    aup.UserRole == "owner"));
+
+            // If Conflict If Project Found
+            if (checkProject != null) return Conflict(new { message = "Project Already Exist" });
+
             // Create Project
             var newProject = new Project
             {
@@ -287,6 +297,16 @@ namespace Web.Controllers
             // Find Project
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            // Check If Project Already Exist
+            var checkProject = _dbContext.Projects
+                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == formdata.UserID &&
+                    aup.Project.Name == project.Name &&
+                    aup.UserRole == "owner"));
+
+            // If Conflict If Project Found
+            if (checkProject != null) return Conflict(new { message = "Project Already Exist" });
 
             // Create Project
             var newProject = new Project
