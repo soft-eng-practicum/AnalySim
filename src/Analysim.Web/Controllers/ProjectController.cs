@@ -224,7 +224,7 @@ namespace Web.Controllers
                 DateCreated = DateTimeOffset.UtcNow,
                 LastUpdated = DateTimeOffset.UtcNow,
                 Route = user.UserName + "/" + project.Name,
-                //ForkedFrom = project
+                ForkedFromProjectID = project.ProjectID,
             };
 
             // Add Project And Save Change
@@ -317,7 +317,7 @@ namespace Web.Controllers
                 DateCreated = DateTimeOffset.UtcNow,
                 LastUpdated = DateTimeOffset.UtcNow,
                 Route = user.UserName + "/" + project.Name,
-                //ForkedFrom = project
+                ForkedFromProjectID = project.ProjectID,
             };
 
             // Add Project And Save Change

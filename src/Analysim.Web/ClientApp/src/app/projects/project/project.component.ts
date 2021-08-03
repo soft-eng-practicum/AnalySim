@@ -34,6 +34,7 @@ export class ProjectComponent implements OnInit {
   currentUser : User = null
   projectUser : ProjectUser = null
   fileDirectory : string
+  forkedFrom : Project = null
   
   
 
@@ -53,13 +54,21 @@ export class ProjectComponent implements OnInit {
     this.projectService.getProjectByRoute(owner, projectname).subscribe(
       result =>{
         this.project = result
+        this.forkedFrom = null
+        if(this.project.forkedFromProjectID != 0){
+          this.projectService.getProjectByID(this.project.forkedFromProjectID).subscribe(
+            result =>{
+           this.forkedFrom = result
+            }
+            )
+        }
+        console.log(this.project.forkedFromProjectID)
         if (this.currentUser != null && this.project.projectUsers.find(x => x.userID == this.currentUser.id) != undefined){
           this.projectUser = this.project.projectUsers.find(x => x.userID == this.currentUser.id)
         }
       }
 
     )
-
     console.log(this.route.snapshot)
 
     // Set Directory Param When First Load
@@ -78,7 +87,7 @@ export class ProjectComponent implements OnInit {
       }
     });
   })
-  }
+}
 
   get isFollowing() : boolean{
     if(this.currentUser == null) return false
@@ -252,6 +261,4 @@ toggleModalFork(){
 //     }
 //   )
 // }
-
-
 }

@@ -13,4 +13,5 @@ export interface Project {
     projectUsers: Array<ProjectUser>;
     blobFiles : Array<BlobFile>;
     projectTags : Array<ProjectTag>
+    forkedFromProjectID : number;
 }

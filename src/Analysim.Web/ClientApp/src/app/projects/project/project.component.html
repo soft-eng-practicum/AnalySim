@@ -63,10 +63,22 @@
                 <button class="btn btn-secondary" type="button" title="Cannot fork beacause you own this project" *ngIf="isOwner" [disabled]="isOwner">
                     Fork
                 </button>
+
+                <!-- <button class="btn btn-danger" type="button" (click)="deleteProject()" >
+                    delete
+                </button> -->
             </div>
         </div>
+        
     </div>
 
+    <!-- Display orginial project if is a forked project -->
+    <div class="d-flex align-items-center" *ngIf="forkedFrom != null" >
+        <span>forked from&nbsp;</span>
+        <span *ngIf="(forkedFrom.route | route:'projectname') as projectname">
+            <a [routerLink]='["/project/" + (forkedFrom.route | route:"owner") + "/" + projectname]'>{{forkedFrom.route | route:"owner"}}/{{ projectname }}</a>
+        </span>
+    </div>
 
     <div>
         <p>{{project.description}}</p>
