@@ -9,3 +9,19 @@
     font-size: 1.25rem !important;
     font-weight: 400;
 }
+
+.bg-theme{
+    background-color:  rgb(226, 234, 247);
+}
+
+.bg-navy{
+    background-color:  #102958;
+    background-image: linear-gradient(#0c1a34,#102958);
+}
+
+#background{
+    background-image: url("../../assets/img/contact.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+}

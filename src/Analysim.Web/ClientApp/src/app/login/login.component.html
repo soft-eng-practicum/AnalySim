@@ -1,78 +1,92 @@
-<!-- Container Start -->
-<div class="container my-5">
-    <!-- Row Start -->
-    <div class="row justify-content-center">
-        <!-- Column Start -->
-        <div class="col-md-8 mb-4">
-            <!-- Card Start -->
-            <div class="card bg-light">
-                <div class="card-body">
-                    <!-- Card Title -->
-                    <h4 class="card-title text-center mb-4 mt-1">Sign in</h4>
-                    <hr>
-
-                    <!-- Login Form Error -->
-                    <div class="text-center alert alert-warning alert-dismissible" *ngIf="invalidLogin" role="alert">
-                        <strong>{{errorMessage}}</strong>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="invalidLogin = null;">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-
-                    <!-- Login Form Start -->
-                    <form class="form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                        <!-- Form Username -->
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <input formControlName="username" type="text" class="form-control" placeholder="" required [readOnly]="isLoading">
-                            <div *ngIf="username.touched && username.errors" class="errorMessage">
-                                <span *ngIf="username.hasError('required')" class="text-danger">Username is required</span>
-                            </div>
-                        </div>
-
-                        <!-- Form Password -->
-                        <div class="form-group">
-                            <a class="float-right" href="javascript:void(0);" (click)="notfi.showInfo('Not Implemented Yet','Forgot Password');">Forgot?</a>
-                            <label for="password">Password</label>
-                            <input formControlName="password" type="password" class="form-control" placeholder="" required [readOnly]="isLoading">
-                            <div *ngIf="password.touched && password.errors" class="errorMessage">
-                                <span *ngIf="password.hasError('required')" class="text-danger">Password is required</span>
-                            </div>
-                        </div>
-
-                        <!-- Form Login-->
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="loginForm.invalid">
-                                <div *ngIf="!isLoading">
-                                    <span>Login</span>
+<div class="containerr-fluid">
+    <div class="row-fluid">
+        <div class="row">
+            <div  class="col-lg-12 bg-navy">
+                <div class="container">
+                    <!-- Row Start -->
+                    <div class="row justify-content-center">
+                        <!-- Container Start -->
+                        <div class="container my-3 ">
+                            <!-- Row Start -->
+                        <div class="row justify-content-center">
+                    <!-- Column Start -->
+                    <div class="col-md-4 mb-4">
+                        <!-- Card Start -->
+                        <div class="card bg-theme">
+                            <div class="card-body">
+                                <!-- Card Title -->
+                                <h4 class="card-title text-center mb-4 mt-1">Sign in</h4>
+                                <hr>
+            
+                                <!-- Login Form Error -->
+                                <div class="text-center alert alert-warning alert-dismissible" *ngIf="invalidLogin" role="alert">
+                                    <strong>{{errorMessage}}</strong>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="invalidLogin = null;">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
-                                <div *ngIf="isLoading" class="spinner-border" role="status">
-                                    <span class="sr-only"></span>
+            
+                                <!-- Login Form Start -->
+                                <form class="form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                                    <!-- Form Username -->
+                                    <div class="form-group">
+                                        <label for="username">Username</label>
+                                        <input formControlName="username" type="text" class="form-control" placeholder="" required [readOnly]="isLoading">
+                                        <div *ngIf="username.touched && username.errors" class="errorMessage">
+                                            <span *ngIf="username.hasError('required')" class="text-danger">Username is required</span>
+                                        </div>
+                                    </div>
+            
+                                    <!-- Form Password -->
+                                    <div class="form-group">
+                                        <a class="float-right" href="javascript:void(0);" (click)="notfi.showInfo('Not Implemented Yet','Forgot Password');">Forgot?</a>
+                                        <label for="password">Password</label>
+                                        <input formControlName="password" type="password" class="form-control" placeholder="" required [readOnly]="isLoading">
+                                        <div *ngIf="password.touched && password.errors" class="errorMessage">
+                                            <span *ngIf="password.hasError('required')" class="text-danger">Password is required</span>
+                                        </div>
+                                    </div>
+            
+                                    <!-- Form Login-->
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-navy btn-block" value="Submit" [disabled]="loginForm.invalid">
+                                            <div *ngIf="!isLoading">
+                                                <span>Login</span>
+                                            </div>
+                                            <div *ngIf="isLoading" class="spinner-border" role="status">
+                                                <span class="sr-only"></span>
+                                            </div>
+                                        </button>
+                                    </div>                                                          
+                                </form> <!-- Login Form End -->
+                            </div>
+                        </div> <!-- Card Start -->
+                    </div> <!-- Column Start -->
+                </div> <!-- Row End -->
+                <!-- Row Start -->
+                <div class="row justify-content-center">
+                    <div class="col-md-4 mb-4">
+                        <div class="card bg-theme">
+                            <article class="card-body">
+                                <div class="text-center">
+                                    <p class ="d-inline">Don't have an account? </p>
+                                    <a [routerLink]='["/register"]' [queryParams]="{returnUrl: returnUrl}" *ngIf="returnUrl != ''">Sign Up</a>
+                                    <a [routerLink]='["/register"]' *ngIf="returnUrl == ''">Sign Up</a>
                                 </div>
-                            </button>
-                        </div>                                                          
-                    </form> <!-- Login Form End -->
-                </div>
-            </div> <!-- Card Start -->
-        </div> <!-- Column Start -->
-    </div> <!-- Row End -->
-    <!-- Row Start -->
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card bg-light">
-                <article class="card-body">
-                    <div class="text-center">
-                        <p class ="d-inline">Don't have an account? </p>
-                        <a [routerLink]='["/register"]' [queryParams]="{returnUrl: returnUrl}" *ngIf="returnUrl != ''">Sign Up</a>
-                        <a [routerLink]='["/register"]' *ngIf="returnUrl == ''">Sign Up</a>
+                                
+                            </article>
+                        </div> <!-- card.// -->
                     </div>
-                    
-                </article>
-            </div> <!-- card.// -->
+                </div>  <!-- Row End -->
+            </div> <!-- Container End -->
         </div>
-    </div>  <!-- Row End -->
-</div> <!-- Container End -->
+    </div>
+</div>
 
+</div>
+</div>
+</div>
+     
 <ng-template #loadingModal>
     <div class="modal-header">
         <div class="spinner-border" role="status">

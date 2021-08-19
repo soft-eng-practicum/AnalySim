@@ -1,0 +1,16 @@
+#login{
+    background-color:  rgb(226, 234, 247);
+}
+.btn-navy{
+    background-color: #0c1a34;
+    color: #FFF;
+}
+
+.bg-theme{
+    background-color:  rgb(226, 234, 247);
+}
+
+.bg-navy{
+    background-color:  #102958;
+    background-image: linear-gradient(#0c1a34,#102958);
+}

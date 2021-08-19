@@ -12,6 +12,9 @@
     <BuildServerSideRenderer>false</BuildServerSideRenderer>
     <AssemblyName>Analysim.Web</AssemblyName>
     <RootNamespace>Analysim.Web</RootNamespace>
+    <UserSecretsId>fd3b0967-a370-46f3-9b1c-3a225fca1fa9</UserSecretsId>
+    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +27,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
   </ItemGroup>
 
   <ItemGroup>
