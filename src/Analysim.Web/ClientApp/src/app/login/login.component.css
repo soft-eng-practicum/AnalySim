@@ -12,5 +12,11 @@
 
 .bg-navy{
     background-color:  #102958;
-    background-image: linear-gradient(#0c1a34,#102958);
+    /* background-image: linear-gradient(#0c1a34,#102958); */
+}
+
+.background{
+    background-color:  #102958;
+    box-sizing: border-box;
+    border: solid #102958 160px;
 }
