@@ -36,7 +36,7 @@ ng serve -o
 Next, in <B>Visual Studio</B>, open up the <B>Analysim.sln</B> file.  Click on the run to start the project.  Once you have completed both steps, your project should be up and running!
 
 # Deploying
-In order to deploy AnalySim, you need to perform some steps:
+In order to deploy AnalySim, you need to perform some steps ([Tutorial Video](https://www.youtube.com/watch?v=gQMT4al2Grg:)):
 1. Download [Docker Desktop](https://www.docker.com/products/docker-desktop)
 2. Download [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
 3. Enable Docker Support and add a new DockerFile to Analysim.Web
