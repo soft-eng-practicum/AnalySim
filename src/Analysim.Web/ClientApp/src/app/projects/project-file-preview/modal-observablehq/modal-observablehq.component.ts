@@ -1,13 +1,15 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+// import { BsModalRef } from 'ngx-bootstrap/modal';
 import { AbstractControl, ValidatorFn, FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-modal-observablehq',
   templateUrl: './modal-observablehq.component.html',
-  styleUrls: ['./modal-observablehq.component.css']
+  styleUrls: ['./modal-observablehq.component.scss']
 })
 export class ModalObservablehqComponent implements OnInit {
 
+  // @Input() observablehqModalRef : BsModalRef
   @Output() loadNotebookEvent = new EventEmitter<string>()
 
   currentUserID : number
@@ -74,6 +76,7 @@ export class ModalObservablehqComponent implements OnInit {
   }
 
   closeModal(){
+    // this.observablehqModalRef.hide()
     this.notebookForm.reset()
   }
 

@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 @Component({
   selector: 'app-project-file-explorer-item',
   templateUrl: './project-file-explorer-item.component.html',
-  styleUrls: ['./project-file-explorer-item.component.css']
+  styleUrls: ['./project-file-explorer-item.component.scss']
 })
 export class ProjectFileExplorerItemComponent implements OnInit {
 

@@ -8,7 +8,7 @@ import { AccountService } from 'src/app/services/account.service';
 @Component({
   selector: 'app-project-form-users',
   templateUrl: './project-form-users.component.html',
-  styleUrls: ['./project-form-users.component.css']
+  styleUrls: ['./project-form-users.component.scss']
 })
 export class ProjectFormUsersComponent implements OnInit {
 

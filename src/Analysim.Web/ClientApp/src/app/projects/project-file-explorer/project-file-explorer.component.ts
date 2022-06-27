@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, TemplateRef, Input } from '@angular/core'
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../interfaces/project';
 import { BlobFileItem } from '../../interfaces/blob-file-item';
+// import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { saveAs } from 'file-saver';
 import { NotificationService } from '../../services/notification.service';
 import { User } from '../../interfaces/user';
@@ -11,12 +12,13 @@ import { UploadFileItem } from '../../interfaces/upload-file-item';
 @Component({
   selector: 'app-project-file-explorer',
   templateUrl: './project-file-explorer.component.html',
-  styleUrls: ['./project-file-explorer.component.css']
+  styleUrls: ['./project-file-explorer.component.scss']
 })
 export class ProjectFileExplorerComponent implements OnInit {
 
   constructor(
     private projectService : ProjectService,
+    // private modalService : BsModalService, 
     private notfi : NotificationService) { }
 
   @ViewChild('uploadModal') uploadFileModal : TemplateRef<any>;
@@ -75,18 +77,21 @@ export class ProjectFileExplorerComponent implements OnInit {
     console.log("toggled...")
     // Show Rename Modal
     if(this.isValidDirectory){
+      // this.renameModalRef = this.modalService.show(this.renameModal)
     }
 
   }
   toggleModalUpload(){
     // Show Upload Modal
     if(this.isValidDirectory){
+      // this.uploadModalRef = this.modalService.show(this.uploadFileModal)
     }
   }
 
   toggleModalFolder(){
     // Show Folder Modal
     if(this.isValidDirectory){
+      // this.folderModalRef = this.modalService.show(this.folderModal)
     }
   }
 

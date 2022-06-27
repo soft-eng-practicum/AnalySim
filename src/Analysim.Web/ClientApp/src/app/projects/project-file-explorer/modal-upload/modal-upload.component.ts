@@ -1,17 +1,19 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+// import { BsModalRef } from 'ngx-bootstrap/modal';
 import { UploadFileItem } from 'src/app/interfaces/upload-file-item';
 import { BlobFile } from 'src/app/interfaces/blob-file';
 
 @Component({
   selector: 'app-modal-upload',
   templateUrl: './modal-upload.component.html',
-  styleUrls: ['./modal-upload.component.css']
+  styleUrls: ['./modal-upload.component.scss']
 })
 export class ModalUploadComponent implements OnInit {
 
   constructor() { }
 
   @Input() uploadFileList : UploadFileItem[]
+  // @Input() uploadModalRef : BsModalRef
 
   @Output() updatedFileListEvent = new EventEmitter<UploadFileItem[]>()
   @Output() uploadedFileEvent = new EventEmitter<BlobFile>()

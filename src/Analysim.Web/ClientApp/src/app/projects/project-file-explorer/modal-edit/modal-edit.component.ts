@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+// import { BsModalRef } from 'ngx-bootstrap/modal';
 import { FormGroup, FormControl, Validators, FormBuilder, ValidatorFn, AbstractControl } from '@angular/forms';
 import { BlobFile } from 'src/app/interfaces/blob-file';
 import { BlobFileItem } from 'src/app/interfaces/blob-file-item';
@@ -8,10 +9,11 @@ import { AccountService } from 'src/app/services/account.service';
 @Component({
   selector: 'app-modal-edit',
   templateUrl: './modal-edit.component.html',
-  styleUrls: ['./modal-edit.component.css']
+  styleUrls: ['./modal-edit.component.scss']
 })
 export class ModalEditComponent implements OnInit {
 
+  // @Input() renameModalRef : BsModalRef
   @Input() blobList : BlobFileItem[]
   @Input() currentDirectory : string
   @Input() projectID : number
@@ -85,6 +87,7 @@ export class ModalEditComponent implements OnInit {
   }
 
   closeModal(){
+    // this.renameModalRef.hide()
     this.folderForm.reset()
   }
 

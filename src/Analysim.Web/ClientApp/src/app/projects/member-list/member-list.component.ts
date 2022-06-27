@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Project } from 'src/app/interfaces/project';
+import { Input } from '@angular/core';
 
 @Component({
   selector: 'app-member-list',
@@ -6,10 +8,10 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./member-list.component.scss']
 })
 export class MemberListComponent implements OnInit {
-
+    
   constructor() { }
 
-  ngOnInit(): void {
-  }
+    @Input() project : Project
 
+    async ngOnInit() {}
 }

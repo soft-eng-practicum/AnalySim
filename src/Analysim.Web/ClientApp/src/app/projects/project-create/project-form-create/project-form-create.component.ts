@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 @Component({
   selector: 'app-project-form-create',
   templateUrl: './project-form-create.component.html',
-  styleUrls: ['./project-form-create.component.css']
+  styleUrls: ['./project-form-create.component.scss']
 })
 export class ProjectFormCreateComponent implements OnInit {
 
