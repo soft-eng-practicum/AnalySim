@@ -68,8 +68,10 @@ export class ProjectFormUsersComponent implements OnInit {
           return true
         }  
       }
-      else
+      else {
         return false
+      }
+      return false;
     })
     
   }
