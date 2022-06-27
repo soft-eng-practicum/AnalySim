@@ -1,0 +1,9 @@
+<!-- User Card Start -->
+<div class="card" style="min-height: 200px;">
+    <!-- User List -->
+    <div class="card-body p-3">
+        <ul class="list-group">
+            <app-project-user *ngFor="let projectUser of projectUsers; let lastItem = last" [class.mb-2]="!lastItem" [projectUser]="projectUser" (removedUser)="removeProjectUser($event)" (updatedUser)="updateProjectUser($event)"></app-project-user>
+        </ul>      
+    </div>
+</div> <!-- User Card End -->

@@ -1,0 +1,25 @@
+<!-- User Form Start -->
+<form class="form" [formGroup]="userForm">
+    <!-- Form User Input -->
+    <div class="form-group">
+        <div class="input-group my-3">
+            <div class="dropdown form-control border border-dark">
+                <!-- Form Input -->
+                <input type="text" formControlName="userName" class="dropdown-toggle" style="width: 100%; border: none;"placeholder="Add User To Project..." data-toggle="dropdown">
+                <!-- User List -->
+                <ul class="dropdown-menu">
+                    <li class="dropdown-item" *ngIf="filteredUsers.length == 0">
+                        No Result Found
+                    </li>
+                    <li class="dropdown-item" *ngFor="let user of filteredUsers" (click)=addUser(user) type="submit" value="Submit">
+                        <img [src]="user | profileImage" class="mr-2" style="max-width: 20px;"> {{user.userName}}
+                    </li>
+                </ul>
+            </div>
+            <!-- Search Icon -->
+            <div class="input-group-append">
+                <span class="btn btn-outline-dark"><i class="fa fa-search"></i></span>   
+            </div> 
+        </div>
+    </div>
+<form> <!-- User Form End -->

@@ -1,0 +1,33 @@
+<!-- Container Start -->
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-md-center">
+        <!-- Column Start -->
+        <div class="col-md-8">
+            <!-- Card Start -->
+            <div class="card bg-light">
+                <!-- Card Body Start -->
+                <div class="card-body">
+                    <!-- Card Header Start-->
+                    <h4 class="card-title text-center mb-4 mt-1">Project Creation</h4>
+                    <hr>
+                    <!-- Card Header End -->
+
+                    <app-project-form-create *ngIf="project == null" (setProject)="setProject($event)"></app-project-form-create>
+                    <!-- Optional Form Start -->
+                    <div *ngIf="project != null" >
+                        <!-- Tag Form -->
+                        <app-project-form-tags [projectID]="project.projectID" [projectTags]="project.projectTags" (updateProjectTags)="updateProjectTags($event)"></app-project-form-tags>            
+                        <app-project-list-tags [projectTags]="project.projectTags" (updateProjectTags)="updateProjectTags($event)"></app-project-list-tags>
+
+                        <!-- User Form -->
+                        <app-project-form-users [project]="project" (updateProject)="setProject($event)"></app-project-form-users>
+                        <app-project-list-users [projectUsers]="project.projectUsers | projectMember" (updateProjectUser)="updateProjectUsers($event)" (removeProjectUsers)="updateProjectUsers($event)"></app-project-list-users>
+                        <button class="btn btn-success btn-block mt-3" [routerLink]='["/project/" + project.route]'>
+                            Finish Project Creation
+                        </button> 
+                    </div> <!-- Optional Form End -->
+                </div> <!-- Card Body End -->
+            </div> <!-- Card End -->
+        </div> <!-- Column End -->
+    </div> <!-- Row End -->
+</div> <!-- Container End -->

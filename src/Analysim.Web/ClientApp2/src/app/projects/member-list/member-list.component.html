@@ -1,0 +1,11 @@
+<!-- Project Members Table -->
+<table class="table table-sm table-bordered">
+    <tr class="card-header">
+      <th scope="col">Project Members</th>
+    </tr>
+  <tbody>
+    <tr *ngFor = "let members of project.projectUsers" >
+      <td><a [routerLink]='["/profile/" + members.user.userName]'> {{members.user.userName}}</a></td>
+    </tr>
+  </tbody>
+</table>

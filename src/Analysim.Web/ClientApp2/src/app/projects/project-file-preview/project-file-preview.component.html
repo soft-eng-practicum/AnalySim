@@ -1,0 +1,22 @@
+<div class="card">
+    <!-- Card Header Start -->
+    <div class="d-flex card-header flex-row align-items-center">
+        <!-- File Route Start -->
+        <span class="mr-2">File Preview</span>
+
+        <!-- File Explorer Button Start -->
+        <div class="d-inline-flex ml-auto">
+            <!-- Private Button Group Start -->
+            <div class="btn-group"  role="group">
+                <button type="button" class="btn btn-secondary" title="Load Notebook" (click)="toggleModalObservablehq()">
+                    <span class="icon-observablehq bl-1"></span>
+                </button>
+            </div> <!-- Private Button Group End -->     
+        </div> <!-- File Explorer Button End -->
+    </div> <!-- Card Header End -->
+    <app-observablehq *ngIf="showNotebook == true" [blobUri]="blobFile.uri" [observableNotebookLink]="notebookLink"></app-observablehq>
+</div>
+
+<ng-template #observablehqModal>
+    <app-modal-observablehq [observablehqModalRef]="observablehqModalRef" (loadNotebookEvent)="loadNotebook($event)"></app-modal-observablehq>
+</ng-template>

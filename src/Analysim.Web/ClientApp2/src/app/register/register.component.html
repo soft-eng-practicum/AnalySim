@@ -1,0 +1,133 @@
+<div class="container-fluid background">
+    <div class="row-fluid">
+            <div  class="col-lg-12 bg-navy">
+                <div class="container">
+                    <!-- Row Start -->
+                    <div class="row justify-content-center">
+                        <!-- Container Start -->
+                        <div class="container my-3 ">
+                            <!-- Row Start -->
+                            <div class="row justify-content-center">
+                                <!-- Row Column Start -->
+                                <div class="col-md-4 mb-4">
+                                    <!-- Card Start -->
+                                    <div class="card bg-theme">
+                                        <!-- Card Body Start -->
+                                        <div class="card-body">
+                
+                                            <!-- Form Title -->
+                                            <h4 class="card-title text-center">Sign up</h4>
+                                            <hr>
+                                            <!-- Form Error -->
+                                            <div class="text-center alert alert-warning alert-dismissible" *ngIf="invalidRegister"
+                                                role="alert">
+                                                <strong>{{errorMessage}}</strong>
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"
+                                                    (click)="invalidRegister = null;">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                
+                                            <!-- Register Form Start -->
+                                            <form class="form" [formGroup]="insertForm" (ngSubmit)="onSubmit()">
+                                                <!-- Form Group Email Address -->
+                                                <div class="form-group">
+                                                    <label for="emailAddress">Email Address</label>
+                                                    <span class="text-danger"> *</span>
+                                                    <input formControlName="emailAddress" type="email" class="form-control"
+                                                        placeholder="" [class.invalid]="emailAddress.touched && emailAddress.invalid"
+                                                        [class.valid]="emailAddress.valid" [readOnly]="isLoading" required autofocus>
+                                                    <div *ngIf="emailAddress.touched && emailAddress.errors" class="text-danger">
+                                                        <span [hidden]="!emailAddress.errors?.email">Please provide valid
+                                                            email.</span>
+                                                    </div>
+                                                </div>
+                
+                                                <!-- Form Group Username -->
+                                                <div class="form-group">
+                                                    <label for="username">Username</label>
+                                                    <span class="text-danger"> *</span>
+                                                    <input formControlName="username" type="text" class="form-control" placeholder=""
+                                                        [class.invalid]="username.touched && username.invalid"
+                                                        [class.valid]="username.valid" [readOnly]="isLoading" required>
+                                                    <div *ngIf="username.touched && username.errors" class="text-danger">
+                                                        <span [hidden]="!username.errors?.minlength">Minimum 5 character</span>
+                                                        <span [hidden]="!username.errors?.maxlength">Maximum 15 character</span>
+                                                    </div>
+                                                </div>
+                
+                                                <!-- Form Group Password -->
+                                                <div class="form-group">
+                                                    <label for="password">Password</label>
+                                                    <span class="text-danger"> *</span>
+                                                    <input formControlName="password" type="password" class="form-control"
+                                                        placeholder="" [class.invalid]="password.touched && password.invalid"
+                                                        [class.valid]="password.valid" [readOnly]="isLoading" required>
+                                                    <div *ngIf="password.touched && password.errors" class="text-danger">
+                                                        <p class="mb-0 p-1" [hidden]="!password.errors?.minlength">Minimum 5
+                                                            character</p>
+                                                        <p class="mb-0 p-1" [hidden]="!password.errors?.noUpper">Must Contain 1
+                                                            Uppercase Character</p>
+                                                        <p class="mb-0 p-1" [hidden]="!password.errors?.noLower">Must Contain 1
+                                                            Lowercase Character</p>
+                                                        <p class="mb-0 p-1" [hidden]="!password.errors?.noNumeric">Must Contain
+                                                            1 Numeric Character</p>
+                                                        <p class="mb-0 p-1" [hidden]="!password.errors?.noSpecial">Must Contain
+                                                            1 Special Character</p>
+                                                    </div>
+                                                </div>
+                
+                                                <!-- Form Group Password -->
+                                                <div class="form-group">
+                                                    <label for="confirmPassword">Confirm Password</label>
+                                                    <span class="text-danger"> *</span>
+                                                    <input formControlName="confirmPassword" type="password" class="form-control"
+                                                        placeholder=""
+                                                        [class.invalid]="confirmPassword.touched && confirmPassword.invalid"
+                                                        [class.valid]="confirmPassword.valid" [readOnly]="isLoading" required>
+                                                    <div *ngIf="confirmPassword.touched && confirmPassword.errors" class="text-danger">
+                                                        <span [hidden]="!confirmPassword.errors?.noMatch">Password Must
+                                                            Match</span>
+                                                    </div>
+                                                </div>
+                
+                                                <!-- Form Group Register -->
+                                                <div class="form-group">
+                                                    <button type="submit" class="btn btn-navy btn-block" value="Submit"
+                                                        [disabled]="insertForm.invalid">
+                                                        <div *ngIf="!isLoading">
+                                                            <span>Register</span>
+                                                        </div>
+                                                        <div *ngIf="isLoading" class="spinner-border" role="status">
+                                                            <span class="sr-only"></span>
+                                                        </div>
+                                                    </button>
+                                                </div>
+                
+                                            </form> <!-- Register Form End -->
+                                        </div> <!-- Card Body End -->
+                                    </div> <!-- Card End -->
+                                </div> <!-- Row Column End -->
+                            </div> <!-- Row Form End -->
+                
+                            <!-- Row Existing Account Start -->
+                                <div class="row justify-content-center mt-4 pb-4">
+                                    <!-- Row Column Start -->
+                                    <div class="col-md-4 ">
+                                        <div class="card bg-theme">
+                                            <article class="card-body">
+                                                <div class="text-center">
+                                                    <p class="d-inline">Already have an account? </p>
+                                                    <a [routerLink]='["/login"]'>Sign in</a>
+                                                </div>
+                                            </article>
+                                        </div>
+                                    </div> <!-- Row Column End -->
+                                </div> <!-- Row Existing Account End -->
+                        </div> <!-- Container End -->
+                    </div>
+                </div>
+            </div>
+
+    </div>
+</div>

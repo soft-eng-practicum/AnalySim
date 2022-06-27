@@ -1,0 +1,25 @@
+<!-- User List Item Start -->
+<li class="list-group-item">
+    <div class="row align-items-center">
+        <!-- User Profile Image -->
+        <div class="col-md-2">
+            <img [src]="projectUser.user | profileImage" style="width: 40px;" class="card-img img-thumbnail pl-1">
+        </div>
+        <!-- User Name -->
+        <div class="col-md-5 d-flex justify-content-start">
+            {{projectUser.user.userName}}
+        </div>
+        <!-- Update User Role -->
+        <div class="col-md-4">
+            <select class="btn custom-select" style="color: #343a40; border-color: #343a40;" (change)="updateUser($event.target.value)">
+                <option *ngFor="let role of roles" [selected]="role == projectUser.userRole" >{{role | titlecase}}</option>              
+            </select>
+        </div>
+        <!-- Delete User -->
+        <div class="col-md-1">
+            <span (click)="deleteUser()">
+                <i class="fa fa-trash-alt"></i>
+            </span>
+        </div>
+    </div>  
+</li> <!-- User List Item End -->

@@ -1,0 +1,42 @@
+<!-- Container Start -->
+<div class="container my-5">
+    <!-- Row Start -->
+    <div class="row justify-content-center mx-auto">
+        <!-- Column Start -->
+        <div class="col-md-8">
+            <!-- Card Start -->
+            <div class="card bg-light">
+                <div class="card-body">
+                    <!-- Card Title -->
+                    <h2 class="card-title text-center mb-4 mt-1">Error</h2>
+                    <hr>
+
+                    <!-- Card Content -->
+                    <div class="text-center">
+                        <h1>
+                            Oops! 404 Not Found
+                        </h1>
+                        <p>
+                            Sorry, an error has occured, Requested page not found!
+                        </p>
+                        <!-- Card Navigation -->
+                        <div class="card-footer bg-light">
+                            <button class="btn btn-outline-success btn-lg ml-2" (click)="backClicked()">
+                                Back
+                            </button>
+                            <button class="btn btn-outline-primary btn-lg ml-2" *ngIf="!(loginStatus$ | async)" [routerLink]='["/home"]'>
+                                Home
+                            </button>
+                            <button class="btn btn-outline-primary btn-lg ml-2" *ngIf="(loginStatus$ | async)" [routerLink]='["/dashboard"]'>
+                                Dashboard
+                            </button>
+                        </div>
+                    </div> 
+                </div>
+            </div> <!-- Card End -->
+        </div> <!-- Column End -->
+    </div> <!-- Row End -->
+</div> <!-- Container End -->
+
+
+

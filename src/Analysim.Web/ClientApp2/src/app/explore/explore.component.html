@@ -1,0 +1,75 @@
+<!-- Container Start -->
+<div class="container my-5 mx-auto">
+    <!-- Row Start -->
+    <div class="row justify-content-center mb-3">
+        <!-- Column Start -->
+        <div class="col-md-10">
+            <!-- Nav Search Bar Start-->
+            <div class="card">
+                <div class="card-body">
+                    <form class="form-control p-0" [formGroup]="searchForm" (ngSubmit)="onSubmit()">
+                        <div class="input-group">
+                            <!-- Search Category -->
+                            <div class="input-group-prepend">
+                                <select class="btn custom-select" style="color: #343a40; border-color: #343a40;" formControlName="searchCategory">
+                                    <option class="option-text" value="project" >Project</option>
+                                    <option value="profile" >Profile</option>
+                                </select>
+                            </div>
+                            <!-- Search Icon -->
+                            <input type="text" class="form-control border border-dark" placeholder="Search..." name="searchTerm" formControlName="searchTerm">
+                            <!-- Search Button -->
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-dark">
+                                    <i class="fa fa-search"></i>
+                                </button>     
+                            </div>          
+                        </div>
+                    </form>
+                </div>
+            </div> <!-- Nav Search Bar End -->
+        </div> <!-- Column End -->
+    </div> <!-- Row End -->
+    <!-- Row Start -->
+    <div class="row justify-content-center">
+        <!-- Column Start -->
+        <div class="col-md-10">
+            <!-- Card Start -->
+            <div class="card">
+                <div class="card-body">
+                    <!-- Project List-->
+                    <ul class="list-group list-group-flush list-unstyled" *ngIf="searchForm.value.searchCategory == 'project'">
+                        <li *ngIf="projects == null" class="d-flex justify-content-center">
+                            <div class="spinner-border">
+                                <span class="sr-only"></span>
+                            </div>
+                        </li>
+                        <li *ngIf="projects != null && projects.length == 0" class="d-flex justify-content-center">
+                            <p class="mb-0">No Result Found</p>
+                        </li>
+                        <li class="list-group-item border-0 p-0" *ngFor="let project of projects; let lastItem = last" [class.mb-4]="!lastItem">
+                            <app-project-card [project]=project></app-project-card>
+                        </li>
+                    </ul>
+                    <!-- User List -->
+                    <ul class="list-group list-group-flush" *ngIf="searchForm.value.searchCategory == 'profile'">
+                        <li *ngIf="users != null && users.length == 0" class="d-flex justify-content-center">
+                            <p class="mb-0">No Result Found</p>
+                        </li>
+                        <li *ngIf="users == null" class="d-flex justify-content-center">
+                            <div class="spinner-border">
+                                <span class="sr-only"></span>
+                            </div>
+                        </li>
+                        <li class="list-group-item border-0 p-0" *ngFor="let user of users; let lastItem = last" [class.mb-4]="!lastItem">
+
+                            <app-profile-card [profile]=user></app-profile-card>
+                        </li>
+                    </ul>
+                </div>
+            </div> <!-- Card End -->
+        </div> <!-- Column End -->
+    </div> <!-- Row End -->
+</div> <!-- Container End -->
+
+

@@ -1,0 +1,74 @@
+<p>contact-us works!</p>
+<div  class="col-lg-12 bg-navy"> 
+    <div class="container-fluid background">
+        <div class="row-fluid">
+            <!-- Row Start -->
+            <div class="row">
+                <div  class="col-xl-7 col-lg-12">
+                    <div class="justify-content-center">
+                        <div id="background-img">
+                            <img class="img-fluid d-block " src="../../assets/img/contact.png" alt="">
+                        </div>
+    
+                        <h2 class="text-center text-white">Let's talk</h2>
+                        <p class="text-center text-white">Email us with anyquestions. We would be happy to answer any of your question.</p>
+                        
+                    </div>
+                </div>
+                
+                <div class="col-xl-5 col-lg-12">
+                    <div class="row justify-content-center ">
+                        <!-- Container Start -->
+                        <div class="container my-5">
+                            <!-- Row Start -->
+                            <div class="row justify-content-center">
+                                <!-- Column Start -->
+                                <div class="col-md-8 mb-4">
+                                    <div class="card bg-theme">
+                                        <div class="card-body">
+                                            <!-- Card Title -->
+                                            <h2 class="card-title text-center mb-4 mt-1">Contact Us</h2>
+                                            <hr>
+                        
+                                            <!-- Register Form Start -->
+                                            <form class="form" [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+                                                <!-- Form Group Email Address -->
+                                                <div class="form-group">
+                                                    <label for="emailAddress">Email Address</label>
+                                                    <span class="text-danger"> *</span>
+                                                    <input formControlName="emailAddress" type="email" class="form-control" placeholder="" [class.invalid]="emailAddress.touched && emailAddress.invalid" [class.valid]="emailAddress.valid" required autofocus>
+                                                    <div *ngIf="emailAddress.touched && emailAddress.errors" class="text-danger">
+                                                        <span *ngIf="emailAddress.errors?.email">Please provide valid email.</span>
+                                                    </div>
+                                                </div>
+                                        
+                                                <!-- Form Group Username -->
+                                                <div class="form-group">
+                                                    <label for="message">Message</label>
+                                                    <span class="text-danger"> *</span>
+                                                    <textarea formControlName="message" type="text" class="form-control" placeholder="" [class.invalid]="message.touched && message.invalid" [class.valid]="message.valid" required></textarea>
+                                                    <div *ngIf="message.touched && message.errors" class="text-danger">
+                                                        <span *ngIf="message.errors?.minlength">Minimum 20 character</span>
+                                                        <span *ngIf="message.errors?.maxlength")>Maximum 300 character</span>
+                                                    </div>
+                                                </div>
+                                        
+                                                <!-- Form Group Register -->
+                                                <div class="form-group">
+                                                    <button type="submit" class="btn btn-navy btn-block" value="Submit" [disabled]="contactForm.invalid">
+                                                        <span>Send</span>
+                                                    </button>
+                                                </div>
+                                        
+                                            </form> <!-- Register Form End -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- Container End -->
+                    </div>
+                </div>
+            </div> <!-- Row End -->
+        </div>
+        </div>
+    </div>

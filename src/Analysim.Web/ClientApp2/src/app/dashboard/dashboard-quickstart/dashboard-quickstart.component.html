@@ -1,0 +1,63 @@
+<div class="container w-100">
+    <!-- Card Start -->
+    <div class="card">
+        <!-- Card Header Start -->
+        <div class="card-header d-flex align-items-center">
+            <span class="text-center">Quick Start</span>
+            <button class="btn-sm btn-success ml-auto" type="submit" [routerLink]='["/project/create"]'>Create Project +</button>
+        </div>
+        <!-- Card Header End -->
+            
+        <!-- Card Body Start -->
+        <div class="card-body">
+            <!-- Nav Search Bar Start -->
+            <div class="card-block">
+                <form class="form mb-3">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" placeholder="Search...">
+                        <div class="input-group-append">
+                            <button class="input-group-text bg-white">
+                                <i class="fa fa-search"></i>
+                            </button>     
+                        </div>          
+                    </div>
+                </form>
+            </div>
+            <!-- Nav Search Bar End -->
+
+            <!-- Nav Tab Start -->
+            <div class="card-block">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active">Project</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled">Organization</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Nav Tab End -->
+
+            <!-- Nav Content Start -->
+            <div class="nav-tabs-content">
+                <div class="m-3">
+                    <ul class="list-unstyled">
+                        <li *ngIf="projects == null" class="d-flex justify-content-center">
+                            <div class="spinner-border">
+                                <span class="sr-only"></span>
+                            </div>
+                        </li>
+                        <li *ngIf="projects != null && projects.length == 0" class="d-flex justify-content-center">
+                            <p class="mb-0">No Project Found</p>
+                        </li>
+                        <li *ngFor="let project of projects">
+                            <a [routerLink]='["/project/" + project.route]'><i class="fa fa-project-diagram fa-xs"></i> {{project.route}}</a>
+                        </li>
+                    </ul>
+                </div>       
+            </div>
+        </div> 
+        <!-- Card Body End -->
+    </div>
+    <!-- Card End -->
+</div>
