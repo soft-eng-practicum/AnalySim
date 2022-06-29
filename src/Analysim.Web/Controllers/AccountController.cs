@@ -299,7 +299,7 @@ namespace Web.Controllers
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                         //new Claim(ClaimTypes.Role, roles.FirstOrDefault()),
-                        new Claim("LoggedOn", DateTime.Now.ToString())
+                        new Claim("LoggedOn", DateTime.UtcNow.ToString())
                     }),
 
                     SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature),
@@ -312,7 +312,7 @@ namespace Web.Controllers
                 var token = tokenHandler.CreateToken(tokenDescriptor);
 
                 // Update Last Online
-                user.LastOnline = DateTime.Now;
+                user.LastOnline = DateTime.UtcNow;
 
                 // Save Database Change
                 await _dbContext.SaveChangesAsync();
