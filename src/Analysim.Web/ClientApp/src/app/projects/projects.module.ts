@@ -11,8 +11,8 @@ import { ProjectFormCreateComponent } from './project-create/project-form-create
 import { ProjectFormEditComponent } from './project-edit/project-form-edit/project-form-edit.component';
 import { ProjectFormUsersComponent } from './project-create/project-form-users/project-form-users.component';
 import { ProjectFormTagsComponent } from './project-create/project-form-tags/project-form-tags.component';
-import { ProjectListTagsComponent} from './project-list-tags/project-list-tags.component';
-import { ProjectListUsersComponent} from './project-list-users/project-list-users.component';
+import { ProjectListTagsComponent } from './project-list-tags/project-list-tags.component';
+import { ProjectListUsersComponent } from './project-list-users/project-list-users.component';
 import { ApplicationPipesModule } from '../application-pipes/application-pipes.module';
 import { ProjectComponent } from './project/project.component';
 import { ProjectFileExplorerComponent } from './project-file-explorer/project-file-explorer.component';
@@ -27,6 +27,8 @@ import { ObservablehqComponent } from './project-file-preview/observablehq/obser
 import { ModalObservablehqComponent } from './project-file-preview/modal-observablehq/modal-observablehq.component';
 import { MemberListComponent } from './member-list/member-list.component';
 import { ModalForkComponent } from './project/modal-fork/modal-fork.component';
+import { DeleteProjectComponent } from './delete-project/delete-project.component';
+import { ModalDeleteComponent } from './project/modal-delete/modal-delete.component';
 
 
 @NgModule({
@@ -53,6 +55,8 @@ import { ModalForkComponent } from './project/modal-fork/modal-fork.component';
     ModalObservablehqComponent,
     MemberListComponent,
     ModalForkComponent,
+    DeleteProjectComponent,
+    ModalDeleteComponent,
   ],
   imports: [
     CommonModule,

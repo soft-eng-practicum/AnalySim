@@ -1,0 +1,28 @@
+<!-- Modal -->
+<div class="modal-content">
+
+
+    <!-- Body -->
+    <div class="modal-header justify-content-center">
+        <h5 class="modal-title">Delete project</h5>
+    </div>
+
+    <!-- Click to close -->
+    <h4 class="card-title text-center mb-4 mt-1">delete project confirmation</h4>
+    <div class="form-group mb-0">
+        <button type="button" class="btn btn-success" (click)="closeCancelPopUp()">
+            <span>
+                Cancel
+            </span>
+        </button>              
+    </div>
+
+    <!-- Confirm Deletion of Project-->
+    <div class="form-group mb-1">
+        <button type="button" class="btn btn-danger" (click)="confirmDeletePopUp()">
+            <span>
+                Delete Project
+            </span>
+        </button>              
+    </div>
+</div>
