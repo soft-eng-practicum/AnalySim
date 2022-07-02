@@ -255,7 +255,13 @@ export class ProjectComponent implements OnInit {
 
   deleteProject() {
     console.log("Project deletion function")
-    this.toggleModalDelete()
+    // if user is not log in
+    if (!this.accountService.checkLoginStatus()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } })
+    } else {
+      this.toggleModalDelete()// delete modal pops up
+    }
+
     // this.projectService.deleteProject(this.project.projectID).subscribe(
     //   result => {
     //   }, error => {
