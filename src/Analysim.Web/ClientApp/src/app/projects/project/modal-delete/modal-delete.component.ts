@@ -27,10 +27,6 @@ export class ModalDeleteComponent implements OnInit {
     console.log("test deletion")
   }
 
-  closeCancelPopUp() {
-    console.log("Test Cancel deletion")
-  }
-
   closeModal() {
     this.deleteModalRef.hide()
   }
