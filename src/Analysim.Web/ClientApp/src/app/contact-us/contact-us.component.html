@@ -37,7 +37,7 @@
                                                     <span class="text-danger"> *</span>
                                                     <input formControlName="emailAddress" type="email" class="form-control" placeholder="" [class.invalid]="emailAddress.touched && emailAddress.invalid" [class.valid]="emailAddress.valid" required autofocus>
                                                     <div *ngIf="emailAddress.touched && emailAddress.errors" class="text-danger">
-                                                        <span *ngIf="emailAddress.errors?.email">Please provide valid email.</span>
+                                                        <span *ngIf="emailAddress.errors?.['email']">Please provide valid email.</span>
                                                     </div>
                                                 </div>
                                         
@@ -47,8 +47,8 @@
                                                     <span class="text-danger"> *</span>
                                                     <textarea formControlName="message" type="text" class="form-control" placeholder="" [class.invalid]="message.touched && message.invalid" [class.valid]="message.valid" required></textarea>
                                                     <div *ngIf="message.touched && message.errors" class="text-danger">
-                                                        <span *ngIf="message.errors?.minlength">Minimum 20 character</span>
-                                                        <span *ngIf="message.errors?.maxlength")>Maximum 300 character</span>
+                                                        <span *ngIf="message.errors?.['minlength']">Minimum 20 character</span>
+                                                        <span *ngIf="message.errors?.['maxlength']")>Maximum 300 character</span>
                                                     </div>
                                                 </div>
                                         

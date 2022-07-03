@@ -20,7 +20,8 @@ export class ProjectUserComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  updateUser(role : string){
+  updateUser(event : Event){
+    var role = (event.target as HTMLSelectElement).value;
     this.projectUser.userRole = role.toLowerCase();
     this.projectService.updateUser(this.projectUser).subscribe(
       result => {

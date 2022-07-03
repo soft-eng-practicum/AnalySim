@@ -9,7 +9,7 @@ import { ProjectTag } from 'src/app/interfaces/project-tag';
 @Component({
   selector: 'app-project-edit',
   templateUrl: './project-edit.component.html',
-  styleUrls: ['./project-edit-component.scss'] 
+  styleUrls: ['./project-edit.component.scss'] 
 })
 export class ProjectEditComponent implements OnInit {
 

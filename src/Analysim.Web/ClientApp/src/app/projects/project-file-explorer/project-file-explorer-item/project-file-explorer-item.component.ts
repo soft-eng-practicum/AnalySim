@@ -14,7 +14,7 @@ export class ProjectFileExplorerItemComponent implements OnInit {
   @Input() isSelected : boolean
   @Input() currentDirectory : string
   @Input() blobFileItem : BlobFileItem
-  @Output() changeDirectory = new EventEmitter<String>();
+  @Output() changeDirectory = new EventEmitter<string>();
   @Output() selectedItem = new EventEmitter<number>();
 
   ngOnInit(): void {
