@@ -56,12 +56,31 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     font-variant: normal;
     text-transform: none;
     line-height: 1;
-  
+
     /* Better Font Rendering =========== */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-  
-  .icon-observablehq:before {
+}
+
+.icon-observablehq:before {
     content: "\e900";
-  }
+}
+
+.ml-auto {
+    margin-left: auto;
+}
+.mr-auto {
+    margin-right: auto;
+}
+
+.float-right {
+    float: right;
+}
+
+.mr-1 {
+    margin-right: 5px;
+}
+
+.mr-2 {
+    margin-right: 10px;
+}
