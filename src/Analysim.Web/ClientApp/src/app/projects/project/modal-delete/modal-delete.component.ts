@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { User } from 'src/app/interfaces/user';
 import { AccountService } from 'src/app/services/account.service';
 import { ProjectService } from 'src/app/services/project.service';
 
@@ -19,12 +20,27 @@ export class ModalDeleteComponent implements OnInit {
   ) { }
 
   @Input() deleteModalRef: BsModalRef
+  @Input() projectID: number;
+  @Input() currentUser: User;
 
   ngOnInit(): void {
   }
 
-  confirmDeletePopUp() {
-    console.log("test deletion")
+  DeleteProject() {
+    console.log("projectID: " + this.projectID);
+    this.projectService.deleteProject(this.projectID).subscribe(
+      result => {
+        console.log("successsfully deleted project");
+        this.router.navigate(['/home'])
+        this.closeModal()
+      }, error => {
+        console.log(error);
+      }
+    )
+  }
+
+  DeleteProjectClick() {
+    this.DeleteProject();
   }
 
   closeModal() {
