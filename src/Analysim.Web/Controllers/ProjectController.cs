@@ -798,6 +798,12 @@ namespace Web.Controllers
             var deleteProject = await _dbContext.Projects.FindAsync(projectID);
             if (deleteProject == null) return NotFound(new { message = "Project Not Found" });
 
+            // Remove all users that follow the project
+            foreach (var user in deleteProject.ProjectUsers)
+            {
+                _dbContext.ProjectUsers.Remove(user);
+            }
+
             // Remove Project
             _dbContext.Projects.Remove(deleteProject);
 
