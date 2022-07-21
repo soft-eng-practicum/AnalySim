@@ -714,7 +714,7 @@ namespace Web.Controllers
             project.Name = formdata.Name;
             project.Visibility = formdata.Visibility;
             project.Description = formdata.Description;
-            project.LastUpdated = DateTime.Now;
+            project.LastUpdated = DateTime.UtcNow;
             project.Route = user.UserName + "/" + formdata.Name;
 
             // Set Entity State
