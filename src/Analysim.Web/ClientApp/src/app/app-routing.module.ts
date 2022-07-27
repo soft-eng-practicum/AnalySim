@@ -15,18 +15,19 @@ const routes: Routes = [];
 @NgModule({
   imports: [
     RouterModule.forRoot([
-      {path: 'home', component: HomeComponent},
-      {path: '', redirectTo: '/home', pathMatch: 'full'},
-      {path: "login", component: LoginComponent},
-      {path: "aboutus", component: AboutUsComponent},
-      {path: "contactus", component: ContactUsComponent},
-      {path: "setting/profile", component: ProfileSettingComponent},
-      {path: "register", component: RegisterComponent},
-      {path: "explore", component: ExploreComponent},
-      {path: 'dashboard', component: DashboardComponent},
-      {path: 'profile/:username', component : ProfileComponent},
-      {path: 'project', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule)},  
-      {path: '**', component: HomeComponent}
+      { path: 'home', component: HomeComponent },
+      { path: '', redirectTo: '/home', pathMatch: 'full' },
+      { path: "login", component: LoginComponent },
+      { path: "aboutus", component: AboutUsComponent },
+      { path: "contactus", component: ContactUsComponent },
+      { path: "setting/profile", component: ProfileSettingComponent },
+      { path: "register", component: RegisterComponent },
+      { path: "explore", component: ExploreComponent },
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'profile/:username', component: ProfileComponent },
+      { path: 'project', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule) },
+      { path: '**', component: HomeComponent }
+      // todo: Add verify page routing and component
     ])],
   exports: [RouterModule]
 })

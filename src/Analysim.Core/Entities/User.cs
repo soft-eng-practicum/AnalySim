@@ -20,5 +20,8 @@ namespace Core.Entities
         public ICollection<UserUser> Following { get; } = new List<UserUser>();
         public ICollection<ProjectUser> ProjectUsers { get; } = new List<ProjectUser>();
         public ICollection<BlobFile> BlobFiles { get; } = new List<BlobFile>();
+
+        public string token = null;
+        public DateTime tokenExp = new DateTime(2015, 12, 25);
     }
 }

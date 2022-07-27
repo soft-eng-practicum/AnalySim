@@ -19,6 +19,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Web.ViewModels.Account;
+using Web.ViewModels;
 
 namespace Web.Controllers
 {
@@ -33,9 +34,9 @@ namespace Web.Controllers
         private readonly IBlobService _blobService;
         private readonly ILoggerManager _loggerManager;
 
-        public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager, 
-            SignInManager<User> signManager, ApplicationDbContext dbContext, 
-            IBlobService blobService, ILoggerManager loggerManager) 
+        public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager,
+            SignInManager<User> signManager, ApplicationDbContext dbContext,
+            IBlobService blobService, ILoggerManager loggerManager)
         {
             _jwtSettings = jwtSettings.Value;
             _userManager = userManager;
@@ -63,7 +64,8 @@ namespace Web.Controllers
                 .Include(u => u.BlobFiles)
                 .SingleOrDefault(x => x.Id == id);
             if (user == null) return NotFound();
-            return Ok(new 
+            // user.EmailConfirmed ;
+            return Ok(new
             {
                 result = user,
                 message = "Recieved User: " + user.UserName
@@ -204,7 +206,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = userFollower,
-                message = follower.UserName +  " is now following " + user.UserName
+                message = follower.UserName + " is now following " + user.UserName
             });
         }
 
@@ -234,9 +236,21 @@ namespace Web.Controllers
             // Add User To Database
             var result = await _userManager.CreateAsync(user, formdata.Password);
 
+            // generate token
+            var newRefreshToken = await _userManager.GenerateUserTokenAsync(user, "MyApp", "RefreshToken");
+            var ctokenLink = Url.Action("Confirm Email", "Account", new
+            {
+                userid = user.Id,
+                token = newRefreshToken,
+            }, protocol: HttpContext.Request.Scheme);
+
+            Console.Write(ctokenLink);
+
             // If Successfully Created
             if (result.Succeeded)
             {
+
+
                 // Add Role To User
                 await _userManager.AddToRoleAsync(user, "Customer");
 
@@ -244,7 +258,7 @@ namespace Web.Controllers
                 return Ok(new
                 {
                     result = user,
-                    message = "Registration Successful"
+                    message = $"Registration Successful: {ctokenLink}"
                 });
             }
             else
@@ -257,9 +271,64 @@ namespace Web.Controllers
                 }
             }
 
+
+
             // Return Bad Request Status With ErrorList
             return BadRequest(new { message = errorList });
         }
+
+        /*
+         * Type : GET
+         * URL : /api/account/verify
+         * Param : formdata
+         * Description: test
+         * Response Status: 200 Ok, 401 Unauthorized
+         */
+        [HttpGet("[action]")]
+        public async Task<String> Verify([FromQuery] String token)
+        {
+            return "test verify token" + "." + token;
+        }
+
+        /* Type : POST
+         * URL : /api/account/verify
+         * Param : formdata
+         * Description: Verifies the user from the token sent from Register
+         * Response Status: 200 Ok, 401 Unauthorized
+         */
+        [HttpPost("[action]")]
+        private async Task SendEmailConfirmationEmail([FromForm] AccountRegisterVM user, IMailNetService emailService, string token)
+        {
+            // send verification token
+            await emailService.SendEmail(user.EmailAddress, user.Username, "Verification Token for Analysim", "Verification", token);
+
+        }
+
+
+        /*
+       * Type : Post
+       * URL : /api/account/testGenerateToken?
+       * Description: Return User(s) from list of id
+       * Response Status: 200 Ok, 404 Not Found
+       */
+        [HttpPost("[action]")]
+        public async Task<String> testGenerateToken([FromForm] AccountRegisterVM formdata)
+        {
+            // Create User Object
+            var user = new User
+            {
+                Email = formdata.EmailAddress,
+                UserName = formdata.Username,
+                DateCreated = DateTimeOffset.UtcNow,
+                LastOnline = DateTimeOffset.UtcNow,
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+
+
+            // generate token
+            return await _userManager.GenerateUserTokenAsync(user, "MyApp", "RefreshToken");
+        }
+
 
         /*
          * Type : POST
@@ -344,6 +413,8 @@ namespace Web.Controllers
                 });
             }
         }
+
+
 
         /*
          * Type : POST
@@ -524,7 +595,7 @@ namespace Web.Controllers
                 .Where(pu => pu.UserID == userID)
                 .AsEnumerable();
 
-                
+
             //if (userProjects.Count() == 0) return NoContent();
 
             // Return Ok Status
@@ -554,7 +625,7 @@ namespace Web.Controllers
                 .Include(uu => uu.Follower).ThenInclude(f => f.Following)
                 .Where(u => u.UserID == userID)
                 .ToList();
-                
+
             if (userFollowers.Count() == 0) return NoContent();
 
             return Ok(new
