@@ -3,6 +3,7 @@ using Azure.Storage.Blobs.Models;
 using Core.Entities;
 using Core.Helper;
 using Core.Interfaces;
+using Core.Services;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MailKit.Net.Smtp;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -33,10 +35,12 @@ namespace Web.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly IBlobService _blobService;
         private readonly ILoggerManager _loggerManager;
+        private readonly IMailNetService _mailNetService;
 
         public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager,
             SignInManager<User> signManager, ApplicationDbContext dbContext,
-            IBlobService blobService, ILoggerManager loggerManager)
+                                 IBlobService blobService, ILoggerManager loggerManager,
+                                 IMailNetService mailNetService)
         {
             _jwtSettings = jwtSettings.Value;
             _userManager = userManager;
@@ -44,6 +48,7 @@ namespace Web.Controllers
             _dbContext = dbContext;
             _blobService = blobService;
             _loggerManager = loggerManager;
+            _mailNetService = mailNetService;
         }
 
         #region GET REQUEST
@@ -236,20 +241,26 @@ namespace Web.Controllers
             // Add User To Database
             var result = await _userManager.CreateAsync(user, formdata.Password);
 
-            // generate token
-            var newRefreshToken = await _userManager.GenerateUserTokenAsync(user, "MyApp", "RefreshToken");
-            var ctokenLink = Url.Action("Confirm Email", "Account", new
-            {
-                userid = user.Id,
-                token = newRefreshToken,
-            }, protocol: HttpContext.Request.Scheme);
-
-            Console.Write(ctokenLink);
-
             // If Successfully Created
             if (result.Succeeded)
             {
 
+                // generate email token
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var callbackUrl = Url.Action("Confirm Email", "Account", new
+                    {
+                        userid = user.Id,
+                        code = code,
+                    }, protocol: HttpContext.Request.Scheme);
+
+                Console.Write(callbackUrl);
+
+                // send verification token
+                var emailContent = 
+                    "Please confirm your account by clicking this link: <a href=\"" 
+                                               + callbackUrl + "\">link</a>";
+                await _mailNetService.SendEmail(user.Email, user.UserName, "Confirm your account",
+                                                emailContent, emailContent);
 
                 // Add Role To User
                 await _userManager.AddToRoleAsync(user, "Customer");
@@ -258,7 +269,7 @@ namespace Web.Controllers
                 return Ok(new
                 {
                     result = user,
-                    message = $"Registration Successful: {ctokenLink}"
+                    message = $"Registration successful and confirmation email sent"
                 });
             }
             else
@@ -397,7 +408,7 @@ namespace Web.Controllers
                     result = user,
                     token = tokenHandler.WriteToken(token),
                     expiration = token.ValidTo,
-                    message = "Login Successful"
+                    message = "Login successful"
                 });
 
             }
@@ -409,7 +420,7 @@ namespace Web.Controllers
                 // Return Unauthorized Status If Unable To Login
                 return Unauthorized(new
                 {
-                    LoginError = "Please Check the Login Creddentials - Invalid Username/Password was entered"
+                    LoginError = "Please check the login credentials - Invalid username/password was entered"
                 });
             }
         }
