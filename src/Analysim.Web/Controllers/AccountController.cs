@@ -248,17 +248,16 @@ namespace Web.Controllers
                 // generate email token
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 var callbackUrl = Url.Action("Confirm Email", "Account", new
-                    {
-                        userid = user.Id,
-                        code = code,
-                    }, protocol: HttpContext.Request.Scheme);
+                {
+                    userid = user.Id,
+                    code = code,
+                }, protocol: HttpContext.Request.Scheme);
 
                 Console.Write(callbackUrl);
 
                 // send verification token
-                var emailContent = 
-                    "Please confirm your account by clicking this link: <a href=\"" 
-                                               + callbackUrl + "\">link</a>";
+                var emailContent =
+                    "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>";
                 await _mailNetService.SendEmail(user.Email, user.UserName, "Confirm your account",
                                                 emailContent, emailContent);
 
@@ -367,6 +366,15 @@ namespace Web.Controllers
             // Check Login Status
             if (user != null && await _userManager.CheckPasswordAsync(user, formdata.Password))
             {
+                // todo: link to resend verification email.
+                if (!await _userManager.IsEmailConfirmedAsync(user))
+                {
+                    return Unauthorized(new
+                    {
+                        LoginError = "Please verify your account email"
+                    });
+                }
+
                 // Create JWT Token Handler
                 var tokenHandler = new JwtSecurityTokenHandler();
 
