@@ -254,7 +254,6 @@ export class ProjectComponent implements OnInit {
   }
 
   deleteProject() {
-    console.log("Project deletion function")
     // if user is not log in
     if (!this.accountService.checkLoginStatus()) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } })
@@ -271,7 +270,6 @@ export class ProjectComponent implements OnInit {
   }
 
   toggleModalDelete() {
-    console.log("Toggled delete Project..")
     // Show delete Modal
     this.deleteModalRef = this.modalService.show(this.deleteModal)
   }
