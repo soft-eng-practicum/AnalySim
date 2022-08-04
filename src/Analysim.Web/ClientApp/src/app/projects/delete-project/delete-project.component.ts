@@ -23,14 +23,6 @@ export class DeleteProjectComponent implements OnInit {
   }
 
 
-  confirmDeletePopUp() {
-    console.log("test deletion")
-  }
-
-  closeCancelPopUp() {
-    console.log("Test Cancel deletion")
-  }
-
   confirmationPopUp() {
     // if user is not log in
     if (!this.accountService.checkLoginStatus()) {
