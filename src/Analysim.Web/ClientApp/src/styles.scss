@@ -1,3 +1,5 @@
+@import 'assets/styles/abstracts/variables';
+
 /* You can add global styles to this file, and also import other style files */
 .invalid{
     border-color: #dc3545;
@@ -84,3 +86,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .mr-2 {
     margin-right: 10px;
 }
+
+
+
+.btn-primary{
+    color: #f8f8f8;
+    background-color: green !important;
+    border-color: green;
+}
+
+

@@ -20,9 +20,15 @@
 }
 
 .membersList{
-padding-top: 120px;
-float: left;
-height: 500px;
-width: fit-content;
-padding-right: 50px;
+    padding-top: 120px;
+    float: left;
+    height: 500px;
+    width: fit-content;
+    padding-right: 50px;
+}
+
+.btn-primary{
+    color: rgb(112, 41, 41);
+    background-color: #0069d9;
+    border-color: #0062cc;
 }
