@@ -27,7 +27,6 @@ export class ModalDeleteComponent implements OnInit {
   }
 
   DeleteProject() {
-    console.log("projectID: " + this.projectID);
     this.projectService.deleteProject(this.projectID).subscribe(
       result => {
         this.router.navigate(['/home'])
