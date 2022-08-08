@@ -276,7 +276,7 @@ export class ProjectService {
     body.append('directory', directory)
     body.append('userID', userID.toString())
     body.append('projectID', projectID.toString())
-
+    
     return this.http.post<any>(this.urlUploadFile, body).pipe(
       map(body => {
         console.log(body.result)

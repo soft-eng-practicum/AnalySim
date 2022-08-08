@@ -187,6 +187,7 @@ export class AccountService {
         {
           this.loginStatus.next(true)
           this.user.next(body.result)
+          this.userID = new BehaviorSubject<number>(parseInt(body.result.id))
           localStorage.setItem('loginStatus', '1')
           localStorage.setItem('jwt', body.token)
           localStorage.setItem('userID', body.result.id)
