@@ -39,31 +39,48 @@ dotnet run
 ## Deploying
 In order to deploy AnalySim, you need to perform some steps ([Tutorial Video](https://www.youtube.com/watch?v=gQMT4al2Grg:)):
 
+### Prerequisites
 1. Download [Docker Desktop](https://www.docker.com/products/docker-desktop)
 2. Download [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
-3. Enable Docker Support and add a new DockerFile to Analysim.Web
-4. Replace the content of DockerFile with the following code (update ASP.Net versions as necessary):
-   ```
-   FROM mcr.microsoft.com/dotnet/aspnet:3.1 AS base
-   WORKDIR /app
-   COPY . .
+3. Enable Docker Support
    
-   CMD ASPNETCORE_URLS=http://*:$PORT dotnet Analysim.Web.dll
-   ```
-4. Publish Analysim.Web to a local folder(keep default location for folder). Can also be done on the command line: 
+### Publish .Net project and create Docker image
+
+*Note:* Prepend `sudo` before each `docker` and `heroku` (except `dotnet`) command on Mac/Linux.
+
+4. Publish *Analysim.Web* to the local folder (keep default location for folder), which can also be done on the command line: 
     ```bash
     dotnet publish --configuration Release
     ```
-5. Copy the DockerFile into the publish folder that was just created 
-6. Navigate to your publish folder in terminal:</br>
-&nbsp; cd 'Analysim\src\Analysim.Web\bin\Release\netcoreapp3.1\publish' (Publish directory of the project where docker file at)
-7. Run the following commands in terminal to update Heroku deployment:
+1. Create the Docker image by running the following in the base project folder (e.g. `Analysim/`) :
+    ```bash
+    docker build -t analysim-dev -f deploy/Dockerfile .
+    ```
+1. Test image locally, by running it:
+   ```bash
+   docker run -it -p 127.0.0.1:80:80/tcp analysim-dev
    ```
+   You can test by opening a browser to http://localhost:80 (not https).
+
+### Register and upload Docker image to Heroku
+
+*Note:* Prepend `sudo` before each `docker` and `heroku` (except `dotnet`) command on Mac/Linux.
+
+Run the following commands in terminal to update Heroku deployment ([more info](https://devcenter.heroku.com/articles/container-registry-and-runtime)):
+
+1. Login to Heroku and container service (if using `sudo`, you may need to copy-paste into browser):
+   ```bash
    heroku login
    heroku container:login
-   docker build -t analysim-dev .
+   ```
+1. Tag the image name on Heroku's container registry:
+   ```bash
    docker tag analysim-dev registry.heroku.com/analysim-dev
    docker push registry.heroku.com/analysim-dev
-   heroku container:push web -a analysim-dev
+   ```
+1. Change to the `deploy/` folder and re-build image using Heroku CLI:
+   ```bash
+   cd deploy
+   heroku container:push web -a analysim-dev --context-path=..
    heroku container:release web -a analysim-dev
    ```
