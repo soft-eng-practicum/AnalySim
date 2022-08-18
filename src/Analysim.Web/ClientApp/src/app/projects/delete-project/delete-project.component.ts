@@ -29,7 +29,6 @@ export class DeleteProjectComponent implements OnInit {
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } })
     } else {
       console.log("Delete Confirmation should pop up")
-      // this.toggleModalFork()//fork model pops up
     }
   }
 

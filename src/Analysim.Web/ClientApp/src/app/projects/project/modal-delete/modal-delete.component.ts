@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { User } from 'src/app/interfaces/user';
 import { AccountService } from 'src/app/services/account.service';
+import { Project } from 'src/app/interfaces/project';
 import { ProjectService } from 'src/app/services/project.service';
 
 @Component({
@@ -22,6 +23,7 @@ export class ModalDeleteComponent implements OnInit {
   @Input() deleteModalRef: BsModalRef
   @Input() projectID: number;
   @Input() currentUser: User;
+  @Input() project: Project;
 
   ngOnInit(): void {
   }

@@ -260,13 +260,6 @@ export class ProjectComponent implements OnInit {
     } else {
       this.toggleModalDelete()// delete modal pops up
     }
-
-    // this.projectService.deleteProject(this.project.projectID).subscribe(
-    //   result => {
-    //   }, error => {
-    //     console.log(error)
-    //   }
-    // )
   }
 
   toggleModalDelete() {

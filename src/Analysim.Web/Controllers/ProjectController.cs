@@ -785,7 +785,7 @@ namespace Web.Controllers
         /*
          * Type : DELETE
          * URL : /api/project/deleteproject/
-         * Param : {projectID}
+         * Param : {projectID}/{blobFileID}
          * Description: Delete Project
          */
         [HttpDelete("[action]/{projectID}")]
@@ -804,8 +804,41 @@ namespace Web.Controllers
                 _dbContext.ProjectUsers.Remove(user);
             }
 
-            // Remove Project
-            _dbContext.Projects.Remove(deleteProject);
+            // Delete from Azure
+            var containerClient = _blobServiceClient.GetBlobContainerClient(deleteProject.Name.ToLower());
+            await containerClient.DeleteAsync();
+
+            // Delete the blob files in PGadmin
+
+            // get the project by the name
+            var projectTag = _dbContext.Tag
+                .ToList()
+                .Where(t => t.Name.ToLower().Contains(deleteProject.Name.ToLower()));
+
+            var projectResult = _dbContext.Projects
+                .Include(p => p.BlobFiles)
+                .Include(p => p.ProjectUsers)
+                .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
+                .ToList()
+                .Where(p => projectTag.Any(mt => p.ProjectTags.Any(pt => pt.Tag.Name.ToLower() == mt.Name.ToLower())));
+
+            var project = projectResult.ToArray();
+
+
+            // delete blobFiles
+            for (var i = 0; i < project[0].BlobFiles.ToArray().Length; i++)
+            {
+                var getBlobID = project[0].BlobFiles.ToArray()[i].BlobFileID;
+                var blobFile = await _dbContext.BlobFiles.FindAsync(getBlobID);
+
+                System.Diagnostics.Debug.WriteLine("file count: " + i);
+                System.Diagnostics.Debug.WriteLine("Blob ID: " + project[0].BlobFiles.ToArray()[i].BlobFileID);
+
+                _dbContext.BlobFiles.Remove(blobFile);
+            }
+
+            // remove the project
+            _dbContext.Projects.Remove(await _dbContext.Projects.FindAsync(projectID));
 
             // Save Change
             await _dbContext.SaveChangesAsync();
@@ -826,7 +859,7 @@ namespace Web.Controllers
          * Description: Delete User
          */
         [HttpDelete("[action]/{projectID}/{userID}")]
-        public async Task<IActionResult> RemoveUser([FromRoute] int projectID, int userID)
+        public async Task<IActionResult> RemoveUser([FromRoute] int projectID, [FromRoute] int userID)
         {
             // Find Many To Many
             var projectUser = await _dbContext.ProjectUsers.FindAsync(userID, projectID);
