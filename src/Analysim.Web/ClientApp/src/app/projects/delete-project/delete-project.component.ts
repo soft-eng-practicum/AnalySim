@@ -28,8 +28,6 @@ export class DeleteProjectComponent implements OnInit {
     if (!this.accountService.checkLoginStatus()) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } })
     } else {
-      console.log("Delete Confirmation should pop up")
     }
   }
-
 }
