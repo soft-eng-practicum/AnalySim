@@ -27,7 +27,6 @@ import { ObservablehqComponent } from './project-file-preview/observablehq/obser
 import { ModalObservablehqComponent } from './project-file-preview/modal-observablehq/modal-observablehq.component';
 import { MemberListComponent } from './member-list/member-list.component';
 import { ModalForkComponent } from './project/modal-fork/modal-fork.component';
-import { DeleteProjectComponent } from './delete-project/delete-project.component';
 import { ModalDeleteComponent } from './project/modal-delete/modal-delete.component';
 
 
@@ -55,7 +54,6 @@ import { ModalDeleteComponent } from './project/modal-delete/modal-delete.compon
     ModalObservablehqComponent,
     MemberListComponent,
     ModalForkComponent,
-    DeleteProjectComponent,
     ModalDeleteComponent,
   ],
   imports: [

@@ -47,13 +47,4 @@ export class ModalDeleteComponent implements OnInit {
     this.deleteModalRef.hide()
   }
 
-  confirmationPopUp() {
-    // if user is not log in
-    if (!this.accountService.checkLoginStatus()) {
-      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } })
-    } else {
-      console.log("Delete Confirmation should pop up")
-      // this.toggleModalFork()//fork model pops up
-    }
-  }
 }
