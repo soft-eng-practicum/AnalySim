@@ -12,6 +12,9 @@ import { ProjectService } from 'src/app/services/project.service';
   styleUrls: ['./modal-delete.component.css']
 })
 export class ModalDeleteComponent implements OnInit {
+  errorResult: String;
+  errorStatusAlert = false;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -34,6 +37,8 @@ export class ModalDeleteComponent implements OnInit {
         this.router.navigate(['/home'])
         this.closeModal()
       }, error => {
+        this.errorStatusAlert = true;
+        this.errorResult = "Error status: unable to delete, please contact developers for assistance";
         console.log(error);
       }
     )
