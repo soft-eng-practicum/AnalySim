@@ -70,7 +70,7 @@ export class RegisterComponent implements OnInit {
         const emailAddress = userReg.emailAddress
         const subject: string = "Registration Complete"
         const bodyHtml: string = "<p>You have been successfully registered for the AnalySim website.</p>"
-        const bodyText: string = "You have been successfully registered for the Analysim website."
+        const bodyText: string = "You have been successfully registered for the AnalySim website."
         this.communicationsService.sendEmail(emailAddress, username, subject, bodyText, bodyHtml).subscribe(
           result =>{
             //console.log(result)

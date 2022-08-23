@@ -3,28 +3,70 @@
     <!-- Footer Links Start-->
     <div class="container-fluid text-right text-md-left">
       <!-- Grid row Start-->
-      <div class="row justify-content-center">
+      <div class="row justify-content-center footer-link-row">
         <!-- Grid column Start-->
-        <div class="col-md-4 mb-md-0 mb-3">
+        <div class="col-md-3 mb-md-0 mb-3 footer-about">
+          <div class="footer-header">
+            About
+          </div>
           <!-- Links Start-->
           <ul class="list-unstyled">
             <li>
               <a class="nav-link text-white" [routerLink]='["/contactus"]' >Contact Us</a>
             </li>
             <li>
-              <a class="nav-link text-white" [routerLink]='["/aboutus"]'>About Us</a>
+              <a class="nav-link text-white" [routerLink]='["/aboutus"]'>Learn More</a>
             </li>
           </ul> <!-- Links End-->
         </div>
-        <div class="col-md-3 mb-md-0 mb-3">
+        <div class="col-md-3 mb-md-0 mb-3 footer-sponser">
+          <div class="footer-header">
+            Sponsors
+          </div>
+          <!-- Links Start-->
+          <ul class="list-unstyled">
+            <li>
+              <a class="nav-link text-white" [routerLink]='["/contactus"]' >
+                <img src="../../assets/img/icon-gsoc.png">  GSoC</a>
+                <a class="nav-link text-white" [routerLink]='["/contactus"]' >
+                <img src="../../assets/img/icon-incf.png">   INCF </a> 
+            </li>
+            
+          </ul> <!-- Links End-->
         </div>
-        <div class="col-md-3 mb-md-0 mb-3">
+        <div class="col-md-3 mb-md-0 mb-3 footer-connect">
+          <div class="footer-header">
+            Connect
+          </div>
+          <!-- Links Start-->
+          <ul class="list-unstyled">
+            <li>
+              <img src="../../assets/img/icon-facebook.png" [routerLink]='["/aboutus"]'>
+            </li>
+            <li>
+              <img src="../../assets/img/icon-linkedin.png" [routerLink]='["/aboutus"]'>
+            </li>
+            <li>
+              <img src="../../assets/img/icon-twitter.png" [routerLink]='["/aboutus"]'>
+            </li>
+          </ul> <!-- Links End-->
         </div>
         <!-- Grid column -->
       </div> <!-- Grid row End-->
+      <div class="row justify-content-center footer-logo-row">
+        <div class="col-md-9 mb-md-0 mb-3">
+          <div class="footer-logo">
+            Powered by AnalySim
+          </div>
+          <div class="footer-copyright">
+            &copy; 2022 AnalySim
+          </div>
+          <!-- Links Start-->
+        </div>
+      </div>
     </div> <!-- Footer Links End-->
 
     <!-- Copyright Start -->
-    <div class="footer-copyright p-2">AnalySim&copy; 2022 
+    <div class="footer-copyright p-2">
     </div> <!-- Copyright End-->
   </footer> <!-- Footer End-->
