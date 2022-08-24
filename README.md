@@ -1,6 +1,11 @@
 # Analysim
 
-Analysim is a free online web platform enabling researchers to analyze and share data by providing interactive visualizations, and collaborate with others.  The open platform is specialized for working with high-dimensional data sets such as those constructed via computational modeling.  Analysim also allows you to run custom analysis on any type of data.
+Analysim is a free online web platform enabling researchers to analyze
+and share data by providing interactive visualizations, and
+collaborate with others.  The open platform is specialized for working
+with high-dimensional data sets such as those constructed via
+computational modeling.  Analysim also allows you to run custom
+analysis on any type of data.
 
 ## Installation
 Clone the [Analysim Repository](https://github.com/soft-eng-practicum/AnalySim) from [GitHub](http://www.github.com) so that you have the project locally.
@@ -8,36 +13,59 @@ Clone the [Analysim Repository](https://github.com/soft-eng-practicum/AnalySim) 
 git clone https://github.com/soft-eng-practicum/AnalySim.git
 ```
 
-### Download the following Software
-- [Visual Studio Code](https://code.visualstudio.com/download) (Required)
-- [Visual Studio](https://visualstudio.microsoft.com/downloads/) (Required)
-- [Postman](https://www.postman.com/downloads/)
-- [Docker](https://www.docker.com/products/docker-desktop)
-- [Azure Data Studio](https://docs.microsoft.com/en-us/sql/azure-data-studio/download-azure-data-studio?view=sql-server-ver15)
+### Required software for development
 
-### Package installation
-After you have cloned the Analysim repository on your local machine, use the terminal to navigate to the `AnalySim\src\Analysim.Web\ClientApp` folder and run the following command.
+- [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [ASP.Net 6.0 command-line interface (CLI)](https://dotnet.microsoft.com/en-us/download) (Required)
+- [Visual Studio Code](https://code.visualstudio.com/download) or other editor
+- [Postman](https://www.postman.com/downloads/) for testing API calls
+- [Docker](https://www.docker.com/products/docker-desktop) for testing deployment
+- [Azure Data Studio](https://docs.microsoft.com/en-us/sql/azure-data-studio/download-azure-data-studio?view=sql-server-ver15) or use online [Azure Portal](https://portal.azure.com) for browsing Azure Blob Storage 
+
+### Installing Angular package dependencies
+
+After you have cloned the Analysim repository on your local machine,
+use the terminal to navigate to the
+`AnalySim\src\Analysim.Web\ClientApp` folder and run the following
+command.
+
 ```sh
 npm install
 ```
 
 #### Running the project
-You will need to get the `appsettings.json` file(s) from the project admins in order to connect to the database.  Put these files under the `src/Analysim.Web` folder.
+
+You will need to get the `appsettings.json` file(s) from the project
+admins in order to connect to the database.  Put these files under the
+`src/Analysim.Web` folder.
 
 **Step 1:**
-In **Visual Studio Code**, open up the Analysim project folder.  Using a terminal, navigate to `src\Analysim.Web\ClientApp` and run the following command (also works from Command Line):
+
+In **Visual Studio Code** (or other editor), open up the Analysim
+project folder.  Using a terminal, navigate to
+`src\Analysim.Web\ClientApp` and run the following command (also works
+from Command Line):
+
 ```
 ng serve -o
 ```
 
 **Step 2:**
-Next, in **Visual Studio**, open up the `AnalySim.sln` file.  Click on the run to start the project.  Once you have completed both steps, your project should be up and running! Alternatively, you can run from the command line:
+
+Next, in **Visual Studio**, open up the `AnalySim.sln` file.  Click on
+the run to start the project.  Once you have completed both steps,
+your project should be up and running! 
+
+Alternatively, without Visual Studio, you use .Net CLI from command
+line by first navigating into the `src\Analysim.Web` folder:
+
 ```sh
 dotnet run
 ```
 
 ## Deploying
-In order to deploy AnalySim, you need to perform some steps ([Tutorial Video](https://www.youtube.com/watch?v=gQMT4al2Grg:)):
+
+The overall process of deployment is explained in the tutorial video on
+[deploying ASP.Net on Heroku using Docker](https://www.youtube.com/watch?v=gQMT4al2Grg:).
 
 ### Prerequisites
 1. Download [Docker Desktop](https://www.docker.com/products/docker-desktop)
