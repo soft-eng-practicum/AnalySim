@@ -247,10 +247,10 @@ namespace Web.Controllers
 
                 // generate email token
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                var callbackUrl = Url.Action("Confirm Email", "Account", new
+                var callbackUrl = Url.Action("ConfirmEmail", "Account", new
                 {
                     userid = user.Id,
-                    code = code,
+                    token = code,
                 }, protocol: HttpContext.Request.Scheme);
 
                 Console.Write(callbackUrl);
@@ -288,20 +288,40 @@ namespace Web.Controllers
         }
 
         /*
-         * Type : GET
+         * Type : POST
          * URL : /api/account/verify
          * Param : formdata
          * Description: test
          * Response Status: 200 Ok, 401 Unauthorized
          */
         [HttpGet("[action]")]
-        public async Task<String> Verify([FromQuery] String token)
+        public async Task<String> ConfirmEmail(String userID, String token)
         {
-            return "test verify token" + "." + token;
+            System.Diagnostics.Debug.WriteLine("Verification method called");
+            System.Diagnostics.Debug.WriteLine("Token: " + token + "\n" + "UserID: " + userID);
+            var user = await _userManager.FindByIdAsync(userID);
+
+
+            // var decodedTokenString = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+            {
+                System.Diagnostics.Debug.WriteLine("User is NOT verified");
+                await _userManager.ConfirmEmailAsync(user, token);
+                System.Diagnostics.Debug.WriteLine("User is verified");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("User is already verified");
+            }
+
+
+            // return
+            return "test verify token" + ". Token:" + token;
         }
 
         /* Type : POST
-         * URL : /api/account/verify
+         * URL : /api/account/SendEmailConfirmationEmail
          * Param : formdata
          * Description: Verifies the user from the token sent from Register
          * Response Status: 200 Ok, 401 Unauthorized
