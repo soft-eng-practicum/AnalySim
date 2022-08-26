@@ -26,4 +26,11 @@
     background-color:  #102958;
     box-sizing: border-box;
     border: solid #102958 100px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+:host {
+    height: 100%;
 }

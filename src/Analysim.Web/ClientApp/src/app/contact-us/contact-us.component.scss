@@ -37,4 +37,11 @@
     box-sizing: border-box;
     border-bottom: solid #102958 150px;
     border-top: solid #102958 150px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+:host {
+    height: 100%;
 }

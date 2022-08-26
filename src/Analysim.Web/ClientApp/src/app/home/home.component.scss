@@ -41,13 +41,24 @@ font-family:var(--bs-body-font-family) !important;
 --fa-font-duotone: normal 900 1em/1 "Font Awesome 6 Duotone"!important;
   }
 
-.notebook-row{
+.notebook-row {
+    @media (max-width: 768px){
+        flex-direction: column;
+    }
 
-    .note-content{
+    .notebook-container{
         display: flex;
         flex-direction: column;
         align-items: center;
 
+        @media (max-width: 768px){
+            width: 100%
+        }
+    
+        hr {
+            width: 100%
+        }
+    
         .note-title {
             border-bottom: 1px solid #c6c8c8;
             width: 50%;
@@ -57,23 +68,23 @@ font-family:var(--bs-body-font-family) !important;
             font-weight: 500;
             margin-bottom: 10px;
         }
-
+    
         .note-img {
             width: 200px;
             height: 200px;
         }
-
+    
         .note-btn {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
+            margin-top: 15px;
         }
     }
-
+    
     .note-desc{
         align-items: center;
         display: flex;
         font-size: 1.25rem;
         padding: 30px;
     }
-
 }
 
