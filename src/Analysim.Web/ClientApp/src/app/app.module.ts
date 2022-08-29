@@ -28,6 +28,7 @@ import { DashboardQuickstartComponent } from './dashboard/dashboard-quickstart/d
 import { NotFoundComponent } from './error/not-found/not-found.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
 import { AboutUsComponent } from './about-us/about-us.component';
+import { EmailConfirmationComponent } from './email-confirmation/email-confirmation.component';
 
 
 @NgModule({
@@ -51,6 +52,7 @@ import { AboutUsComponent } from './about-us/about-us.component';
     NotFoundComponent,
     ContactUsComponent,
     AboutUsComponent,
+    EmailConfirmationComponent,
   ],
   imports: [
     BrowserModule,

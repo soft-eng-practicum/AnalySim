@@ -9,6 +9,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { ProfileSettingComponent } from './profile/profile-setting/profile-setting.component';
 import { AboutUsComponent } from './about-us/about-us.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
+import { EmailConfirmationComponent } from './email-confirmation/email-confirmation.component';
 
 const routes: Routes = [];
 
@@ -19,6 +20,7 @@ const routes: Routes = [];
       { path: '', redirectTo: '/home', pathMatch: 'full' },
       { path: "login", component: LoginComponent },
       { path: "aboutus", component: AboutUsComponent },
+      { path: "email-confirmation", component: EmailConfirmationComponent },
       { path: "contactus", component: ContactUsComponent },
       { path: "setting/profile", component: ProfileSettingComponent },
       { path: "register", component: RegisterComponent },

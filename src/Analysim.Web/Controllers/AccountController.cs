@@ -263,7 +263,7 @@ namespace Web.Controllers
 
                 // Add Role To User
                 await _userManager.AddToRoleAsync(user, "Customer");
-
+  
                 // Return Ok Request
                 return Ok(new
                 {
@@ -295,7 +295,7 @@ namespace Web.Controllers
          * Response Status: 200 Ok, 401 Unauthorized
          */
         [HttpGet("[action]")]
-        public async Task<String> ConfirmEmail(String userID, String token)
+        public async Task<IActionResult> ConfirmEmail(String userID, String token)
         {
             System.Diagnostics.Debug.WriteLine("Verification method called");
             System.Diagnostics.Debug.WriteLine("Token: " + token + "\n" + "UserID: " + userID);
@@ -317,7 +317,9 @@ namespace Web.Controllers
 
 
             // return
-            return "test verify token" + ". Token:" + token;
+            // return RedirectToPage("/Index");
+            return Redirect("~/email-confirmation");
+            // return "test verify token" + ". Token:" + token;
         }
 
         /* Type : POST
