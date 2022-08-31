@@ -806,12 +806,10 @@ namespace Web.Controllers
 
             // Delete from Azure
             var containerClient = _blobServiceClient.GetBlobContainerClient(deleteProject.Name.ToLower());
-            if (containerClient.DeleteBlobIfExistsAsync(deleteProject.Name.ToLower()).Result == false)
-                return NotFound(new { message = "Project Not Found" });
-
+            await containerClient.DeleteBlobIfExistsAsync(deleteProject.Name.ToLower());
 
             if (containerClient == null) return NotFound(new { message = "Project Not Found" });
-            await containerClient.DeleteAsync();
+            // await containerClient.DeleteAsync();
 
             // get the project by project ID
             var blobsResult = _dbContext.BlobFiles
