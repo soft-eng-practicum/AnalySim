@@ -7,7 +7,7 @@ import { AccountService } from 'src/app/services/account.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { ProjectFileExplorerComponent } from '../project-file-explorer/project-file-explorer.component';
 import { ProjectUser } from 'src/app/interfaces/project-user';
-// import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
 
 @Component({
@@ -22,13 +22,13 @@ export class ProjectComponent implements OnInit {
     private route: ActivatedRoute,
     private accountService : AccountService,
     private projectService : ProjectService,
-    // private modalService : BsModalService, 
+    private modalService : BsModalService, 
     ) { }
 
   @ViewChild('forkModal') forkModal : TemplateRef<any>
   @ViewChildren(ProjectFileExplorerComponent) fileExplorer: ProjectFileExplorerComponent
 
-  // forkModalRef : BsModalRef;
+  forkModalRef : BsModalRef;
 
   project : Project = null
   currentUser$ : Observable<User> = null
@@ -251,7 +251,7 @@ export class ProjectComponent implements OnInit {
 toggleModalFork(){
   console.log("toggled...")
   // Show Rename Modal
-    // this.forkModalRef = this.modalService.show(this.forkModal)
+  this.forkModalRef = this.modalService.show(this.forkModal)
 }
 
 // deleteProject(){

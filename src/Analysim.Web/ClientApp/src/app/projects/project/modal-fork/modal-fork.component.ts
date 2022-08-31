@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-// import { BsModalRef } from 'ngx-bootstrap/modal';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Project } from 'src/app/interfaces/project';
 import { User } from 'src/app/interfaces/user';
 import { ProjectService } from 'src/app/services/project.service';
@@ -16,7 +16,7 @@ export class ModalForkComponent implements OnInit {
     private router: Router,
     private projectService: ProjectService,) { }
 
-  // @Input() forkModalRef: BsModalRef
+  @Input() forkModalRef: BsModalRef
   @Input() project: Project
   @Input() currentUser: User
 
@@ -51,7 +51,7 @@ export class ModalForkComponent implements OnInit {
   }
 
   closeModal() {
-    // this.forkModalRef.hide()
+    this.forkModalRef.hide()
   }
   forkProjectClick(){
     if(this.project.blobFiles.length > 0){

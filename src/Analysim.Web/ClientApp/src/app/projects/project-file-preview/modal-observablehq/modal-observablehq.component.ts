@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-// import { BsModalRef } from 'ngx-bootstrap/modal';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { AbstractControl, ValidatorFn, FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
@@ -9,7 +9,7 @@ import { AbstractControl, ValidatorFn, FormGroup, FormControl, FormBuilder, Vali
 })
 export class ModalObservablehqComponent implements OnInit {
 
-  // @Input() observablehqModalRef : BsModalRef
+  @Input() observablehqModalRef : BsModalRef
   @Output() loadNotebookEvent = new EventEmitter<string>()
 
   currentUserID : number
@@ -76,7 +76,7 @@ export class ModalObservablehqComponent implements OnInit {
   }
 
   closeModal(){
-    // this.observablehqModalRef.hide()
+    this.observablehqModalRef.hide()
     this.notebookForm.reset()
   }
 

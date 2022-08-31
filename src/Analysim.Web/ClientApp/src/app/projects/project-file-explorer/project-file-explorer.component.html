@@ -58,7 +58,7 @@
     </div> 
 <app-project-file-preview *ngIf="filePreview" [blobFile]="blobFileItemList[1].file"></app-project-file-preview>
 
-<!-- <ng-template #uploadModal>
+<ng-template #uploadModal>
     <app-modal-upload [uploadFileList]="uploadFileList" [uploadModalRef]="uploadModalRef" (updatedFileListEvent)="updateFileList($event)" (uploadedFileEvent)="addNewFile($event)"></app-modal-upload>
 </ng-template>
 <ng-template #folderModal>
@@ -66,5 +66,5 @@
 </ng-template>
 <ng-template #renameModal>
     <app-modal-edit [renameModalRef]="renameModalRef" [blobList]="blobFileItemList" [currentDirectory]="currentDirectory" [projectID]="project.projectID" (newFolderEvent)="addNewFile($event)"></app-modal-edit>
-</ng-template> -->
+</ng-template>
 

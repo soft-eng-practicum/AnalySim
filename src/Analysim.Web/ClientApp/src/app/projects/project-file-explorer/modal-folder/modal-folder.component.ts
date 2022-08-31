@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-// import { BsModalRef } from 'ngx-bootstrap/modal';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { FormGroup, FormControl, Validators, FormBuilder, ValidatorFn, AbstractControl } from '@angular/forms';
 import { BlobFile } from 'src/app/interfaces/blob-file';
 import { BlobFileItem } from 'src/app/interfaces/blob-file-item';
@@ -13,7 +13,7 @@ import { AccountService } from 'src/app/services/account.service';
 })
 export class ModalFolderComponent implements OnInit {
 
-  // @Input() folderModalRef : BsModalRef
+  @Input() folderModalRef : BsModalRef
   @Input() blobList : BlobFileItem[]
   @Input() currentDirectory : string
   @Input() projectID : number
@@ -87,7 +87,7 @@ export class ModalFolderComponent implements OnInit {
   }
 
   closeModal(){
-    // this.folderModalRef.hide()
+    this.folderModalRef.hide()
     this.folderForm.reset()
   }
 
