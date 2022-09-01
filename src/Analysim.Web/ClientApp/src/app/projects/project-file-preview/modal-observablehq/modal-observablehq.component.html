@@ -12,8 +12,8 @@
                 <label for="notebookLink">Notebook Link:</label>
                 <input formControlName="notebookLink" type="text" class="form-control" placeholder=""[class.invalid]="notebookLink.touched && notebookLink.invalid" [class.valid]="notebookLink.valid" [readOnly]="isLoading" required>
                 <div *ngIf="notebookLink.touched && notebookLink.errors" class="text-danger">
-                    <span [hidden]="!notebookLink.errors?.['fromObservable']">URL must be from domain ObservableHQ</span>
-                    <span [hidden]="!notebookLink.errors?.['isValidURL']">Not a valid URL</span>
+                    <span [hidden]="!notebookLink.errors?.fromObservable">URL must be from domain ObservableHQ</span>
+                    <span [hidden]="!notebookLink.errors?.isValidURL">Not a valid URL</span>
                 </div>
             </div>
         </div>

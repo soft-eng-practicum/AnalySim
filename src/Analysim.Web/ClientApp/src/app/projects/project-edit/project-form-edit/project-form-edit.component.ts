@@ -12,16 +12,16 @@ import { ProjectUser } from 'src/app/interfaces/project-user';
 @Component({
   selector: 'app-project-form-edit',
   templateUrl: './project-form-edit.component.html',
-  styleUrls: ['./project-form-edit.component.scss']
+  styleUrls: ['./project-form-edit.component.css']
 })
 export class ProjectFormEditComponent implements OnInit {
 
   constructor(
-    private projectService : ProjectService,
-    private accountService : AccountService,
-    private formBuilder : FormBuilder,
+    private projectService: ProjectService,
+    private accountService: AccountService,
+    private formBuilder: FormBuilder,
     private route: ActivatedRoute,
-    private router : Router) { }
+    private router: Router) { }
 
 
   // Form Control - Edit Project
@@ -30,11 +30,11 @@ export class ProjectFormEditComponent implements OnInit {
   description: FormControl
   visibility: FormControl
 
-  currentUser$ : Observable<User>
-  currentUser : User
-  isLoading : boolean
+  currentUser$: Observable<User>
+  currentUser: User
+  isLoading: boolean
 
-  currentProject$ : Observable<Project> = null
+  currentProject$: Observable<Project> = null
   project: Project
   projectUser: ProjectUser = null
 
@@ -42,8 +42,8 @@ export class ProjectFormEditComponent implements OnInit {
   @Output() setProject = new EventEmitter<Project>()
 
   async ngOnInit() {
-    if(!this.accountService.checkLoginStatus())
-      this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
+    if (!this.accountService.checkLoginStatus())
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } })
 
     this.isLoading = false;
 
@@ -55,7 +55,7 @@ export class ProjectFormEditComponent implements OnInit {
 
     await this.projectService.getProjectByID(23).subscribe(result => this.project = result);
     console.log(this.project)
-    
+
     // Initialize Form Controls
     this.name = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20), this.noSpaceSpecial()])
     this.description = new FormControl('')
@@ -63,21 +63,20 @@ export class ProjectFormEditComponent implements OnInit {
 
     // Initialize FormGroup using FormBuilder
     this.projectForm = this.formBuilder.group({
-        name : this.name,
-        description : this.description,
-        visibility : this.visibility
+      name: this.name,
+      description: this.description,
+      visibility: this.visibility
     })
-    
+
   }
 
- 
+
   // Custom Validator
-  noSpaceSpecial() : ValidatorFn
-  {
-    return (projectNameControl: AbstractControl): {[key: string]: boolean} | null => {
+  noSpaceSpecial(): ValidatorFn {
+    return (projectNameControl: AbstractControl): { [key: string]: boolean } | null => {
 
       // Check if empty
-      if(projectNameControl.value.length == ''){
+      if (projectNameControl.value.length == '') {
         return null
       }
 
@@ -85,10 +84,10 @@ export class ProjectFormEditComponent implements OnInit {
       var reg = new RegExp('^[a-zA-Z0-9\-]*$');
 
       // Return Error Message if test false, otherwise return null
-      if(!reg.test(projectNameControl.value)){
-        return {'noSpaceSpecial': true}
+      if (!reg.test(projectNameControl.value)) {
+        return { 'noSpaceSpecial': true }
       }
-      else{
+      else {
         return null
       }
     }
@@ -109,12 +108,13 @@ export class ProjectFormEditComponent implements OnInit {
 
     //updates project based on those parameters
     this.projectService.updateProject(this.project).subscribe(
-      result =>{
+      result => {
         console.log("made it here . . . ")
-     },error =>{
+      }, error => {
         console.log(error)
       }
     )
+
 
 
 

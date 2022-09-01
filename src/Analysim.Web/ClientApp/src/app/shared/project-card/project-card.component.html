@@ -1,18 +1,20 @@
-<div class="project-card-container" *ngIf="project != undefined">
-    <div class="project-card-header">
+<!-- Card Start -->
+<div class="card" *ngIf="project != undefined">
+    <!-- Card Header Start -->
+    <div class="d-flex card-header flex-row align-items-center">
         <!-- Project Route Link -->
-        <span class="project-user" *ngIf="(project.route | route:'owner') as owner">
+        <span class="h5 card-link mb-0" *ngIf="(project.route | route:'owner') as owner">
             <a [routerLink]='["/profile/" + owner]'>{{project.route | route:"owner"}}</a>
         </span>
-        <span class="project-seperator">/</span>
-        <span class="project-name" *ngIf="(project.route | route:'projectname') as projectname">
+        <span class="h4 mb-0 mx-1">  /  </span>
+        <span class="h5 card-link mb-0" *ngIf="(project.route | route:'projectname') as projectname">
             <a [routerLink]='["/project/" + (project.route | route:"owner") + "/" + projectname]'>{{ projectname }}</a>
         </span>
 
         <!-- Follow/UnFollow Project -->
-        <div class="project-follow-option">
+        <div class="d-inline-flex ml-auto">
             <!-- Follow Project Button -->
-            <button class="project-follow" type="button" *ngIf="!isFollowing" (click)="followProject()">
+            <button class="btn btn-primary float-right" type="button" *ngIf="!isFollowing" (click)="followProject()">
                 Follow
                 <span class="badge badge-light font-weight-light ml-1">
                     {{ project | role:"follower" }}
@@ -20,26 +22,32 @@
             </button>
 
             <!-- UnFollow Project Button -->
-            <button class="project-unfollow" type="button" *ngIf="isFollowing" (click)="unFollowProject()">
+            <button class="btn btn-primary float-right" type="button" *ngIf="isFollowing" (click)="unFollowProject()">
                 Unfollow
                 <span class="badge badge-light font-weight-light ml-1">
                     {{ project | role:"follower" }}
                 </span>
             </button>
         </div>
-    </div>
-    <div class="project-card-body">      
-      <p class="project-description">{{project.description}}</p>
-        <ul class="project-tag-list">
-            <li class="project-tag-item">
-                <span class="badge badge-pill badge-info font-weight-light mr-2" *ngFor="let projectTag of project.projectTags">
-                    {{projectTag.tag.name}}
-                </span>
-            </li>
-        </ul>
-    </div>
-    <div class="project-card-footer">
-        <span><i class="project-member"></i>{{ project | role:"member" }}</span>  
-        <span class="project-last-updated">Last Updated {{ project.lastUpdated | timeElapsed}} Ago</span>
-    </div>
-</div>
+    </div> <!-- Card Header End -->
+    
+    <!-- Card Description Start -->
+    <div class="card-body">      
+      <p class="card-text">{{project.description}}</p>
+    </div> <!-- Card Body End -->
+
+    <!-- Card Tag List Start -->
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">
+        <span class="badge badge-pill badge-info font-weight-light mr-2" *ngFor="let projectTag of project.projectTags">
+            {{projectTag.tag.name}}
+        </span>
+      </li>
+    </ul> <!-- Card Tag List End -->
+
+    <!-- Card Footer Start -->
+    <div class="card-footer">
+        <span><i class="fa fa-user mr-2"></i>{{ project | role:"member" }}</span>  
+        <span class="float-right">Last Updated {{ project.lastUpdated | timeElapsed}} Ago</span>
+    </div> <!-- Card Footer End -->
+</div> <!-- Card End -->

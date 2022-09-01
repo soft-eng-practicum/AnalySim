@@ -7,7 +7,7 @@ import { ProjectService } from 'src/app/services/project.service';
 @Component({
   selector: 'app-dashboard-quickstart',
   templateUrl: './dashboard-quickstart.component.html',
-  styleUrls: ['./dashboard-quickstart.component.scss']
+  styleUrls: ['./dashboard-quickstart.component.css']
 })
 export class DashboardQuickstartComponent implements OnInit {
 

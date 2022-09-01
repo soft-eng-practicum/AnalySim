@@ -8,7 +8,7 @@ import { AccountService } from 'src/app/services/account.service';
 @Component({
   selector: 'app-project-form-users',
   templateUrl: './project-form-users.component.html',
-  styleUrls: ['./project-form-users.component.scss']
+  styleUrls: ['./project-form-users.component.css']
 })
 export class ProjectFormUsersComponent implements OnInit {
 
@@ -68,10 +68,8 @@ export class ProjectFormUsersComponent implements OnInit {
           return true
         }  
       }
-      else {
+      else
         return false
-      }
-      return false;
     })
     
   }

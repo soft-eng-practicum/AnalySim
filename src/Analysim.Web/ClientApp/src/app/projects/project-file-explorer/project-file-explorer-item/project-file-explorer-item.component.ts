@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 @Component({
   selector: 'app-project-file-explorer-item',
   templateUrl: './project-file-explorer-item.component.html',
-  styleUrls: ['./project-file-explorer-item.component.scss']
+  styleUrls: ['./project-file-explorer-item.component.css']
 })
 export class ProjectFileExplorerItemComponent implements OnInit {
 
@@ -14,7 +14,7 @@ export class ProjectFileExplorerItemComponent implements OnInit {
   @Input() isSelected : boolean
   @Input() currentDirectory : string
   @Input() blobFileItem : BlobFileItem
-  @Output() changeDirectory = new EventEmitter<string>();
+  @Output() changeDirectory = new EventEmitter<String>();
   @Output() selectedItem = new EventEmitter<number>();
 
   ngOnInit(): void {

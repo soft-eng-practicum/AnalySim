@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 @Component({
   selector: 'app-profile-card',
   templateUrl: './profile-card.component.html',
-  styleUrls: ['./profile-card.component.scss']
+  styleUrls: ['./profile-card.component.css']
 })
 export class ProfileCardComponent implements OnInit {
 

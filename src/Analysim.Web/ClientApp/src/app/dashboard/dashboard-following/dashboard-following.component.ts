@@ -7,7 +7,7 @@ import { Project } from 'src/app/interfaces/project';
 @Component({
   selector: 'app-dashboard-following',
   templateUrl: './dashboard-following.component.html',
-  styleUrls: ['./dashboard-following.component.scss']
+  styleUrls: ['./dashboard-following.component.css']
 })
 export class DashboardFollowingComponent implements OnInit {
 

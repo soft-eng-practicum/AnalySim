@@ -3,7 +3,7 @@ import { HttpClient, HttpParams} from '@angular/common/http';
 import { BehaviorSubject, Observable, empty, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import jwt_decode from "jwt-decode";
+import * as jwt_decode from 'jwt-decode';
 import { User } from '../interfaces/user';
 import { UserUser } from '../interfaces/user-user';
 import { Project } from '../interfaces/project';
@@ -187,7 +187,6 @@ export class AccountService {
         {
           this.loginStatus.next(true)
           this.user.next(body.result)
-          this.userID = new BehaviorSubject<number>(parseInt(body.result.id))
           localStorage.setItem('loginStatus', '1')
           localStorage.setItem('jwt', body.token)
           localStorage.setItem('userID', body.result.id)
@@ -283,7 +282,7 @@ export class AccountService {
 
       // Get and Decode the Token
       const token = localStorage.getItem('jwt');
-      const decoded : any = jwt_decode(token)
+      const decoded = jwt_decode(token)
 
       // Check if the cookie is valid
       if(decoded.exp === undefined) 

@@ -13,7 +13,7 @@ import { map, switchAll } from 'rxjs/operators';
 @Component({
   selector: 'app-project-card',
   templateUrl: './project-card.component.html',
-  styleUrls: ['./project-card.component.scss']
+  styleUrls: ['./project-card.component.css']
 })
 export class ProjectCardComponent implements OnInit {
 
