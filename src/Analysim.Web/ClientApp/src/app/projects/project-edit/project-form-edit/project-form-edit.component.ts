@@ -12,7 +12,7 @@ import { ProjectUser } from 'src/app/interfaces/project-user';
 @Component({
   selector: 'app-project-form-edit',
   templateUrl: './project-form-edit.component.html',
-  styleUrls: ['./project-form-edit.component.css']
+  styleUrls: ['./project-form-edit.component.scss']
 })
 export class ProjectFormEditComponent implements OnInit {
 

@@ -5,11 +5,13 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 @Component({
   selector: 'app-project-file-preview',
   templateUrl: './project-file-preview.component.html',
-  styleUrls: ['./project-file-preview.component.css']
+  styleUrls: ['./project-file-preview.component.scss']
 })
 export class ProjectFilePreviewComponent implements OnInit {
 
-  constructor(private modalService : BsModalService) { }
+  constructor(
+    private modalService : BsModalService
+    ) { }
 
   @Input() blobFile : BlobFile
   @ViewChild('observablehqModal') observablehqModal : TemplateRef<any>;

@@ -1,0 +1,84 @@
+:root {
+  //Color Variable
+  --primary-color: white;
+  --secondary-color: white;
+  --tertiary-color: white;
+  --background-color: white;
+  --background-color-secondary: white;
+
+  //Border
+  --border-color: #dee2e6;
+  --border-color-secondary: white;
+  --border-color-selected: white;
+  --border-style: solid;
+  --border-width: 1px;
+  --border-radius: 4px;
+  
+  //Buttons
+  --button-background-color:#0069d9;
+  --button-border-color: #0062cc;
+  --button-border-width: 1px;
+  --button-border-style: solid;
+  --button-border-radius: 4px;
+  --button-font-color: white;
+  --button-background-color-hov: white;
+  --button-border-color-hov: white;
+  --button-font-color-hov: white;
+
+  //Button Seconday
+  --button-background-color-secondary: white;
+  --button-border-color-secondary: white;
+  --button-border-width-secondary: 1px;
+  --button-border-style-secondary: solid;
+  --button-border-raidus: 4px;
+  --button-font-color: white;
+  --button-background-color-secondary-hov: white;
+  --button-border-color-secondary-hov: white;
+  --button-font-color-secondary-hov: white;
+
+  //Font Color
+  --font-primary-color: white;
+  --font-secondary-color: white;
+  --font-tertiary-color: white;
+  --font-link-primary-color: white;
+  --font-link-secondary-color: white;
+
+  //Font Size
+  --font-size-small: 12px;
+  --font-size-base: 14px;
+  --font-size-large: 16px;
+  --font-size-x-large: 18px;
+  --font-size-xx-large: 20px;
+
+  //Font Family
+  --primary-font: "test";
+  --primary-font-light: "test";
+  --primary-font-bold: "test";
+
+  @font-face {
+    font-family: --primary-font;
+    src:  url('../../../assets/fonts/icomoon.ttf?ucvmk2') format('truetype'),
+  }
+
+  @font-face {
+    font-family: --primary-font-light;
+    src:  url('../../../assets/fonts/icomoon.ttf?ucvmk2') format('truetype'),
+  }
+
+  @font-face {
+    font-family: --primary-font-bold;
+    src:  url('../../../assets/fonts/icomoon.ttf?ucvmk2') format('truetype'),
+  }
+
+  //Media Query
+  --screen-xs-phone: 320px;
+  --screen-sm-phone: 375px;
+  --screen-phone: 480px;
+  --screen-tablet: 760px;
+  --screen-desktop: 992px;
+  --screen-md-desktop: 1024px;
+  --screen-lg-desktop: 1200px;
+
+  //Icon
+  --background-hero: url('../../../assets/img/background.png');
+}

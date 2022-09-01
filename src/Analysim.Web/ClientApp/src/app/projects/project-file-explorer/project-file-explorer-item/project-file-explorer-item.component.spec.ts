@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ProjectFileExplorerItemComponent } from './project-file-explorer-item.component';
 
@@ -6,14 +6,12 @@ describe('ProjectFileExplorerItemComponent', () => {
   let component: ProjectFileExplorerItemComponent;
   let fixture: ComponentFixture<ProjectFileExplorerItemComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       declarations: [ ProjectFileExplorerItemComponent ]
     })
     .compileComponents();
-  }));
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(ProjectFileExplorerItemComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

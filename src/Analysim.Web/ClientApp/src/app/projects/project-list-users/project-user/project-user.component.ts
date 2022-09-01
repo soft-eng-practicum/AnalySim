@@ -5,7 +5,7 @@ import { ProjectService } from 'src/app/services/project.service';
 @Component({
   selector: 'app-project-user',
   templateUrl: './project-user.component.html',
-  styleUrls: ['./project-user.component.css']
+  styleUrls: ['./project-user.component.scss']
 })
 export class ProjectUserComponent implements OnInit {
 
@@ -20,7 +20,8 @@ export class ProjectUserComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  updateUser(role : string){
+  updateUser(event : Event){
+    var role = (event.target as HTMLSelectElement).value;
     this.projectUser.userRole = role.toLowerCase();
     this.projectService.updateUser(this.projectUser).subscribe(
       result => {
