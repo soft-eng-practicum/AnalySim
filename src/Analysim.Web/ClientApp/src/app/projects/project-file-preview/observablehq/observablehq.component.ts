@@ -5,7 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-observablehq',
   templateUrl: './observablehq.component.html',
-  styleUrls: ['./observablehq.component.css']
+  styleUrls: ['./observablehq.component.scss']
 })
 export class ObservablehqComponent{
 

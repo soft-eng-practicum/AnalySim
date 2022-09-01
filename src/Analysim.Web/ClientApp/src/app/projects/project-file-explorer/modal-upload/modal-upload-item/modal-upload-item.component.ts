@@ -7,7 +7,7 @@ import { UploadFileItem } from 'src/app/interfaces/upload-file-item';
 @Component({
   selector: 'app-modal-upload-item',
   templateUrl: './modal-upload-item.component.html',
-  styleUrls: ['./modal-upload-item.component.css']
+  styleUrls: ['./modal-upload-item.component.scss']
 })
 export class ModalUploadItemComponent implements OnInit {
 

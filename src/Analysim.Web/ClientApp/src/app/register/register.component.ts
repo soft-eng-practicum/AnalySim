@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { AccountService } from '../services/account.service';
-import { CommunicationsService } from '../services/communication.service';
+import { CommunicationsService } from '../services/communications.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+  styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {
 
@@ -70,7 +70,7 @@ export class RegisterComponent implements OnInit {
         const emailAddress = userReg.emailAddress
         const subject: string = "Registration Complete"
         const bodyHtml: string = "<p>You have been successfully registered for the AnalySim website.</p>"
-        const bodyText: string = "You have been successfully registered for the Analysim website."
+        const bodyText: string = "You have been successfully registered for the AnalySim website."
         this.communicationsService.sendEmail(emailAddress, username, subject, bodyText, bodyHtml).subscribe(
           result =>{
             //console.log(result)

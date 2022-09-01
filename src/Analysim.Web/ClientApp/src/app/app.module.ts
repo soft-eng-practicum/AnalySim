@@ -60,8 +60,8 @@ import { AboutUsComponent } from './about-us/about-us.component';
     ReactiveFormsModule,
     BrowserAnimationsModule,
     ApplicationPipesModule,
-    ModalModule.forRoot(),
-    ToastrModule.forRoot()
+    ToastrModule.forRoot(),
+    ModalModule.forRoot()
   ],
   providers: [
   ],

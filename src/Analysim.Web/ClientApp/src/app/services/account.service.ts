@@ -3,7 +3,7 @@ import { HttpClient, HttpParams} from '@angular/common/http';
 import { BehaviorSubject, Observable, empty, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import * as jwt_decode from 'jwt-decode';
+import jwt_decode from "jwt-decode";
 import { User } from '../interfaces/user';
 import { UserUser } from '../interfaces/user-user';
 import { Project } from '../interfaces/project';
@@ -283,7 +283,7 @@ export class AccountService {
 
       // Get and Decode the Token
       const token = localStorage.getItem('jwt');
-      const decoded = jwt_decode(token)
+      const decoded : any = jwt_decode(token)
 
       // Check if the cookie is valid
       if(decoded.exp === undefined) 

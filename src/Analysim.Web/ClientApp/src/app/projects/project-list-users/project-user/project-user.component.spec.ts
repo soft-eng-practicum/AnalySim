@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ProjectUserComponent } from './project-user.component';
 
@@ -6,14 +6,12 @@ describe('ProjectUserComponent', () => {
   let component: ProjectUserComponent;
   let fixture: ComponentFixture<ProjectUserComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       declarations: [ ProjectUserComponent ]
     })
     .compileComponents();
-  }));
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(ProjectUserComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

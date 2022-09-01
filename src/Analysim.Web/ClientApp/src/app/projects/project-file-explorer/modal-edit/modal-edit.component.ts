@@ -9,7 +9,7 @@ import { AccountService } from 'src/app/services/account.service';
 @Component({
   selector: 'app-modal-edit',
   templateUrl: './modal-edit.component.html',
-  styleUrls: ['./modal-edit.component.css']
+  styleUrls: ['./modal-edit.component.scss']
 })
 export class ModalEditComponent implements OnInit {
 

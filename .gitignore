@@ -239,12 +239,7 @@ appsettings.json
 appsettings.Development.json
 
 # Logging
-logs/
-Logs/
-Web\\Logs*
+src/Analysim.Web/Logs
 
 #
 .DS_Store
-
-#Web
-Web/\\Logs*

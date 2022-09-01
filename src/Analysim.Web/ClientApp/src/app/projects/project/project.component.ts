@@ -13,7 +13,7 @@ import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 @Component({
   selector: 'app-project',
   templateUrl: './project.component.html',
-  styleUrls: ['./project.component.css']
+  styleUrls: ['./project.component.scss']
 })
 export class ProjectComponent implements OnInit {
 
@@ -22,7 +22,8 @@ export class ProjectComponent implements OnInit {
     private route: ActivatedRoute,
     private accountService : AccountService,
     private projectService : ProjectService,
-    private modalService : BsModalService, ) { }
+    private modalService : BsModalService, 
+    ) { }
 
   @ViewChild('forkModal') forkModal : TemplateRef<any>
   @ViewChildren(ProjectFileExplorerComponent) fileExplorer: ProjectFileExplorerComponent
@@ -250,7 +251,7 @@ export class ProjectComponent implements OnInit {
 toggleModalFork(){
   console.log("toggled...")
   // Show Rename Modal
-    this.forkModalRef = this.modalService.show(this.forkModal)
+  this.forkModalRef = this.modalService.show(this.forkModal)
 }
 
 // deleteProject(){
