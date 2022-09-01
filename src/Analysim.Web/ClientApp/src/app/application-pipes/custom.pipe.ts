@@ -1,7 +1,9 @@
 import { PipeTransform, Pipe } from "@angular/core";
 import { Project } from '../interfaces/project';
+import { AccountService } from '../services/account.service';
 import { User } from '../interfaces/user';
 import { ProjectUser } from '../interfaces/project-user';
+import { filter } from 'rxjs/operators';
 
 @Pipe({
     name: 'route'

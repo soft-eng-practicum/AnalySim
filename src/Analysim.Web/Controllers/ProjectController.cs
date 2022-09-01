@@ -709,7 +709,6 @@ namespace Web.Controllers
                     aup.ProjectID == projectID &&
                     aup.Project.Name == formdata.Name &&
                     aup.UserRole == "owner"));
-            if (user == null) return NotFound(new { message = "User Not Found" });
 
             // If the product was found
             project.Name = formdata.Name;

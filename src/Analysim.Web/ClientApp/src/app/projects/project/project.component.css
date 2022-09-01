@@ -1,0 +1,28 @@
+:host {
+    height : 100%
+}
+
+.test {
+    background-color: aqua;
+}
+
+.test2 {
+    background-color: rebeccapurple;
+}
+
+.test3 {
+    background-color:black;
+}
+
+.list-group-item{
+    color: rgba(255,255,255,.5);
+    background-color: white !important;
+}
+
+.membersList{
+padding-top: 120px;
+float: left;
+height: 500px;
+width: fit-content;
+padding-right: 50px;
+}

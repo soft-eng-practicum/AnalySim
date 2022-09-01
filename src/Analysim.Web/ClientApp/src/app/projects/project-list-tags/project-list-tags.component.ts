@@ -4,7 +4,7 @@ import { ProjectTag } from 'src/app/interfaces/project-tag';
 @Component({
   selector: 'app-project-list-tags',
   templateUrl: './project-list-tags.component.html',
-  styleUrls: ['./project-list-tags.component.scss']
+  styleUrls: ['./project-list-tags.component.css']
 })
 export class ProjectListTagsComponent implements OnInit {
 

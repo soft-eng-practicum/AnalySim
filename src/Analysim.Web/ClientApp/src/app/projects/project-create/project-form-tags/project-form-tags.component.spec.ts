@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ProjectFormTagsComponent } from './project-form-tags.component';
 
@@ -6,12 +6,14 @@ describe('ProjectFormTagsComponent', () => {
   let component: ProjectFormTagsComponent;
   let fixture: ComponentFixture<ProjectFormTagsComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
       declarations: [ ProjectFormTagsComponent ]
     })
     .compileComponents();
+  }));
 
+  beforeEach(() => {
     fixture = TestBed.createComponent(ProjectFormTagsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
