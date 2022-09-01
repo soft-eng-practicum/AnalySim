@@ -808,9 +808,6 @@ namespace Web.Controllers
             var containerClient = _blobServiceClient.GetBlobContainerClient(deleteProject.Name.ToLower());
             await containerClient.DeleteBlobIfExistsAsync(deleteProject.Name.ToLower());
 
-            if (containerClient == null) return NotFound(new { message = "Project Not Found" });
-            // await containerClient.DeleteAsync();
-
             // get the project by project ID
             var blobsResult = _dbContext.BlobFiles
                 .Where(p => p.ProjectID == projectID).ToList();
