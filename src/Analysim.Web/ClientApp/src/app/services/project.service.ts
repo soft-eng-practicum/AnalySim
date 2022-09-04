@@ -19,142 +19,137 @@ import { saveAs } from 'file-saver';
 export class ProjectService {
 
   constructor(
-    private http : HttpClient, 
+    private http: HttpClient,
     private router: Router,
     private accountService: AccountService,
-    private notfi : NotificationService) { }
+    private notfi: NotificationService) { }
 
   // Url to access Web API
-  private baseUrl : string = '/api/project/'
+  private baseUrl: string = '/api/project/'
 
   // Get
-  private urlGetProjectByID : string = this.baseUrl + "getprojectbyid/"
-  private urlGetProjectByRoute : string = this.baseUrl + "getprojectbyroute/"
-  private urlGetProjectRange : string = this.baseUrl + "getprojectrange?"
-  private urlGetProjectList : string = this.baseUrl + "getprojectList"
-  private urlSearch : string = this.baseUrl + "search/"
-  private urlDownloadFile : string = this.baseUrl + "downloadFile/"
-  
+  private urlGetProjectByID: string = this.baseUrl + "getprojectbyid/"
+  private urlGetProjectByRoute: string = this.baseUrl + "getprojectbyroute/"
+  private urlGetProjectRange: string = this.baseUrl + "getprojectrange?"
+  private urlGetProjectList: string = this.baseUrl + "getprojectList"
+  private urlSearch: string = this.baseUrl + "search/"
+  private urlDownloadFile: string = this.baseUrl + "downloadFile/"
+
 
   // Post
-  private urlCreateProject : string = this.baseUrl + "createproject"
-  private urlAddUser : string = this.baseUrl + "adduser"
-  private urlAddTag : string = this.baseUrl + "addtag"
-  private urlUploadFile : string = this.baseUrl + "uploadfile"
-  private urlCreateFolder : string = this.baseUrl + "createFolder"
-  private urlForkProject : string = this.baseUrl + "forkproject"
-  private urlForkProjectWithoutBlob : string = this.baseUrl + "forkprojectwithoutblob"
+  private urlCreateProject: string = this.baseUrl + "createproject"
+  private urlAddUser: string = this.baseUrl + "adduser"
+  private urlAddTag: string = this.baseUrl + "addtag"
+  private urlUploadFile: string = this.baseUrl + "uploadfile"
+  private urlCreateFolder: string = this.baseUrl + "createFolder"
+  private urlForkProject: string = this.baseUrl + "forkproject"
+  private urlForkProjectWithoutBlob: string = this.baseUrl + "forkprojectwithoutblob"
 
   // Put
-  private urlUpdateProject : string = this.baseUrl + "updateproject/"
-  private urlupdateUser : string = this.baseUrl + "updateuser"
-  private urlUpdateFile : string = this.baseUrl + "updateFile"
+  private urlUpdateProject: string = this.baseUrl + "updateproject/"
+  private urlupdateUser: string = this.baseUrl + "updateuser"
+  private urlUpdateFile: string = this.baseUrl + "updateFile"
 
   // Delete
-  private urlDeleteProject : string = this.baseUrl + "deleteproject/"
-  private urlRemoveUser : string = this.baseUrl + "removeuser/"
-  private urlRemoveTag : string = this.baseUrl + "removetag/"
-  private urlDeleteFile : string = this.baseUrl + "deleteFile/"
+  private urlDeleteProject: string = this.baseUrl + "deleteproject/"
+  private urlRemoveUser: string = this.baseUrl + "removeuser/"
+  private urlRemoveTag: string = this.baseUrl + "removetag/"
+  private urlDeleteFile: string = this.baseUrl + "deleteFile/"
 
   // Extra
-  private urlGetUserList : string = this.baseUrl + "getuserlist/"
-  private urlGetFileList : string = this.baseUrl + "getfilelist/"
-  private urlGetTagList : string = this.baseUrl + "gettaglist/"
+  private urlGetUserList: string = this.baseUrl + "getuserlist/"
+  private urlGetFileList: string = this.baseUrl + "getfilelist/"
+  private urlGetTagList: string = this.baseUrl + "gettaglist/"
 
 
-  getProjectByID (projectID: number) : Observable<Project>
-  {
+  getProjectByID(projectID: number): Observable<Project> {
     return this.http.get<any>(this.urlGetProjectByID + projectID)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  getProjectByRoute (owner: string, projectName: string) : Observable<Project>
-  {
+  getProjectByRoute(owner: string, projectName: string): Observable<Project> {
     return this.http.get<any>(this.urlGetProjectByRoute + owner + "/" + projectName)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  getProjectRange (ids : number[]) : Observable<Project[]>
-  {
+  getProjectRange(ids: number[]): Observable<Project[]> {
     let params = new HttpParams()
     ids.forEach(x => params = params.append("id", x.toString()))
 
-    return this.http.get<any>(this.urlGetProjectRange, {params: params})
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+    return this.http.get<any>(this.urlGetProjectRange, { params: params })
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  getProjectList () : Observable<Project[]>
-  {
+  getProjectList(): Observable<Project[]> {
     return this.http.get<any>(this.urlGetProjectList)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  search (searchTerms: string[]) : Observable<Project[]>
-  {
+  search(searchTerms: string[]): Observable<Project[]> {
     let params = new HttpParams()
     searchTerms.forEach(function (x) {
       params = params.append("term", x)
     })
 
-    return this.http.get<any>(this.urlSearch, {params : params})
-    .pipe(
-      map(body => {
-        if(!body) return []
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+    return this.http.get<any>(this.urlSearch, { params: params })
+      .pipe(
+        map(body => {
+          if (!body) return []
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  downloadFile(blobFileID : number){
+  downloadFile(blobFileID: number) {
     return this.http.get(this.urlDownloadFile + blobFileID, { responseType: "blob" }).pipe(
       map(body => {
         if (body.type != 'text/plain') {
           return new Blob([body])
-        }  
-        else {  
+        }
+        else {
           alert('File not found in Blob!');
-          return null 
+          return null
         }
       }),
       catchError(error => {
@@ -164,8 +159,7 @@ export class ProjectService {
     )
   }
 
-  createProject (currentUser : User, projectName : string, visibility : string, description : string) : Observable<Project>
-  {
+  createProject(currentUser: User, projectName: string, visibility: string, description: string): Observable<Project> {
     let body = new FormData()
     body.append('name', projectName)
     body.append('visibility', visibility)
@@ -174,64 +168,61 @@ export class ProjectService {
     body.append('route', currentUser.userName + "/" + projectName)
 
     return this.http.post<any>(this.urlCreateProject, body)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
-  
-  forkProject(userID : number, projectID : number, blobFilesID : number []) : Observable<Project>
-  {
+
+  forkProject(userID: number, projectID: number, blobFilesID: number[]): Observable<Project> {
     let body = new FormData()
     body.append('userID', userID.toString())
     body.append('projectID', projectID.toString())
-    for(let i=0; i< blobFilesID.length; i++ ){
+    for (let i = 0; i < blobFilesID.length; i++) {
       body.append('BlobFilesID', blobFilesID[i].toString())
     }
     body.getAll('BlobFilesID')
 
     return this.http.post<any>(this.urlForkProject, body)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  forkProjectWithoutBlob(userID : number, projectID : number) : Observable<Project>
-  {
+  forkProjectWithoutBlob(userID: number, projectID: number): Observable<Project> {
     let body = new FormData()
     body.append('userID', userID.toString())
     body.append('projectID', projectID.toString())
 
     return this.http.post<any>(this.urlForkProjectWithoutBlob, body)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  
 
-  addUser (projectID : number, userID : number, userRole: string, isFollowing : boolean) : Observable<ProjectUser>
-  {
+
+  addUser(projectID: number, userID: number, userRole: string, isFollowing: boolean): Observable<ProjectUser> {
     let body = new FormData()
     body.append('projectid', projectID.toString())
     body.append('userid', userID.toString())
@@ -239,38 +230,37 @@ export class ProjectService {
     body.append('isFollowing', isFollowing ? 'true' : 'false')
 
     return this.http.post<any>(this.urlAddUser, body)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  addTag (projectID : number, tagName : string) : Observable<ProjectTag>
-  {
+  addTag(projectID: number, tagName: string): Observable<ProjectTag> {
     let body = new FormData()
     body.append('projectid', projectID.toString())
     body.append('tagname', tagName.toString())
 
     return this.http.post<any>(this.urlAddTag, body)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  uploadFile(file: any, directory: string, userID: number, projectID: number ) : Observable<BlobFile>{
+  uploadFile(file: any, directory: string, userID: number, projectID: number): Observable<BlobFile> {
     let body = new FormData()
     body.append('file', file)
     body.append('directory', directory)
@@ -289,7 +279,7 @@ export class ProjectService {
     );
   }
 
-  createFolder(directory: string, userID: number, projectID: number ) : Observable<BlobFile>{
+  createFolder(directory: string, userID: number, projectID: number): Observable<BlobFile> {
     let body = new FormData()
     body.append('directory', directory)
     body.append('userID', userID.toString())
@@ -308,7 +298,7 @@ export class ProjectService {
   }
 
   //Service to update a file name
-  updateFile(directory: string, userID: number, projectID: number) : Observable<BlobFile>{
+  updateFile(directory: string, userID: number, projectID: number): Observable<BlobFile> {
 
     let body = new FormData()
     body.append('directory', directory)
@@ -316,40 +306,38 @@ export class ProjectService {
     body.append('projectID', projectID.toString())
 
     return this.http.put<any>(this.urlUpdateFile, body)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  updateProject (updateProject: Project) : Observable<Project>
-  {
+  updateProject(updateProject: Project): Observable<Project> {
     let body = new FormData()
     body.append('name', updateProject.name)
     body.append('visibility', updateProject.visibility)
     body.append('description', updateProject.description)
 
     return this.http.put<any>(this.urlUpdateProject + updateProject.projectID, body)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  updateUser (userRole : ProjectUser) : Observable<ProjectUser>
-  {
+  updateUser(userRole: ProjectUser): Observable<ProjectUser> {
     let body = new FormData()
     body.append('userid', userRole.userID.toString())
     body.append('projectid', userRole.projectID.toString())
@@ -358,67 +346,63 @@ export class ProjectService {
 
 
     return this.http.put<any>(this.urlupdateUser, body)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  deleteProject (projectID : number) : Observable<Project>
-  {
-
+  deleteProject(projectID: number): Observable<Project> {
     return this.http.delete<any>(this.urlDeleteProject + projectID)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  removeUser (projectID: number, userID : number) : Observable<ProjectUser>
-  {
+  removeUser(projectID: number, userID: number): Observable<ProjectUser> {
 
     return this.http.delete<any>(this.urlRemoveUser + projectID + '/' + userID)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  removeTag (projectID: number, tagID : number) : Observable<ProjectTag>
-  {
+  removeTag(projectID: number, tagID: number): Observable<ProjectTag> {
 
     return this.http.delete<any>(this.urlRemoveTag + projectID + '/' + tagID)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  deleteFile(blobFileID : number) : Observable<BlobFile>{
+  deleteFile(blobFileID: number): Observable<BlobFile> {
     return this.http.delete<any>(this.urlDeleteFile + blobFileID).pipe(
       map(body => {
         console.log(body.message)
@@ -432,52 +416,49 @@ export class ProjectService {
   }
 
   // Extra
-  getUserList (projectID: number) : Observable<ProjectUser[]>
-  {
+  getUserList(projectID: number): Observable<ProjectUser[]> {
 
     return this.http.get<any>(this.urlGetUserList + projectID)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
 
-  getFileList (projectID: number) : Observable<BlobFile[]>
-  {
+  getFileList(projectID: number): Observable<BlobFile[]> {
 
     return this.http.get<any>(this.urlGetFileList + projectID)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  getTagList (projectID: number) : Observable<Tag[]>
-  {
+  getTagList(projectID: number): Observable<Tag[]> {
 
     return this.http.get<any>(this.urlGetTagList + projectID)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 }

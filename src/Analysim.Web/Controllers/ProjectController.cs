@@ -799,8 +799,26 @@ namespace Web.Controllers
             var deleteProject = await _dbContext.Projects.FindAsync(projectID);
             if (deleteProject == null) return NotFound(new { message = "Project Not Found" });
 
-            // Remove Project
-            _dbContext.Projects.Remove(deleteProject);
+            // Remove all users that follow the project
+            foreach (var user in deleteProject.ProjectUsers)
+            {
+                _dbContext.ProjectUsers.Remove(user);
+            }
+
+            // Delete from Azure
+            var containerClient = _blobServiceClient.GetBlobContainerClient(deleteProject.Name.ToLower());
+            // await containerClient.DeleteBlobIfExistsAsync(deleteProject.Name.ToLower());
+            containerClient.DeleteIfExists();
+
+            // get the project by project ID
+            var blobsResult = _dbContext.BlobFiles
+                .Where(p => p.ProjectID == projectID).ToList();
+
+            // delete blobFiles
+            _dbContext.BlobFiles.RemoveRange(blobsResult);
+
+            // remove the project
+            _dbContext.Projects.Remove(await _dbContext.Projects.FindAsync(projectID));
 
             // Save Change
             await _dbContext.SaveChangesAsync();
@@ -1021,33 +1039,6 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = relatedDirectory,
-                message = "File Successfully Uploaded"
-            });
-        }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> Test()
-        {
-            // Find Project
-            var project = await _dbContext.Projects.FindAsync(3);
-            if (project == null) return NotFound(new { message = "Project Not Found" });
-
-
-            // Get Storage Container
-            var containerClient = _blobServiceClient.GetBlobContainerClient(project.Name.ToLower());
-
-            // Create Container If Storage Doesn't Exist
-            bool isExist = containerClient.Exists();
-            if (!isExist)
-            {
-                containerClient.Create();
-            }
-
-
-            // Return Ok Status
-            return Ok(new
-            {
-                result = containerClient,
                 message = "File Successfully Uploaded"
             });
         }
