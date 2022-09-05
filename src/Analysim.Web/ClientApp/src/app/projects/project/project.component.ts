@@ -249,7 +249,6 @@ export class ProjectComponent implements OnInit {
   }
 
   toggleModalFork() {
-    console.log("toggled...")
     // Show Rename Modal
     this.forkModalRef = this.modalService.show(this.forkModal)
   }
@@ -267,12 +266,7 @@ export class ProjectComponent implements OnInit {
     // Show delete Modal
     this.deleteModalRef = this.modalService.show(this.deleteModal)
   }
-}
 
-toggleModalFork(){
-  console.log("toggled...")
-  // Show Rename Modal
-  this.forkModalRef = this.modalService.show(this.forkModal)
 }
 
 // deleteProject(){
@@ -283,4 +277,4 @@ toggleModalFork(){
 //     }
 //   )
 // }
-}
+//}
