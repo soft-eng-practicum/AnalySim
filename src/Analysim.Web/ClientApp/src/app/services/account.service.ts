@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import { User } from '../interfaces/user';
 import { UserUser } from '../interfaces/user-user';
-import { Project } from '../interfaces/project';
 import { NotificationService } from './notification.service';
 import { ProjectUser } from '../interfaces/project-user';
 import { BlobFile } from '../interfaces/blob-file';
@@ -37,6 +36,7 @@ export class AccountService {
 
   // Post
   private urlUpdateUser: string = this.baseUrl + "updateuser/"
+  private urlForgotPass: string = this.baseUrl + "forgotPass/"
 
   // Delete
   private urlUnfollow: string = this.baseUrl + "unfollow/"
@@ -172,6 +172,34 @@ export class AccountService {
     let body = new FormData()
     body.append('username', username)
     body.append('password', password)
+
+    return this.http.post<any>(this.urlLogin, body)
+      .pipe(
+        map(body => {
+          if (body && body.token) {
+            this.loginStatus.next(true)
+            this.user.next(body.result)
+            this.userID = new BehaviorSubject<number>(parseInt(body.result.id))
+            localStorage.setItem('loginStatus', '1')
+            localStorage.setItem('jwt', body.token)
+            localStorage.setItem('userID', body.result.id)
+            localStorage.setItem('expiration', body.expiration)
+          }
+          return body
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+
+      )
+  }
+
+  resetPassword(username: string, password: string, confirmPassword: string) {
+    let body = new FormData()
+    body.append('username', username)
+    body.append('password', password)
+    body.append('confirmPassword', confirmPassword)
 
     return this.http.post<any>(this.urlLogin, body)
       .pipe(

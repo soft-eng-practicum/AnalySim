@@ -29,6 +29,7 @@ import { NotFoundComponent } from './error/not-found/not-found.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
 import { AboutUsComponent } from './about-us/about-us.component';
 import { EmailConfirmationComponent } from './email-confirmation/email-confirmation.component';
+import { EmailForgotPassComponent } from './email-confirmation/email-forgot-pass/email-forgot-pass.component';
 
 
 @NgModule({
@@ -53,6 +54,7 @@ import { EmailConfirmationComponent } from './email-confirmation/email-confirmat
     ContactUsComponent,
     AboutUsComponent,
     EmailConfirmationComponent,
+    EmailForgotPassComponent,
   ],
   imports: [
     BrowserModule,

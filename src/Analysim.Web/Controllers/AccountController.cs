@@ -1,4 +1,4 @@
-﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Core.Entities;
 using Core.Helper;
@@ -289,7 +289,7 @@ namespace Web.Controllers
 
         /*
          * Type : POST
-         * URL : /api/account/verify
+         * URL : /api/account/ConfirmEmail?
          * Param : formdata
          * Description: test
          * Response Status: 200 Ok, 401 Unauthorized
@@ -309,16 +309,15 @@ namespace Web.Controllers
                 System.Diagnostics.Debug.WriteLine("User is NOT verified");
                 await _userManager.ConfirmEmailAsync(user, token);
                 System.Diagnostics.Debug.WriteLine("User is verified");
+                return Redirect("~/email-confirmation");   
             }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("User is already verified");
-            }
+
+            // TODO: redirect to error page
+            return Redirect("~/error/not-found");
 
 
             // return
             // return RedirectToPage("/Index");
-            return Redirect("~/email-confirmation");
             // return "test verify token" + ". Token:" + token;
         }
 
@@ -333,7 +332,26 @@ namespace Web.Controllers
         {
             // send verification token
             await emailService.SendEmail(user.EmailAddress, user.Username, "Verification Token for Analysim", "Verification", token);
+        }
 
+        /*
+         * Type : POST
+         * URL : /api/account/register
+         * Description: Create and return new User
+         * Response Status: 200 Ok, 400 Bad Request
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ForgotPassword([FromForm] AccountRegisterVM formdata)
+        {
+            // TODO joe: implement forgotpass
+            return null;
+        }
+
+        [HttpPost("[action]")]
+        private async Task ForgotPassword([FromForm] AccountRegisterVM user, IMailNetService emailService, string token)
+        {
+            // send verification token
+            await emailService.SendEmail(user.EmailAddress, user.Username, "Forgot password", "Verification", token);
         }
 
 

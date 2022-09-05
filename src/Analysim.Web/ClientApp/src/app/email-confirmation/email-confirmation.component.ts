@@ -1,4 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AccountService } from 'src/app/services/account.service';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { User } from 'src/app/interfaces/user';
 
 @Component({
   selector: 'app-email-confirmation',
@@ -7,9 +11,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class EmailConfirmationComponent implements OnInit {
 
-  constructor() { }
 
-  ngOnInit(): void {
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private accountService: AccountService,
+    private modalService: BsModalService,
+  ) { }
+
+  async ngOnInit(): Promise<void> {
+    CheckEmailToken: Boolean = null;
   }
-
 }
