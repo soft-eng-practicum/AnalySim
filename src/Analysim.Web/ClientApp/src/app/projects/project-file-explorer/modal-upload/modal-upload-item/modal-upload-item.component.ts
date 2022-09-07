@@ -38,6 +38,11 @@ export class ModalUploadItemComponent implements OnInit {
       error => {
         console.log(error);
         this.uploadFileItem.uploadStatus = "error";
+        if (error.status == 400) { // BadRequest, display message
+          this.uploadFileItem.uploadMessage = error.error;
+        } else
+          this.uploadFileItem.uploadMessage = "Unknown error";
+        
         this.updatedFile.emit(this.uploadFileItem)      
         
       }

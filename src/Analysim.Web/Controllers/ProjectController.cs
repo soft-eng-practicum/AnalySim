@@ -584,10 +584,8 @@ namespace Web.Controllers
                 var totalsize = await _dbContext.BlobFiles
                     .Where(b => b.UserID == user.Id)
                     .SumAsync(b => b.Size);
-                if (totalsize > maxsize)
-                    return Problem(detail: $"User exceeded quota of '{(maxsize / 1e6).ToString()}' MB.",
-                                   statusCode: 403);
-                //System.Console.WriteLine("User files total size: " + totalsize);
+                if (totalsize + formdata.File.Length > maxsize)
+                    return BadRequest($"Exceeds total user quota of {(maxsize / 1e6).ToString()} MB.");
                 
                 // Set File Path
                 var filePath = formdata.Directory + formdata.File.FileName;
