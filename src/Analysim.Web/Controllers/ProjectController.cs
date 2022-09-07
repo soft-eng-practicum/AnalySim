@@ -624,10 +624,8 @@ namespace Web.Controllers
             catch (Exception e)
             {
                 // Return Bad Request If There Is Any Error
-                return BadRequest(new
-                {
-                    error = e
-                });
+                System.Console.WriteLine(e);
+                return BadRequest(e);
             }
         }
 
