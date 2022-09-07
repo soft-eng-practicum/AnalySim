@@ -2,6 +2,7 @@
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,12 +24,15 @@ namespace Web.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly IBlobService _blobService;
         private readonly BlobServiceClient _blobServiceClient;
+        private readonly IConfiguration _configuration;
 
-        public ProjectController(ApplicationDbContext dbContext, IBlobService blobService, BlobServiceClient blobServiceClient)
+        public ProjectController(ApplicationDbContext dbContext, IBlobService blobService,
+                                 BlobServiceClient blobServiceClient, IConfiguration configuration)
         {
             _dbContext = dbContext;
             _blobService = blobService;
             _blobServiceClient = blobServiceClient;
+            _configuration = configuration;
         }
 
         #region GET REQUEST
@@ -162,7 +166,7 @@ namespace Web.Controllers
          * Type : POST
          * URL : /api/test/downloadfile/
          * Param : {fileID}
-         * Description: Upload File To Azure Storage
+         * Description: Download file from Azure Storage
          */
         [HttpGet("[action]/{fileID}")]
         public async Task<IActionResult> DownloadFile([FromRoute] int fileID)
@@ -554,7 +558,7 @@ namespace Web.Controllers
          * Type : POST
          * URL : /api/project/uploadfile
          * Param : FileUploadProjectViewModel
-         * Description: Upload Folder To Azure Storage
+         * Description: Upload file to Azure Storage
          */
         [HttpPost("[action]")]
         public async Task<IActionResult> UploadFile([FromForm] ProjectFileUploadVM formdata)
@@ -575,6 +579,16 @@ namespace Web.Controllers
                 var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
                 if (project == null) return NotFound(new { message = "Project Not Found" });
 
+                // Check quota
+                var maxsize = int.Parse(_configuration["UserQuota"]);
+                var totalsize = await _dbContext.BlobFiles
+                    .Where(b => b.UserID == user.Id)
+                    .SumAsync(b => b.Size);
+                if (totalsize > maxsize)
+                    return Problem(detail: $"User exceeded quota of '{(maxsize / 1e6).ToString()}' MB.",
+                                   statusCode: 403);
+                //System.Console.WriteLine("User files total size: " + totalsize);
+                
                 // Set File Path
                 var filePath = formdata.Directory + formdata.File.FileName;
 
