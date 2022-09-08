@@ -36,7 +36,8 @@ export class AccountService {
 
   // Post
   private urlUpdateUser: string = this.baseUrl + "updateuser/"
-  private urlForgotPass: string = this.baseUrl + "forgotPass/"
+  private urlForgotPass: string = this.baseUrl + "forgotPass?"
+  private urlForgotPassEmail: string = this.baseUrl + "SendForgotPasswordEmail/"
 
   // Delete
   private urlUnfollow: string = this.baseUrl + "unfollow/"
@@ -201,18 +202,26 @@ export class AccountService {
     body.append('password', password)
     body.append('confirmPassword', confirmPassword)
 
-    return this.http.post<any>(this.urlLogin, body)
+    return this.http.post<any>(this.urlForgotPass, body)
       .pipe(
         map(body => {
-          if (body && body.token) {
-            this.loginStatus.next(true)
-            this.user.next(body.result)
-            this.userID = new BehaviorSubject<number>(parseInt(body.result.id))
-            localStorage.setItem('loginStatus', '1')
-            localStorage.setItem('jwt', body.token)
-            localStorage.setItem('userID', body.result.id)
-            localStorage.setItem('expiration', body.expiration)
-          }
+          return body
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+
+      )
+  }
+
+  sendPasswordResetToken(email: string) {
+    let body = new FormData()
+    body.append('email', email)
+
+    return this.http.post<any>(this.urlForgotPassEmail, body)
+      .pipe(
+        map(body => {
           return body
         }),
         catchError(error => {

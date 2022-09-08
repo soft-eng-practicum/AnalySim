@@ -336,19 +336,46 @@ namespace Web.Controllers
 
         /*
          * Type : POST
-         * URL : /api/account/register
+         * URL : /api/account/forgotPassword
          * Description: Create and return new User
          * Response Status: 200 Ok, 400 Bad Request
          */
         [HttpPost("[action]")]
-        public async Task<IActionResult> ForgotPassword([FromForm] AccountRegisterVM formdata)
+        public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordVM formdata)
         {
             // TODO joe: implement forgotpass
+
+            
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByNameAsync(formdata.Username);
+                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                {
+                    // Don't reveal that the user does not exist or is not confirmed
+                    // return View("ForgotPasswordConfirmation");
+                }
+
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var callbackUrl = Url.Action("ResetPassword", "Account", 
+                new { 
+                    UserId = user.Id, 
+                    code = code 
+                }, protocol: HttpContext.Request.Scheme);
+
+                var emailContent = "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>";
+
+
+                await _mailNetService.SendEmail(user.Email, user.UserName, "Reset Password Link", emailContent, emailContent);
+
+                // return View("ForgotPasswordConfirmation");
+            }
+
+            // If we got this far, something failed, redisplay form
             return null;
         }
 
         [HttpPost("[action]")]
-        private async Task ForgotPassword([FromForm] AccountRegisterVM user, IMailNetService emailService, string token)
+        private async Task SendForgotPasswordEmail([FromForm] AccountRegisterVM user, IMailNetService emailService, string token)
         {
             // send verification token
             await emailService.SendEmail(user.EmailAddress, user.Username, "Forgot password", "Verification", token);
