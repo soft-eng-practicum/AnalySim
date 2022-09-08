@@ -37,7 +37,7 @@ export class AccountService {
   // Post
   private urlUpdateUser: string = this.baseUrl + "updateuser/"
   private urlForgotPass: string = this.baseUrl + "forgotPass?"
-  private urlForgotPassEmail: string = this.baseUrl + "SendForgotPasswordEmail/"
+  private urlForgotPassEmail: string = this.baseUrl + "ForgotPassword/"
 
   // Delete
   private urlUnfollow: string = this.baseUrl + "unfollow/"
@@ -216,8 +216,9 @@ export class AccountService {
   }
 
   sendPasswordResetToken(email: string) {
+    console.log("sendPasswordResetToken is called")
     let body = new FormData()
-    body.append('email', email)
+    body.append('EmailAddress', email)
 
     return this.http.post<any>(this.urlForgotPassEmail, body)
       .pipe(

@@ -12,7 +12,7 @@ import { User } from 'src/app/interfaces/user';
   styleUrls: ['./email-forgot-pass.component.css']
 })
 export class EmailForgotPassComponent implements OnInit {
-  insertForm: FormGroup;
+  emailform: FormGroup;
   emailAddress: FormControl;
   username: FormControl;
   password: FormControl
@@ -37,23 +37,30 @@ export class EmailForgotPassComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || 'dashboard';
 
     // Initialize FormGroup using FormBuilder
-    this.insertForm = this.formBuilder.group({
-      'emailAddress': this.emailAddress,
-      'username': this.username,
-      'password': this.password,
-      'confirmPassword': this.confirmPassword
+    this.emailform = this.formBuilder.group({
+      'EmailAddress': this.emailAddress
     });
 
   }
 
   sendPasswordToken() {
     // Variable for FormGroupValue
-    let userReg = this.insertForm.value
+    let userReg = this.emailform.value
 
     // TODO: call method in account.service.ts
-    console.log("Function works")
-    this.acct.sendPasswordResetToken(userReg.emailAddress);
-    console.log("sendPasswordResetToken works")
+    console.log("userReg")
+    console.log(userReg.EmailAddress);
+    this.acct.sendPasswordResetToken(userReg.EmailAddress).subscribe(
+      result => {
+        let token = (<any>result).token;
+        this.router.navigateByUrl(this.returnUrl);
+      },
+      error => {
+        this.isLoading = false;
+        this.errorMessage = error.error.loginError;
+      }
+    );
+
   }
 
 }

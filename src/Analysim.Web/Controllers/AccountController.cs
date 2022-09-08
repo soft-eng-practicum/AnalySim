@@ -343,32 +343,32 @@ namespace Web.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordVM formdata)
         {
-            // TODO joe: implement forgotpass
+            // TODO joe: fix user var to find user by email
 
             
-            if (ModelState.IsValid)
+            //if (ModelState.IsValid)
+            //{
+            var user = await _userManager.FindByEmailAsync(formdata.EmailAddress);
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
             {
-                var user = await _userManager.FindByNameAsync(formdata.Username);
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
-                {
-                    // Don't reveal that the user does not exist or is not confirmed
-                    // return View("ForgotPasswordConfirmation");
-                }
-
-                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var callbackUrl = Url.Action("ResetPassword", "Account", 
-                new { 
-                    UserId = user.Id, 
-                    code = code 
-                }, protocol: HttpContext.Request.Scheme);
-
-                var emailContent = "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>";
-
-
-                await _mailNetService.SendEmail(user.Email, user.UserName, "Reset Password Link", emailContent, emailContent);
-
+                // Don't reveal that the user does not exist or is not confirmed
                 // return View("ForgotPasswordConfirmation");
             }
+
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var callbackUrl = Url.Action("ResetPassword", "Account", 
+            new { 
+                UserId = user.Id, 
+                code = code 
+            }, protocol: HttpContext.Request.Scheme);
+
+            var emailContent = "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>";
+
+
+            await _mailNetService.SendEmail(user.Email, user.UserName, "Reset Password Link", emailContent, emailContent);
+
+                // return View("ForgotPasswordConfirmation");
+            //}
 
             // If we got this far, something failed, redisplay form
             return null;
