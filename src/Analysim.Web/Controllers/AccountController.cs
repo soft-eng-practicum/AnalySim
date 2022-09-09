@@ -315,7 +315,6 @@ namespace Web.Controllers
             // TODO: redirect to error page
             return Redirect("~/error/not-found");
 
-
             // return
             // return RedirectToPage("/Index");
             // return "test verify token" + ". Token:" + token;
@@ -343,9 +342,6 @@ namespace Web.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordVM formdata)
         {
-            // TODO joe: fix user var to find user by email
-
-            
             //if (ModelState.IsValid)
             //{
             var user = await _userManager.FindByEmailAsync(formdata.EmailAddress);
@@ -372,6 +368,22 @@ namespace Web.Controllers
 
             // If we got this far, something failed, redisplay form
             return null;
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/account/ResetPassword?
+         * Description: Create and return new User
+         * Response Status: 200 Ok, 400 Bad Request
+         */
+        [HttpGet("[action]")]
+        public async Task<IActionResult> ResetPassword(String UserId, String code)
+        {
+            System.Diagnostics.Debug.WriteLine("User is NOT verified");
+            System.Diagnostics.Debug.WriteLine("Resset Password called");
+            System.Diagnostics.Debug.WriteLine(UserId);
+
+            return Redirect("~/ResetPassword");
         }
 
         [HttpPost("[action]")]

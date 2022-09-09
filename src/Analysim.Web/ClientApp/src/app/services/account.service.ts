@@ -36,8 +36,8 @@ export class AccountService {
 
   // Post
   private urlUpdateUser: string = this.baseUrl + "updateuser/"
-  private urlForgotPass: string = this.baseUrl + "forgotPass?"
   private urlForgotPassEmail: string = this.baseUrl + "ForgotPassword/"
+  private urlResetPassword: string = this.baseUrl + "ResetPassword?"
 
   // Delete
   private urlUnfollow: string = this.baseUrl + "unfollow/"
@@ -196,13 +196,13 @@ export class AccountService {
       )
   }
 
-  resetPassword(username: string, password: string, confirmPassword: string) {
+  resetPassword(password: string, confirmPassword: string) {
+    console.log("ResetPassword is called")
     let body = new FormData()
-    body.append('username', username)
     body.append('password', password)
     body.append('confirmPassword', confirmPassword)
 
-    return this.http.post<any>(this.urlForgotPass, body)
+    return this.http.post<any>(this.urlResetPassword, body)
       .pipe(
         map(body => {
           return body
@@ -216,10 +216,9 @@ export class AccountService {
   }
 
   sendPasswordResetToken(email: string) {
-    console.log("sendPasswordResetToken is called")
     let body = new FormData()
     body.append('EmailAddress', email)
-
+    console.log("sendPasswordResetToken is called");
     return this.http.post<any>(this.urlForgotPassEmail, body)
       .pipe(
         map(body => {
@@ -232,6 +231,25 @@ export class AccountService {
 
       )
   }
+
+
+  // changePassword(email: string) {
+  //   console.log("changePassword is called")
+  //   let body = new FormData()
+  //   body.append('EmailAddress', email)
+
+  //   return this.http.post<any>(this.urlForgotPassEmail, body)
+  //     .pipe(
+  //       map(body => {
+  //         return body
+  //       }),
+  //       catchError(error => {
+  //         console.log(error)
+  //         return throwError(error)
+  //       })
+
+  //     )
+  // }
 
   uploadProfileImage(file: any, userID: number): Observable<BlobFile> {
     let body = new FormData()

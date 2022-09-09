@@ -30,6 +30,7 @@ import { ContactUsComponent } from './contact-us/contact-us.component';
 import { AboutUsComponent } from './about-us/about-us.component';
 import { EmailConfirmationComponent } from './email-confirmation/email-confirmation.component';
 import { EmailForgotPassComponent } from './email-confirmation/email-forgot-pass/email-forgot-pass.component';
+import { ResetPasswordComponent } from './email-confirmation/reset-password/reset-password.component';
 
 
 @NgModule({
@@ -55,6 +56,7 @@ import { EmailForgotPassComponent } from './email-confirmation/email-forgot-pass
     AboutUsComponent,
     EmailConfirmationComponent,
     EmailForgotPassComponent,
+    ResetPasswordComponent,
   ],
   imports: [
     BrowserModule,

@@ -40,7 +40,7 @@
             
                                     <!-- Form Password -->
                                     <div class="form-group">
-                                        <a class="float-right" href="javascript:void(0);" (click)="notfi.showInfo('Not Implemented Yet','Forgot Password');">Forgot?</a>
+                                        <a class="float-right" href="javascript:void(0);" (click)=forgotPasswordPage()>Forgot?</a>
                                         <label for="password">Password</label>
                                         <input formControlName="password" type="password" class="form-control" placeholder="" required [readOnly]="isLoading">
                                         <div *ngIf="password.touched && password.errors" class="errorMessage">

@@ -65,7 +65,10 @@ export class LoginComponent implements OnInit {
         this.errorMessage = error.error.loginError;
       },
     );
+  }
 
+  forgotPasswordPage() {
+    this.router.navigate(['/EmailForgotPass']);
   }
 
 }
