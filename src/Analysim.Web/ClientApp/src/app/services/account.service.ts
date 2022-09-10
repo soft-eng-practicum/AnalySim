@@ -38,6 +38,7 @@ export class AccountService {
   private urlUpdateUser: string = this.baseUrl + "updateuser/"
   private urlForgotPassEmail: string = this.baseUrl + "ForgotPassword/"
   private urlResetPassword: string = this.baseUrl + "ResetPassword?"
+  private urlChangePassword: string = this.baseUrl + "changePassword"
 
   // Delete
   private urlUnfollow: string = this.baseUrl + "unfollow/"
@@ -196,11 +197,13 @@ export class AccountService {
       )
   }
 
-  resetPassword(password: string, confirmPassword: string) {
+  resetPassword(userID: string, token: string) {
     console.log("ResetPassword is called")
     let body = new FormData()
-    body.append('password', password)
-    body.append('confirmPassword', confirmPassword)
+    body.append('user', userID)
+    body.append('code', token)
+
+    console.log("token:   " + token);
 
     return this.http.post<any>(this.urlResetPassword, body)
       .pipe(
@@ -233,23 +236,28 @@ export class AccountService {
   }
 
 
-  // changePassword(email: string) {
-  //   console.log("changePassword is called")
-  //   let body = new FormData()
-  //   body.append('EmailAddress', email)
+  changePassword(userID: string, password: string, confirmPassword: string, token: string) {
+    console.log("changePassword is called")
+    let body = new FormData()
+    body.append('userID', userID)
+    body.append('NewPassword', password)
+    body.append('ConfirmPassword', confirmPassword)
+    body.append('passwordToken', token)
 
-  //   return this.http.post<any>(this.urlForgotPassEmail, body)
-  //     .pipe(
-  //       map(body => {
-  //         return body
-  //       }),
-  //       catchError(error => {
-  //         console.log(error)
-  //         return throwError(error)
-  //       })
+    console.log("token:   " + token);
 
-  //     )
-  // }
+    return this.http.post<any>(this.urlChangePassword, body)
+      .pipe(
+        map(body => {
+          return body
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+
+      )
+  }
 
   uploadProfileImage(file: any, userID: number): Observable<BlobFile> {
     let body = new FormData()

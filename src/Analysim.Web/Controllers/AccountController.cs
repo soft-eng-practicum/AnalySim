@@ -342,21 +342,26 @@ namespace Web.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordVM formdata)
         {
+            // TODO: works but could be more secure
             //if (ModelState.IsValid)
             //{
             var user = await _userManager.FindByEmailAsync(formdata.EmailAddress);
             if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
             {
                 // Don't reveal that the user does not exist or is not confirmed
-                // return View("ForgotPasswordConfirmation");
+                // return View("ForgotPasswordConfirmation");encode
             }
 
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            System.Diagnostics.Debug.WriteLine(code);
             var callbackUrl = Url.Action("ResetPassword", "Account", 
             new { 
                 UserId = user.Id, 
-                code = code 
+                code = System.Web.HttpUtility.UrlEncode(code)
             }, protocol: HttpContext.Request.Scheme);
+
+            System.Diagnostics.Debug.WriteLine("encoded");
+            System.Diagnostics.Debug.WriteLine(System.Web.HttpUtility.UrlEncode(code) + " encoded");
 
             var emailContent = "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>";
 
@@ -371,19 +376,17 @@ namespace Web.Controllers
         }
 
         /*
-         * Type : POST
+         * Type : GET
          * URL : /api/account/ResetPassword?
-         * Description: Create and return new User
+         * Description: Pass password Token and UserID to Reset password page and redirect
          * Response Status: 200 Ok, 400 Bad Request
          */
         [HttpGet("[action]")]
-        public async Task<IActionResult> ResetPassword(String UserId, String code)
+        public IActionResult ResetPassword(String UserId, String code)
         {
-            System.Diagnostics.Debug.WriteLine("User is NOT verified");
-            System.Diagnostics.Debug.WriteLine("Resset Password called");
-            System.Diagnostics.Debug.WriteLine(UserId);
-
-            return Redirect("~/ResetPassword");
+            System.Diagnostics.Debug.WriteLine(code + " sent");
+            System.Diagnostics.Debug.WriteLine("sent encode");
+            return Redirect("~/ResetPassword?UserId=" + UserId + "&code=" + code);
         }
 
         [HttpPost("[action]")]
@@ -393,6 +396,36 @@ namespace Web.Controllers
             await emailService.SendEmail(user.EmailAddress, user.Username, "Forgot password", "Verification", token);
         }
 
+
+        /*
+         * Type : POST
+         * URL : /api/account/changePassword
+         * Description: Based on the form data sent in, this will change the current password to the new one
+         * Response Status: 200 Ok, 400 Bad Request
+         */
+        [HttpPost("[action]")]
+        // TODO: JOE FIX, MAKE A NEW VIEW MODEL 
+        public async Task<IActionResult> changePassword([FromForm] ChangePasswordVM formdata)
+        {
+            var user = await _userManager.FindByIdAsync(formdata.userId);
+            System.Diagnostics.Debug.WriteLine("Decode");
+            System.Diagnostics.Debug.WriteLine(System.Web.HttpUtility.UrlDecode(formdata.passwordToken));
+            
+
+
+            var resetPassResult =  _userManager.ResetPasswordAsync(user, formdata.passwordToken, formdata.NewPassword);
+            System.Diagnostics.Debug.WriteLine(formdata.userId + " Receieved");
+
+            System.Diagnostics.Debug.WriteLine("Result: ");
+            System.Diagnostics.Debug.WriteLine(resetPassResult.Result);
+
+
+            return Ok(new
+            {
+                result = resetPassResult.Result,
+                message = "Password Successfully Changed"
+            });
+        }
 
         /*
        * Type : Post

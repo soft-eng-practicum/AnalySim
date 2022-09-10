@@ -13,10 +13,14 @@ import { User } from 'src/app/interfaces/user';
   styleUrls: ['./reset-password.component.css']
 })
 export class ResetPasswordComponent implements OnInit {
-  emailform: FormGroup;
-  pass: FormControl;
-  passConfirm: FormControl;
+
+  passform: FormGroup;
+  NewPassword: FormControl;
+  passwordConfirm: FormControl;
   confirmPassword: FormControl;
+  userId: string;
+  passwordToken: string;
+
   errorList: string[];
   isLoading: boolean;
   errorMessage: string;
@@ -31,15 +35,30 @@ export class ResetPasswordComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      this.userId = params['UserId'];
+      this.passwordToken = params['code'];
+    });
+
+    // Initialize Form Controls
+    this.NewPassword = new FormControl('', [Validators.required]);
+    this.passwordConfirm = new FormControl('', [Validators.required]);
+
+
+    // Initialize FormGroup using FormBuilder
+    this.passform = this.formBuilder.group({
+      'NewPassword': this.passform,
+      'passwordConfirm': this.passwordConfirm
+    });
   }
 
 
   setNewPassword() {
     // Variable for FormGroupValue
-    let userReg = this.emailform.value
+    let userReg = this.passform.value
 
-    // TODO: call method in account.service.ts
-    this.acct.resetPassword(userReg.pass, userReg.passConfirm).subscribe(
+    // TODO: call changePassword in account.service.ts and account controller
+    this.acct.changePassword(this.userId, userReg.NewPassword, (userReg.passwordConfirm), this.passwordToken).subscribe(
       result => {
         let token = (<any>result).token;
         this.router.navigateByUrl(this.returnUrl);
