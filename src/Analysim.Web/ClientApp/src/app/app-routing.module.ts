@@ -12,6 +12,7 @@ import { ContactUsComponent } from './contact-us/contact-us.component';
 import { EmailForgotPassComponent } from './email-confirmation/email-forgot-pass/email-forgot-pass.component';
 import { EmailConfirmationComponent } from './email-confirmation/email-confirmation.component';
 import { ResetPasswordComponent } from './email-confirmation/reset-password/reset-password.component';
+import { EmailResendVerificationComponent } from './email-confirmation/email-resend-verification/email-resend-verification.component';
 const routes: Routes = [];
 
 @NgModule({
@@ -22,6 +23,7 @@ const routes: Routes = [];
       { path: "login", component: LoginComponent },
       { path: "aboutus", component: AboutUsComponent },
       { path: "email-confirmation", component: EmailConfirmationComponent },
+      { path: "email-resend-verification", component: EmailResendVerificationComponent },
       { path: "emailForgotPass", component: EmailForgotPassComponent },
       { path: "resetPassword", component: ResetPasswordComponent },
       { path: "contactus", component: ContactUsComponent },

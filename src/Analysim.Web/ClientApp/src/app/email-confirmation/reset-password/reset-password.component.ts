@@ -58,7 +58,7 @@ export class ResetPasswordComponent implements OnInit {
     let userReg = this.passform.value
 
     // TODO: call changePassword in account.service.ts and account controller
-    this.acct.changePassword(this.userId, userReg.NewPassword, (userReg.passwordConfirm), this.passwordToken).subscribe(
+    this.acct.changePassword(this.userId, userReg.NewPassword, userReg.passwordConfirm, this.passwordToken).subscribe(
       result => {
         let token = (<any>result).token;
         this.router.navigateByUrl(this.returnUrl);

@@ -31,6 +31,7 @@ import { AboutUsComponent } from './about-us/about-us.component';
 import { EmailConfirmationComponent } from './email-confirmation/email-confirmation.component';
 import { EmailForgotPassComponent } from './email-confirmation/email-forgot-pass/email-forgot-pass.component';
 import { ResetPasswordComponent } from './email-confirmation/reset-password/reset-password.component';
+import { EmailResendVerificationComponent } from './email-confirmation/email-resend-verification/email-resend-verification.component';
 
 
 @NgModule({
@@ -57,6 +58,7 @@ import { ResetPasswordComponent } from './email-confirmation/reset-password/rese
     EmailConfirmationComponent,
     EmailForgotPassComponent,
     ResetPasswordComponent,
+    EmailResendVerificationComponent,
   ],
   imports: [
     BrowserModule,

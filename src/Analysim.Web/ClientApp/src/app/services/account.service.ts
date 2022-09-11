@@ -39,6 +39,7 @@ export class AccountService {
   private urlForgotPassEmail: string = this.baseUrl + "forgotPassword/"
   private urlResetPassword: string = this.baseUrl + "resetPassword?"
   private urlChangePassword: string = this.baseUrl + "changePassword"
+  private urlReSendVerification: string = this.baseUrl + "sendConfirmationEmail"
 
   // Delete
   private urlUnfollow: string = this.baseUrl + "unfollow/"
@@ -198,14 +199,29 @@ export class AccountService {
   }
 
   resetPassword(userID: string, token: string) {
-    console.log("ResetPassword is called")
     let body = new FormData()
     body.append('user', userID)
     body.append('code', token)
 
-    console.log("token:   " + token);
-
     return this.http.post<any>(this.urlResetPassword, body)
+      .pipe(
+        map(body => {
+          return body
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+
+      )
+  }
+
+  resendVerificationLink(email: string) {
+    console.log("resendVerificationLink is called")
+    let body = new FormData()
+    body.append('EmailAddress', email)
+
+    return this.http.post<any>(this.urlReSendVerification, body)
       .pipe(
         map(body => {
           return body
@@ -237,14 +253,11 @@ export class AccountService {
 
 
   changePassword(userID: string, password: string, confirmPassword: string, token: string) {
-    console.log("changePassword is called")
     let body = new FormData()
     body.append('userID', userID)
     body.append('NewPassword', password)
     body.append('ConfirmPassword', confirmPassword)
     body.append('passwordToken', token)
-
-    console.log("token:   " + token);
 
     return this.http.post<any>(this.urlChangePassword, body)
       .pipe(

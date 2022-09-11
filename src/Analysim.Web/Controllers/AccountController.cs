@@ -256,14 +256,12 @@ namespace Web.Controllers
                 Console.Write(callbackUrl);
 
                 // send verification token
-                var emailContent =
-                    "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>";
-                await _mailNetService.SendEmail(user.Email, user.UserName, "Confirm your account",
-                                                emailContent, emailContent);
+                var emailContent = "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>";
+                await _mailNetService.SendEmail(user.Email, user.UserName, "Confirm your account", emailContent, emailContent);
 
                 // Add Role To User
                 await _userManager.AddToRoleAsync(user, "Customer");
-  
+
                 // Return Ok Request
                 return Ok(new
                 {
@@ -289,7 +287,7 @@ namespace Web.Controllers
 
         /*
          * Type : POST
-         * URL : /api/account/ConfirmEmail?
+         * URL : /api/account/confirmEmail?
          * Param : formdata
          * Description: test
          * Response Status: 200 Ok, 401 Unauthorized
@@ -321,16 +319,38 @@ namespace Web.Controllers
         }
 
         /* Type : POST
-         * URL : /api/account/sendEmailConfirmationEmail
+         * URL : /api/account/sendConfirmationEmail
          * Param : formdata
          * Description: Verifies the user from the token sent from Register
          * Response Status: 200 Ok, 401 Unauthorized
          */
         [HttpPost("[action]")]
-        private async Task SendEmailConfirmationEmail([FromForm] AccountRegisterVM user, IMailNetService emailService, string token)
+        public async Task<IActionResult> SendConfirmationEmail([FromForm] ForgotPasswordVM formdata)
         {
+            var user = await _userManager.FindByEmailAsync(formdata.EmailAddress);
+
+            // generate email token
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            
+
+            var callbackUrl = Url.Action("ConfirmEmail", "Account", new
+                {
+                    userid = user.Id,
+                    token = code,
+                }, protocol: HttpContext.Request.Scheme);
+
             // send verification token
-            await emailService.SendEmail(user.EmailAddress, user.Username, "Verification Token for Analysim", "Verification", token);
+            var emailContent = "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>";
+            await _mailNetService.SendEmail(user.Email, user.UserName, "Confirm your account", emailContent, emailContent);   
+
+                // return View("ForgotPasswordConfirmation");
+            //}
+
+            return Ok(new
+            {
+                result = user,
+                message = "Sucessfully sent verification email"
+            });  
         }
 
         /*
@@ -358,10 +378,7 @@ namespace Web.Controllers
             new { 
                 UserId = user.Id, 
                 code = System.Web.HttpUtility.UrlEncode(code)
-            }, protocol: HttpContext.Request.Scheme);
-
-            System.Diagnostics.Debug.WriteLine("encoded");
-            System.Diagnostics.Debug.WriteLine(System.Web.HttpUtility.UrlEncode(code) + " encoded");
+            }, protocol: HttpContext.Request.Scheme); 
 
             var emailContent = "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>";
 
@@ -371,7 +388,6 @@ namespace Web.Controllers
                 // return View("ForgotPasswordConfirmation");
             //}
 
-            // If we got this far, something failed, redisplay form
             return Ok(new
             {
                 result = user,
