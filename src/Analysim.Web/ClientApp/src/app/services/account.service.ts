@@ -36,8 +36,8 @@ export class AccountService {
 
   // Post
   private urlUpdateUser: string = this.baseUrl + "updateuser/"
-  private urlForgotPassEmail: string = this.baseUrl + "ForgotPassword/"
-  private urlResetPassword: string = this.baseUrl + "ResetPassword?"
+  private urlForgotPassEmail: string = this.baseUrl + "forgotPassword/"
+  private urlResetPassword: string = this.baseUrl + "resetPassword?"
   private urlChangePassword: string = this.baseUrl + "changePassword"
 
   // Delete

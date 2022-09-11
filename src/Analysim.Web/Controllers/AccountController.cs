@@ -321,7 +321,7 @@ namespace Web.Controllers
         }
 
         /* Type : POST
-         * URL : /api/account/SendEmailConfirmationEmail
+         * URL : /api/account/sendEmailConfirmationEmail
          * Param : formdata
          * Description: Verifies the user from the token sent from Register
          * Response Status: 200 Ok, 401 Unauthorized
@@ -335,7 +335,7 @@ namespace Web.Controllers
 
         /*
          * Type : POST
-         * URL : /api/account/ForgotPassword
+         * URL : /api/account/forgotPassword
          * Description: Generates reset password token and sends api link through email
          * Response Status: 200 Ok, 400 Bad Request
          */
@@ -381,18 +381,23 @@ namespace Web.Controllers
 
         /*
          * Type : GET
-         * URL : /api/account/ResetPassword?
+         * URL : /api/account/resetPassword?
          * Description: Pass password Token and UserID to Reset password page and redirect
          * Response Status: 200 Ok, 400 Bad Request
          */
         [HttpGet("[action]")]
         public IActionResult ResetPassword(String UserId, String code)
         {
-            System.Diagnostics.Debug.WriteLine(code + " sent");
-            System.Diagnostics.Debug.WriteLine("sent encode");
-            return Redirect("~/ResetPassword?UserId=" + UserId + "&code=" + code);
+            return Redirect("~/resetPassword?UserId=" + UserId + "&code=" + code);
         }
 
+
+        /*
+         * Type : POST
+         * URL : /api/account/sendForgotPasswordEmail
+         * Description: 
+         * Response Status: 200 Ok, 400 Bad Request
+         */
         [HttpPost("[action]")]
         private async Task SendForgotPasswordEmail([FromForm] AccountRegisterVM user, IMailNetService emailService, string token)
         {
@@ -412,17 +417,7 @@ namespace Web.Controllers
         public async Task<IActionResult> changePassword([FromForm] ChangePasswordVM formdata)
         {
             var user = await _userManager.FindByIdAsync(formdata.userId);
-            System.Diagnostics.Debug.WriteLine("Decode");
-            System.Diagnostics.Debug.WriteLine(System.Web.HttpUtility.UrlDecode(formdata.passwordToken));
-            
-
-
             var resetPassResult =  _userManager.ResetPasswordAsync(user, formdata.passwordToken, formdata.NewPassword);
-            System.Diagnostics.Debug.WriteLine(formdata.userId + " Receieved");
-
-            System.Diagnostics.Debug.WriteLine("Result: ");
-            System.Diagnostics.Debug.WriteLine(resetPassResult.Result);
-
 
             return Ok(new
             {

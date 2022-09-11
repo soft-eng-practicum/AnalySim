@@ -47,9 +47,6 @@ export class EmailForgotPassComponent implements OnInit {
     // Variable for FormGroupValue
     let userReg = this.emailform.value
 
-    // TODO: call method in account.service.ts
-    console.log("userReg")
-    console.log(userReg.EmailAddress);
     this.acct.sendPasswordResetToken(userReg.EmailAddress).subscribe(
       result => {
         let token = (<any>result).token;
