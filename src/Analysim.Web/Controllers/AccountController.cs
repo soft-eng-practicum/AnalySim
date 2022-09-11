@@ -335,8 +335,8 @@ namespace Web.Controllers
 
         /*
          * Type : POST
-         * URL : /api/account/forgotPassword
-         * Description: Create and return new User
+         * URL : /api/account/ForgotPassword
+         * Description: Generates reset password token and sends api link through email
          * Response Status: 200 Ok, 400 Bad Request
          */
         [HttpPost("[action]")]
@@ -372,7 +372,11 @@ namespace Web.Controllers
             //}
 
             // If we got this far, something failed, redisplay form
-            return null;
+            return Ok(new
+            {
+                result = user,
+                message = "Password Successfully Changed"
+            });
         }
 
         /*
