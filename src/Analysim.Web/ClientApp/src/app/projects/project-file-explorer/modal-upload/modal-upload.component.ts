@@ -6,7 +6,7 @@ import { BlobFile } from 'src/app/interfaces/blob-file';
 @Component({
   selector: 'app-modal-upload',
   templateUrl: './modal-upload.component.html',
-  styleUrls: ['./modal-upload.component.css']
+  styleUrls: ['./modal-upload.component.scss']
 })
 export class ModalUploadComponent implements OnInit {
 

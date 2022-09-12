@@ -32,12 +32,15 @@
                     </span>
                 </button>
 
-                 <!-- Edit Project Button -->
+                <!-- Edit Project Button -->
                  <button class="btn btn-success mr-1" [routerLink]='["/project/edit"]' type="submit" *ngIf="isOwner">
                     Edit
                 </button>
 
-
+                <!-- Delete Project Button -->
+                <button class="btn btn-danger mr-1" *ngIf="isOwner" (click)="deleteProject()">
+                    Delete
+                </button>
 
                 <!-- Follow Project Button -->
                 <button class="btn btn-success mr-1" type="button" *ngIf="!isMember && !isOwner" (click)="joinProject()">
@@ -103,6 +106,10 @@
 
     <ng-template #forkModal>
         <app-modal-fork [forkModalRef]="forkModalRef" [project]="project" [currentUser]="currentUser"></app-modal-fork>
+    </ng-template>
+
+    <ng-template #deleteModal>
+        <app-modal-delete [deleteModalRef]="deleteModalRef" [projectID]="project.projectID" [currentUser]="currentUser" ></app-modal-delete>
     </ng-template>
 
     <!-- <div class="row h-100">

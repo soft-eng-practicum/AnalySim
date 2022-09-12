@@ -4,10 +4,10 @@
   <div class="container-fluid">
     <!-- Row Start -->
     <div class="row-fluid h-100 align-items-center">
-      <div class="row">
+      <div class="row justify-content-center">
         <!-- Column Header Start -->
-        <div class="col-xl-5 col-lg-5 ml-3">
-          <h1 class="display-4 text-white font-weight-bold mb-2">Analysim</h1>
+        <div class="col-xl-5 col-lg-5 ml-3 align-self-center">
+          <h1 class="display-4 text-white font-weight-bold mb-2">AnalySim</h1>
           <p class="header-text text-white">A data sharing platform to simplify the visualization of datasets.
             Collaborate together and host your data to the world, or browser through our multiple user generated projects.
           </p>
@@ -27,7 +27,7 @@
   <div class="row p-2 mt-5 justify-content-center">
     <!-- Website Service1 -->
     <div class="col-md-3 mb-4 pr-5 text-center">
-      <h3>Register for Analysim</h3>
+      <h3>Register for AnalySim</h3>
             <hr>
             <p class="lead">Begin building your data or colaborate with a team</p>
             <a [routerLink]='["/register"]'>Register <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
@@ -56,13 +56,64 @@
     <div class="col-md-6">
       <!-- Organizaiton Description -->
       <div class="row justify-content-center">
-        <h2 class="text-center">Gather Data Together Collectively</h2>
-        <!-- <p class="text-center">Organization brings teams together to tackle an issue together, learn from each other,
+        <h2 class="text-center">Gather Data Together Collectively</h2>        <!-- <p class="text-center">Organization brings teams together to tackle an issue together, learn from each other,
           and foster a community</p> -->
       </div>
       <div class="row justify-content-center">
         <div class="text-center">
-          <button type="button" class="btn btn-primary btn-lg" [routerLink]='["/register"]'>Create Organization &raquo;</button>
+          <button type="button" class="btn btn-primary btn-lg" [routerLink]='["/register"]'>Register Your Account &raquo;</button>
+     <!-- <button2> type="button"     </button2> -->
+        </div>
+      </div>
+    </div>
+  </div> <!-- Row Organization End -->
+
+  <!-- Page Content Start -->
+  <div class="container-fluid lead">
+    <!-- Row Services Start -->
+    <div class="row p-2 mt-5 justify-content-center notebook-row">
+      <!-- Website Service1 -->
+      <div class="col-md-3 mb-4 pr-5 text-center notebook-container">
+        <h3>Notebook 1</h3>
+        <hr>
+        <p class="lead">Begin building your data or colaborate with a team</p>
+        <img class="note-img" src="../../assets/img/sheet2.png">
+        <a class="note-btn" [routerLink]='["/project/create"]'>Open Notebook <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
+        <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/register"]'>Register &raquo;</button> -->
+      </div>
+      <!-- Website Service2 -->
+      <div class="col-md-3 mb-4 pr-5 text-center notebook-container">
+        <h3>Notebook 2</h3>
+        <hr>
+        <p class="lead">Create your own project and share your ideas</p>
+        <img class="note-img" src="../../assets/img/sheet2.png">
+        <a class="note-btn" [routerLink]='["/project/create"]'>Open Notebook <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
+        <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/project/create"]'>Create Project &raquo;</button> -->
+      </div>
+      <!-- Website Service2 -->
+      <div class="col-md-3 mb-4 pr-5 text-center notebook-container">
+        <h3>Notebook 3</h3>
+        <hr>
+        <p class="lead">Not ready yet? Get inspired from our projects</p>
+        <img class="note-img" src="../../assets/img/sheet2.png">
+        <a class="note-btn" [routerLink]='["/project/create"]'>Open Notebook <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
+        <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/explore"]'>Explore Project &raquo;</button> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Row Organization Start -->
+  <div class="row py-3 my-3 justify-content-center bg-navy">
+    <div class="col-md-6">
+      <!-- Organizaiton Description -->
+      <div class="row justify-content-center">
+        <h2 class="text-center">Create Your Own Notebook</h2>        <!-- <p class="text-center">Organization brings teams together to tackle an issue together, learn from each other,
+          and foster a community</p> -->
+      </div>
+      <div class="row justify-content-center">
+        <div class="text-center">
+          <button type="button" class="btn btn-primary btn-lg" [routerLink]='["/login"]'>Create Notebook &raquo;</button>
+     <!-- <button2> type="button"     </button2> -->
         </div>
       </div>
     </div>

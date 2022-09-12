@@ -4,7 +4,7 @@ import { ProjectUser } from 'src/app/interfaces/project-user';
 @Component({
   selector: 'app-project-list-users',
   templateUrl: './project-list-users.component.html',
-  styleUrls: ['./project-list-users.component.css']
+  styleUrls: ['./project-list-users.component.scss']
 })
 export class ProjectListUsersComponent implements OnInit {
 

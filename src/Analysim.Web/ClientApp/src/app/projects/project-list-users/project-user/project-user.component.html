@@ -11,7 +11,7 @@
         </div>
         <!-- Update User Role -->
         <div class="col-md-4">
-            <select class="btn custom-select" style="color: #343a40; border-color: #343a40;" (change)="updateUser($event.target.value)">
+            <select class="btn custom-select" style="color: #343a40; border-color: #343a40;" (change)="updateUser($event)">
                 <option *ngFor="let role of roles" [selected]="role == projectUser.userRole" >{{role | titlecase}}</option>              
             </select>
         </div>

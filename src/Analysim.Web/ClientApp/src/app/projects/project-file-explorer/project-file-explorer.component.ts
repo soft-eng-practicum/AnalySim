@@ -12,7 +12,7 @@ import { UploadFileItem } from '../../interfaces/upload-file-item';
 @Component({
   selector: 'app-project-file-explorer',
   templateUrl: './project-file-explorer.component.html',
-  styleUrls: ['./project-file-explorer.component.css']
+  styleUrls: ['./project-file-explorer.component.scss']
 })
 export class ProjectFileExplorerComponent implements OnInit {
 

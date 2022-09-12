@@ -8,7 +8,7 @@
         <label class="form-check-label" for="inlineRadio1">Public</label>
       </div>
       <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" formControlName="visibility" id="inlineRadio2" value="private" [readOnly]="isLoading" disabled>
+        <input class="form-check-input" type="radio" formControlName="visibility" id="inlineRadio2" value="private" [readOnly]="isLoading" [disabled]="true">
         <label class="form-check-label" for="inlineRadio2">Private</label>
       </div>
     </div>
@@ -18,9 +18,9 @@
         <label for="name">Project Name</label>
         <input formControlName="name" type="text" class="form-control" placeholder="" [class.invalid]="name.touched && name.invalid" [class.valid]="name.valid"  required  [readOnly]="isLoading">
         <div *ngIf="name.touched && name.errors" class="text-danger">
-            <p class="mb-0 p-1" [hidden]="!name.errors?.noSpaceSpecial">No Space or Special Character Except Hyphen</p>
-            <p class="mb-0 p-1" [hidden]="!name.errors?.minlength">Minimum 5 Character</p>
-            <p class="mb-0 p-1" [hidden]="!name.errors?.maxlength">maximum 20 Character</p>
+            <p class="mb-0 p-1" [hidden]="!name.errors?.['noSpaceSpecial']">No Space or Special Character Except Hyphen</p>
+            <p class="mb-0 p-1" [hidden]="!name.errors?.['minlength']">Minimum 5 Character</p>
+            <p class="mb-0 p-1" [hidden]="!name.errors?.['maxlength']">maximum 20 Character</p>
         </div>
     </div> 
 

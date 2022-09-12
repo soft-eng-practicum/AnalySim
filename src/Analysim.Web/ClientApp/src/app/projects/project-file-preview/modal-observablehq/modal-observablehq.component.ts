@@ -5,7 +5,7 @@ import { AbstractControl, ValidatorFn, FormGroup, FormControl, FormBuilder, Vali
 @Component({
   selector: 'app-modal-observablehq',
   templateUrl: './modal-observablehq.component.html',
-  styleUrls: ['./modal-observablehq.component.css']
+  styleUrls: ['./modal-observablehq.component.scss']
 })
 export class ModalObservablehqComponent implements OnInit {
 
