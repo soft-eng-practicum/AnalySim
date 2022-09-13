@@ -77,4 +77,29 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     border-color: green;
 }
 
+.bg-theme {
+    background-color:  white;
+    color: var(--font-primary-color);
+}
+
+.btn {
+    &:hover:disabled {
+        color: var(--button-font-color);
+        cursor: none;
+    }
+}
+    
+
+.btn-primary-new {
+    background-color: var(--button-background-color);
+    border-color: var(--button-border-width, --button-border-style, --button-border-color);
+    color: var(--button-font-color);
+
+    &.btn:hover:not(:disabled) {
+        background-color: var(--button-background-color-hov);
+        border-color: var(--button-border-width, --button-border-style, --button-border-color-hov);
+        color: var(--button-font-color-hover);
+    }
+}
+
 

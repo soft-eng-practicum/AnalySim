@@ -3,8 +3,7 @@
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center center; */
-    background-color:  rgb(186, 199, 218);
-    background-image: linear-gradient(#2a1535,#1f161f);
+    background-color: var(--background-color);
 }
 
 .header-text{
@@ -15,7 +14,7 @@
 .bg-navy{
     /* background-color:#04132a; */
     color: #FFF;
-    background-color: #2a1535;
+    background-color: var(--background-color);
 
 }
 .btn-primary {
@@ -87,4 +86,29 @@ font-family:var(--bs-body-font-family) !important;
         padding: 30px;
     }
 }
+ .sponsor-left{
+    justify-content: center;
+ }
 
+ .home-sponser {
+
+    .sponser-column {
+        align-self: center;
+
+        .hero-sponser {
+            display: flex;
+            align-items: center;
+        
+            img {
+                margin-right: 10px;
+            }
+
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+        }
+    }
+}
+
+ 

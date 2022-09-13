@@ -10,15 +10,15 @@
     font-weight: 400;
 }
 
-.btn-navy{
-    background-color:
-    #04132a;color: #FFF;}
-    .btn-black:hover{color: #FFF;
-}
+// .btn-navy{
+//     background-color:
+//     #04132a;color: #FFF;}
+//     .btn-black:hover{color: #FFF;
+// }
 
-.bg-theme{
-    background-color:  rgb(226, 234, 247);
-}
+// .bg-theme{
+//     background-color:  rgb(226, 234, 247);
+// }
 
 .bg-navy{
     background-color:  #102958;
@@ -33,10 +33,9 @@
 }
 
 .background{
-    background-color:  #102958;
+    background-color: var(--background-color);
     box-sizing: border-box;
-    border-bottom: solid #102958 150px;
-    border-top: solid #102958 150px;
+    padding: 160px 0px;
     height: 100%;
     display: flex;
     flex-direction: column;

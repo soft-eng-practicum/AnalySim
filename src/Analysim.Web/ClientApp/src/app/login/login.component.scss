@@ -1,25 +1,24 @@
 #login{
     background-color:  rgb(226, 234, 247);
 }
-.btn-navy{
-    background-color: #0c1a34;
-    color: #FFF;
-}
+// .btn-navy{
+//     background-color: #0c1a34;
+//     color: #FFF;
+// }
 
-.bg-theme{
-    background-color:  rgb(226, 234, 247);
-}
+// .bg-theme{
+//     background-color:  rgb(226, 234, 247);
+// }
 
-.bg-navy{
-    background-color:  #102958;
-    /* background-image: linear-gradient(#0c1a34,#102958); */
-}
+// .bg-navy{
+//     background-color:  #102958;
+//     /* background-image: linear-gradient(#0c1a34,#102958); */
+// }
 
 .background{
-    background-color:  #102958;
+    background-color: var(--background-color);
     box-sizing: border-box;
-    border: solid #102958 160px;
-
+    padding: 160px;
     height: 100%;
     display: flex;
     flex-direction: column;
