@@ -34,7 +34,7 @@ export class EmailForgotPassComponent implements OnInit {
     this.emailAddress = new FormControl('', [Validators.required, Validators.email])
 
     // get return url from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || 'dashboard';
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || 'login';
 
     // Initialize FormGroup using FormBuilder
     this.emailform = this.formBuilder.group({

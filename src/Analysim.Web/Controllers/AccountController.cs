@@ -310,7 +310,7 @@ namespace Web.Controllers
                 return Redirect("~/email-confirmation");   
             }
 
-            // TODO: redirect to error page
+            // TODO: redirect to error page saying user already verified
             return Redirect("~/error/not-found");
 
             // return

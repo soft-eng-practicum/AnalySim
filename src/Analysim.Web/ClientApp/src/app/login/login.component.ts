@@ -3,7 +3,6 @@ import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms'
 import { AccountService } from '../services/account.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
-import { error } from '@angular/compiler/src/util';
 
 @Component({
   selector: 'app-login',

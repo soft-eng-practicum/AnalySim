@@ -86,7 +86,7 @@
                             <article class="card-body">
                                 <div class="text-center">
                                     <p class ="d-inline">Resend Email Verification link </p>
-                                    <a [routerLink]='["/email-resend-verification"]' [queryParams]="{returnUrl: returnUrl}" *ngIf="returnUrl != ''">Resend</a>
+                                    <a [routerLink]='["/email-resend-verification"]' [queryParams]="{returnUrl: 'login'}" *ngIf="returnUrl != ''">Resend</a>
                                     <a [routerLink]='["/email-resend-verification"]' *ngIf="returnUrl == ''">Resend</a>
                                 </div>
                                 
