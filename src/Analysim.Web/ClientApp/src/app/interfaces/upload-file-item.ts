@@ -3,4 +3,5 @@ export interface UploadFileItem {
     directory: string
     projectID: number
     uploadStatus: string
+    uploadMessage: string
 }
