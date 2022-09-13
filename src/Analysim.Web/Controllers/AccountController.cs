@@ -1,8 +1,9 @@
-﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Core.Entities;
 using Core.Helper;
 using Core.Interfaces;
+using Core.Services;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MailKit.Net.Smtp;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -19,6 +21,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Web.ViewModels.Account;
+using Web.ViewModels;
 
 namespace Web.Controllers
 {
@@ -32,10 +35,12 @@ namespace Web.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly IBlobService _blobService;
         private readonly ILoggerManager _loggerManager;
+        private readonly IMailNetService _mailNetService;
 
-        public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager, 
-            SignInManager<User> signManager, ApplicationDbContext dbContext, 
-            IBlobService blobService, ILoggerManager loggerManager) 
+        public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager,
+            SignInManager<User> signManager, ApplicationDbContext dbContext,
+                                 IBlobService blobService, ILoggerManager loggerManager,
+                                 IMailNetService mailNetService)
         {
             _jwtSettings = jwtSettings.Value;
             _userManager = userManager;
@@ -43,6 +48,7 @@ namespace Web.Controllers
             _dbContext = dbContext;
             _blobService = blobService;
             _loggerManager = loggerManager;
+            _mailNetService = mailNetService;
         }
 
         #region GET REQUEST
@@ -63,7 +69,8 @@ namespace Web.Controllers
                 .Include(u => u.BlobFiles)
                 .SingleOrDefault(x => x.Id == id);
             if (user == null) return NotFound();
-            return Ok(new 
+            // user.EmailConfirmed ;
+            return Ok(new
             {
                 result = user,
                 message = "Recieved User: " + user.UserName
@@ -204,7 +211,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = userFollower,
-                message = follower.UserName +  " is now following " + user.UserName
+                message = follower.UserName + " is now following " + user.UserName
             });
         }
 
@@ -237,6 +244,21 @@ namespace Web.Controllers
             // If Successfully Created
             if (result.Succeeded)
             {
+
+                // generate email token
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var callbackUrl = Url.Action("ConfirmEmail", "Account", new
+                {
+                    userid = user.Id,
+                    token = code,
+                }, protocol: HttpContext.Request.Scheme);
+
+                Console.Write(callbackUrl);
+
+                // send verification token
+                var emailContent = "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>";
+                await _mailNetService.SendEmail(user.Email, user.UserName, "Confirm your account", emailContent, emailContent);
+
                 // Add Role To User
                 await _userManager.AddToRoleAsync(user, "Customer");
 
@@ -244,7 +266,7 @@ namespace Web.Controllers
                 return Ok(new
                 {
                     result = user,
-                    message = "Registration Successful"
+                    message = $"Registration successful and confirmation email sent"
                 });
             }
             else
@@ -257,9 +279,193 @@ namespace Web.Controllers
                 }
             }
 
+
+
             // Return Bad Request Status With ErrorList
             return BadRequest(new { message = errorList });
         }
+
+        /*
+         * Type : POST
+         * URL : /api/account/confirmEmail?
+         * Param : formdata
+         * Description: test
+         * Response Status: 200 Ok, 401 Unauthorized
+         */
+        [HttpGet("[action]")]
+        public async Task<IActionResult> ConfirmEmail(String userID, String token)
+        {
+            System.Diagnostics.Debug.WriteLine("Verification method called");
+            System.Diagnostics.Debug.WriteLine("Token: " + token + "\n" + "UserID: " + userID);
+            var user = await _userManager.FindByIdAsync(userID);
+
+
+            // var decodedTokenString = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+            {
+                System.Diagnostics.Debug.WriteLine("User is NOT verified");
+                await _userManager.ConfirmEmailAsync(user, token);
+                System.Diagnostics.Debug.WriteLine("User is verified");
+                return Redirect("~/email-confirmation");   
+            }
+
+            // TODO: redirect to error page
+            return Redirect("~/error/not-found");
+
+            // return
+            // return RedirectToPage("/Index");
+            // return "test verify token" + ". Token:" + token;
+        }
+
+        /* Type : POST
+         * URL : /api/account/sendConfirmationEmail
+         * Param : formdata
+         * Description: Verifies the user from the token sent from Register
+         * Response Status: 200 Ok, 401 Unauthorized
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> SendConfirmationEmail([FromForm] ForgotPasswordVM formdata)
+        {
+            var user = await _userManager.FindByEmailAsync(formdata.EmailAddress);
+
+            // generate email token
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            
+
+            var callbackUrl = Url.Action("ConfirmEmail", "Account", new
+                {
+                    userid = user.Id,
+                    token = code,
+                }, protocol: HttpContext.Request.Scheme);
+
+            // send verification token
+            var emailContent = "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>";
+            await _mailNetService.SendEmail(user.Email, user.UserName, "Confirm your account", emailContent, emailContent);   
+
+                // return View("ForgotPasswordConfirmation");
+            //}
+
+            return Ok(new
+            {
+                result = user,
+                message = "Sucessfully sent verification email"
+            });  
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/account/forgotPassword
+         * Description: Generates reset password token and sends api link through email
+         * Response Status: 200 Ok, 400 Bad Request
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordVM formdata)
+        {
+            // TODO: works but could be more secure
+            //if (ModelState.IsValid)
+            //{
+            var user = await _userManager.FindByEmailAsync(formdata.EmailAddress);
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            {
+                // Don't reveal that the user does not exist or is not confirmed
+                // return View("ForgotPasswordConfirmation");encode
+            }
+
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            System.Diagnostics.Debug.WriteLine(code);
+            var callbackUrl = Url.Action("ResetPassword", "Account", 
+            new { 
+                UserId = user.Id, 
+                code = System.Web.HttpUtility.UrlEncode(code)
+            }, protocol: HttpContext.Request.Scheme); 
+
+            var emailContent = "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>";
+
+
+            await _mailNetService.SendEmail(user.Email, user.UserName, "Reset Password Link", emailContent, emailContent);
+
+                // return View("ForgotPasswordConfirmation");
+            //}
+
+            return Ok(new
+            {
+                result = user,
+                message = "Password Successfully Changed"
+            });
+        }
+
+        /*
+         * Type : GET
+         * URL : /api/account/resetPassword?
+         * Description: Pass password Token and UserID to Reset password page and redirect
+         * Response Status: 200 Ok, 400 Bad Request
+         */
+        [HttpGet("[action]")]
+        public IActionResult ResetPassword(String UserId, String code)
+        {
+            return Redirect("~/resetPassword?UserId=" + UserId + "&code=" + code);
+        }
+
+
+        /*
+         * Type : POST
+         * URL : /api/account/sendForgotPasswordEmail
+         * Description: 
+         * Response Status: 200 Ok, 400 Bad Request
+         */
+        [HttpPost("[action]")]
+        private async Task SendForgotPasswordEmail([FromForm] AccountRegisterVM user, IMailNetService emailService, string token)
+        {
+            // send verification token
+            await emailService.SendEmail(user.EmailAddress, user.Username, "Forgot password", "Verification", token);
+        }
+
+
+        /*
+         * Type : POST
+         * URL : /api/account/changePassword
+         * Description: Based on the form data sent in, this will change the current password to the new one
+         * Response Status: 200 Ok, 400 Bad Request
+         */
+        [HttpPost("[action]")]
+        // TODO: JOE FIX, MAKE A NEW VIEW MODEL 
+        public async Task<IActionResult> changePassword([FromForm] ChangePasswordVM formdata)
+        {
+            var user = await _userManager.FindByIdAsync(formdata.userId);
+            var resetPassResult =  _userManager.ResetPasswordAsync(user, formdata.passwordToken, formdata.NewPassword);
+
+            return Ok(new
+            {
+                result = resetPassResult.Result,
+                message = "Password Successfully Changed"
+            });
+        }
+
+        /*
+       * Type : Post
+       * URL : /api/account/testGenerateToken?
+       * Description: Return User(s) from list of id
+       * Response Status: 200 Ok, 404 Not Found
+       */
+        [HttpPost("[action]")]
+        public async Task<String> testGenerateToken([FromForm] AccountRegisterVM formdata)
+        {
+            // Create User Object
+            var user = new User
+            {
+                Email = formdata.EmailAddress,
+                UserName = formdata.Username,
+                DateCreated = DateTimeOffset.UtcNow,
+                LastOnline = DateTimeOffset.UtcNow,
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+
+
+            // generate token
+            return await _userManager.GenerateUserTokenAsync(user, "MyApp", "RefreshToken");
+        }
+
 
         /*
          * Type : POST
@@ -287,6 +493,15 @@ namespace Web.Controllers
             // Check Login Status
             if (user != null && await _userManager.CheckPasswordAsync(user, formdata.Password))
             {
+                // todo: link to resend verification email.
+                if (!await _userManager.IsEmailConfirmedAsync(user))
+                {
+                    return Unauthorized(new
+                    {
+                        LoginError = "Please verify your account email"
+                    });
+                }
+
                 // Create JWT Token Handler
                 var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -328,7 +543,7 @@ namespace Web.Controllers
                     result = user,
                     token = tokenHandler.WriteToken(token),
                     expiration = token.ValidTo,
-                    message = "Login Successful"
+                    message = "Login successful"
                 });
 
             }
@@ -340,10 +555,12 @@ namespace Web.Controllers
                 // Return Unauthorized Status If Unable To Login
                 return Unauthorized(new
                 {
-                    LoginError = "Please Check the Login Creddentials - Invalid Username/Password was entered"
+                    LoginError = "Please check the login credentials - Invalid username/password was entered"
                 });
             }
         }
+
+
 
         /*
          * Type : POST
@@ -524,7 +741,7 @@ namespace Web.Controllers
                 .Where(pu => pu.UserID == userID)
                 .AsEnumerable();
 
-                
+
             //if (userProjects.Count() == 0) return NoContent();
 
             // Return Ok Status
@@ -554,7 +771,7 @@ namespace Web.Controllers
                 .Include(uu => uu.Follower).ThenInclude(f => f.Following)
                 .Where(u => u.UserID == userID)
                 .ToList();
-                
+
             if (userFollowers.Count() == 0) return NoContent();
 
             return Ok(new

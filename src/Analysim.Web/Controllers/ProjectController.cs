@@ -590,8 +590,11 @@ namespace Web.Controllers
                 // Set File Path
                 var filePath = formdata.Directory + formdata.File.FileName;
 
+                System.Diagnostics.Debug.WriteLine($"filePath: {filePath}");
+
                 // Upload Blob File
                 BlobClient blobClient = await _blobService.UploadFileBlobAsync(formdata.File, project.Name.ToLower(), filePath);
+                System.Diagnostics.Debug.WriteLine($"after upload test");
                 BlobProperties properties = blobClient.GetProperties();
 
                 // Create BlobFile
