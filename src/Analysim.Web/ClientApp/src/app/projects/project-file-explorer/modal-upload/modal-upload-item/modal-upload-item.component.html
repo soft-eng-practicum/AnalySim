@@ -10,7 +10,10 @@
     </a>
 </td>
 <td class="align-middle col-md-12">
-    {{uploadFileItem.directory + uploadFileItem.file.name}}
+  {{uploadFileItem.directory + uploadFileItem.file.name}}
+  <div class="text-center alert alert-warning" *ngIf="uploadFileItem.uploadStatus == 'error'" role="alert">
+    <strong>{{uploadFileItem.uploadMessage}}</strong> 
+  </div>
 </td>
 <td class="align-middle text-center col-md-1">
     <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="removeFile()">
