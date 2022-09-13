@@ -1,5 +1,5 @@
 .bg-footer{
-    background-color: #795f77;
+    background-color: var(--background-color-secondary);
    
 }
 
@@ -76,6 +76,10 @@ right: 92.5px;
         }
         .footer-copyright {
             margin-left: auto
+        }
+        .footer-logo{
+            text-align: center;
+            width: 100%;
         }
     }
 }
