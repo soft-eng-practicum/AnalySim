@@ -579,7 +579,7 @@ namespace Web.Controllers
                 var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
                 if (project == null) return NotFound(new { message = "Project Not Found" });
 
-                // Check quota
+                // Check quota (TODO: check if conf file has field and give proper error)
                 var maxsize = int.Parse(_configuration["UserQuota"]);
                 var totalsize = await _dbContext.BlobFiles
                     .Where(b => b.UserID == user.Id)
