@@ -92,14 +92,23 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .btn-primary-new {
     background-color: var(--button-background-color);
-    border-color: var(--button-border-width, --button-border-style, --button-border-color);
+    border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
     color: var(--button-font-color);
 
     &.btn:hover:not(:disabled) {
         background-color: var(--button-background-color-hov);
-        border-color: var(--button-border-width, --button-border-style, --button-border-color-hov);
-        color: var(--button-font-color-hover);
+        border: var(--button-border-width) var(--button-border-style) var(--button-border-color-hov) !important;
+        color: var(--button-font-color-hov);
     }
+}
+
+.background{
+    background-color: var(--background-color);
+    box-sizing: border-box;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 
