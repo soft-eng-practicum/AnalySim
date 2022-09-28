@@ -37,6 +37,12 @@ right: 92.5px;
         font-weight: bold;
     }
 
+    ul {
+        @media (max-width: 576px) {
+            margin-bottom: 0px;
+        }
+    }
+
     li {
         margin-bottom: 10px;
 
@@ -51,6 +57,10 @@ right: 92.5px;
             width: 28px;
             height: 28px;
         }
+    }
+
+    .footer-about {
+        text-align: left;
     }
 
     .footer-connect {
