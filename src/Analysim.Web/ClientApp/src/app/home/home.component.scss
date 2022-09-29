@@ -94,6 +94,7 @@ font-family:var(--bs-body-font-family) !important;
 
     .sponser-column {
         align-self: center;
+        padding-left: 10%;
 
         .hero-sponser {
             display: flex;
@@ -101,6 +102,8 @@ font-family:var(--bs-body-font-family) !important;
         
             img {
                 margin-right: 10px;
+                width: 48px;
+                height: 48px;
             }
 
             a {
