@@ -21,7 +21,9 @@
                         
                                             <!-- Login Form Error -->
                                             <div class="text-center alert alert-warning alert-dismissible" *ngIf="invalidLogin" role="alert">
-                                                <strong>{{errorMessage}}</strong>
+                                              <strong>{{errorMessage}}
+                                              <span *ngIf="emailConf">
+                                                <a href="javascript:void(0);" (click)="sendReverifyLink()"> Click here to resend the email</a>.</span></strong>
                                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="invalidLogin = null;">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
@@ -76,21 +78,6 @@
                                         <a [routerLink]='["/register"]' [queryParams]="{returnUrl: returnUrl}" *ngIf="returnUrl != ''">Sign Up</a>
                                         <a [routerLink]='["/register"]' *ngIf="returnUrl == ''">Sign Up</a>
                                     </div>
-                                </article>
-                            </div> <!-- card.// -->
-                        </div>
-                    </div>  <!-- Row End -->
-                    <!-- Row Start -->
-                    <div class="row justify-content-center">
-                        <div class="col-md-4 mb-4">
-                            <div class="card bg-theme">
-                                <article class="card-body">
-                                    <div class="text-center">
-                                        <p class ="d-inline">Resend Email Verification link </p>
-                                        <a [routerLink]='["/email-resend-verification"]' [queryParams]="{returnUrl: 'login'}" *ngIf="returnUrl != ''">Resend</a>
-                                        <a [routerLink]='["/email-resend-verification"]' *ngIf="returnUrl == ''">Resend</a>
-                                    </div>
-                                    
                                 </article>
                             </div> <!-- card.// -->
                         </div>

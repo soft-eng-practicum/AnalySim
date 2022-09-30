@@ -324,14 +324,13 @@ namespace Web.Controllers
          * Description: Verifies the user from the token sent from Register
          * Response Status: 200 Ok, 401 Unauthorized
          */
-        [HttpPost("[action]")]
-        public async Task<IActionResult> SendConfirmationEmail([FromForm] ForgotPasswordVM formdata)
+        [HttpGet("[action]")]
+        public async Task<IActionResult> SendConfirmationEmail([FromQuery(Name = "EmailAddress")] string email)
         {
-            var user = await _userManager.FindByEmailAsync(formdata.EmailAddress);
+            var user = await _userManager.FindByEmailAsync(email);
 
             // generate email token
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            
 
             var callbackUrl = Url.Action("ConfirmEmail", "Account", new
                 {
@@ -498,7 +497,8 @@ namespace Web.Controllers
                 {
                     return Unauthorized(new
                     {
-                        LoginError = "Please verify your account email"
+                        LoginError = $"Please verify your account by clicking the link in the email that you received.",
+                        EmailConf = user.Email
                     });
                 }
 
