@@ -16,6 +16,7 @@ export class LoginComponent implements OnInit {
   password: FormControl;
   returnUrl: string;
   errorMessage: string;
+  emailConf: string;
   invalidLogin: boolean;
   isLoading: boolean;
 
@@ -62,12 +63,28 @@ export class LoginComponent implements OnInit {
         this.isLoading = false;
         this.invalidLogin = true;
         this.errorMessage = error.error.loginError;
+        if ("emailConf" in error.error) {
+          this.emailConf = error.error.emailConf;
+        } else this.emailConf = '';
       },
     );
   }
 
   forgotPasswordPage() {
     this.router.navigate(['/emailForgotPass']);
+  }
+
+  sendReverifyLink() {
+    this.acct.resendVerificationLink(this.emailConf).subscribe(
+      result => {
+        this.router.navigate(['/login']);
+        this.notfi.showInfo('Email confirmation sent successfully!', 'Check your email.');
+      },
+      error => {
+        this.isLoading = false;
+        this.errorMessage = error.error.Message;
+      }
+    );
   }
 
 }

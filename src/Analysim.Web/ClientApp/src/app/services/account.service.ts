@@ -217,11 +217,10 @@ export class AccountService {
   }
 
   resendVerificationLink(email: string) {
-    console.log("resendVerificationLink is called")
-    let body = new FormData()
-    body.append('EmailAddress', email)
+    let params = new HttpParams();
+    params = params.append("EmailAddress", email);
 
-    return this.http.post<any>(this.urlReSendVerification, body)
+    return this.http.get<any>(this.urlReSendVerification, { params: params })
       .pipe(
         map(body => {
           return body
