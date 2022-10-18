@@ -8,6 +8,7 @@
     border-bottom: 1px solid rgba(0,0,0,.125);
     display: flex;
     line-height: 24px;
+    align-items: center;
 
     .project-user{
       font-weight: 500;
@@ -25,15 +26,27 @@
       margin-left: auto;
 
       .project-follow{
-        color: #fff;
-        background-color: #0069d9;
-        border-color: #0062cc;
+        color: var(--button-font-color);
+        background-color: #2B4865;
+        border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary);
         padding: 6px 12px;
         font-size: 16px;
         line-height: 1.5;
         border-radius: 4px;
         display: block;
         float: right !important;
+
+        &:hover {
+          color: var(--button-font-color-secondary-hov);
+          background-color: var(--button-background-color-secondary-hov);
+          border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary-hov);
+
+          span {
+            color: var(--button-font-color);
+            background-color: var(--button-background-color-secondary);
+            border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary);
+          }
+        }
       }
     }
   }
@@ -51,6 +64,10 @@
     padding: .75rem 1.25rem;
     background-color: rgba(0,0,0,.03);
     border-top: 1px solid rgba(0,0,0,.125);
+
+    .project-member {
+      margin-right: 10px;
+    }
 
     .project-last-updated {
       float: right !important;
@@ -76,7 +93,7 @@ a {
 }
 .badge-pill {
   color: #fff;
-  background-color: #17a2b8;
+  background-color: var(--background-color-secondary);
   font-weight: 300 !important;
   margin-right: .5rem !important;
   padding-right: .6em;
@@ -84,7 +101,7 @@ a {
   border-radius: 10rem;
   display: inline-block;
   padding: .25em .4em;
-  font-size: 75%;
+  font-size: 14px;
   line-height: 1;
   text-align: center;
   white-space: nowrap;

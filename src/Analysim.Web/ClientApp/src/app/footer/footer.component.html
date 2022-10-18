@@ -1,56 +1,62 @@
 <!-- Footer Start -->
 <footer class="bg-footer pt-3 text-white">
-    <!-- Footer Links Start-->
-    <div class="container-fluid text-right text-md-left">
-      <!-- Grid row Start-->
-      <div class="row justify-content-center footer-link-row">
-        <!-- Grid column Start-->
-        <div class="col-md-3 mb-md-0 mb-3 footer-about">
-          <div class="footer-header">
-            About
+  <!-- Footer Links Start-->
+  <div class="container-fluid text-right text-md-left">
+    <!-- Grid row Start-->
+    <div class="row justify-content-center footer-link-row">
+      <div class="col-md-10">
+        <div class="row justify-content-center">
+          <!-- Grid column Start-->
+          <div class="col-md-4 mb-md-0 mb-3 footer-about">
+            <div class="footer-header">
+              About
+            </div>
+            <!-- Links Start-->
+            <ul class="list-unstyled">
+              <li>
+                <a class="nav-link text-white" [routerLink]='["/contactus"]' >Contact Us</a>
+              </li>
+              <li>
+                <a class="nav-link text-white" [routerLink]='["/aboutus"]'>Learn More</a>
+              </li>
+            </ul> <!-- Links End-->
           </div>
-          <!-- Links Start-->
-          <ul class="list-unstyled">
-            <li>
-              <a class="nav-link text-white" [routerLink]='["/contactus"]' >Contact Us</a>
-            </li>
-            <li>
-              <a class="nav-link text-white" [routerLink]='["/aboutus"]'>Learn More</a>
-            </li>
-          </ul> <!-- Links End-->
-        </div>
-        <div class="col-md-3 mb-md-0 mb-3 footer-connect">
-          <div class="footer-header">
-            Connect
+          <div class="col-md-4 mb-md-0 mb-3 footer-connect">
+            <div class="footer-header">
+              Connect
+            </div>
+            <!-- Links Start-->
+            <ul class="list-unstyled">
+              <li>
+                <img src="../../assets/img/icon-facebook.png" [routerLink]='["/aboutus"]'>
+              </li>
+              <li>
+                <img src="../../assets/img/icon-linkedin.png" [routerLink]='["/aboutus"]'>
+              </li>
+              <li>
+                <img src="../../assets/img/icon-twitter.png" [routerLink]='["/aboutus"]'>
+              </li>
+            </ul> <!-- Links End-->
           </div>
-          <!-- Links Start-->
-          <ul class="list-unstyled">
-            <li>
-              <img src="../../assets/img/icon-facebook.png" [routerLink]='["/aboutus"]'>
-            </li>
-            <li>
-              <img src="../../assets/img/icon-linkedin.png" [routerLink]='["/aboutus"]'>
-            </li>
-            <li>
-              <img src="../../assets/img/icon-twitter.png" [routerLink]='["/aboutus"]'>
-            </li>
-          </ul> <!-- Links End-->
-        </div>
-        <div class="col-md-3 mb-md-0 footer-empty">
-        </div>
+          <div class="col-md-4 mb-md-0 footer-empty">
+          </div>
         <!-- Grid column -->
-      </div> <!-- Grid row End-->
-      <div class="row justify-content-center footer-logo-row">
-        <div class="col-md-9 mb-md-0 mb-3">
-          <div class="footer-logo">
-            Powered by &copy; 2022 AnalySim
-          </div>
-          <!-- Links Start-->
         </div>
       </div>
-    </div> <!-- Footer Links End-->
+      
+    </div> <!-- Grid row End-->
+    <div class="row justify-content-center footer-logo-row">
+      <div class="col-md-10 mb-md-0 mb-3">
+        <div class="footer-logo">
+          Powered by &copy; 2022 AnalySim
+        </div>
+        <!-- Links Start-->
+      </div>
+    </div>
+    
+  </div> <!-- Footer Links End-->
 
-    <!-- Copyright Start -->
-    <div class="footer-copyright p-2">
-    </div> <!-- Copyright End-->
-  </footer> <!-- Footer End-->
+  <!-- Copyright Start -->
+  <div class="footer-copyright p-2">
+  </div> <!-- Copyright End-->
+</footer> <!-- Footer End-->
