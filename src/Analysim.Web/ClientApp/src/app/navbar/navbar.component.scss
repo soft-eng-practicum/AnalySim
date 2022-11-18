@@ -12,11 +12,17 @@
     color: #808080;
     color: #4140aa !important;
     transition: 0.3s;
-  }
-  .nav-link{
-    border-bottom:none !important;
-  }
+}
 
-  .navbar-brand:hover {
+.nav-link{
+    border-bottom:none !important;
+}
+
+.navbar-brand {
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.navbar-brand:hover {
     color: #4140aa !important;
-  }
+}
