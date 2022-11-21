@@ -1,9 +1,9 @@
 <!-- Container Start -->
-<div class="container my-5">
+<div class="container-fluid background">
     <!-- Row Start -->
     <div class="row justify-content-center mx-auto">
         <!-- Column Start -->
-        <div class="col-md-8">
+        <div class="col-md-10">
             <!-- Card Start -->
             <div class="card bg-light">
                 <div class="card-body">
@@ -14,20 +14,20 @@
                     <!-- Card Content -->
                     <div class="text-center">
                         <h1>
-                            Oops! 404 Not Found
+                            404 Page Not Found
                         </h1>
                         <p>
                             Sorry, an error has occured, Requested page not found!
                         </p>
                         <!-- Card Navigation -->
                         <div class="card-footer bg-light">
-                            <button class="btn btn-outline-success btn-lg ml-2" (click)="backClicked()">
+                            <button class="btn btn-primary-new btn-block mb-2" (click)="backClicked()">
                                 Back
                             </button>
-                            <button class="btn btn-outline-primary btn-lg ml-2" *ngIf="!(loginStatus$ | async)" [routerLink]='["/home"]'>
+                            <button class="btn btn-secondary-new btn-block" *ngIf="!(loginStatus$ | async)" [routerLink]='["/home"]'>
                                 Home
                             </button>
-                            <button class="btn btn-outline-primary btn-lg ml-2" *ngIf="(loginStatus$ | async)" [routerLink]='["/dashboard"]'>
+                            <button class="btn btn-secondary-new btn-block" *ngIf="(loginStatus$ | async)" [routerLink]='["/dashboard"]'>
                                 Dashboard
                             </button>
                         </div>

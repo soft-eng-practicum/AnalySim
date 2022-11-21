@@ -104,10 +104,20 @@ export class ProfileImagePipe implements PipeTransform {
     pure: false
 })
 export class ProjectMemberPipe implements PipeTransform {
-    transform(projectUsers: ProjectUser[]): ProjectUser[] {
-        let filtered = projectUsers.filter(x => {
-                return x.userRole == "member" || x.userRole == "admin"
-            })
-        return filtered
+    transform(projectUsers: ProjectUser[], type: string): ProjectUser[] {
+        switch(type){
+            case "owner":
+                return projectUsers.filter(x => {
+                    return x.userRole == "owner" || x.userRole == "admin"
+                })
+            case "member":
+                return projectUsers.filter(x => {
+                    return x.userRole == "member"
+                })
+            default:
+                return projectUsers.filter(x => {
+                    return x.userRole == "member" || x.userRole == "admin"
+                })
+        }
     }
 }

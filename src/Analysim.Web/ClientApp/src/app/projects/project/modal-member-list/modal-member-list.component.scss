@@ -1,0 +1,13 @@
+.btn {
+    color: var(--button-font-color);
+    background-color: var(--button-background-color);
+    border: none;
+
+    &:hover, &:active {
+        color: var(--button-font-color-secondary-hov) !important;
+        background-color: var(--button-background-color-secondary-hov) !important;
+        border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary-hov) !important;
+        text-decoration: none;
+    }
+}
+

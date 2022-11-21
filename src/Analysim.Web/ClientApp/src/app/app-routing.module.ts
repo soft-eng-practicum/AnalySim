@@ -13,6 +13,7 @@ import { EmailForgotPassComponent } from './email-confirmation/email-forgot-pass
 import { EmailConfirmationComponent } from './email-confirmation/email-confirmation.component';
 import { ResetPasswordComponent } from './email-confirmation/reset-password/reset-password.component';
 import { EmailResendVerificationComponent } from './email-confirmation/email-resend-verification/email-resend-verification.component';
+import { NotFoundComponent } from './error/not-found/not-found.component'
 const routes: Routes = [];
 
 @NgModule({
@@ -33,7 +34,7 @@ const routes: Routes = [];
       { path: 'dashboard', component: DashboardComponent },
       { path: 'profile/:username', component: ProfileComponent },
       { path: 'project', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule) },
-      { path: '**', component: HomeComponent }
+      { path: '**', component: NotFoundComponent }
       // todo: Add verify page routing and component
     ])],
   exports: [RouterModule]

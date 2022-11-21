@@ -102,6 +102,18 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     }
 }
 
+.btn-secondary-new {
+    background-color: var(--button-background-color-secondary);
+    border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary);
+    color: var(--button-font-color-secondary);
+
+    &.btn:hover:not(:disabled) {
+        background-color: var(--button-background-color-secondary-hov);
+        border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary-hov) !important;
+        color: var(--button-font-color-secondary-hov);
+    }
+}
+
 .background{
     background-color: var(--background-color);
     box-sizing: border-box;

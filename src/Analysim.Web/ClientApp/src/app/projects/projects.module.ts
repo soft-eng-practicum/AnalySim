@@ -28,6 +28,10 @@ import { ModalObservablehqComponent } from './project-file-preview/modal-observa
 import { MemberListComponent } from './member-list/member-list.component';
 import { ModalForkComponent } from './project/modal-fork/modal-fork.component';
 import { ModalDeleteComponent } from './project/modal-delete/modal-delete.component';
+import { ProjectContentComponent } from './project-overview/project-overview-view/project-content/project-content.component';
+import { ProjectPublicationComponent } from './project-overview/project-overview-view/project-publication/project-publication.component';
+import { ModalMemberListComponent } from './project/modal-member-list/modal-member-list.component';
+import { ProjectLogComponent } from './project-overview/project-overview-view/project-log/project-log.component';
 
 
 @NgModule({
@@ -55,6 +59,10 @@ import { ModalDeleteComponent } from './project/modal-delete/modal-delete.compon
     MemberListComponent,
     ModalForkComponent,
     ModalDeleteComponent,
+    ProjectContentComponent,
+    ProjectPublicationComponent,
+    ModalMemberListComponent,
+    ProjectLogComponent,
   ],
   imports: [
     CommonModule,
