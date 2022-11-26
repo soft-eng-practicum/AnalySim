@@ -1,0 +1,40 @@
+.project-comment-container {
+    
+    .project-comment-header {
+        display: flex;
+        justify-content: center;
+    }
+
+    .project-comment-list {
+        list-style-type: none;
+        margin: 0px;
+        display: flex;
+        flex-direction: column;
+        padding: 0px;
+
+        .project-comment-item {
+            padding-bottom: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: white;
+
+            &:last-child {
+                margin-bottom: 0px;
+            }
+
+            .project-comment-heading {
+                color: #007bff;
+            }
+
+            .project-comment-description {
+                display: flex;
+
+                .project-comment-date {
+                    margin-left: auto;
+                }
+            }
+
+            
+        }
+    }
+}

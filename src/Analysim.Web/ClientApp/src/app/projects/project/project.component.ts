@@ -27,10 +27,12 @@ export class ProjectComponent implements OnInit {
 
   @ViewChild('forkModal') forkModal: TemplateRef<any>
   @ViewChild('deleteModal') deleteModal: TemplateRef<any>
+  @ViewChild('memberListModal') memberListModal: TemplateRef<any>
   @ViewChildren(ProjectFileExplorerComponent) fileExplorer: ProjectFileExplorerComponent
 
   forkModalRef: BsModalRef;
   deleteModalRef: BsModalRef;
+  memberListModalRef: BsModalRef;
 
   project: Project = null
   currentUser$: Observable<User> = null
@@ -39,7 +41,9 @@ export class ProjectComponent implements OnInit {
   fileDirectory: string
   forkedFrom: Project = null
 
-
+  toggleMoreOption : boolean = false
+  toggleNotebookExpand : boolean = false
+  toggleView : string = "File"
 
   async ngOnInit() {
     if (this.accountService.checkLoginStatus()) {
@@ -265,6 +269,11 @@ export class ProjectComponent implements OnInit {
   toggleModalDelete() {
     // Show delete Modal
     this.deleteModalRef = this.modalService.show(this.deleteModal)
+  }
+
+  toggleModalMemberList() {
+    // Show delete Modal
+    this.memberListModalRef = this.modalService.show(this.memberListModal)
   }
 
 }

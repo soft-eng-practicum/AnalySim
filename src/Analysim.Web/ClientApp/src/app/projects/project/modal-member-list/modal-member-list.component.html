@@ -1,0 +1,28 @@
+<!-- Modal -->
+<div class="modal-content">
+
+
+    <!-- Title -->
+    <div class="modal-header justify-content-center">
+        <h5 class="modal-title">Member List</h5>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+        <ul class="">
+            <li class="" *ngFor="let member of projectUsers">
+                {{ member.user.userName }}
+            </li>
+        </ul>
+    </div>
+
+    <div class="modal-footer">
+        <div class="form-group mb-0">
+            <button type="button" class="btn btn-success" (click)="closeModal()">
+                <span>
+                    Close
+                </span>
+            </button>              
+        </div>
+    </div>
+</div>

@@ -1,0 +1,30 @@
+.project-publication-container {
+
+    .project-publication-header {
+        display: flex;
+        justify-content: center;
+    }
+
+    .project-publication-list {
+        list-style-type: none;
+        margin: 0px;
+        display: flex;
+        flex-direction: column;
+        padding: 0px;
+
+        .project-publication {
+            padding-bottom: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: white;
+
+            &:last-child {
+                margin-bottom: 0px;
+            }
+
+            .project-publication-heading {
+                color: #007bff;
+            }
+        }
+    }
+}
