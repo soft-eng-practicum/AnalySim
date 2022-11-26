@@ -7,7 +7,7 @@ import { UploadFileItem } from 'src/app/interfaces/upload-file-item';
 @Component({
   selector: 'app-modal-upload-item',
   templateUrl: './modal-upload-item.component.html',
-  styleUrls: ['./modal-upload-item.component.css']
+  styleUrls: ['./modal-upload-item.component.scss']
 })
 export class ModalUploadItemComponent implements OnInit {
 
@@ -38,6 +38,16 @@ export class ModalUploadItemComponent implements OnInit {
       error => {
         console.log(error);
         this.uploadFileItem.uploadStatus = "error";
+        if (error.status == 400) { // BadRequest, display message
+          if (typeof error.error == "string")
+            this.uploadFileItem.uploadMessage = error.error;
+          else if ("errors" in error.error)
+            this.uploadFileItem.uploadMessage = error.error.errors[""];
+          else
+            this.uploadFileItem.uploadMessage = "Unknown error";
+        } else
+          this.uploadFileItem.uploadMessage = "Unknown error";
+        
         this.updatedFile.emit(this.uploadFileItem)      
         
       }

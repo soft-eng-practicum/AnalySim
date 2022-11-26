@@ -9,28 +9,28 @@ import { AccountService } from 'src/app/services/account.service';
 @Component({
   selector: 'app-modal-edit',
   templateUrl: './modal-edit.component.html',
-  styleUrls: ['./modal-edit.component.css']
+  styleUrls: ['./modal-edit.component.scss']
 })
 export class ModalEditComponent implements OnInit {
 
-  @Input() renameModalRef : BsModalRef
-  @Input() blobList : BlobFileItem[]
-  @Input() currentDirectory : string
-  @Input() projectID : number
+  @Input() renameModalRef: BsModalRef
+  @Input() blobList: BlobFileItem[]
+  @Input() currentDirectory: string
+  @Input() projectID: number
   @Output() newFolderEvent = new EventEmitter<BlobFile>()
 
-  currentUserID : number
+  currentUserID: number
 
-  folderForm : FormGroup
-  folderName : FormControl
-  isLoading : boolean
+  folderForm: FormGroup
+  folderName: FormControl
+  isLoading: boolean
 
   constructor(
-    private formBuilder : FormBuilder,
-    private projectService : ProjectService,
-    private accountService : AccountService
-  ) {}
-  
+    private formBuilder: FormBuilder,
+    private projectService: ProjectService,
+    private accountService: AccountService
+  ) { }
+
 
   ngOnInit() {
     this.accountService.currentUserID.subscribe(x => this.currentUserID = x)
@@ -38,38 +38,37 @@ export class ModalEditComponent implements OnInit {
     // Set up FormControl and its Validators
     this.folderName = new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(20), this.noMatch(), this.noSpaceSpecial()])
 
-     // Initialize FormGroup using FormBuilder
+    // Initialize FormGroup using FormBuilder
     this.folderForm = this.formBuilder.group({
-      'folderName' : this.folderName,  
+      'folderName': this.folderName,
     });
   }
 
   // Customer Validator
-  noMatch(): ValidatorFn{
-    return (folderNameControl: AbstractControl): {[key: string]: boolean} | null => {
-      
+  noMatch(): ValidatorFn {
+    return (folderNameControl: AbstractControl): { [key: string]: boolean } | null => {
+
       // Check if empty
-      if(folderNameControl.value == null || folderNameControl.value.length == ''){
+      if (folderNameControl.value == null || folderNameControl.value.length == '') {
         return null;
       }
 
       // Return Error Message if test false, otherwise return null
-      if(this.blobList.findIndex(x => x.redirect == (this.currentDirectory + folderNameControl.value + "/")) > -1){
-        return {'noMatch': true};
+      if (this.blobList.findIndex(x => x.redirect == (this.currentDirectory + folderNameControl.value + "/")) > -1) {
+        return { 'noMatch': true };
       }
-      else{
+      else {
         return null;
       }
     }
   }
 
   // Custom Validator
-  noSpaceSpecial() : ValidatorFn
-  {
-    return (projectNameControl: AbstractControl): {[key: string]: boolean} | null => {
+  noSpaceSpecial(): ValidatorFn {
+    return (projectNameControl: AbstractControl): { [key: string]: boolean } | null => {
 
       // Check if empty
-      if(projectNameControl.value == null || projectNameControl.value.length == ''){
+      if (projectNameControl.value == null || projectNameControl.value.length == '') {
         return null;
       }
 
@@ -77,21 +76,21 @@ export class ModalEditComponent implements OnInit {
       var reg = new RegExp('^[a-zA-Z0-9\-\_]*$');
 
       // Return Error Message if test false, otherwise return null
-      if(!reg.test(projectNameControl.value)){
-        return {'noSpaceSpecial': true};
+      if (!reg.test(projectNameControl.value)) {
+        return { 'noSpaceSpecial': true };
       }
-      else{
+      else {
         return null;
       }
     }
   }
 
-  closeModal(){
+  closeModal() {
     this.renameModalRef.hide()
     this.folderForm.reset()
   }
 
-  onSubmit(){
+  onSubmit() {
     // Variable for FormGroupValue
     let folderValue = this.folderForm.value;
 
@@ -99,7 +98,7 @@ export class ModalEditComponent implements OnInit {
     this.isLoading = true;
 
     // Register the Account
-    this.projectService.updateFile(this.currentDirectory + folderValue.folderName + "/", this.currentUserID , this.projectID).subscribe(
+    this.projectService.updateFile(this.currentDirectory + folderValue.folderName + "/", this.currentUserID, this.projectID).subscribe(
       result => {
         this.isLoading = false;
         this.closeModal()

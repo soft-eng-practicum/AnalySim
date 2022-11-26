@@ -12,7 +12,7 @@ import { UploadFileItem } from '../../interfaces/upload-file-item';
 @Component({
   selector: 'app-project-file-explorer',
   templateUrl: './project-file-explorer.component.html',
-  styleUrls: ['./project-file-explorer.component.css']
+  styleUrls: ['./project-file-explorer.component.scss']
 })
 export class ProjectFileExplorerComponent implements OnInit {
 
@@ -57,7 +57,8 @@ export class ProjectFileExplorerComponent implements OnInit {
           file: file,
           directory: this.currentDirectory,
           projectID: this.project.projectID,
-          uploadStatus: "loading"
+          uploadStatus: "loading",
+          uploadMessage: ""
         }
         this.uploadFileList.push(fileItem)
       }    
@@ -74,7 +75,6 @@ export class ProjectFileExplorerComponent implements OnInit {
   }
 
   toggleModalRename(){
-    console.log("toggled...")
     // Show Rename Modal
     if(this.isValidDirectory){
       this.renameModalRef = this.modalService.show(this.renameModal)

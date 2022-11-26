@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-modal-fork',
   templateUrl: './modal-fork.component.html',
-  styleUrls: ['./modal-fork.component.css']
+  styleUrls: ['./modal-fork.component.scss']
 })
 export class ModalForkComponent implements OnInit {
 

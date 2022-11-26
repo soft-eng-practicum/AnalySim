@@ -4,14 +4,15 @@ import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-contact-us',
-  templateUrl: './contact-us.component.html',
-  styleUrls: ['./contact-us.component.css']
+  templateUrl: 'contact-us.component.html',
+  styleUrls: ['contact-us.component.scss']
 })
 export class ContactUsComponent implements OnInit {
 
   contactForm: FormGroup;
   emailAddress: FormControl;
   message: FormControl;
+  subject: FormControl;
 
   constructor(private formBuilder : FormBuilder,
     private notfi : NotificationService) { }
@@ -20,11 +21,13 @@ export class ContactUsComponent implements OnInit {
     // Initialize Form Controls
     this.emailAddress = new FormControl('', [Validators.required, Validators.email]);
     this.message = new FormControl('', [Validators.required, Validators.maxLength(300), Validators.minLength(20)]);
+    this.subject = new FormControl('', [Validators.required, Validators.maxLength(50), Validators.minLength(5)]);
 
      // Initialize FormGroup using FormBuilder
     this.contactForm = this.formBuilder.group({
         emailAddress : this.emailAddress,
-        message : this.message
+        message : this.message,
+        subject : this.subject
     });
 
   }

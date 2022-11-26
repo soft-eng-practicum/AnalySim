@@ -1,0 +1,39 @@
+<!-- Modal -->
+<div class="modal-content">
+
+
+    <!-- Title -->
+    <div class="modal-header justify-content-center">
+        <h5 class="modal-title">Delete project</h5>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+        <p>Are you sure you want to delete your project?</p>
+    </div>
+
+    <div class="modal-footer">
+        <div class="form-group mb-0">
+            <button type="button" class="btn btn-success" (click)="closeModal()">
+                <span>
+                    Cancel
+                </span>
+            </button>              
+        </div>
+    
+        <!-- Confirm Deletion of Project-->
+        <div class="form-group mb-1">
+            <button type="button" class="btn btn-danger" (click)="DeleteProjectClick()">
+                <span>
+                    Delete Project
+                </span>
+            </button>       
+        </div>
+    </div>
+
+    <!-- Show error -->
+    <div id= error *ngIf="errorStatusAlert" class="alert alert-danger alert-dismissible">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <small class='error' data-dismiss=".alert">{{this.errorResult}}</small>
+    </div>
+</div>

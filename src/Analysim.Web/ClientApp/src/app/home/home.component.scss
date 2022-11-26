@@ -1,0 +1,116 @@
+.header{
+    /* background-image: url("../../assets/img/background2.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center; */
+    background-color: var(--background-color);
+}
+
+.header-text{
+    font-size: 1.25rem !important;
+    font-weight: 400;
+}
+
+.bg-navy{
+    /* background-color:#04132a; */
+    color: #FFF;
+    background-color: var(--background-color);
+
+}
+.btn-primary {
+    color: #fff;
+    background-color: #4140aa !important;
+    border-color: #4140aa !important;
+  }
+
+  a {
+    color: #4140aa;
+    text-decoration: underline;
+  }
+
+  .NBTitle{
+    font-size: calc(1.325rem + .9vw);
+    margin-top: 0;
+margin-bottom: .5rem !important;
+font-weight: 500 !important;
+line-height: 1.2 !important;
+font-family:var(--bs-body-font-family) !important;
+--fa-font-light: normal 300 1em/1 "Font Awesome 6 Light" !important;
+--fa-font-thin: normal 100 1em/1 "Font Awesome 6 Thin" !important;
+--fa-font-duotone: normal 900 1em/1 "Font Awesome 6 Duotone"!important;
+  }
+
+.notebook-row {
+    @media (max-width: 768px){
+        flex-direction: column;
+    }
+
+    .notebook-container{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        @media (max-width: 768px){
+            width: 100%
+        }
+    
+        hr {
+            width: 100%
+        }
+    
+        .note-title {
+            border-bottom: 1px solid #c6c8c8;
+            width: 50%;
+            text-align: center;
+            padding-bottom: 10px;
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+    
+        .note-img {
+            width: 200px;
+            height: 200px;
+        }
+    
+        .note-btn {
+            font-size: 1.25rem;
+            margin-top: 15px;
+        }
+    }
+    
+    .note-desc{
+        align-items: center;
+        display: flex;
+        font-size: 1.25rem;
+        padding: 30px;
+    }
+}
+ .sponsor-left{
+    justify-content: center;
+ }
+
+ .home-sponser {
+
+    .sponser-column {
+        align-self: center;
+
+        .hero-sponser {
+            display: flex;
+            align-items: center;
+        
+            img {
+                margin-right: 10px;
+                width: 48px;
+                height: 48px;
+            }
+
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+        }
+    }
+}
+
+ 

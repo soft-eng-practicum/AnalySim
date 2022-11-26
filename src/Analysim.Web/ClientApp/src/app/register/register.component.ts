@@ -1,59 +1,59 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { AccountService } from '../services/account.service';
-import { CommunicationsService } from '../services/communication.service';
+import { CommunicationsService } from '../services/communications.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+  styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {
 
   insertForm: FormGroup;
-  emailAddress : FormControl;
+  emailAddress: FormControl;
   username: FormControl;
   password: FormControl;
   confirmPassword: FormControl;
-  errorList : string[];
-  isLoading : boolean;
+  errorList: string[];
+  isLoading: boolean;
   errorMessage: string;
   invalidRegister: boolean;
   returnUrl: string;
 
   constructor(
-    private accountService : AccountService, 
+    private accountService: AccountService,
     private communicationsService: CommunicationsService,
-    private router : Router,
-    private formBuilder : FormBuilder,
-    private notfi : NotificationService,
-    private route : ActivatedRoute
-  ) {}
+    private router: Router,
+    private formBuilder: FormBuilder,
+    private notfi: NotificationService,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit() {
     // Set up FormControl and its Validators
     this.emailAddress = new FormControl('', [Validators.required, Validators.email])
     this.username = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(15)])
     this.password = new FormControl('', [Validators.required, Validators.minLength(5), this.hasUpper(), this.hasLower(), this.hasNumeric(), this.hasSpecial()])
-    this.confirmPassword = new FormControl('', [Validators.required, this.isMatch(this.password)])  
+    this.confirmPassword = new FormControl('', [Validators.required, this.isMatch(this.password)])
     this.errorList = [];
 
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
 
-     // Initialize FormGroup using FormBuilder
+    // Initialize FormGroup using FormBuilder
     this.insertForm = this.formBuilder.group({
-      'emailAddress' : this.emailAddress,
-      'username' : this.username,
-      'password' : this.password,
-      'confirmPassword' : this.confirmPassword   
+      'emailAddress': this.emailAddress,
+      'username': this.username,
+      'password': this.password,
+      'confirmPassword': this.confirmPassword
     });
   }
 
 
-  onSubmit(){
+  onSubmit() {
     // Variable for FormGroupValue
     let userReg = this.insertForm.value
 
@@ -65,25 +65,27 @@ export class RegisterComponent implements OnInit {
       result => {
         // Hide Error Message Box
         this.invalidRegister = false
-        
+
         const username = userReg.username
         const emailAddress = userReg.emailAddress
         const subject: string = "Registration Complete"
         const bodyHtml: string = "<p>You have been successfully registered for the AnalySim website.</p>"
         const bodyText: string = "You have been successfully registered for the Analysim website."
+        // todo: should send email from the backend, not the frontend
+
         this.communicationsService.sendEmail(emailAddress, username, subject, bodyText, bodyHtml).subscribe(
-          result =>{
+          result => {
             //console.log(result)
-          }, error =>{
+          }, error => {
             console.log(error)
           }
         );
 
         // Navigate to login page
-        if(this.returnUrl == "")
+        if (this.returnUrl == "")
           this.router.navigate(['/login'])
         else
-          this.router.navigate(['/login'], {queryParams : {returnUrl: this.returnUrl}})
+          this.router.navigate(['/login'], { queryParams: { returnUrl: this.returnUrl } })
 
         // Send registration notification
         this.notfi.showSuccess('Account has been registered', 'Registration');
@@ -103,11 +105,11 @@ export class RegisterComponent implements OnInit {
   }
 
   // Customer Validator
-  hasUpper(): ValidatorFn{
-    return (passwordControl: AbstractControl): {[key: string]: boolean} | null => {
-      
+  hasUpper(): ValidatorFn {
+    return (passwordControl: AbstractControl): { [key: string]: boolean } | null => {
+
       // Check if empty
-      if(passwordControl.value.length == ''){
+      if (passwordControl.value.length == '') {
         return null;
       }
 
@@ -115,20 +117,20 @@ export class RegisterComponent implements OnInit {
       var reg = new RegExp('(?=.*[A-Z])');
 
       // Return Error Message if test false, otherwise return null
-      if(!reg.test(passwordControl.value)){
-        return {'noUpper': true};
+      if (!reg.test(passwordControl.value)) {
+        return { 'noUpper': true };
       }
-      else{
+      else {
         return null;
       }
     }
   }
 
   hasLower(): ValidatorFn {
-    return (passwordControl: AbstractControl): {[key: string]: boolean} | null => {
+    return (passwordControl: AbstractControl): { [key: string]: boolean } | null => {
 
       // Check if empty
-      if(passwordControl.value.length == ''){
+      if (passwordControl.value.length == '') {
         return null;
       }
 
@@ -136,20 +138,20 @@ export class RegisterComponent implements OnInit {
       var reg = new RegExp('(?=.*[a-z])');
 
       // Return Error Message if test false, otherwise return null
-      if(!reg.test(passwordControl.value)){
-        return {'noLower': true};
+      if (!reg.test(passwordControl.value)) {
+        return { 'noLower': true };
       }
-      else{
+      else {
         return null;
       }
     }
   }
 
   hasNumeric(): ValidatorFn {
-    return (passwordControl: AbstractControl): {[key: string]: boolean} | null => {
+    return (passwordControl: AbstractControl): { [key: string]: boolean } | null => {
 
       // Check if empty
-      if(passwordControl.value.length == ''){
+      if (passwordControl.value.length == '') {
         return null;
       }
 
@@ -157,20 +159,20 @@ export class RegisterComponent implements OnInit {
       var reg = new RegExp('(?=.*[0-9])');
 
       // Return Error Message if test false, otherwise return null
-      if(!reg.test(passwordControl.value)){
-        return {'noNumeric': true};
+      if (!reg.test(passwordControl.value)) {
+        return { 'noNumeric': true };
       }
-      else{
+      else {
         return null;
       }
     }
   }
 
   hasSpecial(): ValidatorFn {
-    return (passwordControl: AbstractControl): {[key: string]: boolean} | null => {
+    return (passwordControl: AbstractControl): { [key: string]: boolean } | null => {
 
       // Check if empty
-      if(passwordControl.value.length == ''){
+      if (passwordControl.value.length == '') {
         return null;
       }
 
@@ -178,33 +180,31 @@ export class RegisterComponent implements OnInit {
       var reg = new RegExp('(?=.*[!@#$%^&*])');
 
       // Return Error Message if test false, otherwise return null
-      if(!reg.test(passwordControl.value)){
-        return {'noSpecial': true};
+      if (!reg.test(passwordControl.value)) {
+        return { 'noSpecial': true };
       }
-      else{
+      else {
         return null;
       }
     }
   }
 
-  isMatch(passwordControl : AbstractControl) : ValidatorFn
-  {
-    return (confirmPasswordControl : AbstractControl) : {[key: string] : boolean} | null =>
-    {
-      
-      if(!passwordControl && !confirmPasswordControl){
+  isMatch(passwordControl: AbstractControl): ValidatorFn {
+    return (confirmPasswordControl: AbstractControl): { [key: string]: boolean } | null => {
+
+      if (!passwordControl && !confirmPasswordControl) {
         return null;
       }
-      
-      if(confirmPasswordControl && !passwordControl){
+
+      if (confirmPasswordControl && !passwordControl) {
         return null;
       }
 
       // Return Error Message if value don't match, otherwise return null
-      if(passwordControl.value !== confirmPasswordControl.value){
-        return {'noMatch': true};
+      if (passwordControl.value !== confirmPasswordControl.value) {
+        return { 'noMatch': true };
       }
-      else{
+      else {
         return null;
       }
     }

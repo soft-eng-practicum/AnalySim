@@ -9,7 +9,7 @@ import { AccountService } from 'src/app/services/account.service';
 @Component({
   selector: 'app-modal-folder',
   templateUrl: './modal-folder.component.html',
-  styleUrls: ['./modal-folder.component.css']
+  styleUrls: ['./modal-folder.component.scss']
 })
 export class ModalFolderComponent implements OnInit {
 

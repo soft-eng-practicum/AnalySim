@@ -2,6 +2,7 @@
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,12 +24,15 @@ namespace Web.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly IBlobService _blobService;
         private readonly BlobServiceClient _blobServiceClient;
+        private readonly IConfiguration _configuration;
 
-        public ProjectController(ApplicationDbContext dbContext, IBlobService blobService, BlobServiceClient blobServiceClient)
+        public ProjectController(ApplicationDbContext dbContext, IBlobService blobService,
+                                 BlobServiceClient blobServiceClient, IConfiguration configuration)
         {
             _dbContext = dbContext;
             _blobService = blobService;
             _blobServiceClient = blobServiceClient;
+            _configuration = configuration;
         }
 
         #region GET REQUEST
@@ -162,7 +166,7 @@ namespace Web.Controllers
          * Type : POST
          * URL : /api/test/downloadfile/
          * Param : {fileID}
-         * Description: Upload File To Azure Storage
+         * Description: Download file from Azure Storage
          */
         [HttpGet("[action]/{fileID}")]
         public async Task<IActionResult> DownloadFile([FromRoute] int fileID)
@@ -554,7 +558,7 @@ namespace Web.Controllers
          * Type : POST
          * URL : /api/project/uploadfile
          * Param : FileUploadProjectViewModel
-         * Description: Upload Folder To Azure Storage
+         * Description: Upload file to Azure Storage
          */
         [HttpPost("[action]")]
         public async Task<IActionResult> UploadFile([FromForm] ProjectFileUploadVM formdata)
@@ -575,11 +579,22 @@ namespace Web.Controllers
                 var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
                 if (project == null) return NotFound(new { message = "Project Not Found" });
 
+                // Check quota (TODO: check if conf file has field and give proper error)
+                var maxsize = int.Parse(_configuration["UserQuota"]);
+                var totalsize = await _dbContext.BlobFiles
+                    .Where(b => b.UserID == user.Id)
+                    .SumAsync(b => b.Size);
+                if (totalsize + formdata.File.Length > maxsize)
+                    return BadRequest($"Exceeds total user quota of {(maxsize / 1e6).ToString()} MB.");
+                
                 // Set File Path
                 var filePath = formdata.Directory + formdata.File.FileName;
 
+                System.Diagnostics.Debug.WriteLine($"filePath: {filePath}");
+
                 // Upload Blob File
                 BlobClient blobClient = await _blobService.UploadFileBlobAsync(formdata.File, project.Name.ToLower(), filePath);
+                System.Diagnostics.Debug.WriteLine($"after upload test");
                 BlobProperties properties = blobClient.GetProperties();
 
                 // Create BlobFile
@@ -612,10 +627,8 @@ namespace Web.Controllers
             catch (Exception e)
             {
                 // Return Bad Request If There Is Any Error
-                return BadRequest(new
-                {
-                    error = e
-                });
+                System.Console.WriteLine(e);
+                return BadRequest(e);
             }
         }
 
@@ -709,12 +722,13 @@ namespace Web.Controllers
                     aup.ProjectID == projectID &&
                     aup.Project.Name == formdata.Name &&
                     aup.UserRole == "owner"));
+            if (user == null) return NotFound(new { message = "User Not Found" });
 
             // If the product was found
             project.Name = formdata.Name;
             project.Visibility = formdata.Visibility;
             project.Description = formdata.Description;
-            project.LastUpdated = DateTime.Now;
+            project.LastUpdated = DateTime.UtcNow;
             project.Route = user.UserName + "/" + formdata.Name;
 
             // Set Entity State
@@ -798,8 +812,26 @@ namespace Web.Controllers
             var deleteProject = await _dbContext.Projects.FindAsync(projectID);
             if (deleteProject == null) return NotFound(new { message = "Project Not Found" });
 
-            // Remove Project
-            _dbContext.Projects.Remove(deleteProject);
+            // Remove all users that follow the project
+            foreach (var user in deleteProject.ProjectUsers)
+            {
+                _dbContext.ProjectUsers.Remove(user);
+            }
+
+            // Delete from Azure
+            var containerClient = _blobServiceClient.GetBlobContainerClient(deleteProject.Name.ToLower());
+            // await containerClient.DeleteBlobIfExistsAsync(deleteProject.Name.ToLower());
+            containerClient.DeleteIfExists();
+
+            // get the project by project ID
+            var blobsResult = _dbContext.BlobFiles
+                .Where(p => p.ProjectID == projectID).ToList();
+
+            // delete blobFiles
+            _dbContext.BlobFiles.RemoveRange(blobsResult);
+
+            // remove the project
+            _dbContext.Projects.Remove(await _dbContext.Projects.FindAsync(projectID));
 
             // Save Change
             await _dbContext.SaveChangesAsync();
@@ -1020,33 +1052,6 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = relatedDirectory,
-                message = "File Successfully Uploaded"
-            });
-        }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> Test()
-        {
-            // Find Project
-            var project = await _dbContext.Projects.FindAsync(3);
-            if (project == null) return NotFound(new { message = "Project Not Found" });
-
-
-            // Get Storage Container
-            var containerClient = _blobServiceClient.GetBlobContainerClient(project.Name.ToLower());
-
-            // Create Container If Storage Doesn't Exist
-            bool isExist = containerClient.Exists();
-            if (!isExist)
-            {
-                containerClient.Create();
-            }
-
-
-            // Return Ok Status
-            return Ok(new
-            {
-                result = containerClient,
                 message = "File Successfully Uploaded"
             });
         }

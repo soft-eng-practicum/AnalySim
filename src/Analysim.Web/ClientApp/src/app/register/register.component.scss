@@ -1,0 +1,41 @@
+/* You can add global styles to this file, and also import other style files */
+.invalid{
+    border-color: #dc3545 !important;
+}
+
+.valid{
+    border-color: #28a745 !important;
+}
+
+// .btn-navy{
+//     background-color:
+//     #04132a;color: #FFF;}
+//     .btn-black:hover{color: #FFF;}
+
+    
+// .bg-theme{
+//     background-color:  rgb(226, 234, 247);
+//     /* background-image: linear-gradient(#0c1a34,#102958); */
+// }
+// .bg-navy{
+//     background-color:  #102958;
+//     /* background-image: linear-gradient(#0c1a34,#102958); */
+// }
+
+.background{
+    background-color: var(--background-color);
+    box-sizing: border-box;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+
+:host {
+    height: 100%;
+}
+.bg-theme{
+    background-color: none;
+}

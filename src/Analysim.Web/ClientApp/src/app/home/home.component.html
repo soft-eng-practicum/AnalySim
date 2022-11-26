@@ -4,10 +4,10 @@
   <div class="container-fluid">
     <!-- Row Start -->
     <div class="row-fluid h-100 align-items-center">
-      <div class="row">
+      <div class="row justify-content-center">
         <!-- Column Header Start -->
-        <div class="col-xl-5 col-lg-5 ml-3">
-          <h1 class="display-4 text-white font-weight-bold mb-2">Analysim</h1>
+        <div class="col-xl-5 col-lg-5 ml-3 align-self-center">
+          <h1 class="display-4 text-white font-weight-bold mb-2">AnalySim</h1>
           <p class="header-text text-white">A data sharing platform to simplify the visualization of datasets.
             Collaborate together and host your data to the world, or browser through our multiple user generated projects.
           </p>
@@ -24,31 +24,36 @@
 <!-- Page Content Start -->
 <div class="container-fluid lead">
   <!-- Row Services Start -->
-  <div class="row p-2 mt-5 justify-content-center">
-    <!-- Website Service1 -->
-    <div class="col-md-3 mb-4 pr-5 text-center">
-      <h3>Register for Analysim</h3>
-            <hr>
-            <p class="lead">Begin building your data or colaborate with a team</p>
-            <a [routerLink]='["/register"]'>Register <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
-            <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/register"]'>Register &raquo;</button> -->
+  <div class="row justify-content-center p-2 mt-5">
+    <div class="col-md-10">
+      <div class="row justify-content-center">
+        <!-- Website Service1 -->
+        <div class="col-md-4 mb-4 text-center">
+          <h3>Register for AnalySim</h3>
+                <hr>
+                <p class="lead">Begin building your data or colaborate with a team</p>
+                <a [routerLink]='["/register"]'>Register <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
+                <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/register"]'>Register &raquo;</button> -->
+        </div>
+        <!-- Website Service2 -->
+        <div class="col-md-4 mb-4 text-center">
+          <h3>Create your own project</h3>
+                <hr>
+                <p class="lead">Create your own project and share your ideas </p>
+                <a [routerLink]='["/project/create"]'>Create Project <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
+                <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/project/create"]'>Create Project &raquo;</button> -->
+        </div>
+        <!-- Website Service2 -->
+        <div class="col-md-4 mb-4 text-center">
+          <h3>Browse our projects</h3>
+                <hr>
+                <p class="lead">Not ready yet? Get inspired from our projects</p>
+                <a [routerLink]='["/explore"]'>Explore Project <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
+                <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/explore"]'>Explore Project &raquo;</button> -->
+        </div>
+      </div>
     </div>
-    <!-- Website Service2 -->
-    <div class="col-md-3 mb-4 pr-5 text-center">
-      <h3>Create your own project</h3>
-            <hr>
-            <p class="lead">Create your own project and share your ideas </p>
-            <a [routerLink]='["/project/create"]'>Create Project <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
-            <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/project/create"]'>Create Project &raquo;</button> -->
-    </div>
-    <!-- Website Service2 -->
-    <div class="col-md-3 mb-4 pr-5 text-center">
-      <h3>Browse our projects</h3>
-            <hr>
-            <p class="lead">Not ready yet? Get inspired from our projects</p>
-            <a [routerLink]='["/explore"]'>Explore Project <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
-            <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/explore"]'>Explore Project &raquo;</button> -->
-    </div>
+    
   </div> <!-- Row Services End -->
 
   <!-- Row Organization Start -->
@@ -56,13 +61,65 @@
     <div class="col-md-6">
       <!-- Organizaiton Description -->
       <div class="row justify-content-center">
-        <h2 class="text-center">Gather Data Together Collectively</h2>
-        <!-- <p class="text-center">Organization brings teams together to tackle an issue together, learn from each other,
+        <h2 class="text-center">Gather Data Together Collectively</h2>        <!-- <p class="text-center">Organization brings teams together to tackle an issue together, learn from each other,
           and foster a community</p> -->
       </div>
       <div class="row justify-content-center">
         <div class="text-center">
-          <button type="button" class="btn btn-primary btn-lg" [routerLink]='["/register"]'>Create Organization &raquo;</button>
+          <button type="button" class="btn btn-primary-new btn-lg" [routerLink]='["/register"]'>Register Your Account &raquo;</button>
+     <!-- <button2> type="button"     </button2> -->
+        </div>
+      </div>
+    </div>
+  </div> <!-- Row Organization End -->
+
+  <!-- Page Content Start -->
+  <div class="container-fluid lead">
+    <!-- Row Services Start -->
+    <div class="row p-2 mt-5 justify-content-center notebook-row">
+      <div class="col-md-10">
+        <div class="row justify-content-center">
+          <!-- Website Service1 -->
+          <div class="col-md-12 col-lg-4 mb-4 text-center notebook-container">
+            <h3>Jupyter Notebooks</h3>
+            <hr>
+            <p class="lead">Host your data and notebooks on AnalySim</p>
+            <img class="note-img" src="../../assets/img/Jupyter.png">
+            <a class="note-btn" href="https://nbviewer.org/urls/neruosimhubstorage.blob.core.windows.net/test1/GoogleColab/network_8cell.ipynb" target="_blank">Open Notebook <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
+          </div>
+          <!-- Website Service2 -->
+          <div class="col-md-12 col-lg-4 mb-4 text-center notebook-container">
+            <h3>Observable Notebooks</h3>
+            <hr>
+            <p class="lead">Harvest power and flexibility of JavaScript, host data on AnalySim</p>
+            <img class="note-img" src="../../assets/img/observ.png">
+            <a class="note-btn" href="https://observablehq.com/@cengique/csv-dataset-visualization?API=https:%2F%2Fneruosimhubstorage.blob.core.windows.net%2Ftest1%2Ftest%252FAnalySim-nodtypes.csv" target="_blank">Open Notebook <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
+          </div>
+          <!-- Website Service2 -->
+          <div class="col-md-12 col-lg-4 mb-4 text-center notebook-container">
+            <h3>Google Colab</h3>
+            <hr>
+            <p class="lead">Run your notebooks on Google, host data on AnalySim</p>
+            <img class="note-img" src="../../assets/img/colab.png">
+            <a class="note-btn" href="https://colab.research.google.com/drive/1TCg8BqvJi55XKpqkyNuXVjza9thRta_s#scrollTo=mnCW0x2eL7nK" target="_blank">Open Notebook <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row Organization Start -->
+  <div class="row py-3 my-3 justify-content-center bg-navy">
+    <div class="col-md-6">
+      <!-- Organizaiton Description -->
+      <div class="row justify-content-center">
+        <h2 class="text-center">Create Your Own Notebook</h2>        <!-- <p class="text-center">Organization brings teams together to tackle an issue together, learn from each other,
+          and foster a community</p> -->
+      </div>
+      <div class="row justify-content-center">
+        <div class="text-center">
+          <button type="button" class="btn btn-primary-new btn-lg" [routerLink]='["/login"]'>Create Notebook &raquo;</button>
+     <!-- <button2> type="button"     </button2> -->
         </div>
       </div>
     </div>
@@ -164,6 +221,85 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div> <!-- Row Dataset Description End -->
+
+ <!-- Row Organization Start -->
+ <div class="row py-3 my-3 justify-content-center bg-navy">
+  <div class="col-md-6">
+    <!-- Organizaiton Description -->
+    <div class="row justify-content-center">
+      <h2 class="text-center">Sponsors</h2>        <!-- <p class="text-center">Organization brings teams together to tackle an issue together, learn from each other,
+        and foster a community</p> -->
+    </div>
+    <div class="row justify-content-center">
+      <div class="text-center">
+        
+   <!-- <button2> type="button"     </button2> -->
+      </div>
+    </div>
+  </div>
+</div> <!-- Row Organization End -->
+
+
+
+  <!-- Row Dataset Description1 Start -->
+  <div class="row justify-content-center py-4 my-4 home-sponser">
+    <div class="col-md-10">
+      <div class="row justify-content-center">
+        <div class="col-xl-5 col-lg-12 sponser-column">
+          <div class="row">
+            <h3 class="hero-sponser">
+              <img src="../../assets/img/icon-gsoc.png"> 
+              <a href="https://summerofcode.withgoogle.com/" target="_blank">Google Summer of Code</a>
+            </h3>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-0 sponser-column">
+        </div>
+        <div class="col-xl-5 col-lg-12 sponser-column">
+          <div class="row">
+          <h3 class="hero-sponser">
+            <img src="../../assets/img/icon-incf.png"> 
+            <a href="https://www.incf.org/" target="_blank">International Neuroinformatics Coordinating Facility</a>
+          </h3>
+          </div>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-xl-5 col-lg-12 sponser-column">
+          <div class="row">
+            <h3 class="hero-sponser">
+              <img src="../../assets/img/access.png"> 
+              <a href="https://access-ci.org/" target="_blank">Access</a>
+            </h3>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-0 sponser-column">
+        </div>
+        <div class="col-xl-5 col-lg-12 sponser-column">
+          <div class="row">
+          <h3 class="hero-sponser">
+            <img src="../../assets/img/jetstream2-logo.svg"> 
+            <a href="https://jetstream-cloud.org/" target="_blank">Jetstream2</a>
+          </h3>
+          </div>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-xl-5 col-lg-12 sponser-column">
+          <div class="row">
+          <h3 class="hero-sponser">
+            <img src="../../assets/img/nsf-logo.png"> 
+            <a href="https://www.nsf.gov/" target="_blank">National Science Foundation</a>
+          </h3>
+          </div>
+        </div>
+        <div class="col-xl-2 col-lg-0 sponser-column">
+        </div>
+        <div class="col-xl-5 col-lg-12 sponser-column">
         </div>
       </div>
     </div>

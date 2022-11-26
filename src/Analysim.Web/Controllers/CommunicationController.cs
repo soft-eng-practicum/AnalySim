@@ -8,6 +8,12 @@ using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using Core.Interfaces;
 using Web.ViewModels;
+using System;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Core.Controllers
 {
@@ -38,12 +44,11 @@ namespace Core.Controllers
 
             await _mailNetService.SendEmail(emailInfo.EmailAddress, emailInfo.Username, emailInfo.Subject, emailInfo.BodyHtml, emailInfo.BodyText);
 
-            return Ok(new 
-            { 
+            return Ok(new
+            {
                 result = emailInfo,
                 message = "Registration Email was successfully sent"
             });
         }
-
     }
 }

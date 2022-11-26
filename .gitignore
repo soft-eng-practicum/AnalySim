@@ -26,6 +26,7 @@ Obj/
 
 # Visual Studio 2015 cache/options directory
 .vs/
+.vscode/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -178,8 +179,12 @@ ClientBin/
 *.pfx
 *.publishsettings
 orleans.codegen.cs
+src/Analysim.Web\\Logs*
+src/Analysim.Web/\\Logs*
 
-/node_modules
+# Node.js and Angular
+node_modules/
+.angular/
 
 # RIA/Silverlight projects
 Generated_Code/
@@ -233,14 +238,10 @@ _Pvt_Extensions
 # App Setting
 appsettings.json
 appsettings.Development.json
+settings.json
 
 # Logging
-logs/
-Logs/
-Web\\Logs*
+src/Analysim.Web/Logs
 
 #
 .DS_Store
-
-#Web
-Web/\\Logs*

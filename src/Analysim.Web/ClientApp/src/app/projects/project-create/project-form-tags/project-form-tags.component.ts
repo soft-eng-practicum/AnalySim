@@ -7,7 +7,7 @@ import { ProjectTag } from 'src/app/interfaces/project-tag';
 @Component({
   selector: 'app-project-form-tags',
   templateUrl: './project-form-tags.component.html',
-  styleUrls: ['./project-form-tags.component.css']
+  styleUrls: ['./project-form-tags.component.scss']
 })
 export class ProjectFormTagsComponent implements OnInit {
 

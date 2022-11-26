@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http'; 
+import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -28,6 +28,10 @@ import { DashboardQuickstartComponent } from './dashboard/dashboard-quickstart/d
 import { NotFoundComponent } from './error/not-found/not-found.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
 import { AboutUsComponent } from './about-us/about-us.component';
+import { EmailConfirmationComponent } from './email-confirmation/email-confirmation.component';
+import { EmailForgotPassComponent } from './email-confirmation/email-forgot-pass/email-forgot-pass.component';
+import { ResetPasswordComponent } from './email-confirmation/reset-password/reset-password.component';
+import { EmailResendVerificationComponent } from './email-confirmation/email-resend-verification/email-resend-verification.component';
 
 
 @NgModule({
@@ -51,6 +55,10 @@ import { AboutUsComponent } from './about-us/about-us.component';
     NotFoundComponent,
     ContactUsComponent,
     AboutUsComponent,
+    EmailConfirmationComponent,
+    EmailForgotPassComponent,
+    ResetPasswordComponent,
+    EmailResendVerificationComponent,
   ],
   imports: [
     BrowserModule,
@@ -60,8 +68,8 @@ import { AboutUsComponent } from './about-us/about-us.component';
     ReactiveFormsModule,
     BrowserAnimationsModule,
     ApplicationPipesModule,
-    ModalModule.forRoot(),
-    ToastrModule.forRoot()
+    ToastrModule.forRoot(),
+    ModalModule.forRoot()
   ],
   providers: [
   ],

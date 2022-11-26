@@ -1,0 +1,111 @@
+.project-card-container {
+  border: var(--border-width) var(--border-style) var(--border-color);
+
+  .project-card-header {
+    padding: .75rem 1.25rem;
+    margin-bottom: 0;
+    background-color: rgba(0,0,0,.03);
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    display: flex;
+    line-height: 24px;
+    align-items: center;
+
+    .project-user{
+      font-weight: 500;
+      line-height: 1.2; 
+      font-size: 1.25rem;
+    }
+
+    .project-name{
+      font-weight: 500;
+      line-height: 1.2; 
+      font-size: 1.25rem;
+    }
+
+    .project-follow-option {
+      margin-left: auto;
+
+      .project-follow{
+        color: var(--button-font-color);
+        background-color: #2B4865;
+        border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary);
+        padding: 6px 12px;
+        font-size: 16px;
+        line-height: 1.5;
+        border-radius: 4px;
+        display: block;
+        float: right !important;
+
+        &:hover {
+          color: var(--button-font-color-secondary-hov);
+          background-color: var(--button-background-color-secondary-hov);
+          border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary-hov);
+
+          span {
+            color: var(--button-font-color);
+            background-color: var(--button-background-color-secondary);
+            border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary);
+          }
+        }
+      }
+    }
+  }
+
+  .project-card-body{
+    padding:20px;
+    
+    .project-tag-list{
+      list-style: none;
+      padding: 0px;
+    }
+  }
+
+  .project-card-footer{
+    padding: .75rem 1.25rem;
+    background-color: rgba(0,0,0,.03);
+    border-top: 1px solid rgba(0,0,0,.125);
+
+    .project-member {
+      margin-right: 10px;
+    }
+
+    .project-last-updated {
+      float: right !important;
+      box-sizing: border-box;
+    }
+  }
+}
+
+a {
+  color: #007bff;
+  text-decoration: none;
+  background-color: transparent;
+}
+
+.badge{
+  color: #212529;
+  background-color: #f8f9fa;
+  margin-left: .25rem !important;
+  position: relative;
+  top: -1px;
+  font-weight: 300 !important;
+  display: inline-block;
+}
+.badge-pill {
+  color: #fff;
+  background-color: var(--background-color-secondary);
+  font-weight: 300 !important;
+  margin-right: .5rem !important;
+  padding-right: .6em;
+  padding-left: .6em;
+  border-radius: 10rem;
+  display: inline-block;
+  padding: .25em .4em;
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  box-sizing: border-box;
+}

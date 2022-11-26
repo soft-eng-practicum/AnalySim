@@ -1,0 +1,28 @@
+.bg-header{
+    background-color: var(--background-color-secondary);;
+
+    /* background-color:rgb(19, 76, 167); */
+}
+
+.navbar-brand:hover {
+    color: #808080;
+}
+
+.nav-link:hover {
+    color: #808080;
+    color: #4140aa !important;
+    transition: 0.3s;
+}
+
+.nav-link{
+    border-bottom:none !important;
+}
+
+.navbar-brand {
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.navbar-brand:hover {
+    color: #4140aa !important;
+}
