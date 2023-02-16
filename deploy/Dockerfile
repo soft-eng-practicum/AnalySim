@@ -3,4 +3,5 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 COPY src/Analysim.Web/bin/Release/net6.0/publish/ .
 
-CMD ASPNETCORE_URLS=http://*:$PORT dotnet Analysim.Web.dll
+#CMD ASPNETCORE_URLS=http://*:$PORT dotnet Analysim.Web.dll
+CMD dotnet Analysim.Web.dll
