@@ -32,11 +32,48 @@ command.
 npm install
 ```
 
-#### Running the project
+### Connecting to databases and other services
 
-You will need to get the `appsettings.json` file(s) from the project
-admins in order to connect to the database.  Put these files under the
-`src/Analysim.Web` folder.
+Analysim requires two databases to operate: one SQL database (PostgreSQL) for relational data and one Azure BlobStorage database for keeping uploaded user files. In addition, an Outlook account is needed for the email functionality. All of these services are accessed via authentication information stored in the `appsettings.json` and `appsettings.Development.json` files under the `src/Analysim.Web` folder. The structure of the files are as follows (`XXX` means redacted):
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DBConnectionString": "User ID=XXX;Password=XXX;Server=XXX;Port=5432;Database=XXX;Integrated Security=true;Pooling=true;SSL Mode=Require;Trust Server Certificate=true",
+    "AzureStorageConnectionString": "DefaultEndpointsProtocol=https;AccountName=XXX;AccountKey=XXX;EndpointSuffix=core.windows.net"
+  },
+  "EmailSettings": {
+    "Server": "smtp-mail.outlook.com",
+    "Port": 587,
+    "SenderName": "no-reply-analysim",
+    "SenderEmail": "XXX",
+    "Username": "XXX",
+    "Password": "XXX"
+  },
+  "JwtSettings": {
+    "Issuer": "AnalySim",
+    "Secret": "XXX",
+    "ExpireTime": 60,
+    "Audience": "https://www.analysim.tech/"
+  },
+  "UserQuota":  100000000
+}
+
+```
+
+#### SQL database
+
+If you don't have a SQL database yet, download and install [PostgreSQL](https://www.postgresql.org/download/). See the example for [installing on Ubuntu 22.04](https://linuxhint.com/install-and-setup-postgresql-database-ubuntu-22-04/). [Create a user account](https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e) and replace the `XXX` values in the `DBConnectionString` above with the correct ones.
+
+### Running the project
 
 **Step 1:**
 
