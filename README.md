@@ -161,3 +161,7 @@ Run the following commands in terminal to update Heroku deployment ([more info](
    heroku container:push web -a analysim-dev --context-path=..
    heroku container:release web -a analysim-dev
    ```
+
+## Google Summer of Code application examples
+
+Two successful application examples can be found under the [doc/ folder](doc/).
