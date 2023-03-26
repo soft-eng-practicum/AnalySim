@@ -299,7 +299,6 @@ namespace Web.Controllers
             System.Diagnostics.Debug.WriteLine("Token: " + token + "\n" + "UserID: " + userID);
             var user = await _userManager.FindByIdAsync(userID);
 
-
             // var decodedTokenString = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
 
             if (!await _userManager.IsEmailConfirmedAsync(user))
@@ -307,6 +306,8 @@ namespace Web.Controllers
                 System.Diagnostics.Debug.WriteLine("User is NOT verified");
                 await _userManager.ConfirmEmailAsync(user, token);
                 System.Diagnostics.Debug.WriteLine("User is verified");
+                var emailContent = "<p>You have been successfully registered for the AnalySim website.</p>";
+                await _mailNetService.SendEmail(user.Email, user.UserName, "Registration Complete", emailContent, emailContent);
                 return Redirect("~/email-confirmation");   
             }
 
