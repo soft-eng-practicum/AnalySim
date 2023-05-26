@@ -1,0 +1,26 @@
+# Use postgres/example user/password credentials
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: analysim_dev
+      POSTGRES_PASSWORD: NeuroScience2023
+
+  analysim:
+    image: analysim-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    network_mode: "service:db"
+    depends_on:
+      - db
+    restart: always
+    environment:
+      ASPNETCORE_URLS: "http://0.0.0.0:80"
+    tty: true
+    ports:
+      - 80:80

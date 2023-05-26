@@ -4,4 +4,5 @@ WORKDIR /app
 COPY src/Analysim.Web/bin/Release/net6.0/publish/ .
 
 #CMD ASPNETCORE_URLS=http://*:$PORT dotnet Analysim.Web.dll
+CMD dotnet ef database update
 CMD dotnet Analysim.Web.dll
