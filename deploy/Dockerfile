@@ -4,5 +4,7 @@ WORKDIR /app
 COPY src/Analysim.Web/bin/Release/net6.0/publish/ .
 
 #CMD ASPNETCORE_URLS=http://*:$PORT dotnet Analysim.Web.dll
-CMD dotnet ef database update
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="$PATH:/root/.dotnet/tools"
+RUN dotnet ef database update
 CMD dotnet Analysim.Web.dll
