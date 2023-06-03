@@ -4,6 +4,7 @@ import { AccountService } from '../services/account.service';
 import { CommunicationsService } from '../services/communications.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
+import { ConfigService } from '../services/config.service';
 
 @Component({
   selector: 'app-register',
@@ -17,11 +18,17 @@ export class RegisterComponent implements OnInit {
   username: FormControl;
   password: FormControl;
   confirmPassword: FormControl;
+  workPlace: FormControl;
+  positionTitle: FormControl;
+  whereDidYouHearAboutAnalysim: FormControl;
+  wouldYouLikeToHearUpdatesFromUs: FormControl;
+  registrationCode: FormControl;
   errorList: string[];
-  isLoading: boolean;
+  isLoading: boolean = false;
   errorMessage: string;
   invalidRegister: boolean;
   returnUrl: string;
+  showHideRegistrationCode : boolean = true;
 
   constructor(
     private accountService: AccountService,
@@ -29,7 +36,8 @@ export class RegisterComponent implements OnInit {
     private router: Router,
     private formBuilder: FormBuilder,
     private notfi: NotificationService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private configService: ConfigService
   ) { }
 
   ngOnInit() {
@@ -38,8 +46,12 @@ export class RegisterComponent implements OnInit {
     this.username = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(15)])
     this.password = new FormControl('', [Validators.required, Validators.minLength(5), this.hasUpper(), this.hasLower(), this.hasNumeric(), this.hasSpecial()])
     this.confirmPassword = new FormControl('', [Validators.required, this.isMatch(this.password)])
+    this.workPlace = new FormControl('');
+    this.positionTitle = new FormControl('');
+    this.whereDidYouHearAboutAnalysim = new FormControl('');
+    this.wouldYouLikeToHearUpdatesFromUs = new FormControl(false);
+    this.registrationCode = new FormControl('');
     this.errorList = [];
-
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
 
@@ -48,8 +60,23 @@ export class RegisterComponent implements OnInit {
       'emailAddress': this.emailAddress,
       'username': this.username,
       'password': this.password,
-      'confirmPassword': this.confirmPassword
+      'confirmPassword': this.confirmPassword,
+      'workPlace': this.workPlace,
+      'positionTitle': this.positionTitle,
+      'whereDidYouHearAboutAnalysim': this.whereDidYouHearAboutAnalysim,
+      'wouldYouLikeToHearUpdatesFromUs': this.wouldYouLikeToHearUpdatesFromUs,
+      'registrationCode': this.registrationCode,
     });
+
+    this.configService.checkRegistrationCodesLength().subscribe({
+      next: (data) => {
+        this.showHideRegistrationCode =  data === 0 ? false : true;
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    })
+
   }
 
 
@@ -57,15 +84,19 @@ export class RegisterComponent implements OnInit {
     // Variable for FormGroupValue
     let userReg = this.insertForm.value
 
+    let registrationSurvey = userReg.workPlace+";"+userReg.positionTitle+";"+userReg.whereDidYouHearAboutAnalysim+";"+userReg.wouldYouLikeToHearUpdatesFromUs.toString()+";"+userReg.registrationCode;
+
+
     // Show loading icon
-    this.isLoading = true
+    this.isLoading = true;
 
     // Register the Account
-    this.accountService.register(userReg.username, userReg.password, userReg.emailAddress).subscribe(
+    this.accountService.register(userReg.username, userReg.password, userReg.emailAddress,registrationSurvey).subscribe(
       result => {
         // Hide Error Message Box
         this.invalidRegister = false
 
+        /*
         const username = userReg.username
         const emailAddress = userReg.emailAddress
         const subject: string = "Registration Complete"
@@ -80,6 +111,10 @@ export class RegisterComponent implements OnInit {
             console.log(error)
           }
         );
+
+        */
+
+
 
         // Navigate to login page
         if (this.returnUrl == "")

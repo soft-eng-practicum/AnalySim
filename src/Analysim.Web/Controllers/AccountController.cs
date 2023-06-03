@@ -37,10 +37,12 @@ namespace Web.Controllers
         private readonly ILoggerManager _loggerManager;
         private readonly IMailNetService _mailNetService;
 
+        private readonly IConfiguration _configuration;
+
         public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager,
             SignInManager<User> signManager, ApplicationDbContext dbContext,
                                  IBlobService blobService, ILoggerManager loggerManager,
-                                 IMailNetService mailNetService)
+                                 IMailNetService mailNetService,IConfiguration configuration)
         {
             _jwtSettings = jwtSettings.Value;
             _userManager = userManager;
@@ -49,6 +51,7 @@ namespace Web.Controllers
             _blobService = blobService;
             _loggerManager = loggerManager;
             _mailNetService = mailNetService;
+            _configuration = configuration;
         }
 
         #region GET REQUEST
@@ -228,15 +231,38 @@ namespace Web.Controllers
             // Hold Error List
             List<string> errorList = new List<string>();
 
+            string registrationSurvey = formdata.RegistrationSurvey;
+
+            string[] registrationKeys =  _configuration.GetSection("registrationCodes").Get<string[]>();
+
+            string[] splitRegistrationSurvey = registrationSurvey.Split(';');
+
+            string registrationCode = splitRegistrationSurvey[splitRegistrationSurvey.Length-1];
+
+            if(registrationKeys != null && registrationKeys.Length != 0)
+            {
+                bool containsRegistrationCode = registrationKeys.Contains(registrationCode);
+
+                if(!containsRegistrationCode)
+                {
+                    errorList.Add("Invalid Registration Code");
+                    return BadRequest(new { message = errorList });
+                }
+            }
+
+
             // Create User Object
             var user = new User
             {
                 Email = formdata.EmailAddress,
                 UserName = formdata.Username,
+                RegistrationSurvey = formdata.RegistrationSurvey,
                 DateCreated = DateTimeOffset.UtcNow,
                 LastOnline = DateTimeOffset.UtcNow,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
+
+
 
             // Add User To Database
             var result = await _userManager.CreateAsync(user, formdata.Password);
@@ -252,8 +278,6 @@ namespace Web.Controllers
                     userid = user.Id,
                     token = code,
                 }, protocol: HttpContext.Request.Scheme);
-
-                Console.Write(callbackUrl);
 
                 // send verification token
                 var emailContent = "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>";
@@ -299,7 +323,6 @@ namespace Web.Controllers
             System.Diagnostics.Debug.WriteLine("Token: " + token + "\n" + "UserID: " + userID);
             var user = await _userManager.FindByIdAsync(userID);
 
-
             // var decodedTokenString = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
 
             if (!await _userManager.IsEmailConfirmedAsync(user))
@@ -307,6 +330,8 @@ namespace Web.Controllers
                 System.Diagnostics.Debug.WriteLine("User is NOT verified");
                 await _userManager.ConfirmEmailAsync(user, token);
                 System.Diagnostics.Debug.WriteLine("User is verified");
+                var emailContent = "<p>You have been successfully registered for the AnalySim website.</p>";
+                await _mailNetService.SendEmail(user.Email, user.UserName, "Registration Complete", emailContent, emailContent);
                 return Redirect("~/email-confirmation");   
             }
 
