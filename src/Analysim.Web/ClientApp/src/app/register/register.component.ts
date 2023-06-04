@@ -66,6 +66,7 @@ export class RegisterComponent implements OnInit {
         // Hide Error Message Box
         this.invalidRegister = false
 
+        /*
         const username = userReg.username
         const emailAddress = userReg.emailAddress
         const subject: string = "Registration Complete"
@@ -80,6 +81,10 @@ export class RegisterComponent implements OnInit {
             console.log(error)
           }
         );
+
+        */
+
+
 
         // Navigate to login page
         if (this.returnUrl == "")
