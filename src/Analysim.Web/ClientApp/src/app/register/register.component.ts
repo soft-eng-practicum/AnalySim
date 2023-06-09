@@ -84,14 +84,16 @@ export class RegisterComponent implements OnInit {
     // Variable for FormGroupValue
     let userReg = this.insertForm.value
 
-    let registrationSurvey = userReg.workPlace+";"+userReg.positionTitle+";"+userReg.whereDidYouHearAboutAnalysim+";"+userReg.wouldYouLikeToHearUpdatesFromUs.toString()+";"+userReg.registrationCode;
+
+
+    let registrationSurvey = {"workPlace": userReg.workPlace,"positionTitle":userReg.positionTitle,"whereDidYouHearAboutAnalysim": userReg.whereDidYouHearAboutAnalysim,"wouldYouLikeToHearUpdatesFromUs": userReg.wouldYouLikeToHearUpdatesFromUs,"registrationCode":userReg.registrationCode};
 
 
     // Show loading icon
     this.isLoading = true;
 
     // Register the Account
-    this.accountService.register(userReg.username, userReg.password, userReg.emailAddress,registrationSurvey).subscribe(
+    this.accountService.register(userReg.username, userReg.password, userReg.emailAddress,JSON.stringify(registrationSurvey)).subscribe(
       result => {
         // Hide Error Message Box
         this.invalidRegister = false

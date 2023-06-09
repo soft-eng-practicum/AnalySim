@@ -22,6 +22,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Web.ViewModels.Account;
 using Web.ViewModels;
+using Newtonsoft.Json;
 
 namespace Web.Controllers
 {
@@ -235,9 +236,11 @@ namespace Web.Controllers
 
             string[] registrationKeys =  _configuration.GetSection("registrationCodes").Get<string[]>();
 
-            string[] splitRegistrationSurvey = registrationSurvey.Split(';');
+            dynamic registrationSurveyJson = JsonConvert.DeserializeObject(registrationSurvey);
 
-            string registrationCode = splitRegistrationSurvey[splitRegistrationSurvey.Length-1];
+            string registrationCode = registrationSurveyJson.registrationCode;
+
+            Console.Write(registrationCode);
 
             if(registrationKeys != null && registrationKeys.Length != 0)
             {
