@@ -90,6 +90,41 @@
                                                             Match</span>
                                                     </div>
                                                 </div>
+
+                                                <div class="form-group">
+                                                    <label for="workPlace">Institution/Company</label>
+                                                    <input formControlName="workPlace" type="text" class="form-control"
+                                                        placeholder=""
+                                                        [readOnly]="isLoading">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="positionTitle">Position Title</label>
+                                                    <input formControlName="positionTitle" type="text" class="form-control"
+                                                        placeholder=""
+                                                        [readOnly]="isLoading" >
+                                                </div>
+
+
+                                                <div class="form-group">
+                                                    <label for="whereDidYouHearAboutAnalysim">Where did you hear about AnalySim?</label>
+                                                    <input formControlName="whereDidYouHearAboutAnalysim" type="text" class="form-control"
+                                                        placeholder=""
+                                                        [readOnly]="isLoading" >
+                                                </div>
+
+                                                <div class="form-check">
+                                                    <input formControlName="wouldYouLikeToHearUpdatesFromUs" type="checkbox" class="form-check-input"
+                                                    [readOnly]="isLoading" >
+                                                    <label for="wouldYouLikeToHearUpdatesFromUs">Would you like to hear updates from us?</label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="registrationCode">Registration Code</label>
+                                                    <span *ngIf="showHideRegistrationCode" class="text-danger"> *</span>
+                                                    <input formControlName="registrationCode" type="text" class="form-control"
+                                                        placeholder=""
+                                                        [readOnly]="isLoading" required="{{showHideRegistrationCode}}">
+                                                </div>
                 
                                                 <!-- Form Group Register -->
                                                 <div class="form-group">
@@ -103,6 +138,8 @@
                                                         </div>
                                                     </button>
                                                 </div>
+
+                                                
                 
                                             </form> <!-- Register Form End -->
                                         </div> <!-- Card Body End -->

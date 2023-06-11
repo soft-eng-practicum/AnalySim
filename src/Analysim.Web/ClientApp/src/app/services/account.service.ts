@@ -152,11 +152,12 @@ export class AccountService {
       )
   }
 
-  register(username: string, password: string, emailaddress: string) {
+  register(username: string, password: string, emailaddress: string, registrationSurvey : string) {
     let body = new FormData()
     body.append('emailaddress', emailaddress)
     body.append('username', username)
     body.append('password', password)
+    body.append('registrationSurvey',registrationSurvey)
 
     return this.http.post<any>(this.urlRegister, body)
       .pipe(

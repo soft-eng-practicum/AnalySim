@@ -15,5 +15,11 @@ namespace Web.ViewModels.Account
         [Required(ErrorMessage = "Password is a required field.")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
+
+        [DataType(DataType.Text)]
+        public string RegistrationSurvey {get;set;}
+
+
+
     }
 }

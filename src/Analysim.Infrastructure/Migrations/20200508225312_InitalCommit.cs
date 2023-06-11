@@ -43,7 +43,8 @@ namespace Infrastructure.Migrations
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
-                    Bio = table.Column<string>(nullable: true)
+                    Bio = table.Column<string>(nullable: true),
+                    RegistrationSurvey = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

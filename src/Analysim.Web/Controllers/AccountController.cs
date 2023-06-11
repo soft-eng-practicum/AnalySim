@@ -22,6 +22,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Web.ViewModels.Account;
 using Web.ViewModels;
+using Newtonsoft.Json;
 
 namespace Web.Controllers
 {
@@ -37,10 +38,12 @@ namespace Web.Controllers
         private readonly ILoggerManager _loggerManager;
         private readonly IMailNetService _mailNetService;
 
+        private readonly IConfiguration _configuration;
+
         public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager,
             SignInManager<User> signManager, ApplicationDbContext dbContext,
                                  IBlobService blobService, ILoggerManager loggerManager,
-                                 IMailNetService mailNetService)
+                                 IMailNetService mailNetService,IConfiguration configuration)
         {
             _jwtSettings = jwtSettings.Value;
             _userManager = userManager;
@@ -49,6 +52,7 @@ namespace Web.Controllers
             _blobService = blobService;
             _loggerManager = loggerManager;
             _mailNetService = mailNetService;
+            _configuration = configuration;
         }
 
         #region GET REQUEST
@@ -228,15 +232,40 @@ namespace Web.Controllers
             // Hold Error List
             List<string> errorList = new List<string>();
 
+            string registrationSurvey = formdata.RegistrationSurvey;
+
+            string[] registrationKeys =  _configuration.GetSection("registrationCodes").Get<string[]>();
+
+            dynamic registrationSurveyJson = JsonConvert.DeserializeObject(registrationSurvey);
+
+            string registrationCode = registrationSurveyJson.registrationCode;
+
+            Console.Write(registrationCode);
+
+            if(registrationKeys != null && registrationKeys.Length != 0)
+            {
+                bool containsRegistrationCode = registrationKeys.Contains(registrationCode);
+
+                if(!containsRegistrationCode)
+                {
+                    errorList.Add("Invalid Registration Code");
+                    return BadRequest(new { message = errorList });
+                }
+            }
+
+
             // Create User Object
             var user = new User
             {
                 Email = formdata.EmailAddress,
                 UserName = formdata.Username,
+                RegistrationSurvey = formdata.RegistrationSurvey,
                 DateCreated = DateTimeOffset.UtcNow,
                 LastOnline = DateTimeOffset.UtcNow,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
+
+
 
             // Add User To Database
             var result = await _userManager.CreateAsync(user, formdata.Password);
@@ -252,8 +281,6 @@ namespace Web.Controllers
                     userid = user.Id,
                     token = code,
                 }, protocol: HttpContext.Request.Scheme);
-
-                Console.Write(callbackUrl);
 
                 // send verification token
                 var emailContent = "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>";
