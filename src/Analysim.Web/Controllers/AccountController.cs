@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Web;
 using System.Threading.Tasks;
 using Web.ViewModels.Account;
 using Web.ViewModels;
@@ -326,20 +327,32 @@ namespace Web.Controllers
             System.Diagnostics.Debug.WriteLine("Token: " + token + "\n" + "UserID: " + userID);
             var user = await _userManager.FindByIdAsync(userID);
 
+            string encodedString="";
+
             // var decodedTokenString = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
 
             if (!await _userManager.IsEmailConfirmedAsync(user))
             {
                 System.Diagnostics.Debug.WriteLine("User is NOT verified");
+                try{
                 await _userManager.ConfirmEmailAsync(user, token);
                 System.Diagnostics.Debug.WriteLine("User is verified");
                 var emailContent = "<p>You have been successfully registered for the AnalySim website.</p>";
                 await _mailNetService.SendEmail(user.Email, user.UserName, "Registration Complete", emailContent, emailContent);
-                return Redirect("~/email-confirmation");   
+                encodedString = HttpUtility.UrlEncode("true"); 
+                return Redirect("~/email-confirmation?result="+encodedString);   
+
+                }
+                catch(Exception ex)
+                {
+                    encodedString = HttpUtility.UrlEncode("Account Confirmation Failed. Please try again later.");
+                                    return Redirect("~/email-confirmation?result="+encodedString); 
+                }
             }
 
             // TODO: redirect to error page saying user already verified
-            return Redirect("~/error/not-found");
+            encodedString = HttpUtility.UrlEncode("Account Has Already Been Verified.");
+            return Redirect("~/email-confirmation?result="+encodedString);   
 
             // return
             // return RedirectToPage("/Index");

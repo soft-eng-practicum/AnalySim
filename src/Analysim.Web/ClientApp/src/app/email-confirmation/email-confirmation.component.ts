@@ -12,6 +12,7 @@ import { NotificationService } from '../services/notification.service';
 })
 export class EmailConfirmationComponent implements OnInit {
 
+  result: string = "";
 
   constructor(
     private router: Router,
@@ -19,11 +20,23 @@ export class EmailConfirmationComponent implements OnInit {
     private accountService: AccountService,
     private modalService: BsModalService,
     public notfi: NotificationService
-  ) { }
+  ) {
+
+   }
 
   async ngOnInit(): Promise<void> {
-    this.router.navigate(['/login']);
-    this.notfi.showInfo('Email Confirmation Successful','You can now login!');
-    CheckEmailToken: Boolean = null;
+    this.route.queryParams.subscribe(params=>{
+      const res = params['result'];
+      const checkIfSuccess = res === "true";
+      if(checkIfSuccess)
+      {
+        this.router.navigate(['/login']);
+        this.notfi.showInfo('Email Confirmation Successful','You can now login!');
+        CheckEmailToken: Boolean = null;
+      }
+      else{
+        this.result = res;
+      }
+    })
   }
 }
