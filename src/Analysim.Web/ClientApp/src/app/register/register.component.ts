@@ -93,7 +93,7 @@ export class RegisterComponent implements OnInit {
           this.router.navigate(['/login'], { queryParams: { returnUrl: this.returnUrl } })
 
         // Send registration notification
-        this.notfi.showSuccess('Account has been registered. A confirmation email has been sent for email verification.', 'Registration');
+        this.notfi.showSuccess('Your account has been registered and a verification email has been sent to your address. Before you can login, you must confirm your account by clicking the link in this email.', 'Registration');
       },
       error => {
         // Hide Loading Icon
