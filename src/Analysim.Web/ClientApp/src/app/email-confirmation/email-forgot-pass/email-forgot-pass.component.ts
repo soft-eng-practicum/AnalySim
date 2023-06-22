@@ -5,6 +5,7 @@ import { FormGroup, FormControl, FormBuilder, Validators, AbstractControl, Valid
 
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { User } from 'src/app/interfaces/user';
+import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'app-email-forgot-pass',
@@ -28,6 +29,7 @@ export class EmailForgotPassComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
+    private notfi: NotificationService,
   ) { }
 
   ngOnInit(): void {
@@ -40,13 +42,14 @@ export class EmailForgotPassComponent implements OnInit {
     this.emailform = this.formBuilder.group({
       'EmailAddress': this.emailAddress
     });
+    
 
   }
 
   sendPasswordToken() {
     // Variable for FormGroupValue
     let userReg = this.emailform.value
-
+    this.notfi.showInfo("Password Reset Email","If this is an account that we have, then an email has been sent");
     this.acct.sendPasswordResetToken(userReg.EmailAddress).subscribe(
       result => {
         let token = (<any>result).token;
