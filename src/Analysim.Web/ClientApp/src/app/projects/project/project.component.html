@@ -2,7 +2,7 @@
     <div class="row justify-content-center">
         <div class="col-md-10 mb-3 d-flex">
             <div class="container project-overview-container">
-                <div class="row project-detail-row" *ngIf='toggleView != "Content"'>
+                <div class="row project-detail-row">
                     <div class="project-description">
                         <h3 class="project-title" *ngIf="(project.route | route:'projectname') as projectname">
                             {{ projectname }}
@@ -86,45 +86,38 @@
                     </div>
                 </div>
                 <div class="row project-content-row" *ngIf='toggleView == "Content"'>
-                    <div class="project-content-header">
-                        <h3 *ngIf="(project.route | route:'projectname') as projectname">
-                            {{ projectname }}
-                        </h3>
-                        <ul class="project-content-header-option">
-                            <li>Share</li>
-                            <li>Comment</li>
-                        </ul>
-                    </div>
-                    <div class="project-content-notebook">
-                        <h3 class="project-content-notebook-title">
-                            Content Notebook
-                        </h3>
-                        <div class="project-content-notebook-description">
-                            We want to implement a learning method that will allow students to develop critical thinking skills while taking software development as a course. This will be done through techniques studied over the years by our very own professors. 
-                        </div>
-                        <img src="../../../assets/img/notebook-example.png">
-                    </div>
-                    <div class="project-content-footer">
-                        <input type="button" value="Go back to project" (click)='toggleView = "File"'>
-                    </div>
+                  <div class="project-content-header">
+                    <!-- <h3 *ngIf="(project.route | route:'projectname') as projectname">
+      {{ projectname }}
+  </h3> -->
+                    <ul class="project-content-header-option">
+                      <li>Share</li>
+                      <li>Comment</li>
+                    </ul>
+                  </div>
                 </div>
                 <div class="row project-notebook-row" *ngIf='toggleNotebookExpand && toggleView != "Content"'>
                     <img src="../../../assets/img/notebook-example.png">
                 </div>
-                <div class="row project-option-row"  *ngIf='toggleView != "Content"'>
-                    
-                    <input type="button" value="Expand Notebook" *ngIf="!toggleNotebookExpand" (click)="toggleNotebookExpand = true;">
-                    <input type="button" value="Close Notebook" *ngIf="toggleNotebookExpand" (click)="toggleNotebookExpand = false;">
-                    <input type="button" value="Edit Project" *ngIf="isOwner">
-                    <input type="button" value="Post Update" *ngIf="isOwner">
+                <div class="row project-option-row">
+
+                   <div *ngIf ='toggleView == "Content"' class="project-content-footer">
+                    <input type="button" value="Go back to Content" (click)='toggleView = "File"'>
+                  </div>
+
+                  <input type="button" value="Expand Notebook" *ngIf="!toggleNotebookExpand" (click)="toggleNotebookExpand = true;">
+                  <input type="button" value="Close Notebook" *ngIf="toggleNotebookExpand" (click)="toggleNotebookExpand = false;">
+                  <input type="button" value="Edit Project" *ngIf="isOwner">
+                  <input type="button" value="Post Update" *ngIf="isOwner">
                 </div>
                 <div class="row project-view-option-row">
-                    <div class="project-view-toggle">
-                        <input type="button" value="File" [ngClass]='{"active": toggleView == "File"}' (click)='toggleView == "File" ? toggleView = "" : toggleView = "File"'>
-                        <input type="button" value="Contents" [ngClass]='{"active": toggleView == "Content"}' (click)='toggleView == "Content" ? toggleView = "" : toggleView = "Content"'>
-                        <input type="button" value="Project Log" [ngClass]='{"active": toggleView == "Log"}' (click)='toggleView == "Log" ? toggleView = "" : toggleView = "Log"'>
-                        <input type="button" value="Publications" [ngClass]='{"active": toggleView == "Publications"}' (click)='toggleView == "Publications" ? toggleView = "" : toggleView = "Publications"'>
-                    </div>
+                  <div class="project-view-toggle">
+                    <input type="button" value="Datasets" [ngClass]='{"active": toggleView == "File"}' (click)='toggleView == "File" ? toggleView = "" : toggleView = "File"'>
+                    <input type="button" value="Notebooks" [ngClass]='{"active": toggleView == "Content"}' (click)='toggleView == "Content" ? toggleView = "" : toggleView = "Content"'>
+                    <input type="button" value="Comments" [ngClass]='{"active": toggleView == "Comment"}' (click)='toggleView == "Comment" ? toggleView = "" : toggleView = "Comment"'>
+                    <input type="button" value="Project Log" [ngClass]='{"active": toggleView == "Log"}' (click)='toggleView == "Log" ? toggleView = "" : toggleView = "Log"'>
+                    <input type="button" value="Publications" [ngClass]='{"active": toggleView == "Publications"}' (click)='toggleView == "Publications" ? toggleView = "" : toggleView = "Publications"'>
+                  </div>
                     <div class="project-view-interaction">
                         <input class="fork" type="button" value="Fork Project" (click)="forkProject()">
                         <button type="button" *ngIf="!toggleMoreOption" (click)="toggleMoreOption = true;">

@@ -20,6 +20,11 @@ export class LoginComponent implements OnInit {
   invalidLogin: boolean;
   isLoading: boolean;
 
+  termParam: string[]
+  searchTerm: FormControl
+  searchForm: FormGroup
+  searchCategory: FormControl
+
 
   constructor(private acct: AccountService,
     private router: Router,
@@ -29,14 +34,26 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+
     // Initialize Form Controls
     this.username = new FormControl('', [Validators.required]);
     this.password = new FormControl('', [Validators.required]);
 
-    this.isLoading = false;
+    this.isLoading = false; 
 
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || 'dashboard';
+
+    this.termParam = JSON.parse(this.route.snapshot.queryParams['term'] || '[]')
+
+
+    let searchTermString = ""
+    this.termParam.forEach(x => searchTermString += x + " ")
+
+
+    this.searchTerm = new FormControl(searchTermString);
+
+
 
     // Initialize FormGroup using FormBuilder
     this.loginForm = this.formBuilder.group({
@@ -44,6 +61,10 @@ export class LoginComponent implements OnInit {
       "password": this.password
     });
 
+    this.searchForm = this.formBuilder.group({
+      searchCategory: this.searchCategory,
+      searchTerm: this.searchTerm
+    });
   }
 
   onSubmit() {

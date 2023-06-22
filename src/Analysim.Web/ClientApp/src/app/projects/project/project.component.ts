@@ -20,10 +20,10 @@ export class ProjectComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private accountService : AccountService,
-    private projectService : ProjectService,
-    private modalService : BsModalService, 
-    ) { }
+    private accountService: AccountService,
+    private projectService: ProjectService,
+    private modalService: BsModalService,
+  ) { }
 
   @ViewChild('forkModal') forkModal: TemplateRef<any>
   @ViewChild('deleteModal') deleteModal: TemplateRef<any>
@@ -41,9 +41,9 @@ export class ProjectComponent implements OnInit {
   fileDirectory: string
   forkedFrom: Project = null
 
-  toggleMoreOption : boolean = false
-  toggleNotebookExpand : boolean = false
-  toggleView : string = "File"
+  toggleMoreOption: boolean = false
+  toggleNotebookExpand: boolean = false
+  toggleView: string = "File"
 
   async ngOnInit() {
     if (this.accountService.checkLoginStatus()) {
