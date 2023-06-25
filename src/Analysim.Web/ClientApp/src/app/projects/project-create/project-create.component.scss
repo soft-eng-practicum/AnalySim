@@ -1,5 +1,5 @@
 .card {
-  background-color: #edfffb !important;
+  background-color: var(--background-color-tertiary) !important;
   margin-top: 10%;
 }
 
@@ -7,11 +7,11 @@
     height: 60px;
 }
 
-.btn-title {
-  font-size: .9rem;
-  font-weight: 500;
-  position: absolute;
-  top: 10%;
+.btn-title{
+   font-size: .9rem;
+   font-weight: 500;
+   position: absolute;
+   top: 10%;
 }
 
 .btn-subtitle{

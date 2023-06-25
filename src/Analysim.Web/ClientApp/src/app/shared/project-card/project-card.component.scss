@@ -4,14 +4,13 @@
   .project-unfollow {
     background-color: var(--button-background-color);
     color: var(--primary-color);
-
-    border:none;
+    border: none;
   }
 
   .project-card-header {
     padding: .75rem 1.25rem;
     margin-bottom: 0;
-    background-color: #edfffb;
+    background-color: var(--background-color-tertiary);
     border-bottom: 1px solid rgba(0,0,0,.125);
     display: flex;
     line-height: 24px;
@@ -59,7 +58,7 @@
   }
 
   .card-header {
-    background-color: #edfffb;
+    background-color: var(--background-color-tertiary);
   }
 
   .project-card-body {
@@ -73,8 +72,8 @@
 
   .project-card-footer {
     padding: .75rem 1.25rem;
-    background-color: #edfffb;
-    border-top: 1px solid #edfffb;
+    background-color: var(--background-color-tertiary);
+    border-top: 1px solid var(--background-color-tertiary);
 
     .project-member {
       margin-right: 10px;

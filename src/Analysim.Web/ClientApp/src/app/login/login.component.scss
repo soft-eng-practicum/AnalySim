@@ -6,13 +6,13 @@
     color: #FFF;
 }
 
-.bg-navy{
-    background-color:  #102958;
-    /* background-image: linear-gradient(#0c1a34,#102958); */
+.bg-navy {
+  background-color: var(--primary-color);
+  /* background-image: linear-gradient(#0c1a34,#102958); */
 }
 
 .background{
-    background-color:  #102958;
+    background-color: var(--primary-color);
     box-sizing: border-box;
     height: 100%;
     display: flex;
@@ -20,6 +20,10 @@
     justify-content: center;
 }
 
+.card {
+    background-color: var(--background-color-tertiary);
+}
+
 :host {
-    height: 100%;
+  height: 100%;
 }

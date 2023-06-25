@@ -1,11 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 
-#success-btn {
-  background-color: #256d85;
+#success-btn{
+  background-color: var(--button-background-color);
 }
 
-
-.invalid {
+.invalid{
   border-color: #dc3545 !important;
 }
 
