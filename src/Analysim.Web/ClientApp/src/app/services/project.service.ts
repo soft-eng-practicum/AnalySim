@@ -12,6 +12,7 @@ import { ProjectTag } from '../interfaces/project-tag';
 import { User } from '../interfaces/user';
 import { NotificationService } from './notification.service';
 import { saveAs } from 'file-saver';
+import { Notebook } from '../interfaces/notebook';
 
 @Injectable({
   providedIn: 'root'
@@ -60,6 +61,8 @@ export class ProjectService {
   private urlGetUserList: string = this.baseUrl + "getuserlist/"
   private urlGetFileList: string = this.baseUrl + "getfilelist/"
   private urlGetTagList: string = this.baseUrl + "gettaglist/"
+
+  private urlUploadNotebook : string = this.baseUrl + "uploadnotebook";
 
 
   getProjectByID(projectID: number): Observable<Project> {
@@ -268,6 +271,25 @@ export class ProjectService {
     body.append('projectID', projectID.toString())
     
     return this.http.post<any>(this.urlUploadFile, body).pipe(
+      map(body => {
+        console.log(body.result)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
+  uploadNotebook(notebook: Notebook){
+    console.log(notebook);
+    let body = new FormData();
+    body.append('NotebookFile',notebook.file);
+    body.append('NotebookName',notebook.name);
+    body.append('ProjectID',notebook.projectID.toString());
+
+    return this.http.post<any>(this.urlUploadNotebook,body).pipe(
       map(body => {
         console.log(body.result)
         return body.result

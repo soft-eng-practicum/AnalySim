@@ -148,7 +148,7 @@
                         <app-project-file-explorer *ngIf='toggleView == "File"' [project]="project" [currentUser]="currentUser" [currentDirectory]="fileDirectory" [isMember]="isMember" ></app-project-file-explorer>
                         <app-project-publication *ngIf='toggleView == "Publications"'></app-project-publication>
                         <app-project-log *ngIf='toggleView == "Log"'></app-project-log>
-                        <app-project-content *ngIf='toggleView == "Content"'></app-project-content>
+                        <app-project-content *ngIf='toggleView == "Content"' [project]="project"></app-project-content>
                     </div>
                    
                 </div>

@@ -70,6 +70,13 @@ namespace Infrastructure.Data
                         .WithOne(p => p.Project)
                         .HasForeignKey(p => p.ProjectID);
 
+
+            // One To Many Relationship (Project -> Notebook)
+            modelBuilder.Entity<Project>()
+                        .HasMany(p => p.Notebooks)
+                        .WithOne(p => p.Project)
+                        .HasForeignKey(p => p.ProjectID);
+
             modelBuilder.Entity<IdentityRole<int>>().HasData(
                 new IdentityRole<int> { Id = 1, Name = "Admin", NormalizedName = "ADMIN"},
                 new IdentityRole<int> { Id = 2, Name = "Customer", NormalizedName = "CUSTOMER" },
@@ -84,6 +91,8 @@ namespace Infrastructure.Data
         public DbSet<ProjectUser> ProjectUsers { get; set; }
         public DbSet<ProjectTag> ProjectTags { get; set; }
         public DbSet<UserUser> UserUsers { get; set; }
+
+        public DbSet<Notebook> Notebooks {get;set;}
 
 
 

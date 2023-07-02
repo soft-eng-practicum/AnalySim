@@ -1,5 +1,15 @@
-<div class="project-comment-container">
-    <h3 class="project-comment-header">Comments</h3>
+<div class="card">
+    <div class="d-flex card-header flex-row align-items-center">
+    <span class="mr-2">Notebooks</span>
+    <div class="d-inline-flex ml-auto">
+        <!-- Private Button Group Start -->
+        <div class="btn-group mr-3">
+            <button type="button" class="btn btn-secondary" title="Upload Notebook" (click)="toggleModalUpload()">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+    </div>
+    </div>
     <ul class="project-comment-list">
         <li class="project-comment-item">
             <div class="project-comment-heading">
@@ -29,3 +39,7 @@
         </li>
     </ul>
 </div>
+
+<ng-template #uploadNotebookModal>
+    <app-modal-upload-notebook [project]="project"></app-modal-upload-notebook>
+</ng-template>

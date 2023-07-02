@@ -10,7 +10,7 @@
             <!-- Form Group Username -->
             <div class="form-group">
                 <label for="folderName">Folder Name:</label>
-                <input formControlName="folderName" type="text" class="form-control" placeholder=""[class.invalid]="folderName.touched && folderName.invalid" [class.valid]="folderName.valid" [readOnly]="isLoading" required>
+                <input formControlName="folderName" type="text" class="form-control" placeholder="" [class.invalid]="folderName.touched && folderName.invalid" [class.valid]="folderName.valid" [readOnly]="isLoading" required>
                 <div *ngIf="folderName.touched && folderName.errors" class="text-danger">
                     <span [hidden]="!folderName.errors?.['minlength']">Minimum 1 character</span>
                     <span [hidden]="!folderName.errors?.['maxlength']">Maximum 20 character</span>

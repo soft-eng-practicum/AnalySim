@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs;
+﻿using Internal;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -630,6 +631,59 @@ namespace Web.Controllers
                 System.Console.WriteLine(e);
                 return BadRequest(e);
             }
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/project/uploadnotebook
+         * Param : NotebookUploadProjectViewModel
+         * Description: Upload Notebook to Azure Storage
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> UploadNotebook([FromForm] ProjectNotebookUploadVM noteBookData)
+        {
+
+            try{
+
+                // Find Project
+                var project = await _dbContext.Projects.FindAsync(noteBookData.ProjectID);
+                if (project == null) return NotFound(new { message = "Project Not Found" });
+
+                var notebookPath = noteBookData.NotebookName;
+
+                BlobClient blobClient = await _blobService.UploadFileBlobAsync(noteBookData.NotebookFile, project.Name.ToLower(), notebookPath);
+                System.Diagnostics.Debug.WriteLine($"after upload test");
+                BlobProperties properties = blobClient.GetProperties();
+
+                var newNotebook = new Notebook{
+                    Container = blobClient.BlobContainerName,
+                    Name = Path.GetFileNameWithoutExtension(noteBookData.NotebookName),
+                    Extension = Path.GetExtension(noteBookData.NotebookFile.FileName),
+                    Size = (int)properties.ContentLength,
+                    Uri = blobClient.Uri.ToString(),
+                    DateCreated = properties.CreatedOn.UtcDateTime,
+                    LastModified = properties.LastModified.UtcDateTime,
+                    ProjectID = noteBookData.ProjectID
+                };
+
+                await _dbContext.Notebooks.AddAsync(newNotebook);
+                await _dbContext.SaveChangesAsync();
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    result = newNotebook,
+                    message = "Notebook Successfully Uploaded",
+                });
+
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                System.Console.WriteLine(e);
+                return BadRequest(e);
+            }
+
         }
 
         /*
