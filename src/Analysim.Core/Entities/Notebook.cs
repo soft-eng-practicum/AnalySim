@@ -31,9 +31,12 @@ namespace Core.Entities
         [Required(ErrorMessage = "Notebook LastModified is a required field.")]
         public DateTimeOffset LastModified { get; set; }
 
+
         //Foreign Key to Project
         public Project Project { get; set; }
         public int? ProjectID { get; set; }
+
+        public string type { get; set; }
 
 
     }

@@ -12,6 +12,7 @@ namespace Core.Entities
         public int ProjectID { get; set; }
 
         [Required(ErrorMessage = "Project Name is a required field.")]
+
         [MaxLength(20, ErrorMessage = "Maximum length for Project Name is 20 Character.")]
         public string Name { get; set; }
 

@@ -92,7 +92,7 @@ namespace Infrastructure.Data
         public DbSet<ProjectTag> ProjectTags { get; set; }
         public DbSet<UserUser> UserUsers { get; set; }
 
-        public DbSet<Notebook> Notebooks {get;set;}
+        public DbSet<Notebook> Notebook {get;set;}
 
 
 

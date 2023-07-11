@@ -18,8 +18,30 @@
             </div>
 
             <div class="form-group">
+                <label>Do you want to add a new notebook or create one from an existing URL?</label>
+                <select #types class="form-control" aria-label="Default select example" (change)="onChange(types.value)">
+                    <option selected value="true">Create a new one</option>
+                    <option value="false">Add an existing one</option>
+                </select>
+            </div>
+
+            <div class="form-group" *ngIf="showCreateNotebook">
                 <label>Create Notebook</label>
-                <input type="file" class="form-control" placeholder="" (change)="fileEvent($event)"/>
+                <input type="file" class="form-control" placeholder="" (change)="fileEvent($event)" />
+            </div>
+
+            <div class="form-group" *ngIf="showAddExistingNotebook">
+                <label for="notebookURL">Notebook Type</label>
+                <select #notebookTypes class="form-control" aria-label="Default select example" (change)="onChangeNotebookType(notebookTypes.value)">
+                    <option  selected value="jupyter">Jupyter</option>
+                    <option value="observablehq">ObservableHQ</option>
+                    <option value="collab">Google Collab</option>
+                </select>
+            </div>
+
+            <div class="form-group" *ngIf="showAddExistingNotebook">
+                <label for="notebookURL">Add Existing Notebook (URL)</label>
+                <input formControlName="notebookURL" type="text" class="form-control" placeholder="" (change)="urlEvent($event)" [readOnly]="isLoading" />
             </div>
         </div>
         <div class="modal-footer justify-content-center">
