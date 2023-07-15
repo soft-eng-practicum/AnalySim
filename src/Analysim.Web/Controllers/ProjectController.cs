@@ -199,6 +199,28 @@ namespace Web.Controllers
             }
 
         }
+
+        [HttpGet("[action]/{notebookID}")]
+        public async Task<IActionResult> DownloadNotebook([FromRoute] int notebookID)
+        {
+            try
+            {
+
+                // Find Project
+                var notebook = await _dbContext.Notebook.FindAsync(notebookID);
+                if (notebook == null) return NotFound();
+
+                BlobDownloadInfo data = await _blobService.GetNotebookAsync(notebook);
+
+                return File(data.Content, data.ContentType, notebook.Name + notebook.Extension);
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(e);
+            }
+
+        }
         #endregion
 
         #region POST REQUEST
@@ -1200,6 +1222,19 @@ namespace Web.Controllers
             {
                 result = files,
                 message = "Project File Received"
+            });
+        }
+
+        [HttpGet("[action]/{projectID}")]
+        public IActionResult GetNotebooks([FromRoute] int projectID)
+        {
+            Console.WriteLine(projectID);
+            var notebooks = _dbContext.Notebook.ToList().Where(p => p.ProjectID == projectID);
+            Console.WriteLine(notebooks.ToArray().Length);
+            return Ok(new
+            {
+                result = notebooks,
+                message = "Project Notebooks Received"
             });
         }
 

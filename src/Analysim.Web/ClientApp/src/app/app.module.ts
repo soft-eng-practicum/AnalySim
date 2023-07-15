@@ -33,7 +33,6 @@ import { EmailForgotPassComponent } from './email-confirmation/email-forgot-pass
 import { ResetPasswordComponent } from './email-confirmation/reset-password/reset-password.component';
 import { EmailResendVerificationComponent } from './email-confirmation/email-resend-verification/email-resend-verification.component';
 
-
 @NgModule({
   declarations: [
     AppComponent,

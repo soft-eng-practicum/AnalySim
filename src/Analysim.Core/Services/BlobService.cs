@@ -62,6 +62,21 @@ namespace Core.Services
             return blobDownloadInfo;
         }
 
+        public async Task<BlobDownloadInfo> GetNotebookAsync(Notebook notebook)
+        {
+            // Get Storage Container
+            var containerClient = _blobServiceClient.GetBlobContainerClient(notebook.Container.ToLower());
+
+            // Get File Reference
+            var blobClient = containerClient.GetBlobClient(notebook.Name + notebook.Extension);
+
+            // Download File
+            BlobDownloadInfo blobDownloadInfo = await blobClient.DownloadAsync();
+
+            // Return Downloaded File Info
+            return blobDownloadInfo;
+        }
+
         public async Task<List<BlobFile>> ListBlobsAsync(string container)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(container.ToLower());

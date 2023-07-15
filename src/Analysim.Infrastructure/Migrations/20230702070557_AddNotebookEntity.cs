@@ -64,13 +64,6 @@ namespace Infrastructure.Migrations
                 oldType: "integer")
                 .Annotation("Relational:ColumnOrder", 2);
 
-            migrationBuilder.AddColumn<int>(
-                name: "ForkedFromProjectID",
-                table: "Projects",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
             migrationBuilder.AddColumn<string>(
                 name: "RegistrationSurvey",
                 table: "AspNetUsers",
@@ -133,10 +126,6 @@ namespace Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Notebook");
-
-            migrationBuilder.DropColumn(
-                name: "ForkedFromProjectID",
-                table: "Projects");
 
             migrationBuilder.DropColumn(
                 name: "RegistrationSurvey",

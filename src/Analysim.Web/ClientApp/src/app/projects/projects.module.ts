@@ -33,6 +33,8 @@ import { ProjectPublicationComponent } from './project-overview/project-overview
 import { ModalMemberListComponent } from './project/modal-member-list/modal-member-list.component';
 import { ProjectLogComponent } from './project-overview/project-overview-view/project-log/project-log.component';
 import { ModalUploadNotebookComponent } from './project-overview/project-overview-view/project-content/modal-upload-notebook/modal-upload-notebook.component';
+import { ProjectNotebookItemComponent } from './project-overview/project-overview-view/project-content/project-notebook-item/project-notebook-item.component';
+import { ProjectNotebookItemDisplayComponent } from './project-overview/project-overview-view/project-content/project-notebook-item/project-notebook-item-display/project-notebook-item-display.component';
 
 
 @NgModule({
@@ -64,7 +66,9 @@ import { ModalUploadNotebookComponent } from './project-overview/project-overvie
     ProjectPublicationComponent,
     ModalMemberListComponent,
     ProjectLogComponent,
-    ModalUploadNotebookComponent
+    ModalUploadNotebookComponent,
+    ProjectNotebookItemComponent,
+    ProjectNotebookItemDisplayComponent
   ],
   imports: [
     CommonModule,

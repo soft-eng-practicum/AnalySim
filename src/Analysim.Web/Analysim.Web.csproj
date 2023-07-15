@@ -36,6 +36,8 @@
     <Content Remove="$(SpaRoot)**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+    <None Remove="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\" />
+    <None Remove="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\project-notebook-item-display\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,6 +46,8 @@
 
   <ItemGroup>
     <Folder Include="DataTransferObjects\" />
+    <Folder Include="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\" />
+    <Folder Include="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\project-notebook-item-display\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

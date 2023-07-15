@@ -1,6 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Notebook, NotebookURL } from 'src/app/interfaces/notebook';
+import { NotebookFile, NotebookURL } from 'src/app/interfaces/notebook';
 import { Project } from 'src/app/interfaces/project';
 import { ProjectService } from 'src/app/services/project.service';
 
@@ -17,7 +17,7 @@ export class ModalUploadNotebookComponent implements OnInit {
   notebookName: FormControl;
   notebookURL: FormControl;
   isLoading: Boolean;
-  notebook: Notebook;
+  notebook: NotebookFile;
   existingNotebookURL: NotebookURL;
   showCreateNotebook: Boolean;
   showAddExistingNotebook: Boolean;
@@ -26,7 +26,9 @@ export class ModalUploadNotebookComponent implements OnInit {
   notebookType: string = "jupyter";
 
 
-  @Input() project : Project;
+  @Input() project: Project;
+  @Output() getNotebooks: EventEmitter<any> = new EventEmitter();
+  @Output() closeModal: EventEmitter<any> = new EventEmitter();
 
   ngOnInit(): void {
     this.showCreateNotebook = true;
@@ -73,6 +75,8 @@ export class ModalUploadNotebookComponent implements OnInit {
       }
       this.projectService.uploadNotebook(this.notebook).subscribe(result => {
         console.log(result);
+        this.closeModal.emit();
+        this.getNotebooks.emit();
       });
     }
     if (this.showAddExistingNotebook) {
@@ -85,6 +89,8 @@ export class ModalUploadNotebookComponent implements OnInit {
       console.log(this.existingNotebookURL);
       this.projectService.uploadExistingNotebook(this.existingNotebookURL).subscribe(result => {
         console.log(result);
+        this.closeModal.emit();
+        this.getNotebooks.emit();
       });
     }
   }
