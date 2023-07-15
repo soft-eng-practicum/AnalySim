@@ -1,151 +1,151 @@
 <div class="container-fluid my-5" *ngIf="project">
     <div class="row justify-content-center">
         <div class="col-md-10 mb-3 d-flex">
-            <div class="container project-overview-container">
-                <div class="row project-detail-row">
-                    <div class="project-description">
-                        <h3 class="project-title" *ngIf="(project.route | route:'projectname') as projectname">
-                            {{ projectname }}
-                        </h3>
-                        <ul class="project-authors-list">
-                            <li class="project-author" *ngFor='let members of project.projectUsers | projectMember:"owner"' [routerLink]='["/profile/" + members.user.userName]'>
-                                <img class="project-author-thumbnail" src="../../../assets/img/default-profile.png"/>
-                                <div class="project-author-name">
-                                    {{members.user.userName}}
-                                </div>
-                            </li>
-                        </ul>
-                        <div class="project-summary">
-                            {{project.description}}
-                        </div>
-                        <ul class="project-tag list-group list-group-flush">
-                            <li class="list-group-item">
-                                <span class="badge badge-pill badge-info font-weight-light mr-2" *ngFor="let projectTag of project.projectTags">
-                                    {{projectTag.tag.name}}
-                                </span>
-                            </li>
-                        </ul>
+          <div class="container project-overview-container">
+            <div class="row project-detail-row">
+              <div class="project-description">
+                <h3 class="project-title" *ngIf="(project.route | route:'projectname') as projectname">
+                  {{ projectname }}
+                </h3>
+                <ul class="project-authors-list">
+                  <li class="project-author" *ngFor='let members of project.projectUsers | projectMember:"owner"' [routerLink]='["/profile/" + members.user.userName]'>
+                    <img class="project-author-thumbnail" src="../../../assets/img/default-profile.png" />
+                    <div class="project-author-name">
+                      {{members.user.userName}}
                     </div>
-                    <div class="project-statistics-group">
-                        <div class="project-statistics update">
-                            <div class="project-statistics-header">
-                                Updates
-                            </div>
-                            <div class="project-statistics-divider">
-            
-                            </div>
-                            <div class="project-statistics-pill">
-                                0 new
-                            </div>
-                            <div class="project-statistics-current">
-                                0
-                            </div>
-                        </div>
-                        <div class="project-statistics recommendation">
-                            <div class="project-statistics-header">
-                                Recommendation
-                            </div>
-                            <div class="project-statistics-divider">
-            
-                            </div>
-                            <div class="project-statistics-pill">
-                                0 new
-                            </div>
-                            <div class="project-statistics-current">
-                                0
-                            </div>
-                        </div>
-                        <div class="project-statistics member">
-                            <div class="project-statistics-header" (click)="toggleModalMemberList()">
-                                Members
-                            </div>
-                            <div class="project-statistics-divider">
-            
-                            </div>
-                            <div class="project-statistics-pill">
-                                0 new
-                            </div>
-                            <div class="project-statistics-current">
-                                {{ project | role:"member" }}
-                            </div>
-                        </div>
-                        <div class="project-statistics followers">
-                            <div class="project-statistics-header">
-                                Followers
-                            </div>
-                            <div class="project-statistics-divider">
-            
-                            </div>
-                            <div class="project-statistics-pill">
-                                0 new
-                            </div>
-                            <div class="project-statistics-current">
-                                {{ project | role:"follower" }}
-                            </div>
-                        </div>
-                    </div>
+                  </li>
+                </ul>
+                <div class="project-summary">
+                  {{project.description}}
                 </div>
-                <div class="row project-content-row" *ngIf='toggleView == "Content"'>
-                  <div class="project-content-header">
-                    <!-- <h3 *ngIf="(project.route | route:'projectname') as projectname">
-      {{ projectname }}
-  </h3> -->
-                    <ul class="project-content-header-option">
-                      <li>Share</li>
-                      <li>Comment</li>
-                    </ul>
+                <ul class="project-tag list-group list-group-flush">
+                  <li class="list-group-item">
+                    <span class="badge badge-pill badge-info font-weight-light mr-2" *ngFor="let projectTag of project.projectTags">
+                      {{projectTag.tag.name}}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+              <div class="project-statistics-group">
+                <div class="project-statistics update">
+                  <div class="project-statistics-header">
+                    Updates
                   </div>
-                </div>
-                <div class="row project-notebook-row" *ngIf='toggleNotebookExpand && toggleView != "Content"'>
-                    <img src="../../../assets/img/notebook-example.png">
-                </div>
-                <div class="row project-option-row">
+                  <div class="project-statistics-divider">
 
-                   <div *ngIf ='toggleView == "Content"' class="project-content-footer">
-                    <input type="button" value="Go back to Content" (click)='toggleView = "File"'>
                   </div>
+                  <div class="project-statistics-pill">
+                    0 new
+                  </div>
+                  <div class="project-statistics-current">
+                    0
+                  </div>
+                </div>
+                <div class="project-statistics recommendation">
+                  <div class="project-statistics-header">
+                    Recommendation
+                  </div>
+                  <div class="project-statistics-divider">
 
-                  <input type="button" value="Expand Notebook" *ngIf="!toggleNotebookExpand" (click)="toggleNotebookExpand = true;">
-                  <input type="button" value="Close Notebook" *ngIf="toggleNotebookExpand" (click)="toggleNotebookExpand = false;">
-                  <input type="button" value="Edit Project" *ngIf="isOwner">
-                  <input type="button" value="Post Update" *ngIf="isOwner">
-                </div>
-                <div class="row project-view-option-row">
-                  <div class="project-view-toggle">
-                    <input type="button" value="Datasets" [ngClass]='{"active": toggleView == "File"}' (click)='toggleView == "File" ? toggleView = "" : toggleView = "File"'>
-                    <input type="button" value="Notebooks" [ngClass]='{"active": toggleView == "Content"}' (click)='toggleView == "Content" ? toggleView = "" : toggleView = "Content"'>
-                    <input type="button" value="Comments" [ngClass]='{"active": toggleView == "Comment"}' (click)='toggleView == "Comment" ? toggleView = "" : toggleView = "Comment"'>
-                    <input type="button" value="Project Log" [ngClass]='{"active": toggleView == "Log"}' (click)='toggleView == "Log" ? toggleView = "" : toggleView = "Log"'>
-                    <input type="button" value="Publications" [ngClass]='{"active": toggleView == "Publications"}' (click)='toggleView == "Publications" ? toggleView = "" : toggleView = "Publications"'>
                   </div>
-                    <div class="project-view-interaction">
-                        <input class="fork" type="button" value="Fork Project" (click)="forkProject()">
-                        <button type="button" *ngIf="!toggleMoreOption" (click)="toggleMoreOption = true;">
-                            More <i class="fa-solid fa-arrow-down"></i>
-                        </button>
-                        <button type="button" *ngIf="toggleMoreOption" (click)="toggleMoreOption = false;">
-                            Less <i class="fa-solid fa-arrow-up"></i>
-                        </button>
-                        <div class="project-view-extra-interaction" *ngIf="toggleMoreOption">
-                            <input type="button" value="Share">
-                            <input type="button" value="Recommend">
-                            <input type="button" value="Join" *ngIf="!isMember && !isOwner">
-                            <input type="button" value="Leave" *ngIf="isMember && !isOwner">
-                            <input type="button" value="Follow" *ngIf="!isFollowing">
-                            <input type="button" value="Unfollow" *ngIf="isFollowing">
-                        </div>
-                    </div>
+                  <div class="project-statistics-pill">
+                    0 new
+                  </div>
+                  <div class="project-statistics-current">
+                    0
+                  </div>
                 </div>
-                <div class="row project-view-row">
-                    <div class="project-view-container" *ngIf='toggleView != ""'>
-                        <app-project-file-explorer *ngIf='toggleView == "File"' [project]="project" [currentUser]="currentUser" [currentDirectory]="fileDirectory" [isMember]="isMember" ></app-project-file-explorer>
-                        <app-project-publication *ngIf='toggleView == "Publications"'></app-project-publication>
-                        <app-project-log *ngIf='toggleView == "Log"'></app-project-log>
-                        <app-project-content *ngIf='toggleView == "Content"'></app-project-content>
-                    </div>
-                   
+                <div class="project-statistics member">
+                  <div class="project-statistics-header" (click)="toggleModalMemberList()">
+                    Members
+                  </div>
+                  <div class="project-statistics-divider">
+
+                  </div>
+                  <div class="project-statistics-pill">
+                    0 new
+                  </div>
+                  <div class="project-statistics-current">
+                    {{ project | role:"member" }}
+                  </div>
                 </div>
+                <div class="project-statistics followers">
+                  <div class="project-statistics-header">
+                    Followers
+                  </div>
+                  <div class="project-statistics-divider">
+
+                  </div>
+                  <div class="project-statistics-pill">
+                    0 new
+                  </div>
+                  <div class="project-statistics-current">
+                    {{ project | role:"follower" }}
+                  </div>
+                </div>
+              </div>
             </div>
+            <div class="row project-content-row" *ngIf ="activeView === 'Content'">
+              <div class="project-content-header">
+                <!-- <h3 *ngIf="(project.route | route:'projectname') as projectname">
+          {{ projectname }}
+      </h3> -->
+                <ul class="project-content-header-option">
+                  <li>Share</li>
+                  <li>Comment</li>
+                </ul>
+              </div>
+            </div>
+            <div class="row project-notebook-row" *ngIf='toggleNotebookExpand && toggleView != "Content"'>
+              <img src="../../../assets/img/notebook-example.png">
+            </div>
+            <div class="row project-option-row">
+
+              <div *ngIf ="activeView === 'Content'" class="project-content-footer">
+                <input type="button" value="Go back to Content" (click)='toggleView = "File"'>
+              </div>
+
+              <input type="button" value="Expand Notebook" *ngIf="!toggleNotebookExpand" (click)="toggleNotebookExpand = true;">
+              <input type="button" value="Close Notebook" *ngIf="toggleNotebookExpand" (click)="toggleNotebookExpand = false;">
+              <input type="button" value="Edit Project" *ngIf="isOwner">
+              <input type="button" value="Post Update" *ngIf="isOwner">
+            </div>
+            <div class="row project-view-option-row">
+              <div class="project-view-toggle">
+                <input type="button" value="Datasets" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "file"]' [ngClass]='{"active": toggleView == "File"}' (click) = "showFile()">
+                <input type="button" value="Notebooks" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "notebook"]' [ngClass]='{"active": toggleView == "Content"}' (click)="showNotebooks()">
+                <input type="button" value="Comments" [ngClass]='{"active": toggleView == "Comment"}' (click)='toggleView == "Comment" ? toggleView = "" : toggleView = "Comment"'>
+                <input type="button" value="Project Log" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "log"]' [ngClass]='{"active": toggleView == "Log"}' (click) = "showLog()">
+                <input type="button" value="Publications" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "file"]' [ngClass]='{"active": toggleView == "Publications"}' (click) = "showPublication()">
+              </div>
+              <div class="project-view-interaction">
+                <input class="fork" type="button" value="Fork Project" (click)="forkProject()">
+                <button type="button" *ngIf="!toggleMoreOption" (click)="toggleMoreOption = true;">
+                  More <i class="fa-solid fa-arrow-down"></i>
+                </button>
+                <button type="button" *ngIf="toggleMoreOption" (click)="toggleMoreOption = false;">
+                  Less <i class="fa-solid fa-arrow-up"></i>
+                </button>
+                <div class="project-view-extra-interaction" *ngIf="toggleMoreOption">
+                  <input type="button" value="Share">
+                  <input type="button" value="Recommend">
+                  <input type="button" value="Join" *ngIf="!isMember && !isOwner">
+                  <input type="button" value="Leave" *ngIf="isMember && !isOwner">
+                  <input type="button" value="Follow" *ngIf="!isFollowing">
+                  <input type="button" value="Unfollow" *ngIf="isFollowing">
+                </div>
+              </div>
+            </div>
+            <div class="row project-view-row">
+              <div class="project-view-container">
+                <app-project-file-explorer *ngIf="activeView === 'File'" [project]="project" [currentUser]="currentUser" [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
+                <app-project-publication *ngIf="activeView === 'Publications'"></app-project-publication>
+                <app-project-log *ngIf="activeView === 'Log'"></app-project-log>
+                <app-project-content *ngIf="activeView === 'Content'"></app-project-content>
+              </div>
+
+            </div>
+          </div>
         </div>
     </div>
 

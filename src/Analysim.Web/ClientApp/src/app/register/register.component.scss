@@ -1,4 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+.container{
+    padding-right:5px;
+    padding-left:5px;
+}
 .invalid{
     border-color: #dc3545 !important;
 }
@@ -7,12 +11,13 @@
     border-color: #28a745 !important;
 }
 
+.card {
+  background-color: var(--background-color-tertiary);
+}
 // .btn-navy{
 //     background-color:
 //     #04132a;color: #FFF;}
 //     .btn-black:hover{color: #FFF;}
-
-    
 // .bg-theme{
 //     background-color:  rgb(226, 234, 247);
 //     /* background-image: linear-gradient(#0c1a34,#102958); */
@@ -21,14 +26,13 @@
 //     background-color:  #102958;
 //     /* background-image: linear-gradient(#0c1a34,#102958); */
 // }
-
-.background{
-    background-color: var(--background-color);
-    box-sizing: border-box;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.background {
+  background-color: var(--primary-color);
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 

@@ -1,4 +1,4 @@
-<div class="container-fluid background">
+<div class="container background">
     <div class="row-fluid">
             <div  class="col-lg-12 bg-navy">
                 <div class="container">
@@ -9,12 +9,12 @@
                             <!-- Row Start -->
                             <div class="row justify-content-center">
                                 <!-- Row Column Start -->
-                                <div class="col-lg-4 col-md-7 col-sm-12 mb-4 content-panel">
+                                <div class="col-lg-7 col-md-8 col-sm-12 mb-4 content-panel">
                                     <!-- Card Start -->
                                     <div class="card bg-theme">
                                         <!-- Card Body Start -->
                                         <div class="card-body">
-                
+                                        
                                             <!-- Form Title -->
                                             <h4 class="card-title text-center">Sign up</h4>
                                             <hr>
@@ -30,117 +30,136 @@
                 
                                             <!-- Register Form Start -->
                                             <form class="form" [formGroup]="insertForm" (ngSubmit)="onSubmit()">
+                                              <div class="row">
                                                 <!-- Form Group Email Address -->
-                                                <div class="form-group">
-                                                    <label for="emailAddress">Email Address</label>
-                                                    <span class="text-danger"> *</span>
-                                                    <input formControlName="emailAddress" type="email" class="form-control"
-                                                        placeholder="" [class.invalid]="emailAddress.touched && emailAddress.invalid"
-                                                        [class.valid]="emailAddress.valid" [readOnly]="isLoading" required autofocus>
-                                                    <div *ngIf="emailAddress.touched && emailAddress.errors" class="text-danger">
-                                                        <span [hidden]="!emailAddress.errors?.['email']">Please provide valid
-                                                            email.</span>
-                                                    </div>
+                                                <div class="col-6 form-group">
+                                                  <label for="emailAddress">Email Address</label>
+                                                  <span class="text-danger"> *</span>
+                                                  <input formControlName="emailAddress" type="email" class="form-control"
+                                                         placeholder="" [class.invalid]="emailAddress.touched && emailAddress.invalid"
+                                                         [class.valid]="emailAddress.valid" [readOnly]="isLoading" required autofocus>
+                                                  <div *ngIf="emailAddress.touched && emailAddress.errors" class="text-danger">
+                                                    <span [hidden]="!emailAddress.errors?.['email']">
+                                                      Please provide valid
+                                                      email.
+                                                    </span>
+                                                  </div>
                                                 </div>
-                
+
                                                 <!-- Form Group Username -->
-                                                <div class="form-group">
-                                                    <label for="username">Username</label>
-                                                    <span class="text-danger"> *</span>
-                                                    <input formControlName="username" type="text" class="form-control" placeholder=""
-                                                        [class.invalid]="username.touched && username.invalid"
-                                                        [class.valid]="username.valid" [readOnly]="isLoading" required>
-                                                    <div *ngIf="username.touched && username.errors" class="text-danger">
-                                                        <span [hidden]="!username.errors?.['minlength']">Minimum 5 character</span>
-                                                        <span [hidden]="!username.errors?.['maxlength']">Maximum 15 character</span>
-                                                    </div>
+                                                <div class="col-6 form-group">
+                                                  <label for="username">Username</label>
+                                                  <span class="text-danger"> *</span>
+                                                  <input formControlName="username" type="text" class="form-control" placeholder=""
+                                                         [class.invalid]="username.touched && username.invalid"
+                                                         [class.valid]="username.valid" [readOnly]="isLoading" required>
+                                                  <div *ngIf="username.touched && username.errors" class="text-danger">
+                                                    <span [hidden]="!username.errors?.['minlength']">Minimum 5 character</span>
+                                                    <span [hidden]="!username.errors?.['maxlength']">Maximum 15 character</span>
+                                                  </div>
                                                 </div>
-                
+                                              </div>
+
+                                              <div class="row">
                                                 <!-- Form Group Password -->
-                                                <div class="form-group">
-                                                    <label for="password">Password</label>
-                                                    <span class="text-danger"> *</span>
-                                                    <input formControlName="password" type="password" class="form-control"
-                                                        placeholder="" [class.invalid]="password.touched && password.invalid"
-                                                        [class.valid]="password.valid" [readOnly]="isLoading" required>
-                                                    <div *ngIf="password.touched && password.errors" class="text-danger">
-                                                        <p class="mb-0 p-1" [hidden]="!password.errors?.['minlength']">Minimum 5
-                                                            character</p>
-                                                        <p class="mb-0 p-1" [hidden]="!password.errors?.['noUpper']">Must Contain 1
-                                                            Uppercase Character</p>
-                                                        <p class="mb-0 p-1" [hidden]="!password.errors?.['noLower']">Must Contain 1
-                                                            Lowercase Character</p>
-                                                        <p class="mb-0 p-1" [hidden]="!password.errors?.['noNumeric']">Must Contain
-                                                            1 Numeric Character</p>
-                                                        <p class="mb-0 p-1" [hidden]="!password.errors?.['noSpecial']">Must Contain
-                                                            1 Special Character</p>
-                                                    </div>
+                                                <div class="col-6 form-group">
+                                                  <label for="password">Password</label>
+                                                  <span class="text-danger"> *</span>
+                                                  <input formControlName="password" type="password" class="form-control"
+                                                         placeholder="" [class.invalid]="password.touched && password.invalid"
+                                                         [class.valid]="password.valid" [readOnly]="isLoading" required>
+                                                  <div *ngIf="password.touched && password.errors" class="text-danger">
+                                                    <p class="mb-0 p-1" [hidden]="!password.errors?.['minlength']">
+                                                      Minimum 5
+                                                      character
+                                                    </p>
+                                                    <p class="mb-0 p-1" [hidden]="!password.errors?.['noUpper']">
+                                                      Must Contain 1
+                                                      Uppercase Character
+                                                    </p>
+                                                    <p class="mb-0 p-1" [hidden]="!password.errors?.['noLower']">
+                                                      Must Contain 1
+                                                      Lowercase Character
+                                                    </p>
+                                                    <p class="mb-0 p-1" [hidden]="!password.errors?.['noNumeric']">
+                                                      Must Contain
+                                                      1 Numeric Character
+                                                    </p>
+                                                    <p class="mb-0 p-1" [hidden]="!password.errors?.['noSpecial']">
+                                                      Must Contain
+                                                      1 Special Character
+                                                    </p>
+                                                  </div>
                                                 </div>
-                
+
                                                 <!-- Form Group Password -->
-                                                <div class="form-group">
-                                                    <label for="confirmPassword">Confirm Password</label>
-                                                    <span class="text-danger"> *</span>
-                                                    <input formControlName="confirmPassword" type="password" class="form-control"
-                                                        placeholder=""
-                                                        [class.invalid]="confirmPassword.touched && confirmPassword.invalid"
-                                                        [class.valid]="confirmPassword.valid" [readOnly]="isLoading" required>
-                                                    <div *ngIf="confirmPassword.touched && confirmPassword.errors" class="text-danger">
-                                                        <span [hidden]="!confirmPassword.errors?.['noMatch']">Password Must
-                                                            Match</span>
-                                                    </div>
+                                                <div class="col-6 form-group">
+                                                  <label for="confirmPassword">Confirm Password</label>
+                                                  <span class="text-danger"> *</span>
+                                                  <input formControlName="confirmPassword" type="password" class="form-control"
+                                                         placeholder=""
+                                                         [class.invalid]="confirmPassword.touched && confirmPassword.invalid"
+                                                         [class.valid]="confirmPassword.valid" [readOnly]="isLoading" required>
+                                                  <div *ngIf="confirmPassword.touched && confirmPassword.errors" class="text-danger">
+                                                    <span [hidden]="!confirmPassword.errors?.['noMatch']">
+                                                      Password Must
+                                                      Match
+                                                    </span>
+                                                  </div>
+                                                </div>
+                                              </div>
+
+                                              <div class="row">
+                                                <div class="col-6 form-group">
+                                                  <label for="workPlace">Institution/Company</label>
+                                                  <input formControlName="workPlace" type="text" class="form-control"
+                                                         placeholder=""
+                                                         [readOnly]="isLoading">
                                                 </div>
 
-                                                <div class="form-group">
-                                                    <label for="workPlace">Institution/Company</label>
-                                                    <input formControlName="workPlace" type="text" class="form-control"
-                                                        placeholder=""
-                                                        [readOnly]="isLoading">
+                                                <div class="col-6 form-group">
+                                                  <label for="positionTitle">Position Title</label>
+                                                  <input formControlName="positionTitle" type="text" class="form-control"
+                                                         placeholder=""
+                                                         [readOnly]="isLoading">
                                                 </div>
+                                              </div>
 
-                                                <div class="form-group">
-                                                    <label for="positionTitle">Position Title</label>
-                                                    <input formControlName="positionTitle" type="text" class="form-control"
-                                                        placeholder=""
-                                                        [readOnly]="isLoading" >
-                                                </div>
+                                              <div class="form-group">
+                                                <label for="whereDidYouHearAboutAnalysim">Where did you hear about AnalySim?</label>
+                                                <input formControlName="whereDidYouHearAboutAnalysim" type="text" class="form-control"
+                                                       placeholder=""
+                                                       [readOnly]="isLoading">
+                                              </div>
 
+                                              <div class="form-check">
+                                                <input formControlName="wouldYouLikeToHearUpdatesFromUs" type="checkbox" class="form-check-input"
+                                                       [readOnly]="isLoading">
+                                                <label for="wouldYouLikeToHearUpdatesFromUs">Would you like to hear updates from us?</label>
+                                              </div>
+                                              <div class="form-group">
+                                                <label for="registrationCode">Registration Code</label>
+                                                <span *ngIf="! showHideRegistrationCode" class="text-danger"> *</span>
+                                                <input formControlName="registrationCode" type="text" class="form-control"
+                                                       placeholder=""
+                                                       [readOnly]="isLoading" required="{{showHideRegistrationCode}}">
+                                              </div>
 
-                                                <div class="form-group">
-                                                    <label for="whereDidYouHearAboutAnalysim">Where did you hear about AnalySim?</label>
-                                                    <input formControlName="whereDidYouHearAboutAnalysim" type="text" class="form-control"
-                                                        placeholder=""
-                                                        [readOnly]="isLoading" >
-                                                </div>
-
-                                                <div class="form-check">
-                                                    <input formControlName="wouldYouLikeToHearUpdatesFromUs" type="checkbox" class="form-check-input"
-                                                    [readOnly]="isLoading" >
-                                                    <label for="wouldYouLikeToHearUpdatesFromUs">Would you like to hear updates from us?</label>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="registrationCode">Registration Code</label>
-                                                    <span *ngIf="showHideRegistrationCode" class="text-danger"> *</span>
-                                                    <input formControlName="registrationCode" type="text" class="form-control"
-                                                        placeholder=""
-                                                        [readOnly]="isLoading" required="{{showHideRegistrationCode}}">
-                                                </div>
-                
-                                                <!-- Form Group Register -->
-                                                <div class="form-group">
-                                                    <button type="submit" class="btn btn-primary-new btn-block" value="Submit"
+                                              <!-- Form Group Register -->
+                                              <div class="form-group">
+                                                <button type="submit" class="btn btn-primary-new btn-block" value="Submit"
                                                         [disabled]="insertForm.invalid">
-                                                        <div *ngIf="!isLoading">
-                                                            <span>Register</span>
-                                                        </div>
-                                                        <div *ngIf="isLoading" class="spinner-border" role="status">
-                                                            <span class="sr-only"></span>
-                                                        </div>
-                                                    </button>
-                                                </div>
+                                                  <div *ngIf="!isLoading">
+                                                    <span>Register</span>
+                                                  </div>
+                                                  <div *ngIf="isLoading" class="spinner-border" role="status">
+                                                    <span class="sr-only"></span>
+                                                  </div>
+                                                </button>
+                                              </div>
 
-                                                
-                
+
+
                                             </form> <!-- Register Form End -->
                                         </div> <!-- Card Body End -->
                                     </div> <!-- Card End -->
@@ -150,7 +169,7 @@
                             <!-- Row Existing Account Start -->
                                 <div class="row justify-content-center mt-4 content-panel">
                                     <!-- Row Column Start -->
-                                    <div class="col-lg-4 col-md-7 col-sm-12">
+                                    <div class="col-lg-7 col-md-7 col-sm-12">
                                         <div class="card bg-theme">
                                             <article class="card-body">
                                                 <div class="text-center">
