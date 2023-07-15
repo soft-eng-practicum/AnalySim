@@ -8,28 +8,28 @@
         <!-- File Route Start -->
         
         <span class="mr-2">File</span>
-        <span>{{currentDirectory}}</span>
+        <!--<span>{{currentDirectory}}</span>-->
 
         <!-- File Explorer Button Start -->
         <div class="d-inline-flex ml-auto">
             <!-- Private Button Group Start -->
             <div class="btn-group mr-3"  role="group" *ngIf="isMember">
-                <button type="button" class="btn btn-secondary" title="Create Folder" (click)="toggleModalFolder()">
+                <button type="button" class="btn" title="Create Folder" (click)="toggleModalFolder()">
                     <i class="fa fa-folder-plus"></i>
                 </button>
-                <button type="button" class="btn btn-secondary disabled" title="Rename" (click)="edit()">
+                <button type="button" class="btn disabled" title="Rename" (click)="edit()">
                     <i class="fa fa-edit"></i>
                 </button>
-                <button type="button" class="btn btn-secondary disabled" title="Move">
+                <button type="button" class="btn disabled" title="Move">
                     <i class="fa fa-arrows-alt"></i>
                 </button>
-                <button type="button" class="btn btn-secondary disabled" title="Copy">
+                <button type="button" class="btn disabled" title="Copy">
                     <i class="fa fa-copy"></i>
                 </button>
-                <button type="button" class="btn btn-secondary" title="Delete" (click)="delete()">
+                <button type="button" class="btn" title="Delete" (click)="delete()">
                     <i class="fa fa-trash"></i>
                 </button>
-                <button type="button" class="btn btn-secondary">
+                <button type="button" class="btn">
                     <i class="fa fa-upload"></i>
                     <input type="file" title="Upload" *ngIf="isValidDirectory" (change)=fileEvent($event) multiple>
                 </button>
@@ -37,10 +37,10 @@
                 
             <!-- Public Button Group Start -->
             <div class="btn-group"  role="group">
-                <button type="button" class="btn btn-secondary" title="Refresh" (click)="setDirectoryFile(currentDirectory)">
+                <button type="button" class="btn" title="Refresh" (click)="setDirectoryFile(currentDirectory)">
                     <i class="fa fa-sync"></i>
                 </button>
-                <button type="button" class="btn btn-secondary" title="Download" (click)="saveFile()">
+                <button type="button" class="btn" title="Download" (click)="saveFile()">
                     <i class="fa fa-download"></i>
                 </button>
             </div> <!-- Public Button Group End -->         

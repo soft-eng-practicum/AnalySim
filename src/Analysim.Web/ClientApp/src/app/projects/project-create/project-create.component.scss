@@ -1,31 +1,35 @@
-.btn-big{
-    height: 60px;
-    background-color: #ccc;
-}
-
-.btn-title{
-    font-size: .9rem;
-    font-weight: 500;
-    position: absolute;
-    top:10%;
-}
-
-.btn-subtitle{
-    font-size: .8rem;
-    position: absolute;
-    bottom: 10%;
-}
-
-.upload-drop-zone {
-    height: 200px;
-    border-width: 2px;
-    margin-bottom: 20px;
-    color: #ccc;
-    border-style: dashed;
-    border-color: #ccc;
-    text-align: center;
-}
-.upload-drop-zone.drop {
-    color: #222;
-    border-color: black;
-}
+.card {
+    background-color: var(--background-color-tertiary) !important;
+    margin-top: 10%;
+  }
+  
+  .btn-big{
+      height: 60px;
+  }
+  
+  .btn-title{
+     font-size: .9rem;
+     font-weight: 500;
+     position: absolute;
+     top: 10%;
+  }
+  
+  .btn-subtitle{
+      font-size: .8rem;
+      position: absolute;
+      bottom: 10%;
+  }
+  
+  .upload-drop-zone {
+      height: 200px;
+      border-width: 2px;
+      margin-bottom: 20px;
+      color: #ccc;
+      border-style: dashed;
+      border-color: #ccc;
+      text-align: center;
+  }
+  .upload-drop-zone.drop {
+      color: #222;
+      border-color: black;
+  }

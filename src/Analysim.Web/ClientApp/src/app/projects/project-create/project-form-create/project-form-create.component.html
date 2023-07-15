@@ -32,7 +32,7 @@
 
     <!-- Form Create Project -->
     <div class="form-group mb-0">
-        <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="projectForm.invalid">
+        <button id="success-btn"  type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="projectForm.invalid">
             <div *ngIf="!isLoading">
                 <span>Create Project</span>
             </div>
@@ -42,6 +42,5 @@
         </button>                
     </div>
 </form> <!-- Project Form End -->
-
 
 

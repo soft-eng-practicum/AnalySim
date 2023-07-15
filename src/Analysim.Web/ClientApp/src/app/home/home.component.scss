@@ -11,17 +11,16 @@
     font-weight: 400;
 }
 
-.bg-navy{
-    /* background-color:#04132a; */
-    color: #FFF;
-    background-color: var(--background-color);
-
+.bg-navy {
+  /* background-color:#04132a; */
+  color: var(--primary-color);
+  background-color: var(--background-color);
 }
 .btn-primary {
-    color: #fff;
-    background-color: #4140aa !important;
-    border-color: #4140aa !important;
-  }
+  color: var(--primary-color);
+  background-color: #4140aa !important;
+  border-color: #4140aa !important;
+}
 
   a {
     color: #4140aa;
@@ -112,5 +111,3 @@ font-family:var(--bs-body-font-family) !important;
         }
     }
 }
-
- 

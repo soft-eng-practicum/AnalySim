@@ -19,6 +19,10 @@ export class LoginComponent implements OnInit {
   emailConf: string;
   invalidLogin: boolean;
   isLoading: boolean;
+  termParam: string[]
+  searchTerm: FormControl
+  searchForm: FormGroup
+  searchCategory: FormControl
 
 
   constructor(private acct: AccountService,
@@ -38,10 +42,24 @@ export class LoginComponent implements OnInit {
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || 'dashboard';
 
+    this.termParam = JSON.parse(this.route.snapshot.queryParams['term'] || '[]')
+
+
+    let searchTermString = ""
+    this.termParam.forEach(x => searchTermString += x + " ")
+
+
+    this.searchTerm = new FormControl(searchTermString);
+
     // Initialize FormGroup using FormBuilder
     this.loginForm = this.formBuilder.group({
       "username": this.username,
       "password": this.password
+    });
+
+    this.searchForm = this.formBuilder.group({
+      searchCategory: this.searchCategory,
+      searchTerm: this.searchTerm
     });
 
   }

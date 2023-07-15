@@ -1,8 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
-.invalid{
-    border-color: #dc3545 !important;
-}
 
-.valid{
-    border-color: #28a745 !important;
-}
+#success-btn{
+    background-color: var(--button-background-color);
+  }
+  
+  .invalid{
+    border-color: #dc3545 !important;
+  }
+  
+  .valid{
+      border-color: #28a745 !important;
+  }
+  
+  .create-button {
+    background-color: #2a6a8a;
+    color: #01234a !important;
+  }

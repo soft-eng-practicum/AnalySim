@@ -1,5 +1,5 @@
 import { Component, OnInit, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
-import { ActivatedRoute, Router, RouterStateSnapshot } from '@angular/router';
+import { ActivatedRoute, Router, RouterStateSnapshot, NavigationEnd } from '@angular/router';
 import { User } from 'src/app/interfaces/user';
 import { Observable } from 'rxjs';
 import { Project } from 'src/app/interfaces/project';
@@ -20,10 +20,10 @@ export class ProjectComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private accountService : AccountService,
-    private projectService : ProjectService,
-    private modalService : BsModalService, 
-    ) { }
+    private accountService: AccountService,
+    private projectService: ProjectService,
+    private modalService: BsModalService,
+  ) { }
 
   @ViewChild('forkModal') forkModal: TemplateRef<any>
   @ViewChild('deleteModal') deleteModal: TemplateRef<any>
@@ -41,9 +41,13 @@ export class ProjectComponent implements OnInit {
   fileDirectory: string
   forkedFrom: Project = null
 
-  toggleMoreOption : boolean = false
-  toggleNotebookExpand : boolean = false
-  toggleView : string = "File"
+  toggleMoreOption: boolean = false
+  toggleNotebookExpand: boolean = false
+  toggleView: string = "File"
+  showFiles: boolean = false;
+  
+  activeView: string = 'File';
+  
 
   async ngOnInit() {
     if (this.accountService.checkLoginStatus()) {
@@ -276,6 +280,23 @@ export class ProjectComponent implements OnInit {
     this.memberListModalRef = this.modalService.show(this.memberListModal)
   }
 
+  showFile(): void {
+    this.activeView = 'File';
+    this.toggleView = 'File';
+  }
+
+  showPublication(): void {
+    this.activeView = 'Publications';
+    this.toggleView = 'Publications';
+  }
+  showLog(): void {
+    this.activeView = 'Log';
+    this.toggleView = 'Log';
+  }
+  showNotebooks(): void {
+    this.activeView = 'Content';
+    this.toggleView = 'Content';
+  }
 }
 
 // deleteProject(){

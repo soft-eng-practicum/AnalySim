@@ -1,31 +1,37 @@
 .project-card-container {
   border: var(--border-width) var(--border-style) var(--border-color);
 
+  .project-unfollow {
+    background-color: var(--button-background-color);
+    color: var(--primary-color);
+    border: none;
+  }
+
   .project-card-header {
     padding: .75rem 1.25rem;
     margin-bottom: 0;
-    background-color: rgba(0,0,0,.03);
+    background-color: var(--background-color-tertiary);
     border-bottom: 1px solid rgba(0,0,0,.125);
     display: flex;
     line-height: 24px;
     align-items: center;
 
-    .project-user{
+    .project-user {
       font-weight: 500;
-      line-height: 1.2; 
+      line-height: 1.2;
       font-size: 1.25rem;
     }
 
-    .project-name{
+    .project-name {
       font-weight: 500;
-      line-height: 1.2; 
+      line-height: 1.2;
       font-size: 1.25rem;
     }
 
     .project-follow-option {
       margin-left: auto;
 
-      .project-follow{
+      .project-follow {
         color: var(--button-font-color);
         background-color: var(--button-background-color);
         border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary);
@@ -51,19 +57,23 @@
     }
   }
 
-  .project-card-body{
-    padding:20px;
-    
-    .project-tag-list{
+  .card-header {
+    background-color: var(--background-color-tertiary);
+  }
+
+  .project-card-body {
+    padding: 20px;
+
+    .project-tag-list {
       list-style: none;
       padding: 0px;
     }
   }
 
-  .project-card-footer{
+  .project-card-footer {
     padding: .75rem 1.25rem;
-    background-color: rgba(0,0,0,.03);
-    border-top: 1px solid rgba(0,0,0,.125);
+    background-color: var(--background-color-tertiary);
+    border-top: 1px solid var(--background-color-tertiary);
 
     .project-member {
       margin-right: 10px;
@@ -77,23 +87,24 @@
 }
 
 a {
-  color: #007bff;
+  color: var(--button-background-color);
   text-decoration: none;
   background-color: transparent;
 }
 
-.badge{
-  color: #212529;
-  background-color: #f8f9fa;
+.badge {
+  color: var(--button-background-color) !important;
   margin-left: .25rem !important;
   position: relative;
   top: -1px;
   font-weight: 300 !important;
   display: inline-block;
+  border: none;
 }
+
 .badge-pill {
-  color: #fff;
-  background-color: var(--background-color-secondary);
+  color: var(--primary-color) !important;
+  background-color: var(--button-background-color) !important;
   font-weight: 300 !important;
   margin-right: .5rem !important;
   padding-right: .6em;
