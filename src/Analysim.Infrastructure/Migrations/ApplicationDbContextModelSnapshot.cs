@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
+#nullable disable
+
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
@@ -15,16 +17,18 @@ namespace Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.5")
+                .HasAnnotation("ProductVersion", "6.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Core.Entities.BlobFile", b =>
                 {
                     b.Property<int>("BlobFileID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BlobFileID"));
 
                     b.Property<string>("Container")
                         .IsRequired()
@@ -70,27 +74,77 @@ namespace Infrastructure.Migrations
                     b.ToTable("BlobFiles");
                 });
 
+            modelBuilder.Entity("Core.Entities.Notebook", b =>
+                {
+                    b.Property<int>("NotebookID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("NotebookID"));
+
+                    b.Property<string>("Container")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("DateCreated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Extension")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ProjectID")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Size")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Uri")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("type")
+                        .HasColumnType("text");
+
+                    b.HasKey("NotebookID");
+
+                    b.HasIndex("ProjectID");
+
+                    b.ToTable("Notebook");
+                });
+
             modelBuilder.Entity("Core.Entities.Project", b =>
                 {
                     b.Property<int>("ProjectID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ProjectID"));
 
                     b.Property<DateTimeOffset>("DateCreated")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("character varying(500)")
-                        .HasMaxLength(500);
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("ForkedFromProjectID")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("LastUpdated")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("character varying(20)")
-                        .HasMaxLength(20);
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Route")
                         .IsRequired()
@@ -108,10 +162,12 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entities.ProjectTag", b =>
                 {
                     b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnOrder(2);
 
                     b.Property<int>("TagID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnOrder(1);
 
                     b.HasKey("ProjectID", "TagID");
 
@@ -123,10 +179,12 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entities.ProjectUser", b =>
                 {
                     b.Property<int>("UserID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnOrder(1);
 
                     b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnOrder(2);
 
                     b.Property<bool>("IsFollowing")
                         .HasColumnType("boolean");
@@ -146,8 +204,9 @@ namespace Infrastructure.Migrations
                 {
                     b.Property<int>("TagID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TagID"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -162,8 +221,9 @@ namespace Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
@@ -179,8 +239,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
@@ -195,12 +255,12 @@ namespace Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("NormalizedEmail")
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedUserName")
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
@@ -211,6 +271,9 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("RegistrationSurvey")
+                        .HasColumnType("text");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -218,28 +281,30 @@ namespace Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
-                        .HasName("EmailIndex");
+                        .HasDatabaseName("EmailIndex");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasName("UserNameIndex");
+                        .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers");
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.UserUser", b =>
                 {
                     b.Property<int>("UserID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnOrder(1);
 
                     b.Property<int>("FollowerID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnOrder(2);
 
                     b.HasKey("UserID", "FollowerID");
 
@@ -252,48 +317,49 @@ namespace Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedName")
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasName("RoleNameIndex");
+                        .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("AspNetRoles");
+                    b.ToTable("AspNetRoles", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "088d0a66-8cf0-4d93-bcab-9b7cb3c08ec3",
+                            ConcurrencyStamp = "4c13983c-50d8-4a17-9105-60ab015e781d",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "020c4fb0-1f53-4c30-936b-8373b4db1fed",
+                            ConcurrencyStamp = "8d24a102-1abc-425f-9a10-41eb91709613",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "4c0f57a2-191d-4b2e-8a34-7542c023ffc0",
+                            ConcurrencyStamp = "a1ab828c-a1b2-47f3-b307-3e37787c016b",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });
@@ -303,8 +369,9 @@ namespace Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("text");
@@ -319,15 +386,16 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims");
+                    b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("text");
@@ -342,7 +410,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims");
+                    b.ToTable("AspNetUserClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
@@ -363,7 +431,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins");
+                    b.ToTable("AspNetUserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
@@ -378,7 +446,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles");
+                    b.ToTable("AspNetUserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
@@ -397,7 +465,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens");
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.BlobFile", b =>
@@ -411,6 +479,19 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Core.Entities.Notebook", b =>
+                {
+                    b.HasOne("Core.Entities.Project", "Project")
+                        .WithMany("Notebooks")
+                        .HasForeignKey("ProjectID");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Core.Entities.ProjectTag", b =>
@@ -426,6 +507,10 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("TagID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("Core.Entities.ProjectUser", b =>
@@ -441,6 +526,10 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Core.Entities.UserUser", b =>
@@ -456,6 +545,10 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Follower");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -507,6 +600,33 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Core.Entities.Project", b =>
+                {
+                    b.Navigation("BlobFiles");
+
+                    b.Navigation("Notebooks");
+
+                    b.Navigation("ProjectTags");
+
+                    b.Navigation("ProjectUsers");
+                });
+
+            modelBuilder.Entity("Core.Entities.Tag", b =>
+                {
+                    b.Navigation("ProjectTags");
+                });
+
+            modelBuilder.Entity("Core.Entities.User", b =>
+                {
+                    b.Navigation("BlobFiles");
+
+                    b.Navigation("Followers");
+
+                    b.Navigation("Following");
+
+                    b.Navigation("ProjectUsers");
                 });
 #pragma warning restore 612, 618
         }

@@ -17,6 +17,7 @@
     <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Web' " />
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.6" />
@@ -35,6 +36,8 @@
     <Content Remove="$(SpaRoot)**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+    <None Remove="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\" />
+    <None Remove="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\project-notebook-item-display\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +46,8 @@
 
   <ItemGroup>
     <Folder Include="DataTransferObjects\" />
+    <Folder Include="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\" />
+    <Folder Include="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\project-notebook-item-display\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
@@ -65,7 +70,7 @@
     <ItemGroup>
       <DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" />
       <DistFiles Include="$(SpaRoot)node_modules\**" Condition="'$(BuildServerSideRenderer)' == 'true'" />
-      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+      <ResolvedFileToPublish Include="@(DistFiles-&gt;'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
         <RelativePath>%(DistFiles.Identity)</RelativePath>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

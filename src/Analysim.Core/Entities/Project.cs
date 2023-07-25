@@ -12,6 +12,7 @@ namespace Core.Entities
         public int ProjectID { get; set; }
 
         [Required(ErrorMessage = "Project Name is a required field.")]
+
         [MaxLength(20, ErrorMessage = "Maximum length for Project Name is 20 Character.")]
         public string Name { get; set; }
 
@@ -35,6 +36,8 @@ namespace Core.Entities
         public List<ProjectTag> ProjectTags { get; set; }
         public ICollection<ProjectUser> ProjectUsers { get; } = new List<ProjectUser>();
         public ICollection<BlobFile> BlobFiles { get; set; } = new List<BlobFile>();
+
+        public ICollection<Notebook> Notebooks {get;set;} = new List<Notebook>();
 
         public int ForkedFromProjectID { get; set; }
     }

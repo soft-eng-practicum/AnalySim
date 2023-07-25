@@ -1,17 +1,21 @@
 <div class="card">
-  <div class="d-flex card-header flex-row align-items-center">
-    <span class="mr-2">Notebooks</span>
-    <div class="d-inline-flex ml-auto">
-      <!-- Private Button Group Start -->
-      <div class="btn-group mr-3">
-        <button type="button" class="btn btn-secondary" title="Upload Notebook" (click)="toggleModalUpload()">
-          <i class="fa fa-plus"></i>
-        </button>
-      </div>
+    <div class="d-flex card-header flex-row align-items-center">
+        <span class="mr-2">Notebooks</span>
+        <div class="d-inline-flex ml-auto">
+            <!-- Private Button Group Start -->
+            <div class="btn-group mr-3">
+                <button type="button" class="btn btn-secondary" title="Upload Notebook" (click)="toggleModalUpload()">
+                    <i class="fa fa-plus"></i>
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
-  <ul class="list-group">
-    <li class="list-group-item" *ngIf="notebooks.length === 0"> No Notebooks Found </li>
-    <app-project-notebook-item *ngFor="let notebook of notebooks" [notebook]="notebook"></app-project-notebook-item>
-  </ul>
+    <ul class="list-group">
+        <li class="list-group-item" *ngIf="notebooks.length === 0"> No Notebooks Found </li>
+        <app-project-notebook-item *ngFor="let notebook of notebooks" [notebook]="notebook"></app-project-notebook-item>
+    </ul>
 </div>
+
+<ng-template #uploadNotebookModal>
+    <app-modal-upload-notebook [project]="project" (getNotebooks)="getNotebooks()" (closeModal)="closeModal()"></app-modal-upload-notebook>
+</ng-template>

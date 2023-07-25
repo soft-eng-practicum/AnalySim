@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs;
+﻿using Internal;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,15 @@ using Infrastructure.Data;
 using Core.Interfaces;
 using Web.ViewModels.Project;
 using Core.Entities;
+using System.Net.Http;
+using System.Collections;
+using Microsoft.AspNetCore.Http;
+using System.ComponentModel;
+using static System.Reflection.Metadata.BlobBuilder;
+using System.Net;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using Analysim.Web.ViewModels.Project;
 
 namespace Web.Controllers
 {
@@ -181,6 +191,28 @@ namespace Web.Controllers
                 BlobDownloadInfo data = await _blobService.GetBlobAsync(blobFile);
 
                 return File(data.Content, data.ContentType, blobFile.Name + blobFile.Extension);
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(e);
+            }
+
+        }
+
+        [HttpGet("[action]/{notebookID}")]
+        public async Task<IActionResult> DownloadNotebook([FromRoute] int notebookID)
+        {
+            try
+            {
+
+                // Find Project
+                var notebook = await _dbContext.Notebook.FindAsync(notebookID);
+                if (notebook == null) return NotFound();
+
+                BlobDownloadInfo data = await _blobService.GetNotebookAsync(notebook);
+
+                return File(data.Content, data.ContentType, notebook.Name + notebook.Extension);
             }
             catch (Exception e)
             {
@@ -634,6 +666,191 @@ namespace Web.Controllers
 
         /*
          * Type : POST
+         * URL : /api/project/uploadnotebook
+         * Param : NotebookUploadProjectViewModel
+         * Description: Upload Notebook to Azure Storage
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> UploadNotebook([FromForm] ProjectNotebookUploadVM noteBookData)
+        {
+
+            try{
+
+                // Find Project
+                var project = await _dbContext.Projects.FindAsync(noteBookData.ProjectID);
+                if (project == null) return NotFound(new { message = "Project Not Found" });
+
+                var notebookPath = noteBookData.NotebookName + Path.GetExtension(noteBookData.NotebookFile.FileName);
+
+            
+
+                Notebook newNotebook = null;
+
+                BlobClient blobClient = await _blobService.UploadFileBlobAsync(noteBookData.NotebookFile, project.Name.ToLower(), notebookPath);
+                System.Diagnostics.Debug.WriteLine($"after upload test");
+                BlobProperties properties = blobClient.GetProperties();
+
+                newNotebook = new Notebook
+                {
+                    Container = project.Name.ToLower(),
+                    Name = Path.GetFileNameWithoutExtension(noteBookData.NotebookName),
+                    Extension = Path.GetExtension(noteBookData.NotebookFile.FileName),
+                    Size = (int)properties.ContentLength,
+                    Uri = blobClient.Uri.ToString(),
+                    DateCreated = properties.CreatedOn.UtcDateTime,
+                    LastModified = properties.LastModified.UtcDateTime,
+                    ProjectID = noteBookData.ProjectID,
+                    type = "new"
+                };
+                await _dbContext.Notebook.AddAsync(newNotebook);
+
+
+                await _dbContext.SaveChangesAsync();
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    result = newNotebook,
+                    message = "Notebook Successfully Uploaded",
+                });
+
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                System.Console.WriteLine(e);
+                return BadRequest(e);
+            }
+
+        }
+
+        static string GrabId(string line)
+        {
+            System.Text.RegularExpressions.Match match = System.Text.RegularExpressions.Regex.Match(line, @"(\w|-){26,}");
+            return match.Value;
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> UploadExistingNotebook([FromForm]  ExistingProjectUploadVM noteBookData)
+        {
+            Console.WriteLine(noteBookData.Type);
+            try
+            {
+                var project = await _dbContext.Projects.FindAsync(noteBookData.ProjectID);
+                if (project == null) return NotFound(new { message = "Project Not Found" });
+
+                Notebook newNotebook;
+
+                string notebookUrl = noteBookData.NotebookURL;
+                if (noteBookData.Type == "collab")
+                {
+                    string fileId = GrabId(notebookUrl);
+                    Console.WriteLine(fileId);
+                    string url = $"https://docs.google.com/uc?export=download&id={fileId}";
+                    string fileName = noteBookData.NotebookName+".ipynb";
+                    Console.WriteLine(url);
+                    using (HttpClient client = new HttpClient())
+                    {
+                        HttpResponseMessage response = await client.GetAsync(url);
+                        response.EnsureSuccessStatusCode();
+
+                        using (HttpContent content = response.Content)
+                        {
+                            byte[] data = await content.ReadAsByteArrayAsync();
+                            System.IO.File.WriteAllBytes(fileName, data);
+                        }
+                    }
+
+                    Console.WriteLine(fileName);
+                    var containerClient = _blobServiceClient.GetBlobContainerClient(project.Name.ToLower());
+                    Console.WriteLine(project.Name);
+
+                    // Create Container If Storage Doesn't Exist
+                    bool isExist = containerClient.Exists();
+                    if (!isExist)
+                    {
+                        containerClient = await _blobService.CreateContainer(containerClient);
+                    }
+                    BlobClient blob = containerClient.GetBlobClient(fileName);
+                    using (FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                    {
+                        containerClient.UploadBlob(fileName, fileStream);
+                    }
+
+                    BlobProperties properties = blob.GetProperties();
+                    newNotebook = new Notebook
+                    {
+                        Container = project.Name.ToLower(),
+                        Name = Path.GetFileNameWithoutExtension(noteBookData.NotebookName),
+                        Extension = Path.GetExtension(fileName),
+                        Size = (int)properties.ContentLength,
+                        Uri = blob.Uri.ToString(),
+                        DateCreated = properties.CreatedOn.UtcDateTime,
+                        LastModified = properties.LastModified.UtcDateTime,
+                        ProjectID = noteBookData.ProjectID,
+                        type = "collab"
+                    };
+
+                    Console.WriteLine(blob.Uri.ToString());
+
+                    string ExitingFile = Path.Combine("", fileName);
+                    //System.IO.File.Delete(ExitingFile);
+                }
+                else if (noteBookData.Type == "observablehq")
+                {
+                    string fileName = $"{noteBookData.NotebookName}.observable";
+                    newNotebook = new Notebook
+                    {
+                        Container = project.Name.ToLower(),
+                        Name = Path.GetFileNameWithoutExtension(noteBookData.NotebookName),
+                        Extension = Path.GetExtension(fileName),
+                        Size = 0,
+                        Uri = notebookUrl,
+                        DateCreated = DateTimeOffset.Now.UtcDateTime,
+                        LastModified = DateTimeOffset.Now.UtcDateTime,
+                        ProjectID = noteBookData.ProjectID,
+                        type = "observable"
+                    };
+
+                }
+                else if (noteBookData.Type == "jupyter")
+                {
+                    string fileName = $"{noteBookData.NotebookName}.ipynb";
+                    newNotebook = new Notebook
+                    {
+                        Container = project.Name.ToLower(),
+                        Name = Path.GetFileNameWithoutExtension(noteBookData.NotebookName),
+                        Extension = Path.GetExtension(fileName),
+                        Size = 0,
+                        Uri = notebookUrl,
+                        DateCreated = DateTimeOffset.Now.UtcDateTime,
+                        LastModified = DateTimeOffset.Now.UtcDateTime,
+                        ProjectID = noteBookData.ProjectID,
+                        type = "jupyter"
+                    };
+
+                }
+                else
+                {
+                    return BadRequest("Nonacceptable type of notebook");
+                }
+
+                await _dbContext.Notebook.AddAsync(newNotebook);
+                await _dbContext.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    result = newNotebook,
+                    message = "Notebook Uploaded Succesfully"
+                });
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e);
+            }
+        }
+        /*
+         * Type : POST
          * URL : /api/project/createfolder
          * Param : FileUploadProjectViewModel
          * Description: Upload Folder To Azure Storage
@@ -1005,6 +1222,19 @@ namespace Web.Controllers
             {
                 result = files,
                 message = "Project File Received"
+            });
+        }
+
+        [HttpGet("[action]/{projectID}")]
+        public IActionResult GetNotebooks([FromRoute] int projectID)
+        {
+            Console.WriteLine(projectID);
+            var notebooks = _dbContext.Notebook.ToList().Where(p => p.ProjectID == projectID);
+            Console.WriteLine(notebooks.ToArray().Length);
+            return Ok(new
+            {
+                result = notebooks,
+                message = "Project Notebooks Received"
             });
         }
 

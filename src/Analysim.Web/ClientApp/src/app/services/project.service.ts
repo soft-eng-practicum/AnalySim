@@ -12,6 +12,7 @@ import { ProjectTag } from '../interfaces/project-tag';
 import { User } from '../interfaces/user';
 import { NotificationService } from './notification.service';
 import { saveAs } from 'file-saver';
+import { Notebook, NotebookFile, NotebookURL } from '../interfaces/notebook';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +35,7 @@ export class ProjectService {
   private urlGetProjectList: string = this.baseUrl + "getprojectList"
   private urlSearch: string = this.baseUrl + "search/"
   private urlDownloadFile: string = this.baseUrl + "downloadFile/"
+  private urlDownloadNotebook: string = this.baseUrl +"DownloadNotebook/"
 
 
   // Post
@@ -59,7 +61,11 @@ export class ProjectService {
   // Extra
   private urlGetUserList: string = this.baseUrl + "getuserlist/"
   private urlGetFileList: string = this.baseUrl + "getfilelist/"
+  private urlGetNotebookList: string = this.baseUrl + "getNotebooks/"
   private urlGetTagList: string = this.baseUrl + "gettaglist/"
+
+  private urlUploadNotebook: string = this.baseUrl + "uploadnotebook";
+  private urlUploadExistingNotebook: string = this.baseUrl + "uploadexistingnotebook";
 
 
   getProjectByID(projectID: number): Observable<Project> {
@@ -143,6 +149,24 @@ export class ProjectService {
 
   downloadFile(blobFileID: number) {
     return this.http.get(this.urlDownloadFile + blobFileID, { responseType: "blob" }).pipe(
+      map(body => {
+        if (body.type != 'text/plain') {
+          return new Blob([body])
+        }
+        else {
+          alert('File not found in Blob!');
+          return null
+        }
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
+  downloadNotebook(notebook: Notebook) {
+    return this.http.get(this.urlDownloadNotebook + notebook.notebookID, { responseType: "blob" }).pipe(
       map(body => {
         if (body.type != 'text/plain') {
           return new Blob([body])
@@ -268,6 +292,43 @@ export class ProjectService {
     body.append('projectID', projectID.toString())
     
     return this.http.post<any>(this.urlUploadFile, body).pipe(
+      map(body => {
+        console.log(body.result)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
+  uploadNotebook(notebook: NotebookFile) {
+    let body = new FormData();
+    body.append('NotebookFile', notebook.file);
+    body.append('NotebookName',notebook.name);
+    body.append('ProjectID', notebook.projectID.toString());
+
+    return this.http.post<any>(this.urlUploadNotebook,body).pipe(
+      map(body => {
+        console.log(body.result)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
+  uploadExistingNotebook(notebookURL: NotebookURL) {
+    let body = new FormData();
+    body.append('NotebookURL', notebookURL.url);
+    body.append('NotebookName', notebookURL.name);
+    body.append('ProjectID', notebookURL.projectID.toString());
+    body.append('Type', notebookURL.type);
+
+    return this.http.post<any>(this.urlUploadExistingNotebook, body).pipe(
       map(body => {
         console.log(body.result)
         return body.result
@@ -432,9 +493,25 @@ export class ProjectService {
   }
 
 
+
   getFileList(projectID: number): Observable<BlobFile[]> {
 
     return this.http.get<any>(this.urlGetFileList + projectID)
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
+  getNotebooks(projectID: number): Observable<Notebook[]> {
+    console.log(this.urlGetNotebookList + projectID);
+    return this.http.get<any>(this.urlGetNotebookList + projectID)
       .pipe(
         map(body => {
           console.log(body.message)

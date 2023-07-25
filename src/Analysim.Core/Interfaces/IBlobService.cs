@@ -13,6 +13,8 @@ namespace Core.Interfaces
     {
         public Task<BlobDownloadInfo> GetBlobAsync(BlobFile file);
 
+        public Task<BlobDownloadInfo> GetNotebookAsync(Notebook notebook);
+
         public Task<BlobContainerClient> CreateContainer(BlobContainerClient containerClient);
 
         public Task<List<BlobFile>> ListBlobsAsync(string container);

@@ -1,0 +1,10 @@
+<li class="list-group-item d-flex h-100">
+    <div class="mr-auto">
+        <i class="fa fa-file mr-1"></i>
+        <a (click)="showNotebook()">{{notebook.name+notebook.extension}}</a>
+    </div>
+</li>
+
+<ng-template #displayNotebookModal>
+    <app-project-notebook-item-display [notebook]="notebook"></app-project-notebook-item-display>
+</ng-template>

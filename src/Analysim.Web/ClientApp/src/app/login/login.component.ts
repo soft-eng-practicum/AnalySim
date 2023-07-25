@@ -19,7 +19,6 @@ export class LoginComponent implements OnInit {
   emailConf: string;
   invalidLogin: boolean;
   isLoading: boolean;
-
   termParam: string[]
   searchTerm: FormControl
   searchForm: FormGroup
@@ -34,12 +33,11 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-
     // Initialize Form Controls
     this.username = new FormControl('', [Validators.required]);
     this.password = new FormControl('', [Validators.required]);
 
-    this.isLoading = false; 
+    this.isLoading = false;
 
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || 'dashboard';
@@ -53,8 +51,6 @@ export class LoginComponent implements OnInit {
 
     this.searchTerm = new FormControl(searchTermString);
 
-
-
     // Initialize FormGroup using FormBuilder
     this.loginForm = this.formBuilder.group({
       "username": this.username,
@@ -65,6 +61,7 @@ export class LoginComponent implements OnInit {
       searchCategory: this.searchCategory,
       searchTerm: this.searchTerm
     });
+
   }
 
   onSubmit() {
