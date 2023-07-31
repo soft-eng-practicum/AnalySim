@@ -8,7 +8,7 @@ export interface NotebookURL {
   name: string,
   url: string,
   projectID: number,
-  type: string
+  type: string,
 }
 
 export interface Notebook {
@@ -21,5 +21,6 @@ export interface Notebook {
   datecreated: Date,
   lastmodified: Date,
   projectid: number,
-  type: string
+  type: string,
+  directory: string,
 }

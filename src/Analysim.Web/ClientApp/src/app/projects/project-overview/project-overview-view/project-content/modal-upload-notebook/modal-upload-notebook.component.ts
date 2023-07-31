@@ -27,8 +27,9 @@ export class ModalUploadNotebookComponent implements OnInit {
 
 
   @Input() project: Project;
-  @Output() getNotebooks: EventEmitter<any> = new EventEmitter();
+  @Output() getNotebooks: EventEmitter<string> = new EventEmitter<string>();
   @Output() closeModal: EventEmitter<any> = new EventEmitter();
+  @Input() currentDirectory: string;
 
   ngOnInit(): void {
     this.showCreateNotebook = true;
@@ -73,10 +74,10 @@ export class ModalUploadNotebookComponent implements OnInit {
         'name': this.notebookName.value,
         'projectID': this.project.projectID,
       }
-      this.projectService.uploadNotebook(this.notebook).subscribe(result => {
+      this.projectService.uploadNotebook(this.notebook, this.currentDirectory).subscribe(result => {
         console.log(result);
         this.closeModal.emit();
-        this.getNotebooks.emit();
+        this.getNotebooks.emit(this.currentDirectory);
       });
     }
     if (this.showAddExistingNotebook) {
@@ -87,10 +88,10 @@ export class ModalUploadNotebookComponent implements OnInit {
         'type': this.notebookType
       }
       console.log(this.existingNotebookURL);
-      this.projectService.uploadExistingNotebook(this.existingNotebookURL).subscribe(result => {
+      this.projectService.uploadExistingNotebook(this.existingNotebookURL, this.currentDirectory).subscribe(result => {
         console.log(result);
         this.closeModal.emit();
-        this.getNotebooks.emit();
+        this.getNotebooks.emit(this.currentDirectory);
       });
     }
   }

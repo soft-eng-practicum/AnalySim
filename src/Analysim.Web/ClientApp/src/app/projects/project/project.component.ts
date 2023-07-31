@@ -1,5 +1,5 @@
 import { Component, OnInit, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
-import { ActivatedRoute, Router, RouterStateSnapshot, NavigationEnd } from '@angular/router';
+import { ActivatedRoute, Router, RouterStateSnapshot, NavigationEnd, NavigationError } from '@angular/router';
 import { User } from 'src/app/interfaces/user';
 import { Observable } from 'rxjs';
 import { Project } from 'src/app/interfaces/project';
@@ -96,6 +96,12 @@ export class ProjectComponent implements OnInit {
         else {
           this.fileDirectory = newSegments.join("/") + "/"
         }
+        const view = this.fileDirectory.split('/')[0];
+        if (view === "notebook") {
+          this.toggleView = "Content";
+          this.activeView = "Content";
+        }
+        console.log(this.fileDirectory);
       });
     })
   }

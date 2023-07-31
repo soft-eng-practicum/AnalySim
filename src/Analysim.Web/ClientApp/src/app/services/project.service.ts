@@ -44,6 +44,7 @@ export class ProjectService {
   private urlAddTag: string = this.baseUrl + "addtag"
   private urlUploadFile: string = this.baseUrl + "uploadfile"
   private urlCreateFolder: string = this.baseUrl + "createFolder"
+  private urlCreateNotebookFolder: string = this.baseUrl + "createNotebookFolder"
   private urlForkProject: string = this.baseUrl + "forkproject"
   private urlForkProjectWithoutBlob: string = this.baseUrl + "forkprojectwithoutblob"
 
@@ -66,6 +67,7 @@ export class ProjectService {
 
   private urlUploadNotebook: string = this.baseUrl + "uploadnotebook";
   private urlUploadExistingNotebook: string = this.baseUrl + "uploadexistingnotebook";
+  private urlDeleteNotebook: string = this.baseUrl + "deleteNotebook/";
 
 
   getProjectByID(projectID: number): Observable<Project> {
@@ -303,13 +305,14 @@ export class ProjectService {
     );
   }
 
-  uploadNotebook(notebook: NotebookFile) {
+  uploadNotebook(notebook: NotebookFile,directory: string) {
     let body = new FormData();
     body.append('NotebookFile', notebook.file);
     body.append('NotebookName',notebook.name);
     body.append('ProjectID', notebook.projectID.toString());
+    body.append('directory', directory);
 
-    return this.http.post<any>(this.urlUploadNotebook,body).pipe(
+    return this.http.post<any>(this.urlUploadNotebook, body).pipe(
       map(body => {
         console.log(body.result)
         return body.result
@@ -321,12 +324,13 @@ export class ProjectService {
     );
   }
 
-  uploadExistingNotebook(notebookURL: NotebookURL) {
+  uploadExistingNotebook(notebookURL: NotebookURL, directory: string) {
     let body = new FormData();
     body.append('NotebookURL', notebookURL.url);
     body.append('NotebookName', notebookURL.name);
     body.append('ProjectID', notebookURL.projectID.toString());
     body.append('Type', notebookURL.type);
+    body.append('directory', directory);
 
     return this.http.post<any>(this.urlUploadExistingNotebook, body).pipe(
       map(body => {
@@ -347,6 +351,24 @@ export class ProjectService {
     body.append('projectID', projectID.toString())
 
     return this.http.post<any>(this.urlCreateFolder, body).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
+  createNotebookFolder(directory: string, folderName: string, projectID: number): Observable<Notebook> {
+    let body = new FormData()
+    body.append('directory', directory);
+    body.append('folderName', folderName);
+    body.append('projectID', projectID.toString());
+
+    return this.http.post<any>(this.urlCreateNotebookFolder, body).pipe(
       map(body => {
         console.log(body.message)
         return body.result
@@ -476,6 +498,19 @@ export class ProjectService {
     );
   }
 
+  deleteNotebook(notebookID: number): Observable<Notebook> {
+    return this.http.delete<any>(this.urlDeleteNotebook + notebookID).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
   // Extra
   getUserList(projectID: number): Observable<ProjectUser[]> {
 
@@ -509,9 +544,8 @@ export class ProjectService {
       )
   }
 
-  getNotebooks(projectID: number): Observable<Notebook[]> {
-    console.log(this.urlGetNotebookList + projectID);
-    return this.http.get<any>(this.urlGetNotebookList + projectID)
+  getNotebooks(projectID: number, directory: string): Observable<Notebook[]> {
+    return this.http.get<any>(this.urlGetNotebookList + projectID + "/" + directory)
       .pipe(
         map(body => {
           console.log(body.message)

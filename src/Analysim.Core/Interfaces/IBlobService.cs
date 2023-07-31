@@ -23,6 +23,8 @@ namespace Core.Interfaces
 
         public Task<BlobClient> CreateFolder(string container, string filePath);
 
+        public Task<BlobClient> CreateNotebookFolder(string container, string filePath);
+
         public Task<BlobClient> UploadFileBlobAsync(IFormFile file, string container, string filePath);
 
         public Task<BlobClient> UploadFileBlobResizeAsync(IFormFile file, string container, string filePath, int height, int width);
@@ -30,5 +32,7 @@ namespace Core.Interfaces
         public Task<BlobClient> MoveBlobAsync(BlobFile blobFile, string filePathTarget);
 
         public Task<BlobClient> DeleteBlobAsync(BlobFile file);
+
+        public Task<BlobClient> DeleteNotebookAsync(Notebook notebook);
     }
 }

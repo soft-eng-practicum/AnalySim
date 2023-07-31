@@ -17,6 +17,8 @@ namespace Analysim.Web.ViewModels.Project
 
             public string Type { get; set; }
 
+            public string Directory { get; set; }
+
 
     }
 }
