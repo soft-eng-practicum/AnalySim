@@ -1,0 +1,13 @@
+.card {
+  background-color: var(--background-color-tertiary);
+
+  .btn {
+    background-color: var(--button-background-color);
+    color:var(--primary-color);
+  }
+}
+
+.card-header {
+    font-size:20px;
+    font-weight:500;
+}

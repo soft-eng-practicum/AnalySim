@@ -1,272 +1,309 @@
 <div class="container-fluid my-5" *ngIf="project">
-    <div class="row justify-content-center">
-        <div class="col-md-10 mb-3 d-flex">
-          <div class="container project-overview-container">
-            <div class="row project-detail-row">
-              <div class="project-description">
-                <h3 class="project-title" *ngIf="(project.route | route:'projectname') as projectname">
-                  {{ projectname }}
-                </h3>
-                <ul class="project-authors-list">
-                  <li class="project-author" *ngFor='let members of project.projectUsers | projectMember:"owner"' [routerLink]='["/profile/" + members.user.userName]'>
-                    <img class="project-author-thumbnail" src="../../../assets/img/default-profile.png" />
-                    <div class="project-author-name">
-                      {{members.user.userName}}
-                    </div>
-                  </li>
-                </ul>
-                <div class="project-summary">
-                  {{project.description}}
+  <div class="row justify-content-center">
+    <div class="col-md-10 mb-3 d-flex">
+      <div class="container project-overview-container">
+        <div class="row project-detail-row">
+          <div class="project-description">
+            <h3 class="project-title" *ngIf="(project.route | route:'projectname') as projectname">
+              {{ projectname }}
+            </h3>
+            <ul class="project-authors-list">
+              <li class="project-author" *ngFor='let members of project.projectUsers | projectMember:"owner"' [routerLink]='["/profile/" + members.user.userName]'>
+                <img class="project-author-thumbnail" src="../../../assets/img/default-profile.png" />
+                <div class="project-author-name">
+                  {{members.user.userName}}
                 </div>
-                <ul class="project-tag list-group list-group-flush">
-                  <li class="list-group-item">
-                    <span class="badge badge-pill badge-info font-weight-light mr-2" *ngFor="let projectTag of project.projectTags">
-                      {{projectTag.tag.name}}
-                    </span>
-                  </li>
-                </ul>
+              </li>
+            </ul>
+            <div class="project-summary">
+              {{project.description}}
+            </div>
+            <ul class="project-tag list-group list-group-flush">
+              <li class="list-group-item">
+                <span class="badge badge-pill badge-info font-weight-light mr-2" *ngFor="let projectTag of project.projectTags">
+                  {{projectTag.tag.name}}
+                </span>
+              </li>
+            </ul>
+          </div>
+          <div class="project-statistics-group">
+            <div class="project-statistics update">
+              <div class="project-statistics-header">
+                Updates
               </div>
-              <div class="project-statistics-group">
-                <div class="project-statistics update">
-                  <div class="project-statistics-header">
-                    Updates
-                  </div>
-                  <div class="project-statistics-divider">
+              <div class="project-statistics-divider">
 
-                  </div>
-                  <div class="project-statistics-pill">
-                    0 new
-                  </div>
-                  <div class="project-statistics-current">
-                    0
-                  </div>
-                </div>
-                <div class="project-statistics recommendation">
-                  <div class="project-statistics-header">
-                    Recommendation
-                  </div>
-                  <div class="project-statistics-divider">
-
-                  </div>
-                  <div class="project-statistics-pill">
-                    0 new
-                  </div>
-                  <div class="project-statistics-current">
-                    0
-                  </div>
-                </div>
-                <div class="project-statistics member">
-                  <div class="project-statistics-header" (click)="toggleModalMemberList()">
-                    Members
-                  </div>
-                  <div class="project-statistics-divider">
-
-                  </div>
-                  <div class="project-statistics-pill">
-                    0 new
-                  </div>
-                  <div class="project-statistics-current">
-                    {{ project | role:"member" }}
-                  </div>
-                </div>
-                <div class="project-statistics followers">
-                  <div class="project-statistics-header">
-                    Followers
-                  </div>
-                  <div class="project-statistics-divider">
-
-                  </div>
-                  <div class="project-statistics-pill">
-                    0 new
-                  </div>
-                  <div class="project-statistics-current">
-                    {{ project | role:"follower" }}
-                  </div>
-                </div>
+              </div>
+              <div class="project-statistics-pill">
+                0 new
+              </div>
+              <div class="project-statistics-current">
+                0
               </div>
             </div>
-            <div class="row project-content-row" *ngIf ="activeView === 'Content'">
-              <div class="project-content-header">
-                <!-- <h3 *ngIf="(project.route | route:'projectname') as projectname">
-          {{ projectname }}
-      </h3> -->
-                <ul class="project-content-header-option">
-                  <li>Share</li>
-                  <li>Comment</li>
-                </ul>
+            <div class="project-statistics recommendation">
+              <div class="project-statistics-header">
+                Recommendation
               </div>
-            </div>
-            <div class="row project-notebook-row" *ngIf='toggleNotebookExpand && toggleView != "Content"'>
-              <img src="../../../assets/img/notebook-example.png">
-            </div>
-            <div class="row project-option-row">
+              <div class="project-statistics-divider">
 
-              <div *ngIf ="activeView === 'Content'" class="project-content-footer">
-                <input type="button" value="Go back to Content" (click)='toggleView = "File"'>
               </div>
-
-              <input type="button" value="Expand Notebook" *ngIf="!toggleNotebookExpand" (click)="toggleNotebookExpand = true;">
-              <input type="button" value="Close Notebook" *ngIf="toggleNotebookExpand" (click)="toggleNotebookExpand = false;">
-              <input type="button" value="Edit Project" *ngIf="isOwner">
-              <input type="button" value="Post Update" *ngIf="isOwner">
-            </div>
-            <div class="row project-view-option-row">
-              <div class="project-view-toggle">
-                <input type="button" value="Datasets" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "file"]' [ngClass]='{"active": toggleView == "File"}' (click) = "showFile()">
-                <input type="button" value="Notebooks" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "notebook"]' [ngClass]='{"active": toggleView == "Content"}' (click)="showNotebooks()">
-                <input type="button" value="Comments" [ngClass]='{"active": toggleView == "Comment"}' (click)='toggleView == "Comment" ? toggleView = "" : toggleView = "Comment"'>
-                <input type="button" value="Project Log" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "log"]' [ngClass]='{"active": toggleView == "Log"}' (click) = "showLog()">
-                <input type="button" value="Publications" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "file"]' [ngClass]='{"active": toggleView == "Publications"}' (click) = "showPublication()">
+              <div class="project-statistics-pill">
+                0 new
               </div>
-              <div class="project-view-interaction">
-                <input class="fork" type="button" value="Fork Project" (click)="forkProject()">
-                <button type="button" *ngIf="!toggleMoreOption" (click)="toggleMoreOption = true;">
-                  More <i class="fa-solid fa-arrow-down"></i>
-                </button>
-                <button type="button" *ngIf="toggleMoreOption" (click)="toggleMoreOption = false;">
-                  Less <i class="fa-solid fa-arrow-up"></i>
-                </button>
-                <div class="project-view-extra-interaction" *ngIf="toggleMoreOption">
-                  <input type="button" value="Share">
-                  <input type="button" value="Recommend">
-                  <input type="button" value="Join" *ngIf="!isMember && !isOwner">
-                  <input type="button" value="Leave" *ngIf="isMember && !isOwner">
-                  <input type="button" value="Follow" *ngIf="!isFollowing">
-                  <input type="button" value="Unfollow" *ngIf="isFollowing">
-                </div>
+              <div class="project-statistics-current">
+                0
               </div>
             </div>
-            <div class="row project-view-row">
-              <div class="project-view-container">
-                <app-project-file-explorer *ngIf="activeView === 'File'" [project]="project" [currentUser]="currentUser" [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
-                <app-project-publication *ngIf="activeView === 'Publications'"></app-project-publication>
-                <app-project-log *ngIf="activeView === 'Log'"></app-project-log>
-                <app-project-content *ngIf='toggleView == "Content"' [project]="project"></app-project-content>
+            <div class="project-statistics member">
+              <div class="project-statistics-header" (click)="toggleModalMemberList()">
+                Members
               </div>
+              <div class="project-statistics-divider">
 
+              </div>
+              <div class="project-statistics-pill">
+                0 new
+              </div>
+              <div class="project-statistics-current">
+                {{ project | role:"member" }}
+              </div>
+            </div>
+            <div class="project-statistics followers">
+              <div class="project-statistics-header">
+                Followers
+              </div>
+              <div class="project-statistics-divider">
+
+              </div>
+              <div class="project-statistics-pill">
+                0 new
+              </div>
+              <div class="project-statistics-current">
+                {{ project | role:"follower" }}
+              </div>
             </div>
           </div>
         </div>
-    </div>
-
-    <!-- Display orginial project if is a forked project -->
-    <!-- <div class="d-flex align-items-center" *ngIf="forkedFrom != null" >
-        <span>forked from&nbsp;</span>
-        <span *ngIf="(forkedFrom.route | route:'projectname') as projectname">
-            <a [routerLink]='["/project/" + (forkedFrom.route | route:"owner") + "/" + projectname]'>{{forkedFrom.route | route:"owner"}}/{{ projectname }}</a>
-        </span>
-    </div>
-
-    <div>
-        <p>{{project.description}}</p>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">
-                    <span class="badge badge-pill badge-info font-weight-light mr-2" *ngFor="let projectTag of project.projectTags">
-                        {{projectTag.tag.name}}
-                    </span>
-                </li>
+        <div class="row project-content-row" *ngIf="activeView === 'Content'">
+          <div class="project-content-header">
+            <!-- <h3 *ngIf="(project.route | route:'projectname') as projectname">
+          {{ projectname }}
+      </h3> -->
+            <ul class="project-content-header-option">
+              <li>Share</li>
+              <li>Comment</li>
             </ul>
-    </div> -->
-
-    <!-- <app-project-overview [isFollowing]="isFollowing" [isOwner]="isOwner" [isMember]="isMember" [project]="project"></app-project-overview> -->
-
-    <ng-template #forkModal>
-        <app-modal-fork [forkModalRef]="forkModalRef" [project]="project" [currentUser]="currentUser"></app-modal-fork>
-    </ng-template>
-
-    <ng-template #deleteModal>
-        <app-modal-delete [deleteModalRef]="deleteModalRef" [projectID]="project.projectID" [currentUser]="currentUser" ></app-modal-delete>
-    </ng-template>
-    <ng-template #memberListModal>
-        <app-modal-member-list [memberListModalRef]="memberListModalRef" [projectUsers]="project.projectUsers" [currentUser]="currentUser" ></app-modal-member-list>
-    </ng-template>
-
-    
-    <!-- <app-member-list [project]="project"></app-member-list> -->
-
-    <!-- <div class="row h-100">
-        <div class="col-md-2 p-0">
-            <aside class="h-100 py-5 px-4" style="background-color:#222">
-                <ul class="list-group list-group-flush text-white">
-                    <li class="list-group-item"><i class="fa fa-home fa-fw"></i> Home</li>
-                    <li class="list-group-item"><i class="fa fa-file fa-fw"></i> Report</li>
-                    <li class="list-group-item"><i class="fa fa-folder fa-fw"></i> File Explorer</li>
-                    <li class="list-group-item"><i class="fa fa-cog fa-fw"></i> Setting</li>
-                </ul>
-            </aside>   
+          </div>
         </div>
-        <div class="col-md-10">
-            <div class="sticky-top">
-                ...
+        <div class="row project-notebook-row" *ngIf='toggleNotebookExpand && toggleView != "Content"'>
+          <img src="../../../assets/img/notebook-example.png">
+        </div>
+        <div class="row project-option-row">
+
+          <div *ngIf="activeView === 'Content'" class="project-content-footer">
+            <input type="button" value="Go back to Content" (click)='toggleView = "File"'>
+          </div>
+
+          <input type="button" value="Expand Notebook" *ngIf="!toggleNotebookExpand" (click)="toggleNotebookExpand = true;">
+          <input type="button" value="Close Notebook" *ngIf="toggleNotebookExpand" (click)="toggleNotebookExpand = false;">
+          <input type="button" value="Edit Project" *ngIf="isOwner">
+          <input type="button" value="Post Update" *ngIf="isOwner">
+        </div>
+        <div class="row project-view-option-row">
+          <div class="project-view-toggle">
+            <input type="button" value="Datasets" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "file"]' [ngClass]='{"active": toggleView == "File"}' (click)="showFile()">
+            <input type="button" value="Notebooks" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "notebook"]' [ngClass]='{"active": toggleView == "Content"}' (click)="showNotebooks()">
+            <input type="button" value="Comments" [ngClass]='{"active": toggleView == "Comment"}' (click)='toggleView == "Comment" ? toggleView = "" : toggleView = "Comment"' (click)="showComments()">
+            <input type="button" value="Project Log" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "log"]' [ngClass]='{"active": toggleView == "Log"}' (click)="showLog()">
+            <input type="button" value="Publications" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "file"]' [ngClass]='{"active": toggleView == "Publications"}' (click)="showPublication()">
+          </div>
+          <div class="project-view-interaction">
+            <input class="fork" type="button" value="Fork Project" (click)="forkProject()">
+            <button type="button" *ngIf="!toggleMoreOption" (click)="toggleMoreOption = true;">
+              More <i class="fa-solid fa-arrow-down"></i>
+            </button>
+            <button type="button" *ngIf="toggleMoreOption" (click)="toggleMoreOption = false;">
+              Less <i class="fa-solid fa-arrow-up"></i>
+            </button>
+            <div class="project-view-extra-interaction" *ngIf="toggleMoreOption">
+              <input type="button" value="Share">
+              <input type="button" value="Recommend">
+              <input type="button" value="Join" *ngIf="!isMember && !isOwner">
+              <input type="button" value="Leave" *ngIf="isMember && !isOwner">
+              <input type="button" value="Follow" *ngIf="!isFollowing">
+              <input type="button" value="Unfollow" *ngIf="isFollowing">
             </div>
+          </div>
         </div>
-    </div> -->
 
-    <!-- Project Route Link -->
-    <!-- <div class="d-flex align-items-center">
-        <span class="h5 card-link mb-0" *ngIf="(project.route | route:'owner') as owner">
-            <a [routerLink]='["/profile/" + owner]'>{{project.route | route:"owner"}}</a>
-        </span>
-        <span class="h4 mb-0 mx-1">  /  </span>
-        <span class="h5 card-link mb-0" *ngIf="(project.route | route:'projectname') as projectname">
-            <a [routerLink]='["/project/" + (project.route | route:"owner") + "/" + projectname]'>{{ projectname }}</a>
-        </span>
-    </div> -->
+        <div class="row project-view-row">
+          <div class="project-view-container">
+            <app-project-file-explorer *ngIf="activeView === 'File'" [project]="project" [currentUser]="currentUser" [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
+            <app-project-publication *ngIf="activeView === 'Publications'"></app-project-publication>
+            <app-project-log *ngIf="activeView === 'Log'"></app-project-log>
+            <app-project-content *ngIf='toggleView == "Content"' [project]="project"></app-project-content>
 
-    <!-- Follow/UnFollow Project -->
-    <!-- <div class="d-inline-flex ml-auto">
-        <!- - Follow Project Button - ->
-        <button class="btn btn-primary mr-1" type="button" *ngIf="!isFollowing" (click)="followProject()">
-            Follow
-            <span class="badge badge-light font-weight-light ml-1">
-                {{ project | role:"follower" }}
-            </span>
-        </button>
-        <!- - UnFollow Project Button - ->
-        <button class="btn btn-primary mr-1" type="button" *ngIf="isFollowing" (click)="unFollowProject()">
-            Unfollow
-            <span class="badge badge-light font-weight-light ml-1">
-                {{ project | role:"follower" }}
-            </span>
-        </button>
+          </div>
 
-        <!- - Edit Project Button - ->
-            <button class="btn btn-success mr-1" [routerLink]='["/project/edit"]' type="submit" *ngIf="isOwner">
-            Edit
-        </button>
+        </div>
+        <div *ngIf='toggleView == "Comment"' class="project-comment-container">
+          <h3 class="project-comment-header">Comments</h3>
+          <ul class="project-comment-list">
+            <li class="project-comment-item">
+              <div class="project-comment-heading">
+                Oneal Smith
+              </div>
+              <div class="project-comment-description">
+                me
+                <div class="project-comment">
+                  t"
+                  Cool project
+                </div>
+                pr
+                <div class="project-comment-date">
+                  02/23/2023
+                </div>
+              </div>
+            </li>
+            <li class="project-comment-item">
+              <div class="project-comment-heading">
+                Tammie Smith
+              </div>
+              <div class="project-comment-description">
+                <div class="project-comment">
+                  No
+                </div>
+                <div class="project-comment-date">
+                  02/23/2023
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
 
-        <!- - Delete Project Button - ->
-        <button class="btn btn-danger mr-1" *ngIf="isOwner" (click)="deleteProject()">
-            Delete
-        </button>
+      </div>
 
-        <!- - Follow Project Button - ->
-        <button class="btn btn-success mr-1" type="button" *ngIf="!isMember && !isOwner" (click)="joinProject()">
-            Join
-            <span class="badge badge-light font-weight-light ml-1">
-                {{ project | role:"member" }}
-            </span>
-        </button>
+    </div>
 
-        <!- - UnFollow Project Button - ->
-        <button class="btn btn-danger mr-1" type="button" *ngIf="isMember && !isOwner" (click)="leaveProject()">
-            Leave
-            <span class="badge badge-light font-weight-light ml-1">
-                {{ project | role:"member" }}
-            </span>
-        </button>
+  </div>
 
-        <!- - Fork Project Button - ->
-        <button class="btn btn-secondary" type="button" title="Make a copy of this project in your account" *ngIf="!isOwner" (click)="forkProject()" >
-            Fork
-        </button>
-        
-        <button class="btn btn-secondary" type="button" title="Cannot fork beacause you own this project" *ngIf="isOwner" [disabled]="isOwner">
-            Fork
-        </button>
+  
 
-        <!- - <button class="btn btn-danger" type="button" (click)="deleteProject()" >
-            delete
-        </button> - ->
-    </div> -->
+  <!-- Display orginial project if is a forked project -->
+  <!-- <div class="d-flex align-items-center" *ngIf="forkedFrom != null" >
+      <span>forked from&nbsp;</span>
+      <span *ngIf="(forkedFrom.route | route:'projectname') as projectname">
+          <a [routerLink]='["/project/" + (forkedFrom.route | route:"owner") + "/" + projectname]'>{{forkedFrom.route | route:"owner"}}/{{ projectname }}</a>
+      </span>
+  </div>
+
+  <div>
+      <p>{{project.description}}</p>
+          <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                  <span class="badge badge-pill badge-info font-weight-light mr-2" *ngFor="let projectTag of project.projectTags">
+                      {{projectTag.tag.name}}
+                  </span>
+              </li>
+          </ul>
+  </div> -->
+  <!-- <app-project-overview [isFollowing]="isFollowing" [isOwner]="isOwner" [isMember]="isMember" [project]="project"></app-project-overview> -->
+
+  <ng-template #forkModal>
+    <app-modal-fork [forkModalRef]="forkModalRef" [project]="project" [currentUser]="currentUser"></app-modal-fork>
+  </ng-template>
+
+  <ng-template #deleteModal>
+    <app-modal-delete [deleteModalRef]="deleteModalRef" [projectID]="project.projectID" [currentUser]="currentUser"></app-modal-delete>
+  </ng-template>
+  <ng-template #memberListModal>
+    <app-modal-member-list [memberListModalRef]="memberListModalRef" [projectUsers]="project.projectUsers" [currentUser]="currentUser"></app-modal-member-list>
+  </ng-template>
+
+
+  <!-- <app-member-list [project]="project"></app-member-list> -->
+  <!-- <div class="row h-100">
+      <div class="col-md-2 p-0">
+          <aside class="h-100 py-5 px-4" style="background-color:#222">
+              <ul class="list-group list-group-flush text-white">
+                  <li class="list-group-item"><i class="fa fa-home fa-fw"></i> Home</li>
+                  <li class="list-group-item"><i class="fa fa-file fa-fw"></i> Report</li>
+                  <li class="list-group-item"><i class="fa fa-folder fa-fw"></i> File Explorer</li>
+                  <li class="list-group-item"><i class="fa fa-cog fa-fw"></i> Setting</li>
+              </ul>
+          </aside>
+      </div>
+      <div class="col-md-10">
+          <div class="sticky-top">
+              ...
+          </div>
+      </div>
+  </div> -->
+  <!-- Project Route Link -->
+  <!-- <div class="d-flex align-items-center">
+      <span class="h5 card-link mb-0" *ngIf="(project.route | route:'owner') as owner">
+          <a [routerLink]='["/profile/" + owner]'>{{project.route | route:"owner"}}</a>
+      </span>
+      <span class="h4 mb-0 mx-1">  /  </span>
+      <span class="h5 card-link mb-0" *ngIf="(project.route | route:'projectname') as projectname">
+          <a [routerLink]='["/project/" + (project.route | route:"owner") + "/" + projectname]'>{{ projectname }}</a>
+      </span>
+  </div> -->
+  <!-- Follow/UnFollow Project -->
+  <!-- <div class="d-inline-flex ml-auto">
+      <!- - Follow Project Button - ->
+      <button class="btn btn-primary mr-1" type="button" *ngIf="!isFollowing" (click)="followProject()">
+          Follow
+          <span class="badge badge-light font-weight-light ml-1">
+              {{ project | role:"follower" }}
+          </span>
+      </button>
+      <!- - UnFollow Project Button - ->
+      <button class="btn btn-primary mr-1" type="button" *ngIf="isFollowing" (click)="unFollowProject()">
+          Unfollow
+          <span class="badge badge-light font-weight-light ml-1">
+              {{ project | role:"follower" }}
+          </span>
+      </button>
+
+      <!- - Edit Project Button - ->
+          <button class="btn btn-success mr-1" [routerLink]='["/project/edit"]' type="submit" *ngIf="isOwner">
+          Edit
+      </button>
+
+      <!- - Delete Project Button - ->
+      <button class="btn btn-danger mr-1" *ngIf="isOwner" (click)="deleteProject()">
+          Delete
+      </button>
+
+      <!- - Follow Project Button - ->
+      <button class="btn btn-success mr-1" type="button" *ngIf="!isMember && !isOwner" (click)="joinProject()">
+          Join
+          <span class="badge badge-light font-weight-light ml-1">
+              {{ project | role:"member" }}
+          </span>
+      </button>
+
+      <!- - UnFollow Project Button - ->
+      <button class="btn btn-danger mr-1" type="button" *ngIf="isMember && !isOwner" (click)="leaveProject()">
+          Leave
+          <span class="badge badge-light font-weight-light ml-1">
+              {{ project | role:"member" }}
+          </span>
+      </button>
+
+      <!- - Fork Project Button - ->
+      <button class="btn btn-secondary" type="button" title="Make a copy of this project in your account" *ngIf="!isOwner" (click)="forkProject()" >
+          Fork
+      </button>
+
+      <button class="btn btn-secondary" type="button" title="Cannot fork beacause you own this project" *ngIf="isOwner" [disabled]="isOwner">
+          Fork
+      </button>
+
+      <!- - <button class="btn btn-danger" type="button" (click)="deleteProject()" >
+          delete
+      </button> - ->
+  </div> -->
 </div>

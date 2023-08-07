@@ -7,8 +7,8 @@
             <!-- Card Start -->
             <div class="card my-5">
                 <!-- Card Header -->
-                <div class="card-header">
-                    Profile Setting
+                <div class="card-header text-center">
+                  Profile Setting
                 </div>
                 <!-- Content Padding Start -->
                 <div class="m-4">
@@ -20,13 +20,13 @@
                             <form class="form" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
                                 <!-- Form Bio -->
                                 <div class="form-group">
-                                    <label for="bio">Bio</label>
+                                    <label for="bio"> <h5>Bio</h5></label>
                                     <textarea formControlName="bio" type="text" class="form-control" placeholder="">{{currentUser.bio}}</textarea>
                                 </div>
 
                                 <!-- Form Submit -->
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn-success" value="Submit">Update Profile</button>  
+                                <div class="form-group text-center">
+                                    <button type="submit" class="btn" value="Submit">Update Profile</button>  
                                 </div>                                                   
                             </form>
                         </div>
@@ -34,15 +34,15 @@
                         <div class="col-md-3">
                             <h5>Profile Image</h5>
                             <img [src]="profileImage" class="card-img img-thumbnail pl-1">
-                            <div class="row mt-1">
+                            <div class="row mt-3">
                                 <!-- Image Input -->
                                 <div class="col-md-6 pr-1">
                                     <input id="fileInput" type="file"  (change)=fileEvent($event) hidden>
-                                    <button class="btn btn-primary btn-sm btn-block" (click)="useFileInput()">Upload</button>
+                                    <button class="btn btn-sm btn-block" (click)="useFileInput()">Upload</button>
                                 </div>
                                 <!-- Clear Current Image -->
                                 <div class="col-md-6 pl-1">
-                                    <button class="btn btn-secondary btn-sm btn-block" (click)="clearProfile()">Clear</button>
+                                    <button class="btn btn-sm btn-block" (click)="clearProfile()">Clear</button>
                                 </div>
                             </div>                   
                         </div>
