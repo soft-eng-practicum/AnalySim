@@ -1,0 +1,8 @@
+# Currently must pause .Net server before doing this
+http-server -p 80 /home/exouser/wwwroot/ &
+sleep 3s
+certbot renew
+./convert-pem2pfx.sh
+cp /etc/letsencrypt/live/analysim.tech/fullchain.pfx ~/.aspnet/https/
+# kill the http server
+kill $(jobs -p)
