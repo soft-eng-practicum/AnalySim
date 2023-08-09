@@ -3,19 +3,27 @@
         <span class="mr-2">Notebooks</span>
         <div class="d-inline-flex ml-auto">
             <!-- Private Button Group Start -->
-            <div class="btn-group mr-3">
+            <div class="btn-group mr-3" role="group">
                 <button type="button" class="btn btn-secondary" title="Upload Notebook" (click)="toggleModalUpload()">
                     <i class="fa fa-plus"></i>
+                </button>
+                <button type="button" class="btn btn-secondary" title="Create Folder" (click)="openFolderModal()">
+                    <i class="fa fa-folder-plus"></i>
                 </button>
             </div>
         </div>
     </div>
     <ul class="list-group">
+        <li class="list-group-item" *ngIf="currentDirectory.split('/').length>2" (click)="navigateToPreviousComponent()"> . . . </li>
         <li class="list-group-item" *ngIf="notebooks.length === 0"> No Notebooks Found </li>
-        <app-project-notebook-item *ngFor="let notebook of notebooks" [notebook]="notebook"></app-project-notebook-item>
+        <app-project-notebook-item *ngFor="let notebook of notebooks" [notebook]="notebook" [currentDirectory]="currentDirectory" (navigateToNewDirectory)="navigate($event)" (getNotebooks)="getNotebooks($event)"></app-project-notebook-item>
     </ul>
 </div>
 
 <ng-template #uploadNotebookModal>
-    <app-modal-upload-notebook [project]="project" (getNotebooks)="getNotebooks()" (closeModal)="closeModal()"></app-modal-upload-notebook>
+    <app-modal-upload-notebook [project]="project" (getNotebooks)="getNotebooks($event)" (closeModal)="closeModal()" [currentDirectory]="currentDirectory"></app-modal-upload-notebook>
+</ng-template>
+
+<ng-template #folderModal>
+    <app-modal-notebook-folder [project]="project" (getNotebooks)="getNotebooks($event)" (closeModal)="closeFolderModal()" [currentDirectory]="currentDirectory"></app-modal-notebook-folder>
 </ng-template>

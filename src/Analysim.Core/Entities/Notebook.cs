@@ -12,6 +12,9 @@ namespace Core.Entities
         [Required(ErrorMessage = "Project Container is a required field.")]
         public string Container { get; set; }
 
+        [Required(ErrorMessage = "Project Container is a required field.")]
+        public string Directory { get; set; }
+
 
         [Required(ErrorMessage = "Notebook Name is a required field.")]
         public string Name { get; set; }

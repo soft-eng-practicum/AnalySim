@@ -137,9 +137,9 @@
                                                        [readOnly]="isLoading">
                                                 <label for="wouldYouLikeToHearUpdatesFromUs">Would you like to hear updates from us?</label>
                                               </div>
-                                              <div class="form-group">
+                                              <div class="form-group" *ngIf="showHideRegistrationCode">
                                                 <label for="registrationCode">Registration Code</label>
-                                                <span *ngIf="! showHideRegistrationCode" class="text-danger"> *</span>
+                                                <span  class="text-danger"> *</span>
                                                 <input formControlName="registrationCode" type="text" class="form-control"
                                                        placeholder=""
                                                        [readOnly]="isLoading" required="{{showHideRegistrationCode}}">
