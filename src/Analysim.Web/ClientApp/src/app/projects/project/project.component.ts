@@ -45,9 +45,9 @@ export class ProjectComponent implements OnInit {
   toggleNotebookExpand: boolean = false
   toggleView: string = "File"
   showFiles: boolean = false;
-  
+
   activeView: string = 'File';
-  
+
 
   async ngOnInit() {
     if (this.accountService.checkLoginStatus()) {
@@ -302,6 +302,10 @@ export class ProjectComponent implements OnInit {
   showNotebooks(): void {
     this.activeView = 'Content';
     this.toggleView = 'Content';
+  }
+  showComments(): void {
+    this.activeView = 'Comment';
+    this.toggleView = 'Comment';
   }
 }
 

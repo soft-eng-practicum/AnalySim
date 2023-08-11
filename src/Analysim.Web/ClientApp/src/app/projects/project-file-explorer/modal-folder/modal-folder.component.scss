@@ -1,6 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
-.invalid{
-    border-color: #dc3545 !important;
+.modal-content {
+  background-color: var(--background-color-tertiary);
+}
+
+.btn {
+  color:var(--primary-color);
+  background-color: var(--button-background-color);
+}
+
+.invalid {
+  border-color: #dc3545 !important;
 }
 
 .valid{

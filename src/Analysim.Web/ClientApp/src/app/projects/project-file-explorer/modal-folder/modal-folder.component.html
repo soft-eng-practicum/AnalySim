@@ -22,7 +22,7 @@
         <div class="modal-footer justify-content-center">
             <!-- Form Group Register -->
             <div class="form-group">
-                <button type="submit" class="btn btn-success" value="Submit" [disabled]="folderName.invalid">
+                <button type="submit" class="btn" value="Submit" [disabled]="folderName.invalid">
                     <div *ngIf="!isLoading">
                         <span>Create</span>
                     </div>
@@ -31,7 +31,7 @@
                     </div>
                 </button>
             </div>
-            <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+            <button type="button" class="btn" (click)="closeModal()">Close</button>
         </div>
     </form> <!-- Register Form End -->
 </div>
