@@ -1,12 +1,15 @@
 <li class="list-group-item d-flex h-100" [class.active]="isSelected" (click)="selectItem()" (dblclick)="navigate()">
-    <div class="mr-auto">
+    <div class="mr-auto" style="width: 100%">
         <i class="fa fa-file mr-1" *ngIf="blobFileItem.type == 'file'"></i>
         <i class="fa fa-folder mr-1" *ngIf='blobFileItem.type === "folder"'></i>
+
         <a (click)="navigate()">{{blobFileItem.name}}</a>
+        <div class="ml-auto" *ngIf="blobFileItem.type == 'file'" style="float: right">
+            <button type="button" class="btn btn-secondary" title="Get Shareable Link" (click)="displayShareableLink()">
+                <i class="fa fa-link mr-1"></i>
+            </button>
+            {{timeSince}}
+        </div>
 
-
-    </div>
-    <div class="ml-auto" *ngIf="blobFileItem.type == 'file'">
-        {{timeSince}}
     </div>
 </li>

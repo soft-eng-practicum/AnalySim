@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { BlobFileItem } from 'src/app/interfaces/blob-file-item';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ProjectService } from 'src/app/services/project.service';
 
 @Component({
   selector: 'app-project-file-explorer-item',
@@ -9,13 +10,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class ProjectFileExplorerItemComponent implements OnInit {
 
-  constructor(private route: ActivatedRoute, private router: Router) { }
+  constructor(private route: ActivatedRoute, private router: Router, private projectService : ProjectService) { }
 
   @Input() isSelected : boolean
   @Input() currentDirectory : string
   @Input() blobFileItem : BlobFileItem
   @Output() changeDirectory = new EventEmitter<string>();
   @Output() selectedItem = new EventEmitter<number>();
+
+  open: boolean = false;
+  dismissible : boolean = true;
+
+
 
   ngOnInit(): void {
   }
@@ -69,5 +75,15 @@ export class ProjectFileExplorerItemComponent implements OnInit {
       return ""
     }
   }
+
+  displayShareableLink(){
+    this.open = true;
+    alert(this.blobFileItem.file.uri);
+
+  }
+
+  onCloseAlert(){
+    this.open = false;
+ }
 
 }

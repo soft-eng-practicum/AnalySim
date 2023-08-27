@@ -1,7 +1,7 @@
 <li class="list-group-item d-flex h-100">
     <div class="mr-auto" *ngIf="notebook.type!=='folder'" style="width: 100%">
         <i class="fa fa-file mr-1"></i>
-        <a (click)="showNotebook()">{{notebook.name+notebook.extension}}</a>
+        <a (click)="navigateToNotebook()">{{notebook.name+notebook.extension}}</a>
         <div class="btn-group mr-3" role="group" style="float: right">
             <button type="button" class="btn btn-secondary" (click)="deleteNotebook()">
                 <i class="fa fa-trash mr-1"></i>

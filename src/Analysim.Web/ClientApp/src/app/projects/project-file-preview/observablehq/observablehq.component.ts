@@ -28,7 +28,8 @@ export class ObservablehqComponent{
       relativeTo: this.route,
       queryParams: {
         API: this.blobUri
-      }
+      },
+      queryParamsHandling: 'merge'
     });
 
     let script = this._renderer2.createElement('script');

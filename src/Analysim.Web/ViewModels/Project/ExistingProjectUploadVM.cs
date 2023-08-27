@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using Core.Entities;
+using System.Collections.Generic;
 
 namespace Analysim.Web.ViewModels.Project
 {
@@ -18,6 +20,11 @@ namespace Analysim.Web.ViewModels.Project
             public string Type { get; set; }
 
             public string Directory { get; set; }
+
+            public string observableNotebookDatasets
+            {
+                get; set;
+            }
 
 
     }

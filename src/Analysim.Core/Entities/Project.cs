@@ -39,6 +39,7 @@ namespace Core.Entities
 
         public ICollection<Notebook> Notebooks {get;set;} = new List<Notebook>();
 
+
         public int ForkedFromProjectID { get; set; }
     }
 }

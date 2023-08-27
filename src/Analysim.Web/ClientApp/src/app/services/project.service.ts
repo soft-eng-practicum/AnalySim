@@ -62,12 +62,14 @@ export class ProjectService {
   // Extra
   private urlGetUserList: string = this.baseUrl + "getuserlist/"
   private urlGetFileList: string = this.baseUrl + "getfilelist/"
-  private urlGetNotebookList: string = this.baseUrl + "getNotebooks/"
+  private urlGetNotebookList: string = this.baseUrl + "getNotebooks/";
+  private urlGetNotebook: string = this.baseUrl+"GetNotebook/";
   private urlGetTagList: string = this.baseUrl + "gettaglist/"
 
   private urlUploadNotebook: string = this.baseUrl + "uploadnotebook";
   private urlUploadExistingNotebook: string = this.baseUrl + "uploadexistingnotebook";
   private urlDeleteNotebook: string = this.baseUrl + "deleteNotebook/";
+  private urlGetShareableLink : string = this.baseUrl + "GetShareableLinkofFile/";
 
 
   getProjectByID(projectID: number): Observable<Project> {
@@ -330,6 +332,7 @@ export class ProjectService {
     body.append('NotebookName', notebookURL.name);
     body.append('ProjectID', notebookURL.projectID.toString());
     body.append('Type', notebookURL.type);
+    body.append('observableNotebookDatasets',JSON.stringify(notebookURL.datasets));
     body.append('directory', directory);
 
     return this.http.post<any>(this.urlUploadExistingNotebook, body).pipe(
@@ -548,7 +551,7 @@ export class ProjectService {
     return this.http.get<any>(this.urlGetNotebookList + projectID + "/" + directory)
       .pipe(
         map(body => {
-          console.log(body.message)
+          console.log(body)
           return body.result
         }),
         catchError(error => {
@@ -556,6 +559,20 @@ export class ProjectService {
           return throwError(error)
         })
       )
+  }
+
+  getNotebook(notebookID: number){
+    return this.http.get<any>(this.urlGetNotebook+notebookID) 
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.notebook
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
   }
 
   getTagList(projectID: number): Observable<Tag[]> {
@@ -572,4 +589,20 @@ export class ProjectService {
         })
       )
   }
+
+  getShareableLink(fileID: number): Observable<string> {
+    return this.http.get<any>(this.urlGetShareableLink+fileID)
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
+
 }

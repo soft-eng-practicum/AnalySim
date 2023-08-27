@@ -57,6 +57,7 @@ export class ProjectComponent implements OnInit {
 
     this.route.params.subscribe(params => {
 
+
       let owner = params['owner']
       let projectname = params['projectname']
       let projectUsers = params['projectUsers']
@@ -101,7 +102,6 @@ export class ProjectComponent implements OnInit {
           this.toggleView = "Content";
           this.activeView = "Content";
         }
-        console.log(this.fileDirectory);
       });
     })
   }

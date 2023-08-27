@@ -124,6 +124,30 @@ namespace Infrastructure.Migrations
                     b.ToTable("Notebook");
                 });
 
+            modelBuilder.Entity("Core.Entities.ObservableNotebookDataset", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int?>("NotebookID")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("datasetName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("datasetURL")
+                        .HasColumnType("text");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("NotebookID");
+
+                    b.ToTable("ObservableNotebookDataset");
+                });
+
             modelBuilder.Entity("Core.Entities.Project", b =>
                 {
                     b.Property<int>("ProjectID")
@@ -349,21 +373,21 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "962163af-473a-4956-a6c5-a1fa6ba2627d",
+                            ConcurrencyStamp = "3361253b-fa6e-421d-90e2-dd02b7d17718",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "c5645a7f-f074-44b3-9322-abcae02b8ad7",
+                            ConcurrencyStamp = "d9ee6a7b-4e54-424d-8719-7c018ba743ae",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "3475885e-9aa6-4267-9262-39c19e0acceb",
+                            ConcurrencyStamp = "53aa1c96-d9e7-4d30-a77f-dff35404b025",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });
@@ -498,6 +522,13 @@ namespace Infrastructure.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("Core.Entities.ObservableNotebookDataset", b =>
+                {
+                    b.HasOne("Core.Entities.Notebook", null)
+                        .WithMany("observableNotebookDatasets")
+                        .HasForeignKey("NotebookID");
+                });
+
             modelBuilder.Entity("Core.Entities.ProjectTag", b =>
                 {
                     b.HasOne("Core.Entities.Project", "Project")
@@ -604,6 +635,11 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Core.Entities.Notebook", b =>
+                {
+                    b.Navigation("observableNotebookDatasets");
                 });
 
             modelBuilder.Entity("Core.Entities.Project", b =>

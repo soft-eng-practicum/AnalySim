@@ -68,7 +68,7 @@ import { EmailResendVerificationComponent } from './email-confirmation/email-res
     BrowserAnimationsModule,
     ApplicationPipesModule,
     ToastrModule.forRoot(),
-    ModalModule.forRoot()
+    ModalModule.forRoot(),
   ],
   providers: [
   ],
