@@ -20,6 +20,10 @@
 //     background-color:  rgb(226, 234, 247);
 // }
 
+.card {
+  background-color: var(--background-color-tertiary);
+}
+
 .bg-navy{
     background-color:  #102958;
     /* background-image: linear-gradient(#0c1a34,#102958); */
@@ -32,13 +36,13 @@
     background-position: center center;
 }
 
-.background{
-    background-color: var(--background-color);
-    box-sizing: border-box;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.background {
+  background-color: var(--primary-color);
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 :host {
     height: 100%;

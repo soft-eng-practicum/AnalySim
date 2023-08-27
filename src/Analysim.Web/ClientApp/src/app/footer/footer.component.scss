@@ -7,21 +7,16 @@
 .row{
 line-height: 0px;
 }
-.nav-link:hover {
-    color: #4140aa !important;
-    transition: 0.3s;
-  }
 
-.nav-link text-white{
-    position: relative;
-    right: 92.5px;
-    top: 15px;
+.footer-link{
+    text-decoration:none;
 }
 
-.nav-link text-white{
-    position: relative;
-top: 5px;
-right: 92.5px;
+.footer-link:hover {
+  background-color: var(--button-background-color);
+  color: var(--primary-color) !important;
+  transition: 0.2s;
+  border-bottom: none !important;
 }
 
 .footer-link-row {
