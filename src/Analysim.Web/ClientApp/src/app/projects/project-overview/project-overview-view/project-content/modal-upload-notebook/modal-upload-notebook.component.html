@@ -26,8 +26,8 @@
             </div>
 
             <div class="form-group" *ngIf="showCreateNotebook">
-                <label>Create Notebook</label>
-                <input type="file" class="form-control" placeholder="" (change)="fileEvent($event)" />
+              <label>Create Notebook</label>
+              <input type="file" class="form-control p-1" placeholder="" (change)="fileEvent($event)" />
             </div>
 
             <div class="form-group" *ngIf="showAddExistingNotebook">
@@ -53,8 +53,7 @@
                     </div>
                 </button>
             </div>
-            <button type="button" class="btn">Close</button>
-            <button type="button" class="btn btn-secondary" (click)="closeModal.emit()">Close</button>
+            <button type="button" class="btn" (click)="closeModal.emit()">Close</button>
         </div>
     </form>
 </div>

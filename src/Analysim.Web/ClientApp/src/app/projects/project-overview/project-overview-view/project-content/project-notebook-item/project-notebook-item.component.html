@@ -1,27 +1,106 @@
 <li class="list-group-item d-flex h-100">
-    <div class="mr-auto" *ngIf="notebook.type!=='folder'" style="width: 100%">
-        <i class="fa fa-file mr-1"></i>
-        <a (click)="showNotebook()">{{notebook.name+notebook.extension}}</a>
-        <div class="btn-group mr-3" role="group" style="float: right">
-            <button type="button" class="btn btn-secondary" (click)="deleteNotebook()">
-                <i class="fa fa-trash mr-1"></i>
-            </button>
-            <button type="button" class="btn btn-secondary" (click)="downloadNotebook()">
-                <i class="fa fa-arrow-down mr-1"></i>
-            </button>
-        </div>
+  <div class="mr-auto" *ngIf="notebook.type!=='folder'" style="width: 100%">
+    <i class="fa fa-file mr-1"></i>
+    <a (click)="showNotebook()">{{notebook.name+notebook.extension}}</a>
+    <div class="btn-group mr-3" role="group" style="float: right">
+      <button type="button" class="btn" data-toggle="modal" data-target="#exampleModalLong">
+        <i class="far fa-comment mr-1"></i>
+      </button>
+      <button type="button" class="btn" data-toggle="modal" data-target="#exampleModal">
+        <i class="fa fa-trash mr-1"></i>
+      </button>
+      <button type="button" class="btn" (click)="downloadNotebook()">
+        <i class="fa fa-arrow-down mr-1"></i>
+      </button>
     </div>
-    <div class="mr-auto" *ngIf="notebook.type==='folder'" style="width: 100%">
-        <i class="fa fa-folder mr-1"></i>
-        <a (click)="navigate()">{{notebook.name}}</a>
-        <div class="btn-group mr-3" role="group" style="float: right">
-            <button type="button" class="btn btn-secondary" (click)="deleteNotebook()">
-                <i class="fa fa-trash mr-1"></i>
-            </button>
-        </div>
+  </div>
+  <div class="mr-auto" *ngIf="notebook.type==='folder'" style="width: 100%">
+    <i class="fa fa-folder mr-1"></i>
+    <a (click)="navigate()">{{notebook.name}}</a>
+    <div class="btn-group mr-3" role="group" style="float: right">
+      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#exampleModal">
+        <i class="fa fa-trash mr-1"></i>
+      </button>
     </div>
+  </div>
 </li>
 
 <ng-template #displayNotebookModal>
-    <app-project-notebook-item-display [notebook]="notebook"></app-project-notebook-item-display>
+  <app-project-notebook-item-display [notebook]="notebook"></app-project-notebook-item-display>
 </ng-template>
+
+<!-- NoteBook Comment Model -->
+
+<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">NoteBook Comments</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="row form-group">
+            <span class="col-9"><input type="text" class="form-control" placeholder="Add your Comment"></span>
+            <span class="col-2"><input type="submit" class="btn" /></span>
+            <span class="col-1"></span>
+          </div>
+        </form>
+        <div class="d-flex card-header flex-row align-items-center">
+          <span class="mr-2">Comments</span>
+          <div class="d-inline-flex ml-auto">
+            <!-- Private Button Group Start -->
+          </div>
+        </div>
+        <ul class="list-group">
+          <li class="list-group-item">
+            <div class="d-flex flex-row">
+              Tammie Smith - 02/23/2023
+              <div class="d-inline-flex ml-auto">
+                <button type="button" class="btn ml-3" title="Delete" data-toggle="modal" data-target="#exampleModal">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="d-flex flex-row">
+              Oneal Smith -  02/23/2023
+              <div class="d-inline-flex ml-auto">
+                <button type="button" class="btn ml-3" title="Delete" data-toggle="modal" data-target="#exampleModal">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Delete NoteBook Modal-->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Delete Window</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this file ?!
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" data-dismiss="modal">Close</button>
+        <button type="button" class="btn" (click)="deleteNotebook()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

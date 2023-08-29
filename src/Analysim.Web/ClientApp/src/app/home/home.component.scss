@@ -18,14 +18,14 @@
 }
 .btn-primary {
   color: var(--primary-color);
-  background-color: #4140aa !important;
-  border-color: #4140aa !important;
+  background-color: var(--button-background-color) !important;
+  border-color: var(--button-background-color) !important;
 }
 
-  a {
-    color: #4140aa;
-    text-decoration: underline;
-  }
+a {
+  color: var(--button-background-color);
+  text-decoration: underline;
+}
 
   .NBTitle{
     font-size: calc(1.325rem + .9vw);
@@ -46,7 +46,7 @@ font-family:var(--bs-body-font-family) !important;
 
     .notebook-container{
         display: flex;
-        flex-direction: column;
+        flex-direction: column; 
         align-items: center;
 
         @media (max-width: 768px){

@@ -1,5 +1,11 @@
-.container {
+#main-container {
+  border: 0.5px solid var(--background-color-secondary);
   background-color: var(--background-color-tertiary);
+  border-radius:1%;
+}
+#project-container {
+  max-height: 700px;
+  overflow-y: scroll;
 }
 
 .btn{

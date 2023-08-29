@@ -112,11 +112,11 @@
             </div>
             <div class="row project-view-option-row">
               <div class="project-view-toggle">
-                <input type="button" value="Datasets" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "file"]' [ngClass]='{"active": toggleView == "File"}' (click) = "showFile()">
+                <input type="button" value="Datasets" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "file"]' [ngClass]='{"active": toggleView == "File"}' (click)="showFile()">
                 <input type="button" value="Notebooks" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "notebook"]' [ngClass]='{"active": toggleView == "Content"}' (click)="showNotebooks()">
-                <input type="button" value="Comments" [ngClass]='{"active": toggleView == "Comment"}' (click)='toggleView == "Comment" ? toggleView = "" : toggleView = "Comment"'>
-                <input type="button" value="Project Log" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "log"]' [ngClass]='{"active": toggleView == "Log"}' (click) = "showLog()">
-                <input type="button" value="Publications" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "file"]' [ngClass]='{"active": toggleView == "Publications"}' (click) = "showPublication()">
+                <input type="button" value="Comments" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "comment"]' [ngClass]='{"active": toggleView == "Comment"}' (click)="showComments()">
+                <input type="button" value="Project Log" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "log"]' [ngClass]='{"active": toggleView == "Log"}' (click)="showLog()">
+                <input type="button" value="Publications" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "publications"]' [ngClass]='{"active": toggleView == "Publications"}' (click)="showPublication()">
               </div>
               <div class="project-view-interaction">
                 <input class="fork" type="button" value="Fork Project" (click)="forkProject()">
@@ -141,6 +141,7 @@
                 <app-project-file-explorer *ngIf="activeView === 'File'" [project]="project" [currentUser]="currentUser" [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
                 <app-project-publication *ngIf="activeView === 'Publications'"></app-project-publication>
                 <app-project-log *ngIf="activeView === 'Log'"></app-project-log>
+                <app-project-comments *ngIf="activeView === 'Comment'"></app-project-comments>
                 <app-project-content *ngIf='toggleView == "Content"' [project]="project" [currentUser]="currentUser" [isMember]="isMember" [currentDirectory]="fileDirectory"></app-project-content>
               </div>
 

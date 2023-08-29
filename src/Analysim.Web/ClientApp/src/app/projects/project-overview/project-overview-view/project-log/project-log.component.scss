@@ -1,94 +1,103 @@
 .project-log-container {
-    
+  .card-header {
+      background-color:var(--primary-color);
+      font-size:18px;
+      font-weight:500;
+  }
+  .project-log-header {
+    display: flex;
+    justify-content: center;
+  }
 
-    .project-log-header {
+  .project-log-list {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+    display: flex;
+    flex-direction: column;
+
+    .project-log {
+      padding-bottom: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      background-color: var(--primary-color);
+
+      &:last-child {
+        margin-bottom: 0px;
+      }
+
+      .project-log-heading {
         display: flex;
-        justify-content: center;
-    }
+        align-items: center;
+        margin-bottom: 20px;
 
-    .project-log-list {
-        list-style-type: none;
-        margin: 0px;
-        padding: 0px;
-        display: flex;
-        flex-direction: column;
-
-        .project-log {
-            padding-bottom: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: white;
-
-            &:last-child {
-                margin-bottom: 0px;
-            }
-
-            .project-log-heading {
-                display: flex;
-                align-items: center;
-                margin-bottom: 20px;
-
-                .project-author-thumbnail {
-                    width: 40px;
-                    height: 40px;
-                    border: 1px solid black;
-                    border-radius: 40px;
-                    margin-right: 10px;
-                }
-
-                .project-log-profile-info {
-                    .project-log-profile-name {
-                        color: #007bff;
-                    }
-                    .project-log-profile-desc {
-                        font-size: 12px;
-                        display: flex;
-
-                        .project-log-profile-location {
-                            font-weight: bold;
-                            margin-left: 2px;
-                        }
-                    }
-                }
-                .project-log-date {
-                    margin-left: auto;
-                }
-            }
+        .project-author-thumbnail {
+          width: 40px;
+          height: 40px;
+          border: 1px solid black;
+          border-radius: 40px;
+          margin-right: 10px;
         }
 
-        .project-log-content {
-            margin-bottom: 20px;
-        }
+        .project-log-profile-info {
+          .project-log-profile-name {
+            color: #007bff;
+          }
 
-        .project-log-footer {
+          .project-log-profile-desc {
+            font-size: 12px;
             display: flex;
-            align-items: center;
 
-            input {
-                margin-right: 10px;
-                padding: 5px 10px;
-                min-width: 90px;
-
-                color: var(--button-font-color);
-                background-color: var(--button-background-color);
-                border: none;
-
-                &:hover {
-                    color: var(--button-font-color-secondary-hov);
-                    background-color: var(--button-background-color-secondary-hov);
-                    border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary-hov);
-                }
+            .project-log-profile-location {
+              font-weight: bold;
+              margin-left: 2px;
             }
-
-            .project-log-comment {
-                margin-left: auto;
-
-                .project-log-bubble {
-                    width: 20px;
-                    height: 20px;
-                    margin-bottom: 1px;
-                }
-            }
+          }
         }
+
+        .project-log-date {
+          margin-left: auto;
+        }
+      }
     }
+
+    .project-log-content {
+      margin-bottom: 20px;
+    }
+
+    .project-log-footer {
+      display: flex;
+      align-items: center;
+
+      input {
+        margin-right: 10px;
+        padding: 5px 10px;
+        min-width: 90px;
+        color: var(--button-font-color);
+        background-color: var(--button-background-color);
+        border: none;
+
+        &:hover {
+          color: var(--button-font-color-secondary-hov);
+          background-color: var(--button-background-color-secondary-hov);
+          border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary-hov);
+        }
+      }
+
+      .project-log-comment {
+        margin-left: auto;
+
+        .project-log-bubble {
+          width: 20px;
+          height: 20px;
+          margin-bottom: 1px;
+        }
+      }
+    }
+  }
+
+  .btn {
+    background-color: var(--button-background-color);
+    color: var(--primary-color);
+  }
 }

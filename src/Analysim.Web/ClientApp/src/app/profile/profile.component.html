@@ -1,5 +1,5 @@
 <!-- Container Start -->
-  <div class="container my-5" *ngIf="profile != undefined">
+  <div class="container my-5" id="main-container" *ngIf="profile != undefined">
     <!-- Row Start -->
     <div class="row py-3">
       <!-- Profile Description Column Start -->
@@ -37,66 +37,68 @@
       </div> <!-- Profile Description Column End -->
       <!-- Profile Follow List Column Start -->
       <div class="col-md-8">
-        <!-- Card Start -->
-        <div class="card">
-          <div class="p-3">
-            <!-- Nav Tab -->
-            <ul class="nav nav-tabs">
-              <!-- Project Tab -->
-              <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" [class.active]="tabActive[0]" (click)="changeTab(0)">
-                  Project
-                  <span class="badge badge font-weight-light ml-1">
-                    {{projects.length}}
-                  </span>
-                </a>
-              </li>
-              <!-- Following Tab -->
-              <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" [class.active]="tabActive[1]" (click)="changeTab(1)">
-                  Following
-                  <span class="badge font-weight-light ml-1">
-                    {{followings.length}}
-                  </span>
-                </a>
-              </li>
-              <!-- Follower Tab -->
-              <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" [class.active]="tabActive[2]" (click)="changeTab(2)">
-                  Follower
-                  <span class="badge badge-primary font-weight-light ml-1">
-                    {{followers.length}}
-                  </span>
-                </a>
-              </li>
-            </ul>
+        <div class="container" id="project-container">
+          <!-- Card Start -->
+          <div class="card">
+            <div class="p-3">
+              <!-- Nav Tab -->
+              <ul class="nav nav-tabs">
+                <!-- Project Tab -->
+                <li class="nav-item">
+                  <a class="nav-link d-flex align-items-center" [class.active]="tabActive[0]" (click)="changeTab(0)">
+                    Project
+                    <span class="badge badge font-weight-light ml-1">
+                      {{projects.length}}
+                    </span>
+                  </a>
+                </li>
+                <!-- Following Tab -->
+                <li class="nav-item">
+                  <a class="nav-link d-flex align-items-center" [class.active]="tabActive[1]" (click)="changeTab(1)">
+                    Following
+                    <span class="badge font-weight-light ml-1">
+                      {{followings.length}}
+                    </span>
+                  </a>
+                </li>
+                <!-- Follower Tab -->
+                <li class="nav-item">
+                  <a class="nav-link d-flex align-items-center" [class.active]="tabActive[2]" (click)="changeTab(2)">
+                    Follower
+                    <span class="badge badge-primary font-weight-light ml-1">
+                      {{followers.length}}
+                    </span>
+                  </a>
+                </li>
+              </ul>
 
-            <!-- Nav Content -->
-            <div class="nav-tabs-content">
-              <div class="m-3">
-                <!-- Project List -->
-                <ul class="list-group list-group-flush" *ngIf="tabActive[0]">
-                  <li class="list-group-item border-0 p-0" *ngFor="let project of projects; let lastItem = last" [class.mb-4]="!lastItem">
-                    <app-project-card [project]=project></app-project-card>
-                  </li>
-                </ul>
-                <!-- Following List -->
-                <ul class="list-group list-group-flush" *ngIf="tabActive[1]">
-                  <li class="list-group-item border-0 p-0" *ngFor="let following of followings; let lastItem = last" [class.mb-4]="!lastItem">
-                    <app-profile-card [profile]=following></app-profile-card>
-                  </li>
-                </ul>
-                <!-- Follower List -->
-                <ul class="list-group list-group-flush" *ngIf="tabActive[2]">
-                  <li class="list-group-item border-0 p-0" *ngFor="let follower of followers; let lastItem = last" [class.mb-4]="!lastItem">
-                    <app-profile-card [profile]=follower></app-profile-card>
-                  </li>
-                </ul>
+              <!-- Nav Content -->
+              <div class="nav-tabs-content">
+                <div class="m-3">
+                  <!-- Project List -->
+                  <ul class="list-group list-group-flush" *ngIf="tabActive[0]">
+                    <li class="list-group-item border-0 p-0" *ngFor="let project of projects; let lastItem = last" [class.mb-4]="!lastItem">
+                      <app-project-card [project]=project></app-project-card>
+                    </li>
+                  </ul>
+                  <!-- Following List -->
+                  <ul class="list-group list-group-flush" *ngIf="tabActive[1]">
+                    <li class="list-group-item border-0 p-0" *ngFor="let following of followings; let lastItem = last" [class.mb-4]="!lastItem">
+                      <app-profile-card [profile]=following></app-profile-card>
+                    </li>
+                  </ul>
+                  <!-- Follower List -->
+                  <ul class="list-group list-group-flush" *ngIf="tabActive[2]">
+                    <li class="list-group-item border-0 p-0" *ngFor="let follower of followers; let lastItem = last" [class.mb-4]="!lastItem">
+                      <app-profile-card [profile]=follower></app-profile-card>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
-        </div> <!-- Card End -->
-      </div> <!-- Profile Follow List Column End -->
+          </div> <!-- Card End -->
+        </div> <!-- Profile Follow List Column End -->
+      </div>
     </div> <!-- Row End -->
   </div> <!-- Container End -->
 

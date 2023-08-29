@@ -1,40 +1,9 @@
-.project-comment-container {
-    
-    .project-comment-header {
-        display: flex;
-        justify-content: center;
-    }
-
-    .project-comment-list {
-        list-style-type: none;
-        margin: 0px;
-        display: flex;
-        flex-direction: column;
-        padding: 0px;
-
-        .project-comment-item {
-            padding-bottom: 0px;
-            padding: 20px;
-            margin-bottom: 0px;
-            background-color: white;
-
-            &:last-child {
-                margin-bottom: 0px;
-            }
-
-            .project-comment-heading {
-                color: #007bff;
-            }
-
-            .project-comment-description {
-                display: flex;
-
-                .project-comment-date {
-                    margin-left: auto;
-                }
-            }
-
-            
-        }
-    }
+.btn {
+  background-color: var(--button-background-color);
+  color: var(--primary-color);
+}
+.card-header {
+  background-color: var(--primary-color);
+  font-size: 18px;
+  font-weight: 500;
 }

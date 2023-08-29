@@ -1,12 +1,12 @@
-.btn {
-  background-color: var(--button-background-color);
-  color: var(--primary-color);
-}
 .card-header {
   background-color: var(--primary-color);
   font-size: 18px;
   font-weight: 500;
 }
+.btn {
+    background-color: var(--button-background-color);
+    color: var(--primary-color);
+  }
 .modal-content {
   background-color: var(--background-color-tertiary);
 }
