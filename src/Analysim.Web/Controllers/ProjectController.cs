@@ -25,6 +25,7 @@ using Microsoft.Extensions.Hosting;
 using Analysim.Web.ViewModels.Project;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using System.Web;
+using Newtonsoft.Json;
 
 namespace Web.Controllers
 {
@@ -223,6 +224,29 @@ namespace Web.Controllers
             }
 
         }
+
+        [HttpGet("[action]/{notebookID}")]
+        public async Task<IActionResult> GetNotebook([FromRoute] int notebookID)
+        {
+            try
+            {
+                var notebook = await _dbContext.Notebook.Include(notebook => notebook.
+                observableNotebookDatasets).FirstOrDefaultAsync(notebook => notebook.NotebookID == notebookID);
+                return Ok(new
+                {
+                    message="Notebook Retrieved",
+                    notebook
+                });
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(e);
+            }
+        }
+
+
+
         #endregion
 
         #region POST REQUEST
@@ -804,6 +828,9 @@ namespace Web.Controllers
                 }
                 else if (noteBookData.Type == "observablehq")
                 {
+                    Console.WriteLine(noteBookData.observableNotebookDatasets);
+                    List<ObservableNotebookDataset> observableNotebookDatasets = JsonConvert.DeserializeObject<List<ObservableNotebookDataset>>(noteBookData.observableNotebookDatasets);
+
                     string fileName = noteBookData.Directory + $"{noteBookData.NotebookName}.observable";
                     newNotebook = new Notebook
                     {
@@ -816,7 +843,8 @@ namespace Web.Controllers
                         DateCreated = DateTimeOffset.Now.UtcDateTime,
                         LastModified = DateTimeOffset.Now.UtcDateTime,
                         ProjectID = noteBookData.ProjectID,
-                        type = "observable"
+                        type = "observable",
+                        observableNotebookDatasets = observableNotebookDatasets
                     };
 
                 }
@@ -1326,14 +1354,17 @@ namespace Web.Controllers
         public IActionResult GetNotebooks([FromRoute] int projectID, [FromRoute] string directory)
         {
             string decodedDirectory = HttpUtility.UrlDecode(directory);
-            Console.WriteLine(decodedDirectory);
-            var notebooks = _dbContext.Notebook.ToList().Where(p => p.ProjectID == projectID && p.Directory == decodedDirectory);
+            var notebooks = _dbContext.Notebook.Include(notebook=>notebook.observableNotebookDatasets).ToList().Where(p => p.ProjectID == projectID && p.Directory == decodedDirectory);
             return Ok(new
             {
                 result = notebooks,
                 message = "Project Notebooks Received"
             });
         }
+
+
+
+
 
         /*
          * Type : GET

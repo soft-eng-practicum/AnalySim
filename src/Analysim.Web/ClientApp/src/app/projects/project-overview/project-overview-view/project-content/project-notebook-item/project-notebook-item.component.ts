@@ -26,8 +26,9 @@ export class ProjectNotebookItemComponent implements OnInit {
 
   @Output() getNotebooks: EventEmitter<string> = new EventEmitter<string>();
 
+  @Output() setCurrentNotebook : EventEmitter<Notebook> = new EventEmitter<Notebook>();
+
   ngOnInit(): void {
-    console.log(this.notebook);
   }
 
   showNotebook() {
@@ -35,7 +36,23 @@ export class ProjectNotebookItemComponent implements OnInit {
   }
 
   navigate() {
-    this.router.navigate([this.router.url + "/" + this.notebook.name])
+    this.router.navigate([this.router.url+"/"+this.notebook.name]);
+  }
+
+  navigateToNotebook(){
+    this.setCurrentNotebook.emit(this.notebook);
+    let datasetParams ={};
+    if(this.notebook.type==="observable")
+    {
+      this.notebook.observableNotebookDatasets.forEach(observableNotebook=>{
+        datasetParams[observableNotebook.datasetName] = observableNotebook.datasetURL;
+      })
+    }
+    this.router.navigate([this.router.url+"/"+this.notebook.name],{queryParams:{
+      isNotebook: true,
+      notebookId: this.notebook.notebookID,
+      ...datasetParams
+    },queryParamsHandling: 'merge'});
   }
 
   deleteNotebook() {

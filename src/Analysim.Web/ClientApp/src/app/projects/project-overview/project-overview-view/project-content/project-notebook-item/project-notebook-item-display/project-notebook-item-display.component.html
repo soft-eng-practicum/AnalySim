@@ -1,6 +1,7 @@
-<div class="modal-content">
-    <div class="modal-header justify-content-center">
+<div class="modal-content" style="width: 100vw;height: 100vh;top: 0; left: 0;margin: 0;position: fixed; overflow: auto;">
+    <div class="modal-header">
         <h5 class="modal-title">Notebook</h5>
+        <button type="button" #closebutton class="close" data-dismiss="modal" (click)="closeNotebook()">&times;</button>
     </div>
     <app-observablehq *ngIf="notebook.type === 'observable'" [blobUri]="notebook.uri" [observableNotebookLink]="notebook.uri"></app-observablehq>
 </div>

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Notebook } from '../../../../../../interfaces/notebook';
 import { ProjectService } from '../../../../../../services/project.service';
 
@@ -12,6 +12,8 @@ export class ProjectNotebookItemDisplayComponent implements OnInit {
 
   @Input() notebook: Notebook;
 
+  @Output() closeModal : EventEmitter<any> = new EventEmitter();
+
   constructor(private projectService: ProjectService) { }
 
   ngOnInit() {
@@ -20,6 +22,7 @@ export class ProjectNotebookItemDisplayComponent implements OnInit {
 
 
   fetchNotebook() {
+    console.log(this.notebook);
     if (this.notebook.type === "observable") {
 
     }
@@ -29,12 +32,15 @@ export class ProjectNotebookItemDisplayComponent implements OnInit {
         reader.onload = function (e) {
           const resultFile: any = this.result;
           var parsed = JSON.parse(resultFile);
-          console.log(parsed);
         };
         reader.readAsText(result);
       })
     }
     
+  }
+
+  closeNotebook(){
+    this.closeModal.emit();
   }
 
 

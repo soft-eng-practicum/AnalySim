@@ -2,6 +2,8 @@ using System;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Core.Entities;
+using System.Collections.Generic;
 
 namespace Web.ViewModels.Project
 {

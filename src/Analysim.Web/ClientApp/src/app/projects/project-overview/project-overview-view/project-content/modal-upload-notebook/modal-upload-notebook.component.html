@@ -43,6 +43,22 @@
                 <label for="notebookURL">Add Existing Notebook (URL)</label>
                 <input formControlName="notebookURL" type="text" class="form-control" placeholder="" (change)="urlEvent($event)" [readOnly]="isLoading" />
             </div>
+
+            <div class="form-group" *ngIf="showAddExistingNotebook && notebookType==='observablehq'">
+                <label for="notebookURL">Add Datasets</label>
+                <div style="display: flex; margin-top: 10px;" *ngFor="let dataset of datasets;let i = index">
+                <input type="text" class="form-control" placeholder="Dataset Name" (change)="changeDatasetName(i,$event)" [readOnly]="isLoading" style="margin-right: 10px;"/>
+                <input type="text" class="form-control" placeholder="Dataset URL" (change)="changeDatasetURL(i,$event)" [readOnly]="isLoading" style="margin-right: 10px;" />
+                <button type="button" class="btn btn-secondary" (click)="removeDataset(i)">
+                    <i class="fa fa-minus"></i>
+                </button>
+                </div>
+                <div style="display: flex; align-items: center; width: 100%; justify-content: center;margin-top: 10px;">
+                <button type="button" class="btn btn-primary" (click)="addDataset()">
+                    <i class="fa fa-plus"></i>
+                </button>
+                </div>
+            </div>
         </div>
         <div class="modal-footer justify-content-center">
             <!-- Form Group Register -->

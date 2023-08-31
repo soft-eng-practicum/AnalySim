@@ -28,8 +28,8 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "environmentVariables": {},
-      "publishAllPorts": true,
-      "useSSL": true
+      "useSSL": true,
+      "publishAllPorts": true
     }
   }
 }

@@ -1,7 +1,7 @@
 <div class="card">
     <div class="d-flex card-header flex-row align-items-center">
         <span class="mr-2">Notebooks</span>
-        <div class="d-inline-flex ml-auto">
+        <div class="d-inline-flex ml-auto" *ngIf="!isCurrentDirNotebook">
             <!-- Private Button Group Start -->
             <div class="btn-group mr-3" role="group">
                 <button type="button" class="btn" title="Upload Notebook" (click)="toggleModalUpload()">
@@ -15,8 +15,8 @@
     </div>
     <ul class="list-group">
         <li class="list-group-item" *ngIf="currentDirectory.split('/').length>2" (click)="navigateToPreviousComponent()"> . . . </li>
-        <li class="list-group-item" *ngIf="notebooks.length === 0"> No Notebooks Found </li>
-        <app-project-notebook-item *ngFor="let notebook of notebooks" [notebook]="notebook" [currentDirectory]="currentDirectory" (navigateToNewDirectory)="navigate($event)" (getNotebooks)="getNotebooks($event)"></app-project-notebook-item>
+        <li class="list-group-item" *ngIf="notebooks.length === 0 && !isCurrentDirNotebook "> No Notebooks Found </li>
+        <app-project-notebook-item *ngFor="let notebook of notebooks" [notebook]="notebook" [currentDirectory]="currentDirectory" (navigateToNewDirectory)="navigate($event)" (getNotebooks)="getNotebooks($event)" (setCurrentNotebook)="displayNotebook($event)"></app-project-notebook-item>
     </ul>
 </div>
 
@@ -26,4 +26,8 @@
 
 <ng-template #folderModal>
     <app-modal-notebook-folder [project]="project" (getNotebooks)="getNotebooks($event)" (closeModal)="closeFolderModal()" [currentDirectory]="currentDirectory"></app-modal-notebook-folder>
+</ng-template>
+
+<ng-template #displayNotebookModal>
+    <app-project-notebook-item-display [notebook]="currentNotebook" (closeModal)="closeDisplayNotebookModal()"></app-project-notebook-item-display>
 </ng-template>

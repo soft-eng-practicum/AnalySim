@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NotebookFile, NotebookURL } from 'src/app/interfaces/notebook';
+import { ObservableHQDataset } from 'src/app/interfaces/observablehqDatasets';
 import { Project } from 'src/app/interfaces/project';
 import { ProjectService } from 'src/app/services/project.service';
 
@@ -23,7 +24,9 @@ export class ModalUploadNotebookComponent implements OnInit {
   showAddExistingNotebook: Boolean;
   file: File;
   url: string;
-  notebookType: string = "jupyter";
+  notebookType: "jupyter" | "observablehq" | "collab" = "jupyter";
+
+  datasets : ObservableHQDataset[] = [];
 
 
   @Input() project: Project;
@@ -81,19 +84,60 @@ export class ModalUploadNotebookComponent implements OnInit {
       });
     }
     if (this.showAddExistingNotebook) {
+      if(this.notebookType==="observablehq")
+      {
+        let datasetMap ={
+
+        }
+        let params = [];
+        for(let dataset of this.datasets)
+        {
+          let trimmedDatasetName = dataset.datasetName.trim().toLowerCase();
+          if(!(trimmedDatasetName in datasetMap))
+          {
+            datasetMap[trimmedDatasetName] = true;
+            params.push(trimmedDatasetName+'='+dataset.datasetURL);
+          }
+          else{
+            alert("All the dataset names must be unique");
+            return;
+          }
+        };
+
+      }
       this.existingNotebookURL = {
         'url': this.url,
         'name': this.notebookName.value,
         'projectID': this.project.projectID,
-        'type': this.notebookType
+        'type': this.notebookType,
+        'datasets': this.datasets
       }
-      console.log(this.existingNotebookURL);
       this.projectService.uploadExistingNotebook(this.existingNotebookURL, this.currentDirectory).subscribe(result => {
         console.log(result);
         this.closeModal.emit();
         this.getNotebooks.emit(this.currentDirectory);
       });
     }
+  }
+
+  addDataset(){
+    this.datasets.push({
+      datasetName: "",
+      datasetURL: "",
+    })
+    console.log(this.datasets);
+  }
+
+  removeDataset(index){
+    this.datasets.splice(index,1);
+  }
+
+  changeDatasetName(index,$event){
+    this.datasets[index].datasetName = $event.target.value;
+  }
+
+  changeDatasetURL(index,$event){
+    this.datasets[index].datasetURL = $event.target.value;
   }
 
 
