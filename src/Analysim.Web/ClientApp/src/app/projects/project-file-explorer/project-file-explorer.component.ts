@@ -8,6 +8,7 @@ import { NotificationService } from '../../services/notification.service';
 import { User } from '../../interfaces/user';
 import { BlobFile } from '../../interfaces/blob-file';
 import { UploadFileItem } from '../../interfaces/upload-file-item';
+import { NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'app-project-file-explorer',
@@ -19,7 +20,8 @@ export class ProjectFileExplorerComponent implements OnInit {
   constructor(
     private projectService : ProjectService,
     private modalService : BsModalService, 
-    private notfi : NotificationService) { }
+    private notfi : NotificationService,
+    private router: Router) { }
 
   @ViewChild('uploadModal') uploadFileModal : TemplateRef<any>;
   @ViewChild('folderModal') folderModal : TemplateRef<any>;
@@ -43,8 +45,25 @@ export class ProjectFileExplorerComponent implements OnInit {
   uploadFileList : UploadFileItem[] = []
 
   async ngOnInit() {
-    this.setDirectoryFile(this.currentDirectory)
+    this.currentDirectory = this.extractDirectory(this.router.url);
+    this.setDirectoryFile(this.currentDirectory);
+    this.router.events.subscribe((ev) => {
+      if (ev instanceof NavigationEnd) {
+        this.currentDirectory = this.extractDirectory(this.router.url);
+        this.setDirectoryFile(this.currentDirectory)
+      }
+    });
   }
+  
+  extractDirectory(url){
+    let route = url.split("/").slice(4).join('/');
+    if(route==="")
+    {
+      return route;
+    }
+    return route+'/';
+  }
+  
 
   public fileEvent($event) {
     for (let file of $event.target.files)
@@ -219,7 +238,6 @@ export class ProjectFileExplorerComponent implements OnInit {
     if(this.project.blobFiles.length != 0){
       // Check If Directory Is File
       if(!(this.currentDirectory.indexOf(".") > -1)){
-
         let fileItemList : BlobFileItem[] = [];
 
         // Input Directory Num
@@ -341,7 +359,9 @@ export class ProjectFileExplorerComponent implements OnInit {
       else{
         // Set File List
         let fileItemList : BlobFileItem[] = [];
-
+        console.log(this.project.blobFiles);
+        console.log(this.currentDirectory);
+        this.currentDirectory = decodeURIComponent(this.currentDirectory.slice(0,this.currentDirectory.length-1));
         var file = this.project.blobFiles.find(x => this.currentDirectory == x.directory + x.name + x.extension)
         // Check if file exist
         if(file == undefined ){
@@ -365,6 +385,7 @@ export class ProjectFileExplorerComponent implements OnInit {
           ]
         }
         else {
+          directory = this.currentDirectory;
           fileItemList.push( 
             {
               type: "none",

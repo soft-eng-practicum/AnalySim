@@ -3,5 +3,7 @@
         <h5 class="modal-title">Notebook</h5>
         <button type="button" #closebutton class="close" data-dismiss="modal" (click)="closeNotebook()">&times;</button>
     </div>
-    <app-observablehq *ngIf="notebook.type === 'observable'" [blobUri]="notebook.uri" [observableNotebookLink]="notebook.uri"></app-observablehq>
+    <div #observablehqPanel class="m-3" *ngIf="notebook.type === 'observable'">
+        <div id="notebook"></div>
+    </div>
 </div>

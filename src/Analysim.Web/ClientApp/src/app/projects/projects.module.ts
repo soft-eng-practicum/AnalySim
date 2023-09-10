@@ -36,6 +36,7 @@ import { ModalUploadNotebookComponent } from './project-overview/project-overvie
 import { ProjectNotebookItemComponent } from './project-overview/project-overview-view/project-content/project-notebook-item/project-notebook-item.component';
 import { ProjectNotebookItemDisplayComponent } from './project-overview/project-overview-view/project-content/project-notebook-item/project-notebook-item-display/project-notebook-item-display.component';
 import { ModalNotebookFolderComponent } from './project-overview/project-overview-view/project-content/modal-notebook-folder/modal-notebook-folder.component';
+import { ModalRenameNotebookComponent } from './project-overview/project-overview-view/project-content/modal-rename-notebook/modal-rename-notebook.component';
 
 
 @NgModule({
@@ -70,7 +71,8 @@ import { ModalNotebookFolderComponent } from './project-overview/project-overvie
     ModalUploadNotebookComponent,
     ProjectNotebookItemComponent,
     ProjectNotebookItemDisplayComponent,
-    ModalNotebookFolderComponent
+    ModalNotebookFolderComponent,
+    ModalRenameNotebookComponent
   ],
   imports: [
     CommonModule,

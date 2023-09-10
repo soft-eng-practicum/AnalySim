@@ -17,12 +17,16 @@ export class ProjectNotebookItemComponent implements OnInit {
   @Input() notebook: Notebook;
   @ViewChild('displayNotebookModal') displayNotebookModal: TemplateRef<any>;
 
+  @ViewChild('displayRenameNotebookModal') displayRenameNotebookModal: TemplateRef<any>;
+
   @Input() currentDirectory: string;
 
   @Output() navigateToNewDirectory: EventEmitter<string> = new EventEmitter<string>();
 
 
   displayNotebookModalRef: BsModalRef;
+
+  displayRenameNotebookModalRef: BsModalRef;
 
   @Output() getNotebooks: EventEmitter<string> = new EventEmitter<string>();
 
@@ -35,8 +39,20 @@ export class ProjectNotebookItemComponent implements OnInit {
     this.displayNotebookModalRef = this.modalService.show(this.displayNotebookModal);
   }
 
+  showRenameNotebookModal() {
+    this.displayRenameNotebookModalRef = this.modalService.show(this.displayRenameNotebookModal);
+  }
+
+  closeRenameNotebookModal() {
+    this.displayRenameNotebookModalRef.hide();
+  }
+
   navigate() {
     this.router.navigate([this.router.url+"/"+this.notebook.name]);
+  }
+
+  changeNotebookName(notebookName: string){
+    this.notebook.name = notebookName;
   }
 
   navigateToNotebook(){
@@ -73,6 +89,10 @@ export class ProjectNotebookItemComponent implements OnInit {
       window.URL.revokeObjectURL(url);
       a.remove();
     })
+  }
+
+  goBack() {
+    console.log("Go Back");
   }
 
 }
