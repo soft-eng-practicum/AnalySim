@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, TemplateRef, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef, Input, Renderer2, ElementRef } from '@angular/core';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../interfaces/project';
 import { BlobFileItem } from '../../interfaces/blob-file-item';
@@ -9,6 +9,7 @@ import { User } from '../../interfaces/user';
 import { BlobFile } from '../../interfaces/blob-file';
 import { UploadFileItem } from '../../interfaces/upload-file-item';
 import { NavigationEnd, Router } from '@angular/router';
+import * as d3 from 'd3';
 
 @Component({
   selector: 'app-project-file-explorer',
@@ -21,11 +22,14 @@ export class ProjectFileExplorerComponent implements OnInit {
     private projectService : ProjectService,
     private modalService : BsModalService, 
     private notfi : NotificationService,
-    private router: Router) { }
+    private router: Router,
+    private _renderer2: Renderer2) { }
 
   @ViewChild('uploadModal') uploadFileModal : TemplateRef<any>;
   @ViewChild('folderModal') folderModal : TemplateRef<any>;
   @ViewChild('renameModal') renameModal: TemplateRef<any>;
+
+  @ViewChild('observablehqPanel', { read: ElementRef }) observablehqPanel;
 
   uploadModalRef : BsModalRef;
   folderModalRef : BsModalRef;
@@ -37,14 +41,20 @@ export class ProjectFileExplorerComponent implements OnInit {
   @Input() isMember : boolean
 
   blobFileItemList : BlobFileItem[] = []
-  validDirectory : boolean = true
-  selectedItem : number = null
-  filePreview : boolean = false
+  validDirectory: boolean = true;
+  selectedItem: number = null;
+  filePreview: boolean = false;
 
-  uploadInProgress : boolean = false
-  uploadFileList : UploadFileItem[] = []
+  uploadInProgress: boolean = false;
+  uploadFileList: UploadFileItem[] = [];
+
+  fileType: string = "";
+  dataBrowserURL: string = "";
+  main = null;
+  csvFile : any;
 
   async ngOnInit() {
+    this.dataBrowserURL = 'https://observablehq.com/embed/@sfsu/untitled?cell=*&dataset=';
     this.currentDirectory = this.extractDirectory(this.router.url);
     this.setDirectoryFile(this.currentDirectory);
     this.router.events.subscribe((ev) => {
@@ -53,6 +63,13 @@ export class ProjectFileExplorerComponent implements OnInit {
         this.setDirectoryFile(this.currentDirectory)
       }
     });
+  }
+
+  ngAfterViewInit() {
+    let script = this._renderer2.createElement('script');
+    script.type = `module`;
+    script.text = this.generateScript;
+    this._renderer2.appendChild(this.observablehqPanel.nativeElement, script);
   }
   
   extractDirectory(url){
@@ -223,6 +240,22 @@ export class ProjectFileExplorerComponent implements OnInit {
     this.selectedItem = itemNum
   }
 
+  get generateScript(): String {
+    return ` import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+    var notebookLink = "https://api.observablehq.com/@sfsu/untitled.js?v=3";
+    import(notebookLink).then((define) =>{
+        var notebook = define.default;
+        this.main = new Runtime().module(notebook, name =>{
+            if(name==="data")
+            {
+            }
+            return Inspector.into("#notebook")();
+        });
+        console.log(true);
+    });`
+
+  }
+
   public setDirectoryFile(directory : string){
     
     // Reset Item List
@@ -237,7 +270,8 @@ export class ProjectFileExplorerComponent implements OnInit {
 
     if(this.project.blobFiles.length != 0){
       // Check If Directory Is File
-      if(!(this.currentDirectory.indexOf(".") > -1)){
+      if (!(this.currentDirectory.indexOf(".") > -1)) {
+        this.fileType = "folder";
         let fileItemList : BlobFileItem[] = [];
 
         // Input Directory Num
@@ -356,7 +390,8 @@ export class ProjectFileExplorerComponent implements OnInit {
         // Set File List
         this.blobFileItemList = fileItemList
       }
-      else{
+      else {
+        this.fileType = "file";
         // Set File List
         let fileItemList : BlobFileItem[] = [];
         console.log(this.project.blobFiles);
@@ -405,11 +440,14 @@ export class ProjectFileExplorerComponent implements OnInit {
             }
           )
           this.filePreview = true
+          this.dataBrowserURL += file.uri;
+          this.csvFile = file;
+          console.log(this.dataBrowserURL);
           
         }
 
         //Set Blob File Item
-        this.blobFileItemList = fileItemList     
+        this.blobFileItemList = fileItemList
       }
     }
   }

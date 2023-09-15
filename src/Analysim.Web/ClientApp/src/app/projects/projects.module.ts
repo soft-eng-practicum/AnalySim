@@ -37,6 +37,8 @@ import { ProjectNotebookItemComponent } from './project-overview/project-overvie
 import { ProjectNotebookItemDisplayComponent } from './project-overview/project-overview-view/project-content/project-notebook-item/project-notebook-item-display/project-notebook-item-display.component';
 import { ModalNotebookFolderComponent } from './project-overview/project-overview-view/project-content/modal-notebook-folder/modal-notebook-folder.component';
 import { ModalRenameNotebookComponent } from './project-overview/project-overview-view/project-content/modal-rename-notebook/modal-rename-notebook.component';
+import { CSVDataBrowserComponent } from './project-file-explorer/csvdata-browser/csvdata-browser.component';
+import { TableModule } from 'primeng/table';
 
 
 @NgModule({
@@ -72,7 +74,8 @@ import { ModalRenameNotebookComponent } from './project-overview/project-overvie
     ProjectNotebookItemComponent,
     ProjectNotebookItemDisplayComponent,
     ModalNotebookFolderComponent,
-    ModalRenameNotebookComponent
+    ModalRenameNotebookComponent,
+    CSVDataBrowserComponent
   ],
   imports: [
     CommonModule,
@@ -80,6 +83,7 @@ import { ModalRenameNotebookComponent } from './project-overview/project-overvie
     FormsModule,
     ReactiveFormsModule,
     ApplicationPipesModule,
+    TableModule
   ]
 })
 export class ProjectsModule { }

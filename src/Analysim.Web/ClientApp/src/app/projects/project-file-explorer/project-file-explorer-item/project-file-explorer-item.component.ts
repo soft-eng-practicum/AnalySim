@@ -24,6 +24,10 @@ export class ProjectFileExplorerItemComponent implements OnInit {
 
 
   ngOnInit(): void {
+    console.log(this.blobFileItem);
+    if (this.blobFileItem.type === "file") {
+
+    }
   }
 
   selectItem(){
@@ -31,6 +35,7 @@ export class ProjectFileExplorerItemComponent implements OnInit {
       this.selectedItem.emit(this.blobFileItem.order)
     else if(this.selectItem && this.blobFileItem.type != "none")
       this.selectedItem.emit(null)
+
   }
 
   navigate(){
