@@ -101,6 +101,15 @@ export class ProjectComponent implements OnInit {
         if (view === "notebook") {
           this.toggleView = "Content";
           this.activeView = "Content";
+        } else if (view == "comment") {
+          this.toggleView = "Comment";
+          this.activeView = "Comment";
+        } else if (view == "log") {
+          this.toggleView = "Log";
+          this.activeView = "Log";
+        } else if (view == "publications") {
+          this.toggleView = "Publications";
+          this.activeView = "Publications";
         }
       });
     })

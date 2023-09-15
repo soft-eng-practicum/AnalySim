@@ -1,7 +1,8 @@
 .card-header {
-    background-color: var(--primary-color);
-  }
-  
+  background-color: var(--primary-color);
+  font-size: 18px;
+  font-weight: 500;
+}
   .card-footer {
     background-color: var(--primary-color);
   }
@@ -53,3 +54,11 @@
       top: 0;
       opacity: 0;
   }
+
+#delete-modal{
+    background-color: var(--background-color-tertiary) !important;
+}
+
+.modal-content {
+   background-color: var(--background-color-tertiary);
+}

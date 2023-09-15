@@ -2,7 +2,10 @@
     background-color: var(--background-color-tertiary) !important;
     margin-top: 10%;
   }
-  
+  .btn{
+      background-color:var(--button-background-color);
+      color: var(--primary-color);
+  }
   .btn-big{
       height: 60px;
   }

@@ -14,6 +14,7 @@ line-height: 0px;
 
 .footer-link:hover {
   background-color: var(--button-background-color);
+  border-radius: 5%;
   color: var(--primary-color) !important;
   transition: 0.2s;
   border-bottom: none !important;
@@ -22,12 +23,21 @@ line-height: 0px;
 .footer-link-row {
     padding: 10px 0px;
 
+    .footer-about {
+        height: 19px;
+        line-height: 14px;
+        margin-bottom: 15px;
+        //font-weight: 500;
+        font-size: 18px;
+        width: min-content; 
+    }
+
     .footer-header {
         height: 19px;
         line-height: 14px;
         margin-bottom: 15px;
         font-weight: 500;
-        font-size: 18 px;
+        font-size: 18px;
         width: min-content; 
         font-weight: bold;
     }
@@ -43,7 +53,7 @@ line-height: 0px;
 
         a {
             line-height: 16px;
-            padding: 0px;
+            padding: 5px;
         }
     }
 
@@ -73,7 +83,7 @@ line-height: 0px;
 .footer-logo-row {
     .col-md-10 {
         display: flex;
-        border-top: 1px solid white;
+        border-top: 1px solid var(--primary-color);
         padding-top: 10px;
 
         div {

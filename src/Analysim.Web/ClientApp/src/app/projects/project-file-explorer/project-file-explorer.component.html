@@ -25,7 +25,7 @@
                 <button type="button" class="btn disabled" title="Copy">
                     <i class="fa fa-copy"></i>
                 </button>
-                <button type="button" class="btn" title="Delete" (click)="delete()">
+                <button type="button" class="btn" title="Delete" data-toggle="modal" data-target="#exampleModal">
                     <i class="fa fa-trash"></i>
                 </button>
                 <button type="button" class="btn">
@@ -71,3 +71,33 @@
         src="https://observablehq.com/embed/@sfsu/untitled?cells=*&dataset=https://analysimstorage.blob.core.windows.net/test-project-new/file/test_AnalySim-nodtypes.csv"></iframe>
     </div>
 
+<!--Delete Modal-->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog"  role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Delete Window</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this file ?!
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" data-dismiss="modal">Close</button>
+        <button type="button" class="btn" (click)="delete()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #uploadModal>
+    <app-modal-upload [uploadFileList]="uploadFileList" [uploadModalRef]="uploadModalRef" (updatedFileListEvent)="updateFileList($event)" (uploadedFileEvent)="addNewFile($event)"></app-modal-upload>
+</ng-template>
+<ng-template #folderModal>
+    <app-modal-folder [folderModalRef]="folderModalRef" [blobList]="blobFileItemList" [currentDirectory]="currentDirectory" [projectID]="project.projectID" (newFolderEvent)="addNewFile($event)"></app-modal-folder>
+</ng-template>
+<ng-template #renameModal>
+    <app-modal-edit [renameModalRef]="renameModalRef" [blobList]="blobFileItemList" [currentDirectory]="currentDirectory" [projectID]="project.projectID" (newFolderEvent)="addNewFile($event)"></app-modal-edit>
+</ng-template>

@@ -22,7 +22,7 @@
                         <!-- User Form -->
                         <app-project-form-users [project]="project" (updateProject)="setProject($event)"></app-project-form-users>
                         <app-project-list-users [projectUsers]='project.projectUsers | projectMember:""' (updateProjectUsers)="updateProjectUsers($event)" (removeProjectUsers)="updateProjectUsers($event)"></app-project-list-users>
-                        <button class="btn btn-success btn-block mt-3" [routerLink]='["/project/" + project.route]'>
+                        <button class="btn btn-block mt-3" [routerLink]='["/project/" + project.route]'>
                             Finish Project Creation
                         </button> 
                     </div> <!-- Optional Form End -->
