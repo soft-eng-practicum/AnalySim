@@ -1099,6 +1099,24 @@ namespace Web.Controllers
                 message = "Project successfully updated."
             });
         }
+
+        [HttpPut("[action]")]
+        public async Task<IActionResult> RenameNotebook([FromForm] NotebookNameChangeVM notebookNameChangeVM)
+        {
+            Notebook? notebook = await _dbContext.Notebook.FindAsync(notebookNameChangeVM.NotebookID);
+
+            if(notebook!=null)
+            {
+                notebook.Name = notebookNameChangeVM.NotebookName;
+                _dbContext.Update(notebook);
+                await _dbContext.SaveChangesAsync();
+            }
+            return Ok(new { 
+                notebook ,
+                message = "Notebook name Succesfully Changed"
+            });
+
+        }
         #endregion
 
         #region DELETE REQUEST

@@ -1,0 +1,32 @@
+<div class="modal-content">
+    <div class="modal-header justify-content-center">
+        <h5 class="modal-title">Rename Notebook</h5>
+    </div>
+
+    <form class="form" [formGroup]="renameNotebookForm">
+        <div class="modal-body">
+            <!-- Form Group Username -->
+            <div class="form-group">
+                <label for="notebookName">Notebook Name</label>
+                <input formControlName="notebookName" type="text" class="form-control" placeholder="" [class.invalid]="notebookName.touched && notebookName.invalid" [readOnly]="isLoading" required>
+                <div *ngIf="notebookName.touched && notebookName.errors" class="text-danger">
+                    <span [hidden]="!notebookName.errors?.['minlength']">Minimum 1 character</span>
+                    <span [hidden]="!notebookName.errors?.['maxlength']">Maximum 20 character</span>
+                    <span [hidden]="!notebookName.errors?.['noMatch']">Folder Already Exist</span>
+                    <span [hidden]="!notebookName.errors?.['noSpaceSpecial']">No Space or Special Character</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer justify-content-center">
+            <!-- Form Group Register -->
+            <div class="form-group">
+                <button type="submit" class="btn" [disabled]="notebookName.invalid" (click)="renameNotebook()">
+                    <div>
+                        <span>Rename Notebook</span>
+                    </div>
+                </button>
+            </div>
+            <button type="button" class="btn btn-secondary" (click)="closeModal.emit()">Close</button>
+        </div>
+    </form>
+</div>

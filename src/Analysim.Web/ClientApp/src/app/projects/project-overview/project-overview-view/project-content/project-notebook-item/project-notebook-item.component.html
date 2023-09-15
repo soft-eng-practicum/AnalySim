@@ -1,17 +1,21 @@
 <li class="list-group-item d-flex h-100">
-  <div class="mr-auto" *ngIf="notebook.type!=='folder'" style="width: 100%">
-    <i class="fa fa-file mr-1"></i>
-    <a (click)="showNotebook()">{{notebook.name+notebook.extension}}</a>
-    <div class="btn-group mr-3" role="group" style="float: right">
-      <button type="button" class="btn" data-toggle="modal" data-target="#exampleModalLong">
-        <i class="far fa-comment mr-1"></i>
-      </button>
-      <button type="button" class="btn" data-toggle="modal" data-target="#exampleModal">
-        <i class="fa fa-trash mr-1"></i>
-      </button>
-      <button type="button" class="btn" (click)="downloadNotebook()">
-        <i class="fa fa-arrow-down mr-1"></i>
-      </button>
+    <div class="mr-auto" *ngIf="notebook.type!=='folder'" style="width: 100%">
+        <i class="fa fa-file mr-1"></i>
+        <a (click)="navigateToNotebook()">{{notebook.name+notebook.extension}}</a>
+        <div class="btn-group mr-3" role="group" style="float: right">
+           <button type="button" class="btn" data-toggle="modal" data-target="#exampleModalLong">
+              <i class="far fa-comment mr-1"></i>
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="deleteNotebook()">
+                <i class="fa fa-trash mr-1"></i>
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="downloadNotebook()">
+                <i class="fa fa-arrow-down mr-1"></i>
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="showRenameNotebookModal()">
+                <i class="fa fa-edit mr-1"></i>
+            </button>
+        </div>
     </div>
   </div>
   <div class="mr-auto" *ngIf="notebook.type==='folder'" style="width: 100%">
@@ -24,10 +28,6 @@
     </div>
   </div>
 </li>
-
-<ng-template #displayNotebookModal>
-  <app-project-notebook-item-display [notebook]="notebook"></app-project-notebook-item-display>
-</ng-template>
 
 <!-- NoteBook Comment Model -->
 
@@ -104,3 +104,11 @@
     </div>
   </div>
 </div>
+
+<ng-template #displayNotebookModal>
+    <app-project-notebook-item-display [notebook]="notebook"></app-project-notebook-item-display>
+</ng-template>
+
+<ng-template #displayRenameNotebookModal>
+    <app-modal-rename-notebook [notebook]="notebook" (closeModal)="closeRenameNotebookModal()" (renameNotebookEvent)="changeNotebookName($event)"></app-modal-rename-notebook>
+</ng-template>

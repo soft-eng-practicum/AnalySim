@@ -52,6 +52,7 @@ export class ProjectService {
   private urlUpdateProject: string = this.baseUrl + "updateproject/"
   private urlupdateUser: string = this.baseUrl + "updateuser"
   private urlUpdateFile: string = this.baseUrl + "updateFile"
+  private urlRenameNotebook : string = this.baseUrl+"RenameNotebook"
 
   // Delete
   private urlDeleteProject: string = this.baseUrl + "deleteproject/"
@@ -596,6 +597,23 @@ export class ProjectService {
       map(body => {
         console.log(body.message)
         return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
+  renameNotebook(notebookID: number,newName: string) : Observable<Notebook>{
+    let body = new FormData()
+    body.append('NotebookID',notebookID.toString());
+    body.append('NotebookName', newName)
+    return this.http.put<any>(this.urlRenameNotebook,body)
+    .pipe(
+      map(body => {
+        console.log(body.message)
+        return body.notebook
       }),
       catchError(error => {
         console.log(error)

@@ -111,6 +111,7 @@ export class ProjectContentComponent implements OnInit {
 
   closeDisplayNotebookModal(){
     this.displayNotebookModalRef.hide();
+    this.navigateToPreviousComponent();
   }
 
   getNotebooks(directory: string) {

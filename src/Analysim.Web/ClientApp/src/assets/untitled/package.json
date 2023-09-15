@@ -1,0 +1,14 @@
+{
+  "name": "@sfsu/untitled",
+  "main": "42ec79b7ed999999@104.js",
+  "version": "104.0.0",
+  "homepage": "https://observablehq.com/@sfsu/untitled",
+  "author": {
+    "name": "Kshitiz Sareen",
+    "url": "https://observablehq.com/@sfsu"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "4 - 5"
+  }
+}
