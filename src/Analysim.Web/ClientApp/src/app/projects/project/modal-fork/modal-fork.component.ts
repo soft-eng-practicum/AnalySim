@@ -61,7 +61,7 @@ export class ModalForkComponent implements OnInit {
     }
   }
 
-  // create a new project in user's dashboad 
+  // create a new project in user's dashboard 
   forkProject() {
 
     // get project's blobfiles ID
@@ -81,7 +81,7 @@ export class ModalForkComponent implements OnInit {
     )
   }
 
-  // create a new project in user's dashboad without bolb files
+  // create a new project in user's dashboard without bolb files
   forkProjectWithoutBlob() {
     
     this.projectService.forkProjectWithoutBlob(this.currentUser.id, this.project.projectID).subscribe(
