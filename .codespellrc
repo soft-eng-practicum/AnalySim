@@ -1,4 +1,4 @@
 [codespell]
-skip = .git,*.pdf,*.svg
-#
-# ignore-words-list =
+skip = .git,*.pdf,*.svg,package-lock.json
+ignore-regex = \bobserv\.png\b
+ignore-words-list = followings
