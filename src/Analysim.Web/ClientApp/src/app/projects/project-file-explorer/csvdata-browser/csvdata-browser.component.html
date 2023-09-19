@@ -1,23 +1,67 @@
 <div class="card">
-    <p-table [value]="loadedData"
-             [tableStyle]="{width: '100%' }"
-             responsiveLayout="scroll"
-             [rows]="100"
-             [totalRecords]="totalRecords"
+    <p-table #table
+             [value]="loadedData"
+             [(selection)]="selectedData"
+             [tableStyle]="{'min-width': '100%'}"
+             [resizableColumns]="true"
+             styleClass="p-datatable-gridlines"
+             [scrollable]="true"
+             scrollHeight="400px"
+             [rows]="50"
              [paginator]="true"
-             [lazy]="true"
-             (onLazyLoad)="loadData($event)"
              [loading]="loading"
-             >
-        <ng-template pTemplate="header">
+             [rowsPerPageOptions]="[10, 25, 50]"
+             [showCurrentPageReport]="true"
+             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+             [filterDelay]="0"
+             [globalFilterFields]="selectedColumns"
+             [columns]="selectedColumns"
+             [reorderableColumns]="true">
+        <ng-template pTemplate="caption">
+            <div class="table-header">
+                <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash" (click)="clear(table)"></button>
+                <span class="p-input-icon-left" style="float:right">
+                    <i class="pi pi-search"></i>
+                    <input #searchFilter pInputText type="text" placeholder="Global Search" (input)="applyFilterGlobal($event, 'contains')" />
+                </span>
+            </div>
+            <p-multiSelect [options]="cols" [(ngModel)]="selectedColumns"
+                           selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px'}" placeholder="Choose Columns">
+                <ng-template let-item pTemplate="selectedItem">
+                    {{item}}
+                </ng-template>
+                <ng-template let-item pTemplate="item">
+                    {{item}}
+                </ng-template>
+            </p-multiSelect>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
             <tr>
-                <th *ngFor="let column of columnDataTypes" [pSortableColumn]="column[0]" style="width:fit-content">{{column[0]}} <p-sortIcon field={{column[0]}}></p-sortIcon></th>
+                <th style="width: 4rem" pResizableColumn>
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th *ngFor="let column of columns" [pSortableColumn]="column" pResizableColumn pReorderableColumn>
+                    <div class="flex justify-content-between align-items-center">
+                        {{column}}
+                        <p-sortIcon field={{column}}></p-sortIcon>
+                        <p-columnFilter [type]="columnDataTypes[column]" [field]="column" display="menu" class="ml-auto"></p-columnFilter>
+                    </div>
+                </th>
             </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-item>
+        <ng-template pTemplate="body" let-item let-columns="columns">
             <tr>
-                <td *ngFor="let key of Object.keys(item)">{{ item[key] }}</td>
+                <td>
+                    <p-tableCheckbox [value]="item"></p-tableCheckbox>
+                </td>
+                <td *ngFor="let col of columns">{{ item[col] }}</td>
             </tr>
         </ng-template>
     </p-table>
+    <!--
+        <button (click)="seeSelectedData()">
+
+            See Selected Data
+        </button>
+    -->
 </div>

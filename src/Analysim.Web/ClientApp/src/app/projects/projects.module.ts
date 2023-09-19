@@ -40,6 +40,9 @@ import { ProjectCommentsComponent } from './project-comments/project-comments.co
 import { ModalRenameNotebookComponent } from './project-overview/project-overview-view/project-content/modal-rename-notebook/modal-rename-notebook.component';
 import { CSVDataBrowserComponent } from './project-file-explorer/csvdata-browser/csvdata-browser.component';
 import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 
 @NgModule({
@@ -75,7 +78,7 @@ import { TableModule } from 'primeng/table';
     ProjectNotebookItemComponent,
     ProjectNotebookItemDisplayComponent,
     ModalNotebookFolderComponent,
-    ProjectCommentsComponent
+    ProjectCommentsComponent,
     ModalRenameNotebookComponent,
     CSVDataBrowserComponent
   ],
@@ -85,7 +88,10 @@ import { TableModule } from 'primeng/table';
     FormsModule,
     ReactiveFormsModule,
     ApplicationPipesModule,
-    TableModule
+    TableModule,
+    ButtonModule,
+    InputTextModule,
+    MultiSelectModule
   ]
 })
 export class ProjectsModule { }
