@@ -58,7 +58,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = project,
-                message = "Recieved Project"
+                message = "Received Project"
             });
         }
 
@@ -83,7 +83,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = project,
-                message = "Recieved Project"
+                message = "Received Project"
             });
         }
 
@@ -107,7 +107,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = projects,
-                message = "Recieved Project"
+                message = "Received Project"
             });
         }
 
@@ -131,7 +131,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = projects,
-                message = "Recieved Project"
+                message = "Received Project"
             });
         }
 
@@ -158,7 +158,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = matchedProject,
-                message = "Recieved Search Result."
+                message = "Received Search Result."
             });
         }
 
@@ -567,7 +567,7 @@ namespace Web.Controllers
             {
                 if (formdata.Directory == null) { formdata.Directory = ""; }
 
-                // Reture Bad Request Status
+                // Return Bad Request Status
                 if (formdata.File == null) return BadRequest("Null File");
                 if (formdata.File.Length == 0) return BadRequest("Empty File");
 
@@ -984,7 +984,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = users,
-                message = "Recieved Project User"
+                message = "Received Project User"
             });
         }
         /*
@@ -1029,7 +1029,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = query,
-                message = "Recieved Tag List."
+                message = "Received Tag List."
             });
         }
         #endregion

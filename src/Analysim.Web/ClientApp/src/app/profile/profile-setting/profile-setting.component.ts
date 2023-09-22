@@ -94,7 +94,7 @@ export class ProfileSettingComponent implements OnInit {
     this.accountService.updateUser(form.bio, this.currentUser.id).subscribe(
       result => {
         this.currentUser = result
-        this.notif.showSuccess("Account has been sucessfully updated","Account Update")
+        this.notif.showSuccess("Account has been successfully updated","Account Update")
       }, error =>{
         console.log(error)
       }

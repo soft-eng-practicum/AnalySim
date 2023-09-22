@@ -78,7 +78,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = user,
-                message = "Recieved User: " + user.UserName
+                message = "Received User: " + user.UserName
             });
         }
 
@@ -102,7 +102,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = user,
-                message = "Recieved User: " + user.UserName
+                message = "Received User: " + user.UserName
             });
         }
 
@@ -128,7 +128,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = users,
-                message = "Recieved User Range"
+                message = "Received User Range"
             });
         }
 
@@ -152,7 +152,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = users,
-                message = "Recieved User List"
+                message = "Received User List"
             });
         }
 
@@ -389,7 +389,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = user,
-                message = "Sucessfully sent verification email"
+                message = "Successfully sent verification email"
             });  
         }
 
@@ -613,7 +613,7 @@ namespace Web.Controllers
         {
             try
             {
-                // Reture Bad Request Status
+                // Return Bad Request Status
                 if (formdata.File == null) return BadRequest("Null File");
                 if (formdata.File.Length == 0) return BadRequest("Empty File");
 
@@ -789,7 +789,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = userProjects,
-                message = "Recieved User Project"
+                message = "Received User Project"
             });
         }
 
@@ -818,7 +818,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = userFollowers,
-                message = "Recieved User Follower"
+                message = "Received User Follower"
             });
         }
 
@@ -849,7 +849,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = userFollowings,
-                message = "Recieved User Following"
+                message = "Received User Following"
             });
         }
 
