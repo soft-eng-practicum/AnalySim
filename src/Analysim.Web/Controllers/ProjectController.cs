@@ -830,7 +830,6 @@ namespace Web.Controllers
                 {
                     Console.WriteLine(noteBookData.observableNotebookDatasets);
                     List<ObservableNotebookDataset> observableNotebookDatasets = JsonConvert.DeserializeObject<List<ObservableNotebookDataset>>(noteBookData.observableNotebookDatasets);
-
                     string fileName = noteBookData.Directory + $"{noteBookData.NotebookName}.observable";
                     newNotebook = new Notebook
                     {
@@ -846,6 +845,7 @@ namespace Web.Controllers
                         type = "observable",
                         observableNotebookDatasets = observableNotebookDatasets
                     };
+
 
                 }
                 else if (noteBookData.Type == "jupyter")
@@ -1103,7 +1103,7 @@ namespace Web.Controllers
         [HttpPut("[action]")]
         public async Task<IActionResult> RenameNotebook([FromForm] NotebookNameChangeVM notebookNameChangeVM)
         {
-            Notebook? notebook = await _dbContext.Notebook.FindAsync(notebookNameChangeVM.NotebookID);
+            Notebook notebook = await _dbContext.Notebook.FindAsync(notebookNameChangeVM.NotebookID);
 
             if(notebook!=null)
             {

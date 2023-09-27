@@ -1,8 +1,9 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { BlobFile } from 'src/app/interfaces/blob-file';
 import * as d3 from 'd3';
 import { LazyLoadEvent, SortEvent } from 'primeng/api';
 import { Table } from 'primeng/table';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
 
 @Component({
@@ -12,7 +13,8 @@ import { Table } from 'primeng/table';
 })
 export class CSVDataBrowserComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private modalService : BsModalService) { }
 
   @Input() csvFile: BlobFile;
   columnDataTypes = {};
@@ -27,6 +29,8 @@ export class CSVDataBrowserComponent implements OnInit {
   @ViewChild('searchFilter') inputField: ElementRef;
   columnWidth: string;
   _selectedColumns!: any[];
+  @ViewChild('visualizeDataModal') visualizeDataModal : TemplateRef<any>;
+  visualizeDataModalRef : BsModalRef;
 
   ngOnInit(): void {
     d3.csv(this.csvFile.uri, d3.autoType).then(res => {
@@ -103,6 +107,16 @@ export class CSVDataBrowserComponent implements OnInit {
 
   seeSelectedData() {
     console.log(this.selectedData);
+  }
+
+  toggleModalVisualizeData(){
+    // Show Upload Modal
+    this.visualizeDataModalRef = this.modalService.show(this.visualizeDataModal);
+  }
+
+  closeModalVisualizeData(){
+    // Show Upload Modal
+    this.visualizeDataModalRef.hide();
   }
 
 

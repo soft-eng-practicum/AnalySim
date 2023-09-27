@@ -6,7 +6,7 @@
              [resizableColumns]="true"
              styleClass="p-datatable-gridlines"
              [scrollable]="true"
-             scrollHeight="400px"
+             scrollHeight="100%"
              [rows]="50"
              [paginator]="true"
              [loading]="loading"
@@ -18,13 +18,14 @@
              [columns]="selectedColumns"
              [reorderableColumns]="true">
         <ng-template pTemplate="caption">
-            <div class="table-header">
+            <div class="table-header" style="margin-bottom: 10px;">
                 <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash" (click)="clear(table)"></button>
                 <span class="p-input-icon-left" style="float:right">
                     <i class="pi pi-search"></i>
                     <input #searchFilter pInputText type="text" placeholder="Global Search" (input)="applyFilterGlobal($event, 'contains')" />
                 </span>
             </div>
+            <div>
             <p-multiSelect [options]="cols" [(ngModel)]="selectedColumns"
                            selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px'}" placeholder="Choose Columns">
                 <ng-template let-item pTemplate="selectedItem">
@@ -34,6 +35,8 @@
                     {{item}}
                 </ng-template>
             </p-multiSelect>
+            <p-button label="Visualize Data" style="float: right;" (onClick)="toggleModalVisualizeData()"></p-button>
+            </div>
         </ng-template>
         <ng-template pTemplate="header" let-columns>
             <tr>
@@ -65,3 +68,10 @@
         </button>
     -->
 </div>
+
+<ng-template #visualizeDataModal>
+    <app-visualize-data [cols]="cols" 
+    (closeModalEvent)="closeModalVisualizeData()" 
+    [data]="selectedData ? selectedData : loadedData"
+    [columnDataTypes]="columnDataTypes"></app-visualize-data>
+</ng-template>

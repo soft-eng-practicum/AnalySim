@@ -43,6 +43,14 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { VisualizeDataComponent } from './project-file-explorer/csvdata-browser/visualize-data/visualize-data.component';
+import { DropdownModule } from 'primeng/dropdown';
+import { PiechartComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/piechart/piechart.component';
+import { DensityChartComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/density-chart/density-chart.component';
+import { BarChartComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/bar-chart/bar-chart.component';
+import { LineChartComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/line-chart/line-chart.component';
+import { ScatterPlotComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/scatter-plot/scatter-plot.component';
+import { ThreeDScatterPlotComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/three-dscatter-plot/three-dscatter-plot.component';
 
 
 @NgModule({
@@ -80,7 +88,14 @@ import { MultiSelectModule } from 'primeng/multiselect';
     ModalNotebookFolderComponent,
     ProjectCommentsComponent,
     ModalRenameNotebookComponent,
-    CSVDataBrowserComponent
+    CSVDataBrowserComponent,
+    VisualizeDataComponent,
+    PiechartComponent,
+    DensityChartComponent,
+    BarChartComponent,
+    LineChartComponent,
+    ScatterPlotComponent,
+    ThreeDScatterPlotComponent
   ],
   imports: [
     CommonModule,
@@ -91,7 +106,9 @@ import { MultiSelectModule } from 'primeng/multiselect';
     TableModule,
     ButtonModule,
     InputTextModule,
-    MultiSelectModule
+    MultiSelectModule,
+    ButtonModule,
+    DropdownModule
   ]
 })
 export class ProjectsModule { }

@@ -1,0 +1,89 @@
+<!-- Modal -->
+<div class="modal-content" style="width: 100vw;height: 100vh;top: 0; left: 0;margin: 0;position: fixed; overflow: auto;">
+    <div class="modal-header justify-content-center">
+        <h5 class="modal-title">Visualize Data</h5>
+        <button type="button" #closebutton class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
+    </div>
+
+    <div style="display: flex;flex-direction: column;justify-content: center;align-items: center;margin-top: 10px;">
+
+    <div>
+        <p-dropdown [options]="options" [(ngModel)]="selectedOption">
+            <ng-template let-item pTemplate="selectedItem">
+                {{item}}
+            </ng-template>
+            <ng-template let-item pTemplate="item">
+                {{item}}
+            </ng-template>
+        </p-dropdown>
+    </div>
+    </div>
+
+    <div style="display: flex; justify-content: center; padding: 10px">
+        <div style="display: flex;justify-content: center;align-items: center; margin: 10px;">
+           <div style="margin-right: 10px;">X Dimension:</div>
+        <p-dropdown [options]="cols"  [(ngModel)]="selectedXValue">
+            <ng-template let-item pTemplate="selectedItem">
+                {{item}}
+            </ng-template>
+            <ng-template let-item pTemplate="item">
+                {{item}}
+            </ng-template>
+        </p-dropdown>
+        </div>
+
+
+        <div style="display: flex;justify-content: center;align-items: center; margin: 10px;" *ngIf="twoDOptions.includes(selectedOption) || threeDOptions.includes(selectedOption)">
+           <div style="margin-right: 10px;">Y Dimension:</div>
+        <p-dropdown [options]="cols"  [(ngModel)]="selectedYValue">
+            <ng-template let-item pTemplate="selectedItem">
+                {{item}}
+            </ng-template>
+            <ng-template let-item pTemplate="item">
+                {{item}}
+            </ng-template>
+        </p-dropdown>
+        </div>
+    
+
+        <div style="display: flex;justify-content: center;align-items: center; margin: 10px;" *ngIf="threeDOptions.includes(selectedOption)">
+           <div style="margin-right: 10px;">Z Dimension:</div>
+        <p-dropdown [options]="cols"  [(ngModel)]="selectedZValue">
+            <ng-template let-item pTemplate="selectedItem">
+                {{item}}
+            </ng-template>
+            <ng-template let-item pTemplate="item">
+                {{item}}
+            </ng-template>
+        </p-dropdown>
+        </div>
+
+    </div>
+    <div style="display: flex;justify-content: center;align-items: center;">
+    <p-button label="Visualize Data" (onClick)="visualizeData()"></p-button>
+    </div>
+
+    <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Pie Chart'">
+    <app-piechart [data]="dataToVisualize"></app-piechart>
+    </div>
+
+    <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Density Chart'">
+        <app-density-chart [data]="dataToVisualize" [columnName]="selectedXValue"></app-density-chart>
+    </div>
+
+    <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Bar Chart'">
+        <app-bar-chart [data]="dataToVisualize" [columnXName]="selectedXValue" [columnYName]="selectedYValue" [columnDataTypes]="columnDataTypes"></app-bar-chart>
+    </div>
+
+    <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Line Chart'">
+        <app-line-chart [data]="dataToVisualize" [columnXName]="selectedXValue" [columnYName]="selectedYValue" [columnDataTypes]="columnDataTypes"></app-line-chart>
+    </div>
+
+    <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Scatter Plot'">
+        <app-scatter-plot [data]="dataToVisualize" [columnXName]="selectedXValue" [columnYName]="selectedYValue" [columnDataTypes]="columnDataTypes"></app-scatter-plot>
+    </div>
+
+    <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='3D Scatter Plot'">
+        <app-three-dscatter-plot [data]="dataToVisualize" [columnXName]="selectedXValue" [columnYName]="selectedYValue" [columnZName]="selectedZValue" [columnDataTypes]="columnDataTypes"></app-three-dscatter-plot>
+    </div>
+</div>
