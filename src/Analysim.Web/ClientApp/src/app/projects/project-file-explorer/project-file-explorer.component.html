@@ -25,7 +25,7 @@
                 <button type="button" class="btn disabled" title="Copy">
                     <i class="fa fa-copy"></i>
                 </button>
-                <button type="button" class="btn" title="Delete" data-toggle="modal" data-target="#exampleModal">
+                <button type="button" class="btn" title="Delete" data-toggle="modal" data-target="#deleteModal">
                     <i class="fa fa-trash"></i>
                 </button>
                 <button type="button" class="btn">
@@ -70,12 +70,12 @@
     </div>
 
 <!--Delete Modal-->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog"  role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Delete Window</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <button type="button" class="close" #closeDeleteModalbutton data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>

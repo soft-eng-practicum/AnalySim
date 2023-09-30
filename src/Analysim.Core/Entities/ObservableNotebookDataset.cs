@@ -12,6 +12,13 @@ namespace Core.Entities
 
         public string datasetURL { get; set; }
 
+        public Notebook notebook
+        {
+            get; set;
+        }
+
+        public int NotebookID { get; set; }
+
     }
 }
 

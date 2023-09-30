@@ -112,7 +112,7 @@
             </div>
             <div class="row project-view-option-row">
               <div class="project-view-toggle">
-                <input type="button" value="Datasets" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "file"]' [ngClass]='{"active": toggleView == "File"}' (click)="showFile()">
+                <input type="button" value="Datasets" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname")]' [ngClass]='{"active": toggleView == "File"}' (click)="showFile()">
                 <input type="button" value="Notebooks" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "notebook"]' [ngClass]='{"active": toggleView == "Content"}' (click)="showNotebooks()">
                 <input type="button" value="Comments" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "comment"]' [ngClass]='{"active": toggleView == "Comment"}' (click)="showComments()">
                 <input type="button" value="Project Log" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "log"]' [ngClass]='{"active": toggleView == "Log"}' (click)="showLog()">

@@ -21,6 +21,8 @@ export class ProjectNotebookItemComponent implements OnInit {
 
   @Input() currentDirectory: string;
 
+  @Input() isMember : boolean;
+
   @Output() navigateToNewDirectory: EventEmitter<string> = new EventEmitter<string>();
 
 
@@ -72,7 +74,7 @@ export class ProjectNotebookItemComponent implements OnInit {
   }
 
   deleteNotebook() {
-    this.projectService.deleteNotebook(this.notebook.notebookID).subscribe(res => {
+    this.projectService.deleteNotebook(this.notebook.notebookID,this.isMember).subscribe(res => {
       this.getNotebooks.emit(this.currentDirectory);
     })
   }
@@ -93,6 +95,24 @@ export class ProjectNotebookItemComponent implements OnInit {
 
   goBack() {
     console.log("Go Back");
+  }
+
+  openObservableNotebook(){
+    let datasetParams ={};
+    if(this.notebook.type==="observable")
+    {
+      this.notebook.observableNotebookDatasets.forEach(observableNotebook=>{
+        datasetParams[observableNotebook.datasetName] = observableNotebook.datasetURL;
+      })
+      let url = this.notebook.uri+"?";
+      let queryParams=[]
+      for(const key of Object.keys(datasetParams))
+      {
+        queryParams.push(key+"="+datasetParams[key]);
+      }
+      url+=queryParams.join('&');
+      window.open(url,'_blank');
+    }
   }
 
 }

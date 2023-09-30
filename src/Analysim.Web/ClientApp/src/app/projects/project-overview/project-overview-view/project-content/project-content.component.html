@@ -3,7 +3,7 @@
         <span class="mr-2">Notebooks</span>
         <div class="d-inline-flex ml-auto" *ngIf="!isCurrentDirNotebook">
             <!-- Private Button Group Start -->
-            <div class="btn-group mr-3" role="group">
+            <div class="btn-group mr-3" role="group" *ngIf="isMember">
                 <button type="button" class="btn" title="Upload Notebook" (click)="toggleModalUpload()">
                     <i class="fa fa-plus"></i>
                 </button>
@@ -16,7 +16,7 @@
     <ul class="list-group">
         <li class="list-group-item" *ngIf="currentDirectory.split('/').length>2" (click)="navigateToPreviousComponent()"> . . . </li>
         <li class="list-group-item" *ngIf="notebooks.length === 0 && !isCurrentDirNotebook "> No Notebooks Found </li>
-        <app-project-notebook-item *ngFor="let notebook of notebooks" [notebook]="notebook" [currentDirectory]="currentDirectory" (navigateToNewDirectory)="navigate($event)" (getNotebooks)="getNotebooks($event)" (setCurrentNotebook)="displayNotebook($event)"></app-project-notebook-item>
+        <app-project-notebook-item *ngFor="let notebook of notebooks" [notebook]="notebook" [currentDirectory]="currentDirectory" (navigateToNewDirectory)="navigate($event)" (getNotebooks)="getNotebooks($event)" (setCurrentNotebook)="displayNotebook($event)" [isMember]="isMember"></app-project-notebook-item>
     </ul>
 </div>
 

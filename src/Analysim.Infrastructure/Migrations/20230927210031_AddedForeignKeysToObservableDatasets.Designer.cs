@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230927210031_AddedForeignKeysToObservableDatasets")]
+    partial class AddedForeignKeysToObservableDatasets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -373,21 +375,21 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "164ef201-7cc6-4e7c-a8b1-25c621e8e3f1",
+                            ConcurrencyStamp = "08095796-c165-4b56-b0be-1dc76a50a228",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "5520036a-5f99-4e00-ad47-931ea04ece88",
+                            ConcurrencyStamp = "54b3fc3b-746f-437b-9125-736ce864ce55",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "9f86a98f-0408-4b06-8430-607b41d0548f",
+                            ConcurrencyStamp = "e2583ef3-6590-4fa4-879d-5f37500666a8",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });
@@ -527,7 +529,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Notebook", "notebook")
                         .WithMany("observableNotebookDatasets")
                         .HasForeignKey("NotebookID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
                     b.Navigation("notebook");

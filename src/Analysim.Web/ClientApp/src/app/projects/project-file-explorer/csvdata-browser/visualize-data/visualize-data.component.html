@@ -7,83 +7,99 @@
 
     <div style="display: flex;flex-direction: column;justify-content: center;align-items: center;margin-top: 10px;">
 
-    <div>
-        <p-dropdown [options]="options" [(ngModel)]="selectedOption">
-            <ng-template let-item pTemplate="selectedItem">
-                {{item}}
-            </ng-template>
-            <ng-template let-item pTemplate="item">
-                {{item}}
-            </ng-template>
-        </p-dropdown>
-    </div>
+        <div>
+            <p-dropdown [options]="options" [(ngModel)]="selectedOption">
+                <ng-template let-item pTemplate="selectedItem">
+                    {{item}}
+                </ng-template>
+                <ng-template let-item pTemplate="item">
+                    {{item}}
+                </ng-template>
+            </p-dropdown>
+        </div>
     </div>
 
     <div style="display: flex; justify-content: center; padding: 10px">
         <div style="display: flex;justify-content: center;align-items: center; margin: 10px;">
-           <div style="margin-right: 10px;">X Dimension:</div>
-        <p-dropdown [options]="cols"  [(ngModel)]="selectedXValue">
-            <ng-template let-item pTemplate="selectedItem">
-                {{item}}
-            </ng-template>
-            <ng-template let-item pTemplate="item">
-                {{item}}
-            </ng-template>
-        </p-dropdown>
+            <div style="margin-right: 10px;">X Dimension:</div>
+            <p-dropdown [options]="cols" [(ngModel)]="selectedXValue">
+                <ng-template let-item pTemplate="selectedItem">
+                    {{item}}
+                </ng-template>
+                <ng-template let-item pTemplate="item">
+                    {{item}}
+                </ng-template>
+            </p-dropdown>
         </div>
 
 
-        <div style="display: flex;justify-content: center;align-items: center; margin: 10px;" *ngIf="twoDOptions.includes(selectedOption) || threeDOptions.includes(selectedOption)">
-           <div style="margin-right: 10px;">Y Dimension:</div>
-        <p-dropdown [options]="cols"  [(ngModel)]="selectedYValue">
-            <ng-template let-item pTemplate="selectedItem">
-                {{item}}
-            </ng-template>
-            <ng-template let-item pTemplate="item">
-                {{item}}
-            </ng-template>
-        </p-dropdown>
+        <div style="display: flex;justify-content: center;align-items: center; margin: 10px;" *ngIf="twoDOptions.includes(selectedOption)">
+            <div style="margin-right: 10px;">Y Dimension:</div>
+            <p-multiSelect [options]="cols" [(ngModel)]="selectedYValues"
+                           selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px'}" placeholder="Choose Columns">
+                <ng-template let-item pTemplate="selectedItem">
+                    {{item}}
+                </ng-template>
+                <ng-template let-item pTemplate="item">
+                    {{item}}
+                </ng-template>
+            </p-multiSelect>
         </div>
-    
 
         <div style="display: flex;justify-content: center;align-items: center; margin: 10px;" *ngIf="threeDOptions.includes(selectedOption)">
-           <div style="margin-right: 10px;">Z Dimension:</div>
-        <p-dropdown [options]="cols"  [(ngModel)]="selectedZValue">
-            <ng-template let-item pTemplate="selectedItem">
-                {{item}}
-            </ng-template>
-            <ng-template let-item pTemplate="item">
-                {{item}}
-            </ng-template>
-        </p-dropdown>
+            <div style="margin-right: 10px;">Y Dimension:</div>
+            <p-dropdown [options]="cols" [(ngModel)]="selectedYValue">
+                <ng-template let-item pTemplate="selectedItem">
+                    {{item}}
+                </ng-template>
+                <ng-template let-item pTemplate="item">
+                    {{item}}
+                </ng-template>
+            </p-dropdown>
         </div>
+
+        <div style="display: flex;justify-content: center;align-items: center; margin: 10px;" *ngIf="threeDOptions.includes(selectedOption)">
+            <div style="margin-right: 10px;">Z Dimension:</div>
+            <p-dropdown [options]="cols" [(ngModel)]="selectedZValue">
+                <ng-template let-item pTemplate="selectedItem">
+                    {{item}}
+                </ng-template>
+                <ng-template let-item pTemplate="item">
+                    {{item}}
+                </ng-template>
+            </p-dropdown>
+        </div>
+
+
 
     </div>
     <div style="display: flex;justify-content: center;align-items: center;">
-    <p-button label="Visualize Data" (onClick)="visualizeData()"></p-button>
+        <p-button label="Visualize Data" (onClick)="visualizeData()"></p-button>
     </div>
 
-    <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Pie Chart'">
-    <app-piechart [data]="dataToVisualize"></app-piechart>
-    </div>
+    <!--
+        <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Pie Chart'">
+        <app-piechart [data]="dataToVisualize"></app-piechart>
+        </div>
 
-    <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Density Chart'">
-        <app-density-chart [data]="dataToVisualize" [columnName]="selectedXValue"></app-density-chart>
-    </div>
+        <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Density Chart'">
+            <app-density-chart [data]="dataToVisualize" [columnName]="selectedXValue"></app-density-chart>
+        </div>
 
+        <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Line Chart'">
+            <app-line-chart [data]="dataToVisualize" [columnXName]="selectedXValue" [columnYName]="selectedYValue" [columnDataTypes]="columnDataTypes"></app-line-chart>
+        </div>
+
+        <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Scatter Plot'">
+            <app-scatter-plot [data]="dataToVisualize" [columnXName]="selectedXValue" [columnYName]="selectedYValue" [columnDataTypes]="columnDataTypes"></app-scatter-plot>
+        </div>
+
+        <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='3D Scatter Plot'">
+            <app-three-dscatter-plot [data]="dataToVisualize" [columnXName]="selectedXValue"  [columnDataTypes]="columnDataTypes"></app-three-dscatter-plot>
+        </div>
     <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Bar Chart'">
-        <app-bar-chart [data]="dataToVisualize" [columnXName]="selectedXValue" [columnYName]="selectedYValue" [columnDataTypes]="columnDataTypes"></app-bar-chart>
+        <app-bar-chart [data]="dataToVisualize" [columnXName]="columnXName" [xRange]="xRange" [yRange]="yRange"></app-bar-chart>
     </div>
-
-    <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Line Chart'">
-        <app-line-chart [data]="dataToVisualize" [columnXName]="selectedXValue" [columnYName]="selectedYValue" [columnDataTypes]="columnDataTypes"></app-line-chart>
-    </div>
-
-    <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='Scatter Plot'">
-        <app-scatter-plot [data]="dataToVisualize" [columnXName]="selectedXValue" [columnYName]="selectedYValue" [columnDataTypes]="columnDataTypes"></app-scatter-plot>
-    </div>
-
-    <div style="display: flex;justify-content: center;align-items: center;" *ngIf="selectedOption=='3D Scatter Plot'">
-        <app-three-dscatter-plot [data]="dataToVisualize" [columnXName]="selectedXValue" [columnYName]="selectedYValue" [columnZName]="selectedZValue" [columnDataTypes]="columnDataTypes"></app-three-dscatter-plot>
-    </div>
+        -->
+    <div id="notebook"></div>
 </div>

@@ -828,7 +828,6 @@ namespace Web.Controllers
                 }
                 else if (noteBookData.Type == "observablehq")
                 {
-                    Console.WriteLine(noteBookData.observableNotebookDatasets);
                     List<ObservableNotebookDataset> observableNotebookDatasets = JsonConvert.DeserializeObject<List<ObservableNotebookDataset>>(noteBookData.observableNotebookDatasets);
                     string fileName = noteBookData.Directory + $"{noteBookData.NotebookName}.observable";
                     newNotebook = new Notebook
@@ -1248,29 +1247,40 @@ namespace Web.Controllers
          * Param : {fileID}
          * Description: Delete File From Azure Storage
          */
-        [HttpDelete("[action]/{fileID}")]
-        public async Task<IActionResult> DeleteFile([FromRoute] int fileID)
+        [HttpDelete("[action]/{fileID}/{isMember}")]
+        public async Task<IActionResult> DeleteFile([FromRoute] int fileID, [FromRoute] bool isMember)
         {
             try
             {
-                // Find File
-                var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
-                if (blobFile == null) return NotFound(new { message = "File Not Found" });
-
-                await _blobService.DeleteBlobAsync(blobFile);
-
-                // Delete Blob Files From Database
-                _dbContext.BlobFiles.Remove(blobFile);
-
-                // Save Change to Database
-                await _dbContext.SaveChangesAsync();
-
-                // Return Ok Status
-                return Ok(new
+                if (isMember)
                 {
-                    result = blobFile,
-                    message = "File Successfully Deleted"
-                });
+
+                    // Find File
+                    var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
+                    if (blobFile == null) return NotFound(new { message = "File Not Found" });
+
+                    await _blobService.DeleteBlobAsync(blobFile);
+
+                    // Delete Blob Files From Database
+                    _dbContext.BlobFiles.Remove(blobFile);
+
+                    // Save Change to Database
+                    await _dbContext.SaveChangesAsync();
+
+                    // Return Ok Status
+                    return Ok(new
+                    {
+                        result = blobFile,
+                        message = "File Successfully Deleted"
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        error = "You do not have permission to delete this file"
+                    });
+                }
             }
             catch (Exception e)
             {
@@ -1283,29 +1293,39 @@ namespace Web.Controllers
 
         }
 
-        [HttpDelete("[action]/{notebookID}")]
-        public async Task<IActionResult> DeleteNotebook([FromRoute] int notebookID)
+        [HttpDelete("[action]/{notebookID}/{isMember}")]
+        public async Task<IActionResult> DeleteNotebook([FromRoute] int notebookID, [FromRoute] bool isMember)
         {
             try
             {
-                // Find File
-                var notebook = await _dbContext.Notebook.FindAsync(notebookID);
-                if (notebook == null) return NotFound(new { message = "Notebook Not Found" });
-
-                await _blobService.DeleteNotebookAsync(notebook);
-
-                // Delete Blob Files From Database
-                _dbContext.Notebook.Remove(notebook);
-
-                // Save Change to Database
-                await _dbContext.SaveChangesAsync();
-
-                // Return Ok Status
-                return Ok(new
+                if (isMember)
                 {
-                    result = notebook,
-                    message = "Notebook Successfully Deleted"
-                });
+                    // Find File
+                    var notebook = await _dbContext.Notebook.FindAsync(notebookID);
+                    if (notebook == null) return NotFound(new { message = "Notebook Not Found" });
+
+                    await _blobService.DeleteNotebookAsync(notebook);
+
+                    // Delete Blob Files From Database
+                    _dbContext.Notebook.Remove(notebook);
+
+                    // Save Change to Database
+                    await _dbContext.SaveChangesAsync();
+
+                    // Return Ok Status
+                    return Ok(new
+                    {
+                        result = notebook,
+                        message = "Notebook Successfully Deleted"
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        error = "You do not have permission to delete this notebook"
+                    });
+                }
             }
             catch (Exception e)
             {

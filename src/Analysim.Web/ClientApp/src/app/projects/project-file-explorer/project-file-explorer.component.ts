@@ -28,6 +28,7 @@ export class ProjectFileExplorerComponent implements OnInit {
   @ViewChild('uploadModal') uploadFileModal : TemplateRef<any>;
   @ViewChild('folderModal') folderModal : TemplateRef<any>;
   @ViewChild('renameModal') renameModal: TemplateRef<any>;
+  @ViewChild('closeDeleteModalbutton') closeDeleteModalbutton;
 
   @ViewChild('observablehqPanel', { read: ElementRef }) observablehqPanel;
 
@@ -188,7 +189,12 @@ export class ProjectFileExplorerComponent implements OnInit {
         this.setDirectoryFile(this.currentDirectory)
 
         // Delete The Item
-        this.projectService.deleteFile(item.file.blobFileID).subscribe()
+        this.projectService.deleteFile(item.file.blobFileID,this.isMember).subscribe(res=>{
+          console.log(res);
+          this.closeDeleteModalbutton.nativeElement.click();
+        })
+
+
         
       }
     }

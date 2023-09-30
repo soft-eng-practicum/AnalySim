@@ -489,8 +489,8 @@ export class ProjectService {
       )
   }
 
-  deleteFile(blobFileID: number): Observable<BlobFile> {
-    return this.http.delete<any>(this.urlDeleteFile + blobFileID).pipe(
+  deleteFile(blobFileID: number,isMember : boolean): Observable<BlobFile> {
+    return this.http.delete<any>(this.urlDeleteFile + blobFileID+'/'+isMember).pipe(
       map(body => {
         console.log(body.message)
         return body.result
@@ -502,8 +502,8 @@ export class ProjectService {
     );
   }
 
-  deleteNotebook(notebookID: number): Observable<Notebook> {
-    return this.http.delete<any>(this.urlDeleteNotebook + notebookID).pipe(
+  deleteNotebook(notebookID: number,isMember : boolean): Observable<Notebook> {
+    return this.http.delete<any>(this.urlDeleteNotebook + notebookID+'/'+isMember).pipe(
       map(body => {
         console.log(body.message)
         return body.result

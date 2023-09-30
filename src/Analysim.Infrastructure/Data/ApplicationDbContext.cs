@@ -82,6 +82,12 @@ namespace Infrastructure.Data
                 new IdentityRole<int> { Id = 2, Name = "Customer", NormalizedName = "CUSTOMER" },
                 new IdentityRole<int> { Id = 3, Name = "Moderator", NormalizedName = "MODERATOR" }
             );
+
+            modelBuilder.Entity<ObservableNotebookDataset>()
+                        .HasOne(d=>d.notebook)
+                        .WithMany(n=>n.observableNotebookDatasets)
+                        .HasForeignKey(d=>d.NotebookID)
+                        .OnDelete(DeleteBehavior.Cascade);
         }
 
         

@@ -6,13 +6,16 @@
            <button type="button" class="btn" data-toggle="modal" data-target="#exampleModalLong">
               <i class="far fa-comment mr-1"></i>
             </button>
-            <button type="button" class="btn btn-secondary" (click)="deleteNotebook()">
+            <button type="button" class="btn btn-secondary" (click)="deleteNotebook()" *ngIf="isMember">
                 <i class="fa fa-trash mr-1"></i>
             </button>
-            <button type="button" class="btn btn-secondary" (click)="downloadNotebook()">
+            <button type="button" class="btn btn-secondary" (click)="downloadNotebook()" *ngIf="notebook.type!=='observable'">
                 <i class="fa fa-arrow-down mr-1"></i>
             </button>
-            <button type="button" class="btn btn-secondary" (click)="showRenameNotebookModal()">
+            <button type="button" class="btn btn-secondary" (click)="openObservableNotebook()" *ngIf="notebook.type==='observable'">
+              <i class="fa fa-link mr-1"></i>
+          </button>
+            <button type="button" class="btn btn-secondary" (click)="showRenameNotebookModal()" *ngIf="isMember">
                 <i class="fa fa-edit mr-1"></i>
             </button>
         </div>

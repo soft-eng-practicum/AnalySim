@@ -39,6 +39,7 @@
     <None Remove="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\" />
     <None Remove="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\project-notebook-item-display\" />
     <None Remove="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\modal-notebook-folder\" />
+    <None Remove="ClientApp\src\assets\notebooks\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,6 +51,7 @@
     <Folder Include="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\" />
     <Folder Include="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\project-notebook-item-display\" />
     <Folder Include="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\modal-notebook-folder\" />
+    <Folder Include="ClientApp\src\assets\notebooks\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
