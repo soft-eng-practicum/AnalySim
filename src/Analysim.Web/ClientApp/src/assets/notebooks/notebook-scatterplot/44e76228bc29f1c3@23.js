@@ -34,16 +34,18 @@ yColumns.map(yColumn=>{
   return {
     x: xValues,
     y: data.map(rec=>rec[yColumn]),
-    type: 'bar',
+    mode: 'markers',
     name: yColumn,
-    marker: {
-      color: getRandomColor()
+    line: {
+    color: getRandomColor(),
+    width: 3
     },
+    type: 'scatter'
   }
 })
 )}
 
-function _barPlot(xColumn,DOM,Plotly,traces)
+function _scatterPlot(xColumn,DOM,Plotly,traces)
 {
   let layout = {
   xaxis: {
@@ -52,10 +54,11 @@ function _barPlot(xColumn,DOM,Plotly,traces)
     zeroline: false
   },
     width: window.innerWidth,
-    barmode: 'group'
+    height: 1000
 };
   var config = {responsive: true}
   const div = DOM.element('div');
+  div.style.overflow="auto"
   Plotly.newPlot(div, traces, layout,config);
   return div;
 }
@@ -70,6 +73,6 @@ export default function define(runtime, observer) {
   main.variable(observer("yColumns")).define("yColumns", _yColumns);
   main.variable(observer("getRandomColor")).define("getRandomColor", _getRandomColor);
   main.variable(observer("traces")).define("traces", ["yColumns","xValues","data","getRandomColor"], _traces);
-  main.variable(observer("barPlot")).define("barPlot", ["xColumn","DOM","Plotly","traces"], _barPlot);
+  main.variable(observer("scatterPlot")).define("scatterPlot", ["xColumn","DOM","Plotly","traces"], _scatterPlot);
   return main;
 }

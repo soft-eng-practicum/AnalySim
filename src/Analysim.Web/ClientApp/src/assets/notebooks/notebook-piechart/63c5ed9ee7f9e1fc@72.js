@@ -53,10 +53,12 @@ function _pieChartdata(result){return(
 function _pieChartPlot(DOM,Plotly,pieChartdata)
 {
   let layout = {
-  width: window.innerWidth
+  width: window.innerWidth,
+  height: 1000,
   };
   let config = {responsive: true}
   const div = DOM.element('div');
+  div.style.overflow="auto"
   Plotly.newPlot(div, pieChartdata, layout,config);
   return div;
 }

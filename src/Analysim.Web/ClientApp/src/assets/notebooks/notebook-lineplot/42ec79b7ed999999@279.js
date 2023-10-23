@@ -10,12 +10,12 @@ function _xColumn(){return(
 ""
 )}
 
-function _xValues(data,xColumn){return(
-data.map(rec=>rec[xColumn])
-)}
-
 function _yColumns(){return(
 []
+)}
+
+function _xValues(data,xColumn){return(
+data.map(rec=>rec[xColumn])
 )}
 
 function _getRandomColor(){return(
@@ -34,7 +34,7 @@ yColumns.map(yColumn=>{
   return {
     x: xValues,
     y: data.map(rec=>rec[yColumn]),
-    mode: 'markers',
+    mode: 'lines',
     name: yColumn,
     line: {
     color: getRandomColor(),
@@ -45,7 +45,7 @@ yColumns.map(yColumn=>{
 })
 )}
 
-function _scatterPlot(xColumn,DOM,Plotly,traces)
+function _linePlot(xColumn,DOM,Plotly,traces)
 {
   let layout = {
   xaxis: {
@@ -54,9 +54,11 @@ function _scatterPlot(xColumn,DOM,Plotly,traces)
     zeroline: false
   },
     width: window.innerWidth,
+    height: 1000
 };
   var config = {responsive: true}
   const div = DOM.element('div');
+  div.style.overflow="auto";
   Plotly.newPlot(div, traces, layout,config);
   return div;
 }
@@ -67,10 +69,10 @@ export default function define(runtime, observer) {
   main.variable(observer("data")).define("data", _data);
   main.variable(observer("Plotly")).define("Plotly", ["require"], _Plotly);
   main.variable(observer("xColumn")).define("xColumn", _xColumn);
-  main.variable(observer("xValues")).define("xValues", ["data","xColumn"], _xValues);
   main.variable(observer("yColumns")).define("yColumns", _yColumns);
+  main.variable(observer("xValues")).define("xValues", ["data","xColumn"], _xValues);
   main.variable(observer("getRandomColor")).define("getRandomColor", _getRandomColor);
   main.variable(observer("traces")).define("traces", ["yColumns","xValues","data","getRandomColor"], _traces);
-  main.variable(observer("scatterPlot")).define("scatterPlot", ["xColumn","DOM","Plotly","traces"], _scatterPlot);
+  main.variable(observer("linePlot")).define("linePlot", ["xColumn","DOM","Plotly","traces"], _linePlot);
   return main;
 }

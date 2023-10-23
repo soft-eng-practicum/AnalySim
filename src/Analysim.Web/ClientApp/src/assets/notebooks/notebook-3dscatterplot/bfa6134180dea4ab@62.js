@@ -50,6 +50,7 @@ function _threeDScatterPlot(xColumn,yColumn,zColumn,DOM,Plotly,threeDScatterdata
 {
   let layout = {
   width: window.innerWidth,
+  height: 1000,
 	scene: {
 		xaxis:{title: xColumn},
 		yaxis:{title: yColumn},
@@ -58,6 +59,7 @@ function _threeDScatterPlot(xColumn,yColumn,zColumn,DOM,Plotly,threeDScatterdata
   };
   let config = {responsive: true}
   const div = DOM.element('div');
+  div.style.overflow="auto"
   Plotly.newPlot(div, threeDScatterdata, layout,config);
   return div;
 }

@@ -54,12 +54,14 @@ function _densityPlot(DOM,Plotly,densityPlotdata)
 {
   let layout = {
   width: window.innerWidth,
+  height: 1000,
   yaxis: {
     title: 'Frequency'
   }
   };
   let config = {responsive: true}
   const div = DOM.element('div');
+  div.style.overflow="auto"
   Plotly.newPlot(div, densityPlotdata, layout,config);
   return div;
 }
