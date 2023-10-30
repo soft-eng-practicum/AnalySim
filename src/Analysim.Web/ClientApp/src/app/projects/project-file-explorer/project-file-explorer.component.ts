@@ -268,9 +268,11 @@ export class ProjectFileExplorerComponent implements OnInit {
     this.blobFileItemList = []
 
     // Set Current Directory
-    this.currentDirectory = directory
+    this.currentDirectory = directory;
 
     var defaultRoute = "project/" + this.project.route
+
+    console.log(this.currentDirectory);
 
     this.filePreview = false
 

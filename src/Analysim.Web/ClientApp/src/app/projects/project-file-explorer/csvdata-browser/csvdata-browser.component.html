@@ -17,8 +17,9 @@
              [globalFilterFields]="selectedColumns"
              [columns]="selectedColumns"
              [reorderableColumns]="true"
-             (onSort)="resetSelectedData()"
-             (onFilter)="resetSelectedData()">
+             (onSort)="resetSelectedData($event)"
+             (onFilter)="resetSelectedData($event)"
+             >
         <ng-template pTemplate="caption">
             <div class="table-header" style="margin-bottom: 10px;">
                 <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash" (click)="clear(table)"></button>
@@ -43,6 +44,11 @@
         <ng-template pTemplate="header" let-columns>
             <tr>
                 <th style="width: 4rem" pResizableColumn>
+                    <p-checkbox
+                    [(ngModel)]="checked"
+                    [binary]="true"
+                    (onChange)="onCheckboxClick($event)">
+                  </p-checkbox>
                 </th>
                 <th *ngFor="let column of columns" [pSortableColumn]="column" pResizableColumn pReorderableColumn>
                     <div class="flex justify-content-between align-items-center">
@@ -62,15 +68,14 @@
             </tr>
         </ng-template>
     </p-table>
-        <button (click)="seeSelectedData()">
-
-            See Selected Data
-        </button>
+    <div style="display: flex;width: 100%; align-items: center;justify-content: center;margin: 10px;">
+        <p-button  label="Export Data"  (onClick)="seeSelectedData()"></p-button>
+        </div>
 </div>
 
 <ng-template #visualizeDataModal>
-    <app-visualize-data [cols]="cols" 
+    <app-visualize-data [cols]="selectedColumns" 
     (closeModalEvent)="closeModalVisualizeData()" 
-    [data]="(!selectedData || selectedData.length===0)  ? loadedData : selectedData"
+    [data]="(!selectedData || selectedData.length===0)  ? tableData : selectedData"
     [columnDataTypes]="columnDataTypes"></app-visualize-data>
 </ng-template>

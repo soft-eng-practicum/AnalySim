@@ -6,6 +6,7 @@ using Core.Entities;
 
 namespace Core.Entities
 {
+    [Microsoft.EntityFrameworkCore.Index(nameof(Directory))]
     public class Notebook
     {
         [KeyAttribute]

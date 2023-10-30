@@ -31,14 +31,17 @@ export class CSVDataBrowserComponent implements OnInit {
   _selectedColumns!: any[];
   @ViewChild('visualizeDataModal') visualizeDataModal : TemplateRef<any>;
   visualizeDataModalRef : BsModalRef;
+  tableData: any;
+  checked: boolean;
 
   ngOnInit(): void {
     d3.csv(this.csvFile.uri, d3.autoType).then(res => {
       this.determinColumnTypes(res);
       this.data = res;
       this.loadedData = this.data;
+      this.tableData = this.data;
       this.loading = false;
-
+      this.checked = false;
     });
   }
 
@@ -65,29 +68,7 @@ export class CSVDataBrowserComponent implements OnInit {
   }
   
 
-  loadData(event: LazyLoadEvent) {
-    this.loading = true;
-    console.log(event);
-    setTimeout(() => {
-      const filteredData = [ ...this.data ];
-      if (event.sortField) {
-        filteredData.sort((a, b) => {
-          if (event.sortOrder === 1) {
-            return a[event.sortField] - b[event.sortField];
-          }
-          else {
-            return b[event.sortField] - a[event.sortField];
-          }
-        })
-      }
-      this.loadedData = filteredData.slice(event.first, event.first + event.rows);
-      this.totalRecords = this.data.length;
-      this.loading = false;
-      },1000);
-  }
-
   clear(table: Table) {
-    console.log(table);
     table.clear();
     this.loadedData = this.data.slice(0);
     this.inputField.nativeElement.value = "";
@@ -158,7 +139,7 @@ download(data) {
   seeSelectedData() {
     if(!this.selectedData || this.selectedData.length===0)
     {
-      this.createData(this.data);
+      this.createData(this.tableData);
     }
     else {
       this.createData(this.selectedData);
@@ -191,15 +172,26 @@ download(data) {
   }
 
 
-  resetSelectedData(){
+  resetSelectedData(event){
     setTimeout(()=>{
       this.selectedData=[];
     },1);
-
+    if(event.filteredValue!==undefined)
+    {
+      this.tableData = event.filteredValue;
+      console.log(this.tableData);
+    }
   }
 
+  onCheckboxClick(value){
+    if(this.checked)
+    {
+        this.selectedData = this.tableData;
+    }
+    else{
+      this.selectedData = [];
+    }
 
-
-
+  }
 
 }

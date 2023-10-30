@@ -51,7 +51,7 @@ import { BarChartComponent } from './project-file-explorer/csvdata-browser/visua
 import { LineChartComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/line-chart/line-chart.component';
 import { ScatterPlotComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/scatter-plot/scatter-plot.component';
 import { ThreeDScatterPlotComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/three-dscatter-plot/three-dscatter-plot.component';
-
+import { CheckboxModule } from 'primeng/checkbox';
 
 @NgModule({
   declarations: [
@@ -108,7 +108,8 @@ import { ThreeDScatterPlotComponent } from './project-file-explorer/csvdata-brow
     InputTextModule,
     MultiSelectModule,
     ButtonModule,
-    DropdownModule
+    DropdownModule,
+    CheckboxModule
   ]
 })
 export class ProjectsModule { }
