@@ -64,7 +64,8 @@ Analysim requires two databases to operate: one SQL database (PostgreSQL) for re
     "ExpireTime": 60,
     "Audience": "https://www.analysim.tech/"
   },
-  "UserQuota":  100000000
+  "UserQuota":  100000000,
+  "registrationCodes": [ "123" ]
 }
 
 ```
