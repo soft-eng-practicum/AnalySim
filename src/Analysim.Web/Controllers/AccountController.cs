@@ -434,12 +434,13 @@ namespace Web.Controllers
 
 
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
             System.Diagnostics.Debug.WriteLine(code);
             var callbackUrl = Url.Action("ResetPassword", "Account", 
             new { 
                 UserId = user.Id,
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code))
+                code
         }, protocol: HttpContext.Request.Scheme); 
 
             var emailContent = "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>";

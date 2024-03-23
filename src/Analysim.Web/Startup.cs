@@ -78,8 +78,6 @@ namespace Web
             if (!env.IsDevelopment())
             {
                 app.UseSpaStaticFiles();
-                app.UseSwagger();
-                app.UseSwaggerUI();
             }
 
             app.UseCors("CorsPolicy");
