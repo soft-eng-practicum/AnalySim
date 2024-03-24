@@ -13,12 +13,14 @@ WORKDIR Analysim.Web
 RUN dotnet publish --configuration Release -o /app
 
 # run database migrations
+FROM build as database-update
+WORKDIR /source/Analysim.Web
 RUN dotnet tool install --global dotnet-ef --version 6.0
 ENV PATH="$PATH:/root/.dotnet/tools"
-#RUN dotnet ef database update
+CMD dotnet ef database update
 
 # run project in new container
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 as run
 WORKDIR /app
 COPY --from=build /app .
 

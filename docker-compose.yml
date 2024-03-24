@@ -15,7 +15,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-        #network_mode: "service:db"
+      target: run
+    #network_mode: "service:db"
     depends_on:
       - db
     restart: always
@@ -24,3 +25,5 @@ services:
     tty: true
     ports:
       - 80:80
+
+
