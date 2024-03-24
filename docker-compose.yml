@@ -15,7 +15,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    network_mode: "service:db"
+        #network_mode: "service:db"
     depends_on:
       - db
     restart: always

@@ -15,7 +15,7 @@ RUN dotnet publish --configuration Release -o /app
 # run database migrations
 RUN dotnet tool install --global dotnet-ef --version 6.0
 ENV PATH="$PATH:/root/.dotnet/tools"
-RUN dotnet ef database update
+#RUN dotnet ef database update
 
 # run project in new container
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 
