@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using Web.ViewModels.Account;
 using Web.ViewModels;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Web.Controllers
 {
@@ -277,6 +278,8 @@ namespace Web.Controllers
 
                 // generate email token
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
                 var callbackUrl = Url.Action("ConfirmEmail", "Account", new
                 {
                     userid = user.Id,
@@ -327,7 +330,9 @@ namespace Web.Controllers
             System.Diagnostics.Debug.WriteLine("Token: " + token + "\n" + "UserID: " + userID);
             var user = await _userManager.FindByIdAsync(userID);
 
-            string encodedString="";
+            if (user == null) return Unauthorized("This email address has not been registered yet");
+
+            string encodedString ="";
 
             // var decodedTokenString = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
 
@@ -335,16 +340,28 @@ namespace Web.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("User is NOT verified");
                 try{
-                await _userManager.ConfirmEmailAsync(user, token);
-                System.Diagnostics.Debug.WriteLine("User is verified");
-                var emailContent = "<p>You have been successfully registered for the AnalySim website.</p>";
-                await _mailNetService.SendEmail(user.Email, user.UserName, "Registration Complete", emailContent, emailContent);
-                encodedString = HttpUtility.UrlEncode("true"); 
-                return Redirect("~/email-confirmation?result="+encodedString);   
+                    var decodedTokenBytes = WebEncoders.Base64UrlDecode(token);
+                    var decodedToken = Encoding.UTF8.GetString(decodedTokenBytes);
 
+                    var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+
+                    if(result.Succeeded)
+                    {
+                        System.Diagnostics.Debug.WriteLine("User is verified");
+                        var emailContent = "<p>You have been successfully registered for the AnalySim website.</p>";
+                        await _mailNetService.SendEmail(user.Email, user.UserName, "Registration Complete", emailContent, emailContent);
+                        encodedString = HttpUtility.UrlEncode("true"); 
+                        return Redirect("~/email-confirmation?result="+encodedString); 
+                    }
+                    else
+                    {
+                        encodedString = HttpUtility.UrlEncode(result.Errors.ToString());
+                        return Redirect("~/email-confirmation?result="+encodedString); 
+                    }
                 }
                 catch(Exception ex)
                 {
+                    Console.Write(ex.ToString());
                     encodedString = HttpUtility.UrlEncode("Account Confirmation Failed. Please try again later.");
                                     return Redirect("~/email-confirmation?result="+encodedString); 
                 }
@@ -372,6 +389,7 @@ namespace Web.Controllers
 
             // generate email token
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
             var callbackUrl = Url.Action("ConfirmEmail", "Account", new
                 {
@@ -397,7 +415,7 @@ namespace Web.Controllers
          * Type : POST
          * URL : /api/account/forgotPassword
          * Description: Generates reset password token and sends api link through email
-         * Response Status: 200 Ok, 400 Bad Request
+         * Response Status: 200 Ok, 400 Bad Request, 401 Unauthorized
          */
         [HttpPost("[action]")]
         public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordVM formdata)
@@ -406,19 +424,24 @@ namespace Web.Controllers
             //if (ModelState.IsValid)
             //{
             var user = await _userManager.FindByEmailAsync(formdata.EmailAddress);
-            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
-            {
-                // Don't reveal that the user does not exist or is not confirmed
-                // return View("ForgotPasswordConfirmation");encode
-            }
+            //if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            //{
+            // Don't reveal that the user does not exist or is not confirmed
+            // return View("ForgotPasswordConfirmation");encode
+            //}
+            if (user == null) return Unauthorized("This email address has not been registerd yet");
+            if (!(await _userManager.IsEmailConfirmedAsync(user))) return BadRequest("PLease confirm your email address first");
+
 
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
             System.Diagnostics.Debug.WriteLine(code);
             var callbackUrl = Url.Action("ResetPassword", "Account", 
             new { 
-                UserId = user.Id, 
-                code = System.Web.HttpUtility.UrlEncode(code)
-            }, protocol: HttpContext.Request.Scheme); 
+                UserId = user.Id,
+                code
+        }, protocol: HttpContext.Request.Scheme); 
 
             var emailContent = "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>";
 
@@ -431,7 +454,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = user,
-                message = "Password Successfully Changed"
+                message = "Password Reset mail sent"
             });
         }
 
@@ -473,12 +496,24 @@ namespace Web.Controllers
         public async Task<IActionResult> changePassword([FromForm] ChangePasswordVM formdata)
         {
             var user = await _userManager.FindByIdAsync(formdata.userId);
-            var resetPassResult =  _userManager.ResetPasswordAsync(user, formdata.passwordToken, formdata.NewPassword);
+            var decodedTokenBytes = WebEncoders.Base64UrlDecode(formdata.passwordToken);
+            var decodedToken = Encoding.UTF8.GetString(decodedTokenBytes);
 
-            return Ok(new
+            var resetPassResult =  _userManager.ResetPasswordAsync(user, decodedToken, formdata.NewPassword);
+
+            if(resetPassResult.Result.Succeeded)
+            {
+                return Ok(new
+                {
+                    result = resetPassResult.Result,
+                    message = "Password Successfully Changed"
+                });
+            }
+
+            return BadRequest(new
             {
                 result = resetPassResult.Result,
-                message = "Password Successfully Changed"
+                message = "Password Change failed"
             });
         }
 

@@ -30,6 +30,8 @@ namespace Web
 
             services.ConfigureAuthorization();
 
+            services.AddSwaggerGen();
+
             services.ConfigureIdentity();
 
             services.ConfigureDatabase(Configuration);
@@ -59,6 +61,8 @@ namespace Web
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
             else
             {
