@@ -70,7 +70,7 @@ Analysim requires two databases to operate: one SQL database (PostgreSQL) for re
 
 ```
 
-#### SQL database
+#### SQL database (also see Docker Compose option below)
 
 If you don't have a SQL database yet, download and install [PostgreSQL](https://www.postgresql.org/download/). See the example for [installing on Ubuntu 22.04](https://linuxhint.com/install-and-setup-postgresql-database-ubuntu-22-04/). Create a user account ([tutorial](https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e)) and replace the `XXX` values in the `DBConnectionString` above with the correct ones. Once you entered the correct details, you must be able to initialize and populate the database by using the Entity Framework migration tool by rinning the following command in the `src/Analysim.Web` folder:
 
@@ -88,20 +88,7 @@ You can either use an existing Outlook account or create a new one and then fill
 
 ### Running the project
 
-**Step 1:**
-
-In **Visual Studio Code** (or other editor), open up the Analysim
-project folder.  Using a terminal, navigate to
-`src\Analysim.Web\ClientApp` and run the following command (also works
-from Command Line):
-
-```
-ng serve -o
-```
-
-**Step 2:**
-
-Next, in **Visual Studio**, open up the `AnalySim.sln` file.  Click on
+In **Visual Studio**, open up the `AnalySim.sln` file.  Click on
 the run to start the project.  Once you have completed both steps,
 your project should be up and running! 
 
@@ -111,6 +98,8 @@ line by first navigating into the `src\Analysim.Web` folder:
 ```sh
 dotnet run
 ```
+
+(This will also automatically run Angular)
 
 ## Deploying
 
@@ -126,7 +115,24 @@ The overall process of deployment is explained in the tutorial video on
 
 *Note:* Prepend `sudo` before each `docker` and `heroku` (except `dotnet`) command on Mac/Linux.
 
-4. Publish *Analysim.Web* to the local folder (keep default location for folder), which can also be done on the command line: 
+### Using Docker Compose to compile and run the project by installing PostgreSQL in a container
+
+You can run Analysim and the PostGreSQL in containers using Docker Compose. You have to follow a 2-step process to first apply the database migrations:
+
+1. Build and run the migrations container:
+    ```bash
+    docker compose -f docker-compose.yml -f docker-compose-db.yml build db-update
+    docker compose -f docker-compose.yml -f docker-compose-db.yml run db-update
+    ```
+1. Run the Analysim process with the database:
+    ```bash
+    docker compose build
+    docker compose up
+    ```
+
+### Using Docker manually to only run the project
+
+1. Publish *Analysim.Web* to the local folder (keep default location for folder), which can also be done on the command line: 
     ```bash
     dotnet publish --configuration Release
     ```
