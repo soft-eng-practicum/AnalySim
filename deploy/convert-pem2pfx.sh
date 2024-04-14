@@ -1,0 +1,1 @@
+openssl pkcs12 -inkey /etc/letsencrypt/live/analysim.tech/privkey.pem -in /etc/letsencrypt/live/analysim.tech/fullchain.pem -export -out /etc/letsencrypt/live/analysim.tech/fullchain.pfx -password pass:analysim
