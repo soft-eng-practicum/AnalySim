@@ -1,0 +1,1 @@
+docker run --rm -it -p 0.0.0.0:80:80  --network="host" -e ASPNETCORE_URLS="http://0.0.0.0:80"     analysim-dev
