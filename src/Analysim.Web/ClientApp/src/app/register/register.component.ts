@@ -70,7 +70,7 @@ export class RegisterComponent implements OnInit {
 
     this.configService.checkRegistrationCodesLength().subscribe({
       next: (data) => {
-        this.showHideRegistrationCode =  data === 0 ? false : true;
+        this.showHideRegistrationCode = data === 0 ? true : false;
       },
       error: (error) => {
         console.error(error);
