@@ -429,7 +429,7 @@ namespace Web.Controllers
             // Don't reveal that the user does not exist or is not confirmed
             // return View("ForgotPasswordConfirmation");encode
             //}
-            if (user == null) return Unauthorized("This email address has not been registerd yet");
+            if (user == null) return Unauthorized("This email address has not been registered yet");
             if (!(await _userManager.IsEmailConfirmedAsync(user))) return BadRequest("PLease confirm your email address first");
 
 

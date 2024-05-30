@@ -876,7 +876,7 @@ namespace Web.Controllers
                 return Ok(new
                 {
                     result = newNotebook,
-                    message = "Notebook Uploaded Succesfully"
+                    message = "Notebook Uploaded Successfully"
                 });
             }
             catch(Exception e)
@@ -1112,7 +1112,7 @@ namespace Web.Controllers
             }
             return Ok(new { 
                 notebook ,
-                message = "Notebook name Succesfully Changed"
+                message = "Notebook name Successfully Changed"
             });
 
         }
