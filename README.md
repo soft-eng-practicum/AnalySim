@@ -32,6 +32,13 @@ command.
 npm install
 ```
 
+Then navigate to `AnalySim\src\Analysim.Web\ClientApp\src\assets\jupiter` folder and run the following commands.
+
+```sh
+python -m pip install -r requirements.txt
+jupyter lite build --output-dir dist
+```
+
 ### Connecting to databases and other services
 
 Analysim requires two databases to operate: one SQL database (PostgreSQL) for relational data and one Azure BlobStorage database for keeping uploaded user files. In addition, an Outlook account is needed for the email functionality. All of these services are accessed via authentication information stored in the `appsettings.json` and `appsettings.Development.json` files under the `src/Analysim.Web` folder. The structure of the files are as follows (`XXX` means redacted):
