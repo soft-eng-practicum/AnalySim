@@ -32,8 +32,8 @@ export class ProjectNotebookItemDisplayComponent {
   isLoading = true;
 
   ngOnInit(): void {
-    window.addEventListener('scroll', this.scroll, true);
-    const url = `../../../../../../../assets/jupiter/dist/lab/index.html?path=${this.notebook.name}${this.notebook.extension}`;
+    window.addEventListener('message', this.receiveMessage.bind(this));
+    const url = `../../../../../../../assets/jupyter/dist/lab/index.html?path=${this.notebook.name}${this.notebook.extension}`;
     this.jupyterFrameSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
     this.http.get(this.notebook.uri, { responseType: 'json' })
       .subscribe(nbContent => {
@@ -73,20 +73,18 @@ export class ProjectNotebookItemDisplayComponent {
       if (this.isLoading) {
         this.isLoading = false;
         this.closeModal.emit();
-        console.log("some unknown error occured , please open the notebook again.");
-        alert("some unknown error occured , please open the notebook again.");
+        console.log("some unknown error occurred , please open the notebook again.");
+        alert("some unknown error occurred , please open the notebook again.");
       }
     }, 30000);
   }
 
-  scroll = (event): void => {
-    if (event.target.scrollTop > event.target.scrollHeight / 2) {
-      //jupyterlite environment loaded
+  receiveMessage(event: MessageEvent): void {
+    if (event.data === 'jupyterlite-load') {
       this.isLoading = false;
-      window.removeEventListener('scroll', this.scroll, true);
+      console.log('Notebook loaded successfully');
     }
-    console.log('scrolling', event.target.scrollTop, event.target.scrollTop + event.target.clientHeight, event.target.scrollHeight);
-  };
+  }
 
   generateObservableNotebook() {
 

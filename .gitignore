@@ -20,7 +20,6 @@ x86/
 build/
 bld/
 bin/
-dist/
 Bin/
 obj/
 Obj/

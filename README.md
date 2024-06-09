@@ -32,7 +32,7 @@ command.
 npm install
 ```
 
-Then navigate to `AnalySim\src\Analysim.Web\ClientApp\src\assets\jupiter` folder and run the following commands.
+Then navigate to `AnalySim\src\Analysim.Web\ClientApp\src\assets\jupyter` folder and run the following commands.
 
 ```sh
 python -m pip install -r requirements.txt

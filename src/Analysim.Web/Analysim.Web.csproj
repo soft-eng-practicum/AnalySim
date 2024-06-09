@@ -65,9 +65,19 @@
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
   </Target>
 
+  <Target Name="BuildJupyterLite" BeforeTargets="Build" Condition=" !Exists('$(SpaRoot)src\assets\jupyter\dist') ">
+    <Message Importance="high" Text="installing dependencies and building jupyter lite" />
+    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="python -m pip install -r requirements.txt" />
+    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="jupyter lite build --output-dir dist" />
+    <Exec Command="copy $(SpaRoot)src\assets\jupyter\index.html $(SpaRoot)src\assets\jupyter\dist\lab\index.html" />
+  </Target>
+
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
+    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="python -m pip install -r requirements.txt" />
+    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="jupyter lite build --output-dir dist" />
+    <Exec Command="copy $(SpaRoot)src\assets\jupyter\index.html $(SpaRoot)src\assets\jupyter\dist\lab\index.html" />
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --configuration production" />
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:ssr -- --configuration production" Condition=" '$(BuildServerSideRenderer)' == 'true' " />
 

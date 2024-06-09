@@ -53,7 +53,6 @@ import { ScatterPlotComponent } from './project-file-explorer/csvdata-browser/vi
 import { ThreeDScatterPlotComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/three-dscatter-plot/three-dscatter-plot.component';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SaveConfirmationModalComponent } from './project-overview/project-overview-view/project-content/save-confirmation-modal/save-confirmation-modal.component';
-// import { SaveConfirmationModalComponent } from './project-overview/project-overview-view/project-content/project-notebook-item/project-notebook-item-display/save-confirmation-modal/save-confirmation-modal.component';
 
 @NgModule({
   declarations: [
@@ -98,7 +97,7 @@ import { SaveConfirmationModalComponent } from './project-overview/project-overv
     LineChartComponent,
     ScatterPlotComponent,
     ThreeDScatterPlotComponent,
-    SaveConfirmationModalComponent
+    SaveConfirmationModalComponent,
   ],
   imports: [
     CommonModule,

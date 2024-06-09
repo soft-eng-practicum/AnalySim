@@ -10,7 +10,7 @@
             </div>
             <div>Loading Notebook...</div>
         </div>
-        <iframe #jupyterFrame [src]="jupyterFrameSrc" width="100%" height="700px"></iframe>
+        <iframe #jupyterFrame [src]="jupyterFrameSrc" width="100%" style="height: 100vh;"></iframe>
     </div>
     <div #observablehqPanel class="m-3" *ngIf="notebook.type === 'observable'">
         <div id="notebook"></div>
