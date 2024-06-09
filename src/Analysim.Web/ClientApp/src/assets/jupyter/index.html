@@ -26,7 +26,7 @@
       console.log("copying files through dotnet run succeeded");
       console.info = function (...args) {
         originalConsoleLog.apply(console, args);
-        if (args[0] && typeof args[0] === 'string' && args[0].includes('JupyterLite ServiceWorker was already registered')) {
+        if (args[0] && typeof args[0] === 'string' && args[0].includes('Kernel filesystem and JupyterLite contents will be synced')) {
           // Send a message to the parent window
           console.log('Sending jupyterlite-loaded message to window');
           window.parent.postMessage('jupyterlite-load', '*');
