@@ -1,12 +1,6 @@
 .project-card-container {
   border: var(--border-width) var(--border-style) var(--border-color);
 
-  .project-unfollow {
-    background-color: var(--button-background-color);
-    color: var(--primary-color);
-    border: none;
-  }
-
   .project-card-header {
     padding: .75rem 1.25rem;
     margin-bottom: 0;
@@ -31,27 +25,19 @@
     .project-follow-option {
       margin-left: auto;
 
-      .project-follow {
+      .project-follow, .project-unfollow {
+        margin-right: 10px;
+        padding: 5px 10px;
+        min-width: 90px;
         color: var(--button-font-color);
         background-color: var(--button-background-color);
-        border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary);
-        padding: 6px 12px;
-        font-size: 16px;
-        line-height: 1.5;
-        border-radius: 4px;
-        display: block;
-        float: right !important;
+        border: 1px solid var(--button-font-color);
 
         &:hover {
           color: var(--button-font-color-secondary-hov);
           background-color: var(--button-background-color-secondary-hov);
           border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary-hov);
-
-          span {
-            color: var(--button-font-color);
-            background-color: var(--button-background-color-secondary);
-            border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary);
-          }
+          text-decoration: none;
         }
       }
     }
