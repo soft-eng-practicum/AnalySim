@@ -145,7 +145,7 @@ You can run Analysim and the PostGreSQL in containers using Docker Compose. You 
     ```
 1. Create the Docker image by running the following in the base project folder (e.g. `Analysim/`) :
     ```bash
-    docker build -t analysim-dev -f deploy/Dockerfile .
+    docker build -t analysim-dev -f Dockerfile-run .
     ```
 1. Test image locally, by running it:
    ```bash
