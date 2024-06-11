@@ -1,9 +1,13 @@
 .card-header {
-    background-color: var(--background-color-tertiary);
-  }
-  
-  .btn-sm {
-    background-color: var(--button-background-color);
-    color: var(--primary-color);
-    border:none;
-  }
+  background-color: var(--background-color-tertiary);
+}
+
+.btn-sm {
+  background-color: var(--button-background-color);
+  color: var(--primary-color);
+  border:none;
+}
+
+.nav-item:hover {
+  cursor: pointer;
+}
