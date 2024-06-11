@@ -18,6 +18,7 @@ git clone https://github.com/soft-eng-practicum/AnalySim.git
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [ASP.Net 6.0 command-line interface (CLI)](https://dotnet.microsoft.com/en-us/download) (Required)
 - [Visual Studio Code](https://code.visualstudio.com/download) or other editor
 - [Postman](https://www.postman.com/downloads/) for testing API calls
+- [Python](https://www.python.org/downloads/) for building project
 - [Docker](https://www.docker.com/products/docker-desktop) for testing deployment
 - [Azure Data Studio](https://docs.microsoft.com/en-us/sql/azure-data-studio/download-azure-data-studio?view=sql-server-ver15) or use online [Azure Portal](https://portal.azure.com) for browsing Azure Blob Storage 
 
