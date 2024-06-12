@@ -37,7 +37,7 @@ Then navigate to `AnalySim\src\Analysim.Web\ClientApp\src\assets\jupyter` folder
 
 ```sh
 python -m pip install -r requirements.txt
-jupyter lite build --output-dir dist
+jupyter-lite build --output-dir dist
 ```
 
 ### Connecting to databases and other services

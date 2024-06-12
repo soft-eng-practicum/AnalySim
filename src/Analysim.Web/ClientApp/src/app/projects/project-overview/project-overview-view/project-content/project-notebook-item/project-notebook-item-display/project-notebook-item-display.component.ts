@@ -33,6 +33,27 @@ export class ProjectNotebookItemDisplayComponent {
 
   ngOnInit(): void {
     window.addEventListener('message', this.receiveMessage.bind(this));
+    if (this.notebook.type === 'notebook' || this.notebook.type === 'new') {
+      this.loadNotebook();
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (this.notebook.type === 'observable') {
+      this.isLoading = false;
+      this.generateObservableNotebook();
+    }
+    setTimeout(() => {
+      if (this.isLoading) {
+        this.isLoading = false;
+        this.closeModal.emit();
+        console.log("some unknown error occurred , please open the notebook again.");
+        alert("some unknown error occurred , please open the notebook again.");
+      }
+    }, 30000);
+  }
+
+  loadNotebook() {
     const url = `../../../../../../../assets/jupyter/dist/lab/index.html?path=${this.notebook.name}${this.notebook.extension}`;
     this.jupyterFrameSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
     this.http.get(this.notebook.uri, { responseType: 'json' })
@@ -68,17 +89,6 @@ export class ProjectNotebookItemDisplayComponent {
       });
   }
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      if (this.isLoading) {
-        this.isLoading = false;
-        this.closeModal.emit();
-        console.log("some unknown error occurred , please open the notebook again.");
-        alert("some unknown error occurred , please open the notebook again.");
-      }
-    }, 30000);
-  }
-
   receiveMessage(event: MessageEvent): void {
     if (event.data === 'jupyterlite-load') {
       this.isLoading = false;
@@ -111,14 +121,16 @@ export class ProjectNotebookItemDisplayComponent {
 
   onConfirmSave() {
     this.closeModal.emit();
-    this.jupyterLiteStorageService.getFile(`${this.notebook.name}${this.notebook.extension}`).then(
-      (file) => {
-        console.log('File:', file);
-      },
-      (error) => {
-        console.error('Error getting file:', error);
-      }
-    );
+    if (this.notebook.type === 'notebook' || this.notebook.type === 'new') {
+      this.jupyterLiteStorageService.getFile(`${this.notebook.name}${this.notebook.extension}`).then(
+        (file) => {
+          console.log('File:', file);
+        },
+        (error) => {
+          console.error('Error getting file:', error);
+        }
+      );
+    }
   }
 
   onCancelSave() {
