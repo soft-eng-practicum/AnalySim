@@ -35,7 +35,7 @@ export class ProjectService {
   private urlGetProjectList: string = this.baseUrl + "getprojectList"
   private urlSearch: string = this.baseUrl + "search/"
   private urlDownloadFile: string = this.baseUrl + "downloadFile/"
-  private urlDownloadNotebook: string = this.baseUrl +"DownloadNotebook/"
+  private urlDownloadNotebook: string = this.baseUrl + "DownloadNotebook/"
 
 
   // Post
@@ -52,7 +52,7 @@ export class ProjectService {
   private urlUpdateProject: string = this.baseUrl + "updateproject/"
   private urlupdateUser: string = this.baseUrl + "updateuser"
   private urlUpdateFile: string = this.baseUrl + "updateFile"
-  private urlRenameNotebook : string = this.baseUrl+"RenameNotebook"
+  private urlRenameNotebook: string = this.baseUrl + "RenameNotebook"
 
   // Delete
   private urlDeleteProject: string = this.baseUrl + "deleteproject/"
@@ -64,13 +64,13 @@ export class ProjectService {
   private urlGetUserList: string = this.baseUrl + "getuserlist/"
   private urlGetFileList: string = this.baseUrl + "getfilelist/"
   private urlGetNotebookList: string = this.baseUrl + "getNotebooks/";
-  private urlGetNotebook: string = this.baseUrl+"GetNotebook/";
+  private urlGetNotebook: string = this.baseUrl + "GetNotebook/";
   private urlGetTagList: string = this.baseUrl + "gettaglist/"
 
   private urlUploadNotebook: string = this.baseUrl + "uploadnotebook";
   private urlUploadExistingNotebook: string = this.baseUrl + "uploadexistingnotebook";
   private urlDeleteNotebook: string = this.baseUrl + "deleteNotebook/";
-  private urlGetShareableLink : string = this.baseUrl + "GetShareableLinkofFile/";
+  private urlGetShareableLink: string = this.baseUrl + "GetShareableLinkofFile/";
 
 
   getProjectByID(projectID: number): Observable<Project> {
@@ -295,7 +295,7 @@ export class ProjectService {
     body.append('directory', directory)
     body.append('userID', userID.toString())
     body.append('projectID', projectID.toString())
-    
+
     return this.http.post<any>(this.urlUploadFile, body).pipe(
       map(body => {
         console.log(body.result)
@@ -308,10 +308,10 @@ export class ProjectService {
     );
   }
 
-  uploadNotebook(notebook: NotebookFile,directory: string) {
+  uploadNotebook(notebook: NotebookFile, directory: string) {
     let body = new FormData();
     body.append('NotebookFile', notebook.file);
-    body.append('NotebookName',notebook.name);
+    body.append('NotebookName', notebook.name);
     body.append('ProjectID', notebook.projectID.toString());
     body.append('directory', directory);
 
@@ -333,7 +333,7 @@ export class ProjectService {
     body.append('NotebookName', notebookURL.name);
     body.append('ProjectID', notebookURL.projectID.toString());
     body.append('Type', notebookURL.type);
-    body.append('observableNotebookDatasets',JSON.stringify(notebookURL.datasets));
+    body.append('observableNotebookDatasets', JSON.stringify(notebookURL.datasets));
     body.append('directory', directory);
 
     return this.http.post<any>(this.urlUploadExistingNotebook, body).pipe(
@@ -489,8 +489,8 @@ export class ProjectService {
       )
   }
 
-  deleteFile(blobFileID: number,isMember : boolean): Observable<BlobFile> {
-    return this.http.delete<any>(this.urlDeleteFile + blobFileID+'/'+isMember).pipe(
+  deleteFile(blobFileID: number, isMember: boolean): Observable<BlobFile> {
+    return this.http.delete<any>(this.urlDeleteFile + blobFileID + '/' + isMember).pipe(
       map(body => {
         console.log(body.message)
         return body.result
@@ -502,8 +502,8 @@ export class ProjectService {
     );
   }
 
-  deleteNotebook(notebookID: number,isMember : boolean): Observable<Notebook> {
-    return this.http.delete<any>(this.urlDeleteNotebook + notebookID+'/'+isMember).pipe(
+  deleteNotebook(notebookID: number, isMember: boolean): Observable<Notebook> {
+    return this.http.delete<any>(this.urlDeleteNotebook + notebookID + '/' + isMember).pipe(
       map(body => {
         console.log(body.message)
         return body.result
@@ -562,18 +562,18 @@ export class ProjectService {
       )
   }
 
-  getNotebook(notebookID: number){
-    return this.http.get<any>(this.urlGetNotebook+notebookID) 
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.notebook
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+  getNotebook(notebookID: number) {
+    return this.http.get<any>(this.urlGetNotebook + notebookID)
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.notebook
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
   getTagList(projectID: number): Observable<Tag[]> {
@@ -592,34 +592,34 @@ export class ProjectService {
   }
 
   getShareableLink(fileID: number): Observable<string> {
-    return this.http.get<any>(this.urlGetShareableLink+fileID)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+    return this.http.get<any>(this.urlGetShareableLink + fileID)
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
-  renameNotebook(notebookID: number,newName: string) : Observable<Notebook>{
+  renameNotebook(notebookID: number, newName: string): Observable<Notebook> {
     let body = new FormData()
-    body.append('NotebookID',notebookID.toString());
+    body.append('NotebookID', notebookID.toString());
     body.append('NotebookName', newName)
-    return this.http.put<any>(this.urlRenameNotebook,body)
-    .pipe(
-      map(body => {
-        console.log(body.message)
-        return body.notebook
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
-    )
+    return this.http.put<any>(this.urlRenameNotebook, body)
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.notebook
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
   }
 
 

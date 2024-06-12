@@ -3,7 +3,22 @@
   font-size: 18px;
   font-weight: 500;
 }
+
 .full-screen-modal {
-    max-width: 100%;
-    margin: 0;
+  max-width: 100%;
+  margin: 0;
+}
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 20px;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
 }

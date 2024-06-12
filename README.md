@@ -18,6 +18,7 @@ git clone https://github.com/soft-eng-practicum/AnalySim.git
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [ASP.Net 6.0 command-line interface (CLI)](https://dotnet.microsoft.com/en-us/download) (Required)
 - [Visual Studio Code](https://code.visualstudio.com/download) or other editor
 - [Postman](https://www.postman.com/downloads/) for testing API calls
+- [Python](https://www.python.org/downloads/) for building project
 - [Docker](https://www.docker.com/products/docker-desktop) for testing deployment
 - [Azure Data Studio](https://docs.microsoft.com/en-us/sql/azure-data-studio/download-azure-data-studio?view=sql-server-ver15) or use online [Azure Portal](https://portal.azure.com) for browsing Azure Blob Storage 
 
@@ -30,6 +31,13 @@ command.
 
 ```sh
 npm install
+```
+
+Then navigate to `AnalySim\src\Analysim.Web\ClientApp\src\assets\jupyter` folder and run the following commands.
+
+```sh
+python -m pip install -r requirements.txt
+jupyter lite build --output-dir dist
 ```
 
 ### Connecting to databases and other services
@@ -138,7 +146,7 @@ You can run Analysim and the PostGreSQL in containers using Docker Compose. You 
     ```
 1. Create the Docker image by running the following in the base project folder (e.g. `Analysim/`) :
     ```bash
-    docker build -t analysim-dev -f deploy/Dockerfile .
+    docker build -t analysim-dev -f Dockerfile-run .
     ```
 1. Test image locally, by running it:
    ```bash

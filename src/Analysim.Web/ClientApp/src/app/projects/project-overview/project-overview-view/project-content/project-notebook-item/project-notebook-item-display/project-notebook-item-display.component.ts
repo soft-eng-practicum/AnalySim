@@ -1,6 +1,11 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
 import { Notebook } from '../../../../../../interfaces/notebook';
 import { ProjectService } from '../../../../../../services/project.service';
+import { HttpClient } from '@angular/common/http';
+import { JupyterLiteStorageService } from './localforageIndexdb';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { SaveConfirmationModalComponent } from '../../save-confirmation-modal/save-confirmation-modal.component';
+
 
 @Component({
   selector: 'app-project-notebook-item-display',
@@ -12,14 +17,73 @@ export class ProjectNotebookItemDisplayComponent {
 
   @Input() notebook: Notebook;
 
-  @Output() closeModal : EventEmitter<any> = new EventEmitter();
+  @Output() closeModal: EventEmitter<any> = new EventEmitter();
+  showSaveModal = false;
 
-  constructor(private projectService: ProjectService, private _renderer2: Renderer2) { }
+  constructor(private projectService: ProjectService, private _renderer2: Renderer2, private http: HttpClient
+    , private sanitizer: DomSanitizer, private jupyterLiteStorageService: JupyterLiteStorageService
+  ) { }
 
   @ViewChild('observablehqPanel', { read: ElementRef }) observablehqPanel;
+  @ViewChild('jupyterFrame') jupyterFrame: ElementRef;
+  @ViewChild('notebookWindow') notebookWindow: ElementRef;
+  @ViewChild(SaveConfirmationModalComponent) saveConfirmationModal: SaveConfirmationModalComponent;
+  jupyterFrameSrc: SafeResourceUrl;
+  isLoading = true;
 
-  ngAfterViewInit() {
-    this.fetchNotebook();
+  ngOnInit(): void {
+    window.addEventListener('message', this.receiveMessage.bind(this));
+    const url = `../../../../../../../assets/jupyter/dist/lab/index.html?path=${this.notebook.name}${this.notebook.extension}`;
+    this.jupyterFrameSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    this.http.get(this.notebook.uri, { responseType: 'json' })
+      .subscribe(nbContent => {
+        console.log("notebook content during fetching : ", nbContent);
+        console.log("notebook : ", this.notebook);
+        const fileName = `${this.notebook.name}${this.notebook.extension}`;
+        const fileData = {
+          content: nbContent, // The content of the notebook
+          created: new Date().toISOString(),
+          format: "json",
+          hash: null,
+          hash_algorithm: null,
+          last_modified: new Date().toISOString(),
+          mimetype: 'application/x-ipynb+json',
+          name: fileName,
+          size: this.notebook.size,
+          path: fileName,
+          type: 'notebook',
+          writable: true,
+        };
+
+        // Add a file
+        this.jupyterLiteStorageService.addFile(fileName, fileData).then(
+          () => {
+            console.log('File added successfully');
+            // this.isLoading = false;
+          },
+          (error) => {
+            console.error('Error adding file:', error);
+          }
+        );
+      });
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      if (this.isLoading) {
+        this.isLoading = false;
+        this.closeModal.emit();
+        console.log("some unknown error occurred , please open the notebook again.");
+        alert("some unknown error occurred , please open the notebook again.");
+      }
+    }, 30000);
+  }
+
+  receiveMessage(event: MessageEvent): void {
+    if (event.data === 'jupyterlite-load') {
+      this.isLoading = false;
+      console.log('Notebook loaded successfully');
+    }
   }
 
   generateObservableNotebook() {
@@ -41,27 +105,23 @@ export class ProjectNotebookItemDisplayComponent {
     });`
   }
 
-  fetchNotebook() {
-    console.log(this.notebook);
-    if (this.notebook.type === "observable") {
-      this.generateObservableNotebook()
-    }
-    else {
-      this.projectService.downloadNotebook(this.notebook).subscribe(result => {
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          const resultFile: any = this.result;
-          var parsed = JSON.parse(resultFile);
-        };
-        reader.readAsText(result);
-      })
-    }
-    
-  }
-
   closeNotebook() {
-    this.closeModal.emit();
+    this.showSaveModal = true;
   }
 
+  onConfirmSave() {
+    this.closeModal.emit();
+    this.jupyterLiteStorageService.getFile(`${this.notebook.name}${this.notebook.extension}`).then(
+      (file) => {
+        console.log('File:', file);
+      },
+      (error) => {
+        console.error('Error getting file:', error);
+      }
+    );
+  }
 
+  onCancelSave() {
+    this.showSaveModal = false;
+  }
 }
