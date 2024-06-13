@@ -2,6 +2,7 @@
     color: var(--button-font-color);
     background-color: var(--button-background-color);
     border: none;
+    border: 1px solid var(--button-background-color);
 
     &:hover, &:active {
         color: var(--button-font-color-secondary-hov) !important;
