@@ -12,3 +12,32 @@
     }
 }
 
+.project-authors-list {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+
+    .project-author {
+      display: flex;
+      cursor: pointer;
+      margin-right: 10px;
+
+      &:hover {
+        .project-author-name {
+          color: #0056b3;
+          text-decoration: underline;
+        }
+      }
+
+      .project-author-thumbnail {
+        width: 25px;
+        height: 25px;
+        border: 1px solid black;
+        border-radius: 40px;
+        margin-right: 5px;
+        margin-bottom: 10px;
+      }
+    }
+  }

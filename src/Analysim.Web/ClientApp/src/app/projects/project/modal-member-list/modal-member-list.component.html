@@ -9,9 +9,12 @@
 
     <!-- Body -->
     <div class="modal-body">
-        <ul class="">
-            <li class="" *ngFor="let member of projectUsers">
-                {{ member.user.userName }}
+        <ul class="project-authors-list">
+            <li class="project-author" *ngFor='let member of projectUsers | projectMember:"owner"' [routerLink]='["/profile/" + member.user.userName]' (click)="closeModal()">
+                <img class="project-author-thumbnail" src="../../../assets/img/default-profile.png" />
+                <div class="project-author-name">
+                  {{member.user.userName}} - <i>{{member.userRole}}</i>
+                </div>
             </li>
         </ul>
     </div>
