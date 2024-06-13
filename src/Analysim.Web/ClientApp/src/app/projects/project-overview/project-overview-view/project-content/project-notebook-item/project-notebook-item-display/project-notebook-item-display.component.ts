@@ -30,12 +30,14 @@ export class ProjectNotebookItemDisplayComponent {
   @ViewChild(SaveConfirmationModalComponent) saveConfirmationModal: SaveConfirmationModalComponent;
   jupyterFrameSrc: SafeResourceUrl;
   isLoading = true;
+  timeoutId: any;
 
   ngOnInit(): void {
     window.addEventListener('message', this.receiveMessage.bind(this));
     if (this.notebook.type === 'notebook' || this.notebook.type === 'new') {
       this.loadNotebook();
     }
+    this.setTimeoutForLoading();
   }
 
   ngAfterViewInit(): void {
@@ -43,14 +45,17 @@ export class ProjectNotebookItemDisplayComponent {
       this.isLoading = false;
       this.generateObservableNotebook();
     }
-    setTimeout(() => {
+  }
+
+  setTimeoutForLoading(): void {
+    this.timeoutId = setTimeout(() => {
       if (this.isLoading) {
         this.isLoading = false;
         this.closeModal.emit();
         console.log("some unknown error occurred , please open the notebook again.");
         alert("some unknown error occurred , please open the notebook again.");
       }
-    }, 30000);
+    }, 25000);
   }
 
   loadNotebook() {
@@ -92,6 +97,7 @@ export class ProjectNotebookItemDisplayComponent {
   receiveMessage(event: MessageEvent): void {
     if (event.data === 'jupyterlite-load') {
       this.isLoading = false;
+      clearTimeout(this.timeoutId);
       console.log('Notebook loaded successfully');
     }
   }
@@ -120,6 +126,7 @@ export class ProjectNotebookItemDisplayComponent {
   }
 
   onConfirmSave() {
+    clearTimeout(this.timeoutId);
     this.closeModal.emit();
     if (this.notebook.type === 'notebook' || this.notebook.type === 'new') {
       this.jupyterLiteStorageService.getFile(`${this.notebook.name}${this.notebook.extension}`).then(
