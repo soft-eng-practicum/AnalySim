@@ -554,7 +554,8 @@ namespace Web.Controllers
         {
 
             // Get The User
-            var user = await _userManager.FindByNameAsync(formdata.Username);
+            var username = await _userManager.FindByNameAsync(formdata.Username);
+            var email = await _userManager.FindByEmailAsync(formdata.Username);
 
             // Get The User Role
             //var roles = await _userManager.GetRolesAsync(user);
@@ -566,8 +567,12 @@ namespace Web.Controllers
             double tokenExpiryTime = Convert.ToDouble(_jwtSettings.ExpireTime);
 
             // Check Login Status
-            if (user != null && await _userManager.CheckPasswordAsync(user, formdata.Password))
+            if ((username != null && await _userManager.CheckPasswordAsync(username, formdata.Password)) || (email != null && await _userManager.CheckPasswordAsync(email, formdata.Password)))
             {
+                var user = username;
+                if (email != null){
+                    user = email;
+                }
                 // todo: link to resend verification email.
                 if (!await _userManager.IsEmailConfirmedAsync(user))
                 {
