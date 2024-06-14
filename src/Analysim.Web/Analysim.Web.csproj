@@ -75,7 +75,7 @@
 
     <!-- Commands for Windows -->
     <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="python -m pip install -r requirements.txt" Condition="'$(OS)' == 'Windows_NT'" />
-    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="jupyter lite build --output-dir dist" Condition="'$(OS)' == 'Windows_NT'" />
+    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="jupyter-lite build --output-dir dist" Condition="'$(OS)' == 'Windows_NT'" />
     <ItemGroup>
         <JupyterIndex Include="$(SpaRoot)src\assets\jupyter\index.html"/>
     </ItemGroup>
@@ -92,7 +92,7 @@
 
     <!-- Commands for Windows -->
     <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="python -m pip install -r requirements.txt" Condition="'$(OS)' == 'Windows_NT'" />
-    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="jupyter lite build --output-dir dist" Condition="'$(OS)' == 'Windows_NT'" />
+    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="jupyter-lite build --output-dir dist" Condition="'$(OS)' == 'Windows_NT'" />
     <ItemGroup>
         <JupyterIndex Include="$(SpaRoot)src\assets\jupyter\index.html"/>
     </ItemGroup>
