@@ -316,6 +316,15 @@ export class ProjectComponent implements OnInit {
     this.activeView = 'Comment';
     this.toggleView = 'Comment';
   }
+
+  exploreTag(tagValue: string){
+    const searchTerms: string[] = Array.from(
+      new Set(tagValue.split(' ').filter(x => x.length !== 0))
+    );
+    this.router.navigate(['/explore'], {
+      queryParams: { category: 'project', term: JSON.stringify(searchTerms)}
+    });
+  }
 }
 
 // deleteProject(){

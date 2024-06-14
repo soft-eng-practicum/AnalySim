@@ -21,7 +21,7 @@
                 <ul class="project-tag list-group list-group-flush">
                   <li class="list-group-item">
                     <span class="badge badge-pill badge-info font-weight-light mr-2" *ngFor="let projectTag of project.projectTags">
-                      {{projectTag.tag.name}}
+                      <a (click)="exploreTag(projectTag.tag.name)">{{projectTag.tag.name}}</a>
                     </span>
                   </li>
                 </ul>
