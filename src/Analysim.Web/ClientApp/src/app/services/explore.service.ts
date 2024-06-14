@@ -15,7 +15,7 @@ export class ExploreService {
 
   public projects : Project[]
 
-  searchProject(searchTerms : string[]){
+  private searchProject(searchTerms : string[]){
     this.projects = null
     if(searchTerms.length == 0){
       this.projectService.getProjectList().subscribe(
