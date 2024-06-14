@@ -8,6 +8,7 @@ import { ProjectService } from 'src/app/services/project.service';
 import { ProjectFileExplorerComponent } from '../project-file-explorer/project-file-explorer.component';
 import { ProjectUser } from 'src/app/interfaces/project-user';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { ExploreService } from 'src/app/services/explore.service';
 
 
 @Component({
@@ -23,6 +24,7 @@ export class ProjectComponent implements OnInit {
     private accountService: AccountService,
     private projectService: ProjectService,
     private modalService: BsModalService,
+    private exploreService: ExploreService
   ) { }
 
   @ViewChild('forkModal') forkModal: TemplateRef<any>
@@ -318,12 +320,7 @@ export class ProjectComponent implements OnInit {
   }
 
   exploreTag(tagValue: string){
-    const searchTerms: string[] = Array.from(
-      new Set(tagValue.split(' ').filter(x => x.length !== 0))
-    );
-    this.router.navigate(['/explore'], {
-      queryParams: { category: 'project', term: JSON.stringify(searchTerms)}
-    });
+    this.exploreService.exploreProject(tagValue);
   }
 }
 

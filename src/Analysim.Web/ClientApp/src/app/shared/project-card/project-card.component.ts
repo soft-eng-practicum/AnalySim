@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { User } from 'src/app/interfaces/user';
 import { of, } from 'rxjs';
 import { map, switchAll } from 'rxjs/operators';
+import { ExploreService } from 'src/app/services/explore.service';
 
 
 @Component({
@@ -20,6 +21,7 @@ export class ProjectCardComponent implements OnInit {
   constructor(
     private projectService : ProjectService,
     private accountService : AccountService,
+    private exploreService : ExploreService,
     private router : Router
     ) { }
 
@@ -157,5 +159,9 @@ export class ProjectCardComponent implements OnInit {
         }
       )
     }
+  }
+
+  exploreTag(tagValue: string){
+    this.exploreService.exploreProject(tagValue);
   }
 }
