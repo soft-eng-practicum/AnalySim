@@ -36,7 +36,6 @@ export class JupyterLiteStorageService {
     }
 
     removeFile(fileName: string): Promise<any> {
-        this.checkpointsStore.removeItem(fileName);
         return this.filesStore.removeItem(fileName);
     }
 

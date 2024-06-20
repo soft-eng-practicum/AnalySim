@@ -19,29 +19,29 @@ import * as d3 from 'd3';
 export class ProjectFileExplorerComponent implements OnInit {
 
   constructor(
-    private projectService : ProjectService,
-    private modalService : BsModalService, 
-    private notfi : NotificationService,
+    private projectService: ProjectService,
+    private modalService: BsModalService,
+    private notfi: NotificationService,
     private router: Router,
     private _renderer2: Renderer2) { }
 
-  @ViewChild('uploadModal') uploadFileModal : TemplateRef<any>;
-  @ViewChild('folderModal') folderModal : TemplateRef<any>;
+  @ViewChild('uploadModal') uploadFileModal: TemplateRef<any>;
+  @ViewChild('folderModal') folderModal: TemplateRef<any>;
   @ViewChild('renameModal') renameModal: TemplateRef<any>;
   @ViewChild('closeDeleteModalbutton') closeDeleteModalbutton;
 
   @ViewChild('observablehqPanel', { read: ElementRef }) observablehqPanel;
 
-  uploadModalRef : BsModalRef;
-  folderModalRef : BsModalRef;
+  uploadModalRef: BsModalRef;
+  folderModalRef: BsModalRef;
   renameModalRef: BsModalRef;
 
-  @Input() project : Project
-  @Input() currentUser : User
-  @Input() currentDirectory : string
-  @Input() isMember : boolean
+  @Input() project: Project
+  @Input() currentUser: User
+  @Input() currentDirectory: string
+  @Input() isMember: boolean
 
-  blobFileItemList : BlobFileItem[] = []
+  blobFileItemList: BlobFileItem[] = []
   validDirectory: boolean = true;
   selectedItem: number = null;
   filePreview: boolean = false;
@@ -52,7 +52,7 @@ export class ProjectFileExplorerComponent implements OnInit {
   fileType: string = "";
   dataBrowserURL: string = "";
   main = null;
-  csvFile : any;
+  csvFile: any;
 
   async ngOnInit() {
     this.dataBrowserURL = 'https://observablehq.com/embed/@sfsu/untitled?cell=*&dataset=';
@@ -72,25 +72,22 @@ export class ProjectFileExplorerComponent implements OnInit {
     script.text = this.generateScript;
     this._renderer2.appendChild(this.observablehqPanel.nativeElement, script);
   }
-  
-  extractDirectory(url){
+
+  extractDirectory(url) {
     let route = url.split("/").slice(4).join('/');
-    if(route==="")
-    {
+    if (route === "") {
       return route;
     }
-    return route+'/';
+    return route + '/';
   }
-  
+
 
   public fileEvent($event) {
-    for (let file of $event.target.files)
-    {
+    for (let file of $event.target.files) {
       // Check If Name Already Exist
-      if((this.blobFileItemList.findIndex(x => x.name == file.name)) == -1)
-      {
+      if ((this.blobFileItemList.findIndex(x => x.name == file.name)) == -1) {
         // Add File To Upload List
-        var fileItem : UploadFileItem = {
+        var fileItem: UploadFileItem = {
           file: file,
           directory: this.currentDirectory,
           projectID: this.project.projectID,
@@ -98,110 +95,111 @@ export class ProjectFileExplorerComponent implements OnInit {
           uploadMessage: ""
         }
         this.uploadFileList.push(fileItem)
-      }    
+      }
     }
-    
-    if(this.uploadFileList.length == 0){
+
+    if (this.uploadFileList.length == 0) {
       // Show Warning If No Unique Name
       this.notfi.showWarning("File Name Already Exist", "Upload Error")
     }
-    else{
+    else {
       // Show Upload Modal
       this.toggleModalUpload()
     }
   }
 
-  toggleModalRename(){
+  toggleModalRename() {
     // Show Rename Modal
-    if(this.isValidDirectory){
+    if (this.isValidDirectory) {
       this.renameModalRef = this.modalService.show(this.renameModal)
     }
 
   }
-  toggleModalUpload(){
+  toggleModalUpload() {
     // Show Upload Modal
-    if(this.isValidDirectory){
+    if (this.isValidDirectory) {
       this.uploadModalRef = this.modalService.show(this.uploadFileModal)
     }
   }
 
-  toggleModalFolder(){
+  toggleModalFolder() {
     // Show Folder Modal
-    if(this.isValidDirectory){
+    if (this.isValidDirectory) {
       this.folderModalRef = this.modalService.show(this.folderModal)
     }
   }
 
-  get isValidDirectory(){
-    return !this.blobFileItemList.some(x => x.name == "Invalid Directory" || x.name == "Invalid File") 
+  get isValidDirectory() {
+    return !this.blobFileItemList.some(x => x.name == "Invalid Directory" || x.name == "Invalid File")
   }
 
-  displayUsers(){
-  
+  displayUsers() {
+
     var projectmembers = []
     var myObj = this.project.projectUsers;
-    (myObj).forEach(element => {projectmembers.push("User " + element.userID + ". " )
-      
+    (myObj).forEach(element => {
+      projectmembers.push("User " + element.userID + ". ")
+
     });
     alert(projectmembers)
   }
 
-  edit(){
-    if(this.selectedItem != null){
+  edit() {
+    if (this.selectedItem != null) {
 
       var item = this.blobFileItemList[this.selectedItem] //get selected item
       this.selectedItem = null;
 
       // check if item type is folder
-      if(item.type == "folder"){
+      if (item.type == "folder") {
 
         this.toggleModalRename() //file model pops up and user can enter folder name
       }
 
-      
+
     }
   }
 
 
 
-  delete(){
-    
-    if(this.selectedItem != null){
+  delete() {
+
+    if (this.selectedItem != null) {
       // Get Selected Item
       var item = this.blobFileItemList[this.selectedItem]
-      
+
       // Unselect The Current Item
       this.selectedItem = null
-      
+
       // Delete Item If File
-      if(item.type == "file"){
-        
+      if (item.type == "file") {
+
         // Remove Item From Project File
-        let index = this.project.blobFiles.indexOf(item.file,0)
+        let index = this.project.blobFiles.indexOf(item.file, 0)
         if (index > -1 && this.project.blobFiles.length > 1) {
           this.project.blobFiles.splice(index, 1);
         }
-        else if(index > -1 && this.project.blobFiles.length == 1){
+        else if (index > -1 && this.project.blobFiles.length == 1) {
           this.project.blobFiles = []
         }
-        
+
         // Refresh The Page
         this.setDirectoryFile(this.currentDirectory)
 
         // Delete The Item
-        this.projectService.deleteFile(item.file.blobFileID,this.isMember).subscribe(res=>{
+        this.projectService.deleteFile(item.file.blobFileID, this.isMember).subscribe(res => {
           console.log(res);
           this.closeDeleteModalbutton.nativeElement.click();
         })
 
 
-        
+
       }
     }
-    
+
   }
 
-  saveFile(){
+  saveFile() {
     /*
     if(this.selectedItem != null){
       // Get Current Selected Item
@@ -221,20 +219,20 @@ export class ProjectFileExplorerComponent implements OnInit {
       }
     }
     */
-    
-   if(this.selectedItem != null){
-    // Get Current Selected Item
-    var item = this.blobFileItemList[this.selectedItem]
-    window.open(item.file.uri, "_blank");
-   }
+
+    if (this.selectedItem != null) {
+      // Get Current Selected Item
+      var item = this.blobFileItemList[this.selectedItem]
+      window.open(item.file.uri, "_blank");
+    }
 
   }
 
-  updateFileList(uploadFileList : UploadFileItem[]){
+  updateFileList(uploadFileList: UploadFileItem[]) {
     this.uploadFileList = uploadFileList;
   }
 
-  addNewFile(blobFile : BlobFile){
+  addNewFile(blobFile: BlobFile) {
     // Push File To Project
     this.project.blobFiles.push(blobFile)
 
@@ -242,7 +240,7 @@ export class ProjectFileExplorerComponent implements OnInit {
     this.setDirectoryFile(this.currentDirectory)
   }
 
-  setSelectedItem(itemNum : number){
+  setSelectedItem(itemNum: number) {
     this.selectedItem = itemNum
   }
 
@@ -262,8 +260,8 @@ export class ProjectFileExplorerComponent implements OnInit {
 
   }
 
-  public setDirectoryFile(directory : string){
-    
+  public setDirectoryFile(directory: string) {
+
     // Reset Item List
     this.blobFileItemList = []
 
@@ -272,38 +270,37 @@ export class ProjectFileExplorerComponent implements OnInit {
 
     var defaultRoute = "project/" + this.project.route
 
-    console.log(this.currentDirectory);
+    console.log("inside setDirectory: ", this.currentDirectory);
 
     this.filePreview = false
 
-    if(this.project.blobFiles.length != 0){
+    if (this.project.blobFiles.length != 0) {
       // Check If Directory Is File
       if (!(this.currentDirectory.indexOf(".") > -1)) {
         this.fileType = "folder";
-        let fileItemList : BlobFileItem[] = [];
+        let fileItemList: BlobFileItem[] = [];
 
         // Input Directory Num
-        var currentDirectoryNum = directory.split("/").length-1;
+        var currentDirectoryNum = directory.split("/").length - 1;
 
         // Check If File 
-        this.project.blobFiles.forEach(file => 
-        {
+        this.project.blobFiles.forEach(file => {
 
           // Get Full Path Of File
           let fullName = file.directory + file.name + file.extension
 
           // File Directory Num
-          var fileDirectoryNum = fullName.split("/").length-1
+          var fileDirectoryNum = fullName.split("/").length - 1
 
           // Total Directory Num
           var totalDirectoryNum = fileDirectoryNum - currentDirectoryNum
 
           // Check Match Starting Directory
-          if (fullName.startsWith(directory)){
-            switch (totalDirectoryNum){
+          if (fullName.startsWith(directory)) {
+            switch (totalDirectoryNum) {
               // Match Current Directory File
               case 0:
-                var fileItem : BlobFileItem = {
+                var fileItem: BlobFileItem = {
                   type: "file",
                   name: file.name + file.extension,
                   file: file,
@@ -316,7 +313,7 @@ export class ProjectFileExplorerComponent implements OnInit {
               // Match Next Folder Directory
               case 1:
                 let newDirectory = file.directory.replace(directory, "")
-                var fileItem : BlobFileItem = {
+                var fileItem: BlobFileItem = {
                   type: "folder",
                   name: newDirectory.substring(0, newDirectory.lastIndexOf("/")),
                   file: null,
@@ -331,7 +328,7 @@ export class ProjectFileExplorerComponent implements OnInit {
         })
 
         // Invalid Directory If Nothing Matches
-        if(fileItemList.length == 0){
+        if (fileItemList.length == 0) {
 
           // Return Nothing If No Valid Path
           this.blobFileItemList = [
@@ -353,10 +350,10 @@ export class ProjectFileExplorerComponent implements OnInit {
             }
           ]
         }
-        else{
+        else {
           // If One Slash, Redirect to Root
-          if(currentDirectoryNum == 1){
-            var fileItem : BlobFileItem = {
+          if (currentDirectoryNum == 1) {
+            var fileItem: BlobFileItem = {
               type: "none",
               name: ". . .",
               file: null,
@@ -367,13 +364,13 @@ export class ProjectFileExplorerComponent implements OnInit {
             fileItemList.push(fileItem)
           }
           // If More Then One Slash, Redirect to Previous Directory
-          else if(currentDirectoryNum > 1){
-            var fileItem : BlobFileItem = {
+          else if (currentDirectoryNum > 1) {
+            var fileItem: BlobFileItem = {
               type: "none",
               name: ". . .",
               file: null,
               defaultroute: defaultRoute + "/",
-              redirect: directory.substring(0 , directory.substring(0, directory.lastIndexOf("/")).lastIndexOf("/") + 1),
+              redirect: directory.substring(0, directory.substring(0, directory.lastIndexOf("/")).lastIndexOf("/") + 1),
               order: null
             }
             fileItemList.push(fileItem)
@@ -384,10 +381,10 @@ export class ProjectFileExplorerComponent implements OnInit {
         fileItemList = fileItemList.filter((item, index) => { return fileItemList.findIndex(file => file.name == item.name) == index })
 
         // Sort By Name
-        fileItemList.sort((a,b) => (a.name > b.name) ? 1 : -1)
+        fileItemList.sort((a, b) => (a.name > b.name) ? 1 : -1)
 
         // Sort By Type
-        fileItemList.sort((a,b) => (a.type < b.type) ? 1 : -1)
+        fileItemList.sort((a, b) => (a.type < b.type) ? 1 : -1)
 
         // Remove Placeholder File
         fileItemList = fileItemList.filter(x => x.name != "$$$.$$")
@@ -401,13 +398,14 @@ export class ProjectFileExplorerComponent implements OnInit {
       else {
         this.fileType = "file";
         // Set File List
-        let fileItemList : BlobFileItem[] = [];
-        console.log(this.project.blobFiles);
-        console.log(this.currentDirectory);
-        this.currentDirectory = decodeURIComponent(this.currentDirectory.slice(0,this.currentDirectory.length-1));
+        let fileItemList: BlobFileItem[] = [];
+        console.log(this.project);
+        console.log(this.currentDirectory.length);
+        this.currentDirectory = decodeURIComponent(this.currentDirectory.slice(0, this.currentDirectory.length - 1));
+        console.log("current directory decoded: ", this.currentDirectory);
         var file = this.project.blobFiles.find(x => this.currentDirectory == x.directory + x.name + x.extension)
         // Check if file exist
-        if(file == undefined ){
+        if (file == undefined) {
           fileItemList = [
             {
               type: "none",
@@ -429,13 +427,13 @@ export class ProjectFileExplorerComponent implements OnInit {
         }
         else {
           directory = this.currentDirectory;
-          fileItemList.push( 
+          fileItemList.push(
             {
               type: "none",
               name: ". . .",
               file: null,
               defaultroute: defaultRoute + "/",
-              redirect: directory.substring(0 , directory.lastIndexOf("/")+1),
+              redirect: directory.substring(0, directory.lastIndexOf("/") + 1),
               order: 0
             },
             {
@@ -451,7 +449,7 @@ export class ProjectFileExplorerComponent implements OnInit {
           this.dataBrowserURL += file.uri;
           this.csvFile = file;
           console.log(this.dataBrowserURL);
-          
+
         }
 
         //Set Blob File Item

@@ -12,9 +12,9 @@ import { ProjectService } from 'src/app/services/project.service';
 })
 export class ModalUploadNotebookComponent implements OnInit {
 
-  constructor(private formBuilder: FormBuilder,private projectService: ProjectService) { }
+  constructor(private formBuilder: FormBuilder, private projectService: ProjectService) { }
 
-  uploadNotebookForm : FormGroup;
+  uploadNotebookForm: FormGroup;
   notebookName: FormControl;
   notebookURL: FormControl;
   isLoading: Boolean;
@@ -26,7 +26,7 @@ export class ModalUploadNotebookComponent implements OnInit {
   url: string;
   notebookType: "jupyter" | "observablehq" | "collab" = "jupyter";
 
-  datasets : ObservableHQDataset[] = [];
+  datasets: ObservableHQDataset[] = [];
 
 
   @Input() project: Project;
@@ -61,9 +61,8 @@ export class ModalUploadNotebookComponent implements OnInit {
     this.notebookType = selectedType;
   }
 
-  fileEvent($event)
-  {
-    this.file=$event.target.files[0];
+  fileEvent($event) {
+    this.file = $event.target.files[0];
   }
 
   urlEvent($event) {
@@ -84,21 +83,18 @@ export class ModalUploadNotebookComponent implements OnInit {
       });
     }
     if (this.showAddExistingNotebook) {
-      if(this.notebookType==="observablehq")
-      {
-        let datasetMap ={
+      if (this.notebookType === "observablehq") {
+        let datasetMap = {
 
         }
         let params = [];
-        for(let dataset of this.datasets)
-        {
+        for (let dataset of this.datasets) {
           let trimmedDatasetName = dataset.datasetName.trim().toLowerCase();
-          if(!(trimmedDatasetName in datasetMap))
-          {
+          if (!(trimmedDatasetName in datasetMap)) {
             datasetMap[trimmedDatasetName] = true;
-            params.push(trimmedDatasetName+'='+dataset.datasetURL);
+            params.push(trimmedDatasetName + '=' + dataset.datasetURL);
           }
-          else{
+          else {
             alert("All the dataset names must be unique");
             return;
           }
@@ -120,7 +116,7 @@ export class ModalUploadNotebookComponent implements OnInit {
     }
   }
 
-  addDataset(){
+  addDataset() {
     this.datasets.push({
       datasetName: "",
       datasetURL: "",
@@ -128,15 +124,15 @@ export class ModalUploadNotebookComponent implements OnInit {
     console.log(this.datasets);
   }
 
-  removeDataset(index){
-    this.datasets.splice(index,1);
+  removeDataset(index) {
+    this.datasets.splice(index, 1);
   }
 
-  changeDatasetName(index,$event){
+  changeDatasetName(index, $event) {
     this.datasets[index].datasetName = $event.target.value;
   }
 
-  changeDatasetURL(index,$event){
+  changeDatasetURL(index, $event) {
     this.datasets[index].datasetURL = $event.target.value;
   }
 

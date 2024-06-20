@@ -47,12 +47,14 @@ export class ProjectService {
   private urlCreateNotebookFolder: string = this.baseUrl + "createNotebookFolder"
   private urlForkProject: string = this.baseUrl + "forkproject"
   private urlForkProjectWithoutBlob: string = this.baseUrl + "forkprojectwithoutblob"
+  private urlAddDatasetToNotebook: string = this.baseUrl + "addDatasetToNotebook"
 
   // Put
   private urlUpdateProject: string = this.baseUrl + "updateproject/"
   private urlupdateUser: string = this.baseUrl + "updateuser"
   private urlUpdateFile: string = this.baseUrl + "updateFile"
   private urlRenameNotebook: string = this.baseUrl + "RenameNotebook"
+  private urlDeleteDatasetFromNotebook: string = this.baseUrl + "deleteDatasetFromNotebook/"
 
   // Delete
   private urlDeleteProject: string = this.baseUrl + "deleteproject/"
@@ -384,6 +386,24 @@ export class ProjectService {
     );
   }
 
+  addDatasetToNotebook(notebookID: number, file: any): Observable<any> {
+    let body = new FormData();
+    body.append('notebookID', notebookID.toString());
+    body.append('datasetName', `${file.name}${file.extension}`);
+    body.append('datasetURL', file.uri);
+
+    return this.http.post<any>(this.urlAddDatasetToNotebook, body).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
   //Service to update a file name
   updateFile(directory: string, userID: number, projectID: number): Observable<BlobFile> {
 
@@ -443,6 +463,25 @@ export class ProjectService {
           return throwError(error)
         })
       )
+  }
+
+
+  deleteDatasetFromNotebook(notebookID: number, file: any): Observable<any> {
+    let body = new FormData();
+    body.append('notebookID', notebookID.toString());
+    body.append('datasetURL', file.uri);
+    console.log("calling delete dataset from notebook api");
+
+    return this.http.put<any>(this.urlDeleteDatasetFromNotebook, body).pipe(
+      map(result => {
+        console.log("after calling delete dataset from notebook : ", result.message)
+        return result.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
   }
 
   deleteProject(projectID: number): Observable<Project> {

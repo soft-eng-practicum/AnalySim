@@ -65,8 +65,8 @@ export class ProjectNotebookItemDisplayComponent {
       .subscribe(nbContent => {
         console.log("notebook content during fetching : ", nbContent);
         console.log("notebook : ", this.notebook);
-        const fileName = `${this.notebook.name}${this.notebook.extension}`;
-        const fileData = {
+        const notebookName = `${this.notebook.name}${this.notebook.extension}`;
+        const notebookData = {
           content: nbContent, // The content of the notebook
           created: new Date().toISOString(),
           format: "json",
@@ -74,18 +74,49 @@ export class ProjectNotebookItemDisplayComponent {
           hash_algorithm: null,
           last_modified: new Date().toISOString(),
           mimetype: 'application/x-ipynb+json',
-          name: fileName,
+          name: notebookName,
           size: this.notebook.size,
-          path: fileName,
+          path: notebookName,
           type: 'notebook',
           writable: true,
         };
 
-        // Add a file
-        this.jupyterLiteStorageService.addFile(fileName, fileData).then(
+        // Fetch and add datasets of the notebook
+        let datasets = this.notebook.observableNotebookDatasets;
+        if (datasets) {
+          datasets.forEach(dataset => {
+            this.http.get(dataset.datasetURL, { responseType: 'text' }).subscribe(data => {
+              console.log("dataset content during fetching : ", data);
+              const datasetName = dataset.datasetName;
+              const datasetData = {
+                content: data, // The content of the dataset
+                created: new Date().toISOString(),
+                format: "text",
+                last_modified: new Date().toISOString(),
+                mimetype: 'text/csv',
+                name: datasetName,
+                path: datasetName,
+                size: 0,
+                type: 'file',
+                writable: true,
+              }
+
+              this.jupyterLiteStorageService.addFile(datasetName, datasetData).then(
+                () => {
+                  console.log(`Dataset ${datasetName} added successfully`);
+                },
+                (error) => {
+                  console.error('Error adding dataset:', error);
+                }
+              );
+            });
+          });
+        }
+
+        // Add the notebook
+        this.jupyterLiteStorageService.addFile(notebookName, notebookData).then(
           () => {
             console.log('File added successfully');
-            // this.isLoading = false;
           },
           (error) => {
             console.error('Error adding file:', error);
@@ -137,6 +168,28 @@ export class ProjectNotebookItemDisplayComponent {
           console.error('Error getting file:', error);
         }
       );
+      this.jupyterLiteStorageService.removeFile(`${this.notebook.name}${this.notebook.extension}`).then(
+        () => {
+          console.log('File removed successfully');
+        },
+        (error) => {
+          console.error('Error removing file:', error);
+        }
+      );
+    }
+
+    let datasets = this.notebook.observableNotebookDatasets;
+    if (datasets) {
+      datasets.forEach(dataset => {
+        this.jupyterLiteStorageService.removeFile(dataset.datasetName).then(
+          () => {
+            console.log(`Dataset ${dataset.datasetName} removed successfully`);
+          },
+          (error) => {
+            console.error('Error removing dataset:', error);
+          }
+        );
+      });
     }
   }
 
