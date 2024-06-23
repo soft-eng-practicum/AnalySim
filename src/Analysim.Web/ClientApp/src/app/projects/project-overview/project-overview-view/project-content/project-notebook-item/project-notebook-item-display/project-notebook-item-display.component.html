@@ -4,7 +4,7 @@
         <h5 class="modal-title">Notebook</h5>
         <button type="button" #closebutton class="close" data-dismiss="modal" (click)="closeNotebook()">&times;</button>
     </div>
-    <div id="jupyterlite-container" *ngIf="notebook.type === 'notebook' || notebook.type === 'new'">
+    <div id="jupyterlite-container" *ngIf="notebook.type === 'new'">
         <div *ngIf="isLoading" class="spinner-container">
             <div class="spinner-border" role="status">
             </div>

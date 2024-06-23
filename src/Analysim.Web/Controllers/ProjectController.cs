@@ -781,6 +781,7 @@ namespace Web.Controllers
                     Console.WriteLine(fileId);
                     string url = $"https://docs.google.com/uc?export=download&id={fileId}";
                     string fileName = noteBookData.NotebookName + ".ipynb";
+                    string filePath = Path.Combine(Path.GetTempPath(), fileName); // Save file in the temp directory
                     using (HttpClient client = new HttpClient())
                     {
                         HttpResponseMessage response = await client.GetAsync(url);
@@ -789,7 +790,7 @@ namespace Web.Controllers
                         using (HttpContent content = response.Content)
                         {
                             byte[] data = await content.ReadAsByteArrayAsync();
-                            System.IO.File.WriteAllBytes(fileName, data);
+                            System.IO.File.WriteAllBytes(filePath, data);
                         }
                     }
 
@@ -804,7 +805,7 @@ namespace Web.Controllers
                         containerClient = await _blobService.CreateContainer(containerClient);
                     }
                     BlobClient blob = containerClient.GetBlobClient(noteBookData.Directory + fileName);
-                    using (FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                     {
                         containerClient.UploadBlob(noteBookData.Directory + fileName, fileStream);
                     }
@@ -821,13 +822,16 @@ namespace Web.Controllers
                         DateCreated = properties.CreatedOn.UtcDateTime,
                         LastModified = properties.LastModified.UtcDateTime,
                         ProjectID = noteBookData.ProjectID,
-                        type = "collab"
+                        type = "new"
                     };
 
                     Console.WriteLine(blob.Uri.ToString());
 
-                    string ExitingFile = Path.Combine("", fileName);
-                    //System.IO.File.Delete(ExitingFile);
+                    // Delete the local file after use
+                     if (System.IO.File.Exists(filePath))
+                     {
+                        System.IO.File.Delete(filePath);
+                     }
                 }
                 else if (noteBookData.Type == "observablehq")
                 {

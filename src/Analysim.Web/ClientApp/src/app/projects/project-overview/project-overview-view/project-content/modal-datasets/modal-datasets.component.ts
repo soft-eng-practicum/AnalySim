@@ -18,33 +18,17 @@ export class ModalDatasetsComponent implements OnInit {
   @Input() notebook: Notebook;
   @Input() project: Project;
 
-  blobFiles = [
-    {
-      directory: "test/",
-      name: "test.txt",
-    },
-    {
-      directory: "test/hero/",
-      name: "hero.txt",
-    },
-    {
-      directory: "honda/",
-      name: "honda.txt",
-    }
-  ]
-
   constructor(private projectService: ProjectService) { }
 
   ngOnInit(): void {
-    console.log("received notebook in datasets : ", this.notebook);
-    console.log("received project in datasets : ", this.project);
+    // console.log("received notebook in datasets : ", this.notebook);
+    // console.log("received project in datasets : ", this.project);
     this.fileTree = this.organizeFiles(this.project.blobFiles);
-    console.log("fileTree : ", this.fileTree);
+    // console.log("fileTree : ", this.fileTree);
   }
 
   toggleFolder(folder: any): void {
     folder.open = !folder.open;
-    console.log("folder toggled: ", folder);
   }
 
   organizeFiles(blobFiles: any[]) {
@@ -55,7 +39,7 @@ export class ModalDatasetsComponent implements OnInit {
       if (parts.length > 0) {
         parts.splice(parts.length - 1, 1);
       }
-      console.log("parts : ", parts);
+      // console.log("parts : ", parts);
       let current = fileTree;
 
       parts.forEach(part => {

@@ -42,7 +42,7 @@ export class DatasetFolderViewComponent implements OnInit {
         this.notebook.observableNotebookDatasets.push(newDataset);
       });
     }
-    console.log("datasets : ", this.notebook.observableNotebookDatasets);
+    // console.log("datasets : ", this.notebook.observableNotebookDatasets);
   }
 
 }

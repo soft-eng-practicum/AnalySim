@@ -61,10 +61,11 @@ export class ProjectNotebookItemDisplayComponent {
   loadNotebook() {
     const url = `../../../../../../../assets/jupyter/dist/lab/index.html?path=${this.notebook.name}${this.notebook.extension}`;
     this.jupyterFrameSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    // console.log("notebook uri : ", this.notebook.uri);
     this.http.get(this.notebook.uri, { responseType: 'json' })
       .subscribe(nbContent => {
-        console.log("notebook content during fetching : ", nbContent);
-        console.log("notebook : ", this.notebook);
+        // console.log("notebook content during fetching : ", nbContent);
+        // console.log("notebook : ", this.notebook);
         const notebookName = `${this.notebook.name}${this.notebook.extension}`;
         const notebookData = {
           content: nbContent, // The content of the notebook
@@ -86,7 +87,7 @@ export class ProjectNotebookItemDisplayComponent {
         if (datasets) {
           datasets.forEach(dataset => {
             this.http.get(dataset.datasetURL, { responseType: 'text' }).subscribe(data => {
-              console.log("dataset content during fetching : ", data);
+              // console.log("dataset content during fetching : ", data);
               const datasetName = dataset.datasetName;
               const datasetData = {
                 content: data, // The content of the dataset
@@ -103,7 +104,7 @@ export class ProjectNotebookItemDisplayComponent {
 
               this.jupyterLiteStorageService.addFile(datasetName, datasetData).then(
                 () => {
-                  console.log(`Dataset ${datasetName} added successfully`);
+                  // console.log(`Dataset ${datasetName} added successfully`);
                 },
                 (error) => {
                   console.error('Error adding dataset:', error);
