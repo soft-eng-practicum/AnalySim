@@ -163,6 +163,7 @@ export class ProjectFileExplorerComponent implements OnInit {
 
 
   delete() {
+    // console.log("the project is : ", this.project);
 
     if (this.selectedItem != null) {
       // Get Selected Item
@@ -170,30 +171,57 @@ export class ProjectFileExplorerComponent implements OnInit {
 
       // Unselect The Current Item
       this.selectedItem = null
+      // console.log("the selected file is : ", item)
 
       // Delete Item If File
       if (item.type == "file") {
 
-        // Remove Item From Project File
-        let index = this.project.blobFiles.indexOf(item.file, 0)
-        if (index > -1 && this.project.blobFiles.length > 1) {
-          this.project.blobFiles.splice(index, 1);
+        // Delete The Item
+        this.projectService.deleteFile(item.file.blobFileID, this.isMember).subscribe(res => {
+          console.log(res);
+
+          // Remove Item From Project File
+          let index = this.project.blobFiles.indexOf(item.file, 0)
+          if (index > -1 && this.project.blobFiles.length > 1) {
+            this.project.blobFiles.splice(index, 1);
+          }
+          else if (index > -1 && this.project.blobFiles.length == 1) {
+            this.project.blobFiles = []
+          }
+
+          // Refresh The Page
+          this.setDirectoryFile(this.currentDirectory)
+          this.closeDeleteModalbutton.nativeElement.click();
+        })
+      }
+      else if (item.type == "folder") {
+        //checking if the folder is empty
+        let filesInsideFolder = this.project.blobFiles.filter(x => {
+          return (
+            x.directory.startsWith(item.redirect) &&
+            (x.directory != item.redirect || x.extension != ".$$")
+          )
+        })
+        if (filesInsideFolder.length > 0) {
+          this.notfi.showWarning("Folder is not empty", "Delete Error")
+          this.closeDeleteModalbutton.nativeElement.click();
+          return
         }
-        else if (index > -1 && this.project.blobFiles.length == 1) {
-          this.project.blobFiles = []
+        // Remove Item From Project File
+        let index = this.project.blobFiles.findIndex(x => x.directory == item.redirect)
+        let blobFileId = this.project.blobFiles[index].blobFileID
+        if (index > -1) {
+          this.project.blobFiles.splice(index, 1);
         }
 
         // Refresh The Page
         this.setDirectoryFile(this.currentDirectory)
 
         // Delete The Item
-        this.projectService.deleteFile(item.file.blobFileID, this.isMember).subscribe(res => {
+        this.projectService.deleteFile(blobFileId, this.isMember).subscribe(res => {
           console.log(res);
           this.closeDeleteModalbutton.nativeElement.click();
         })
-
-
-
       }
     }
 

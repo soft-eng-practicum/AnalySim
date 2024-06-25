@@ -775,7 +775,7 @@ namespace Web.Controllers
                 Notebook newNotebook;
 
                 string notebookUrl = noteBookData.NotebookURL;
-                if (noteBookData.Type == "collab")
+                if (noteBookData.Type == "colab")
                 {
                     string fileId = GrabId(notebookUrl);
                     Console.WriteLine(fileId);
@@ -828,10 +828,10 @@ namespace Web.Controllers
                     Console.WriteLine(blob.Uri.ToString());
 
                     // Delete the local file after use
-                     if (System.IO.File.Exists(filePath))
-                     {
+                    if (System.IO.File.Exists(filePath))
+                    {
                         System.IO.File.Delete(filePath);
-                     }
+                    }
                 }
                 else if (noteBookData.Type == "observablehq")
                 {
@@ -1341,6 +1341,18 @@ namespace Web.Controllers
                     // Find File
                     var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
                     if (blobFile == null) return NotFound(new { message = "File Not Found" });
+
+                    if (blobFile.Extension != ".$$")
+                    {
+                        var dataset = await _dbContext.ObservableNotebookDataset.FirstOrDefaultAsync(data => data.datasetURL == blobFile.Uri);
+                        // Console.Write(blobFile.Uri);
+
+                        if (dataset != null)
+                        {
+                            // Console.Write("deleting the dataset from observable");
+                            _dbContext.ObservableNotebookDataset.Remove(dataset);
+                        }
+                    }
 
                     await _blobService.DeleteBlobAsync(blobFile);
 
