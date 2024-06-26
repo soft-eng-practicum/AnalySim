@@ -19,7 +19,6 @@ export class DatasetFolderViewComponent implements OnInit {
   constructor(private projectService: ProjectService) { }
 
   ngOnInit(): void {
-    console.log("folder : ", this.folder);
   }
 
   toggleFolder(folder: any): void {
@@ -27,7 +26,7 @@ export class DatasetFolderViewComponent implements OnInit {
   }
 
   datasetExists(file: any): boolean {
-    return this.notebook.observableNotebookDatasets.some((dataset: any) => dataset.datasetName === `${file.name}${file.extension}`);
+    return this.notebook.observableNotebookDatasets.some((dataset: any) => dataset.datasetURL === file.uri);
   }
 
   toggleDataset(file: any): void {

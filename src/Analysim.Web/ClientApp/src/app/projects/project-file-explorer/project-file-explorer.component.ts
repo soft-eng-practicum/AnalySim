@@ -53,16 +53,21 @@ export class ProjectFileExplorerComponent implements OnInit {
   dataBrowserURL: string = "";
   main = null;
   csvFile: any;
+  folders: string = "";
 
   async ngOnInit() {
     this.dataBrowserURL = 'https://observablehq.com/embed/@sfsu/untitled?cell=*&dataset=';
     this.currentDirectory = this.extractDirectory(this.router.url);
     this.setDirectoryFile(this.currentDirectory);
+    this.folders = "/ " + this.currentDirectory.split("/").join(" / ");
     this.router.events.subscribe((ev) => {
       if (ev instanceof NavigationEnd) {
         this.currentDirectory = this.extractDirectory(this.router.url);
         this.setDirectoryFile(this.currentDirectory)
       }
+      // console.log(this.currentDirectory);
+      this.folders = "/ " + this.currentDirectory.split("/").join(" / ");
+      // console.log(this.folders);
     });
   }
 
@@ -192,6 +197,7 @@ export class ProjectFileExplorerComponent implements OnInit {
           // Refresh The Page
           this.setDirectoryFile(this.currentDirectory)
           this.closeDeleteModalbutton.nativeElement.click();
+          this.router.navigate(["project/" + this.project.route])
         })
       }
       else if (item.type == "folder") {
@@ -298,7 +304,7 @@ export class ProjectFileExplorerComponent implements OnInit {
 
     var defaultRoute = "project/" + this.project.route
 
-    console.log("inside setDirectory: ", this.currentDirectory);
+    // console.log("inside setDirectory: ", this.currentDirectory);
 
     this.filePreview = false
 
