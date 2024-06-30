@@ -68,7 +68,7 @@ namespace Core.Services
             var containerClient = _blobServiceClient.GetBlobContainerClient(notebook.Container.ToLower());
 
             // Get File Reference
-            var blobClient = containerClient.GetBlobClient(notebook.Directory+notebook.Name + notebook.Extension);
+            var blobClient = containerClient.GetBlobClient(notebook.Directory + notebook.Name + notebook.Extension);
 
             // Download File
             BlobDownloadInfo blobDownloadInfo = await blobClient.DownloadAsync();
@@ -167,7 +167,7 @@ namespace Core.Services
         public async Task<BlobClient> CreateNotebookFolder(string container, string filePath)
         {
             // Get Storage Container
-            var containerClient = _blobServiceClient.GetBlobContainerClient("notebook-"+container.ToLower());
+            var containerClient = _blobServiceClient.GetBlobContainerClient("notebook-" + container.ToLower());
 
             bool isExist = containerClient.Exists();
             if (!isExist)
@@ -288,7 +288,7 @@ namespace Core.Services
             // Get Storage Container
             var containerClient = _blobServiceClient.GetBlobContainerClient(notebook.Container.ToLower());
 
-            if(notebook.type== "new" || notebook.type== "collab" || notebook.type=="folder")
+            if (notebook.type == "new" || notebook.type == "colab" || notebook.type == "folder")
             {
                 var blobClient = containerClient.GetBlobClient(notebook.Directory + notebook.Name + notebook.Extension);
                 await blobClient.DeleteIfExistsAsync();

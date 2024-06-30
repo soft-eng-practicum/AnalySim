@@ -8,7 +8,8 @@
             <!-- Form Group Username -->
             <div class="form-group">
                 <label for="notebookName">Notebook Name</label>
-                <input formControlName="notebookName" type="text" class="form-control" placeholder="" [class.invalid]="notebookName.touched && notebookName.invalid" [readOnly]="isLoading" required>
+                <input formControlName="notebookName" type="text" class="form-control" placeholder=""
+                    [class.invalid]="notebookName.touched && notebookName.invalid" [readOnly]="isLoading" required>
                 <div *ngIf="notebookName.touched && notebookName.errors" class="text-danger">
                     <span [hidden]="!notebookName.errors?.['minlength']">Minimum 1 character</span>
                     <span [hidden]="!notebookName.errors?.['maxlength']">Maximum 20 character</span>
@@ -19,44 +20,49 @@
 
             <div class="form-group">
                 <label>Do you want to add a new notebook or create one from an existing URL?</label>
-                <select #types class="form-control" aria-label="Default select example" (change)="onChange(types.value)">
+                <select #types class="form-control" aria-label="Default select example"
+                    (change)="onChange(types.value)">
                     <option selected value="true">Create a new one</option>
                     <option value="false">Add an existing one</option>
                 </select>
             </div>
 
             <div class="form-group" *ngIf="showCreateNotebook">
-              <label>Create Notebook</label>
-              <input type="file" class="form-control p-1" placeholder="" (change)="fileEvent($event)" />
+                <label>Create Notebook</label>
+                <input type="file" class="form-control p-1" placeholder="" (change)="fileEvent($event)" />
             </div>
 
             <div class="form-group" *ngIf="showAddExistingNotebook">
                 <label for="notebookURL">Notebook Type</label>
-                <select #notebookTypes class="form-control" aria-label="Default select example" (change)="onChangeNotebookType(notebookTypes.value)">
-                    <option  selected value="jupyter">Jupyter</option>
+                <select #notebookTypes class="form-control" aria-label="Default select example"
+                    (change)="onChangeNotebookType(notebookTypes.value)">
+                    <option selected value="jupyter">Jupyter</option>
                     <option value="observablehq">ObservableHQ</option>
-                    <option value="collab">Google Collab</option>
+                    <option value="colab">Google Colab</option>
                 </select>
             </div>
 
             <div class="form-group" *ngIf="showAddExistingNotebook">
                 <label for="notebookURL">Add Existing Notebook (URL)</label>
-                <input formControlName="notebookURL" type="text" class="form-control" placeholder="" (change)="urlEvent($event)" [readOnly]="isLoading" />
+                <input formControlName="notebookURL" type="text" class="form-control" placeholder=""
+                    (change)="urlEvent($event)" [readOnly]="isLoading" />
             </div>
 
             <div class="form-group" *ngIf="showAddExistingNotebook && notebookType==='observablehq'">
                 <label for="notebookURL">Add Datasets</label>
                 <div style="display: flex; margin-top: 10px;" *ngFor="let dataset of datasets;let i = index">
-                <input type="text" class="form-control" placeholder="Dataset Name" (change)="changeDatasetName(i,$event)" [readOnly]="isLoading" style="margin-right: 10px;"/>
-                <input type="text" class="form-control" placeholder="Dataset URL" (change)="changeDatasetURL(i,$event)" [readOnly]="isLoading" style="margin-right: 10px;" />
-                <button type="button" class="btn btn-secondary" (click)="removeDataset(i)">
-                    <i class="fa fa-minus"></i>
-                </button>
+                    <input type="text" class="form-control" placeholder="Dataset Name"
+                        (change)="changeDatasetName(i,$event)" [readOnly]="isLoading" style="margin-right: 10px;" />
+                    <input type="text" class="form-control" placeholder="Dataset URL"
+                        (change)="changeDatasetURL(i,$event)" [readOnly]="isLoading" style="margin-right: 10px;" />
+                    <button type="button" class="btn btn-secondary" (click)="removeDataset(i)">
+                        <i class="fa fa-minus"></i>
+                    </button>
                 </div>
                 <div style="display: flex; align-items: center; width: 100%; justify-content: center;margin-top: 10px;">
-                <button type="button" class="btn btn-primary" (click)="addDataset()">
-                    <i class="fa fa-plus"></i>
-                </button>
+                    <button type="button" class="btn btn-primary" (click)="addDataset()">
+                        <i class="fa fa-plus"></i>
+                    </button>
                 </div>
             </div>
         </div>

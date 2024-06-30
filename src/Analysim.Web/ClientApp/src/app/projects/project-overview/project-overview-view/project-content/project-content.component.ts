@@ -14,13 +14,13 @@ import { ProjectNotebookItemComponent } from './project-notebook-item/project-no
 })
 export class ProjectContentComponent implements OnInit {
 
-  constructor(private modalService: BsModalService, private projectService: ProjectService, private router: Router,private route: ActivatedRoute) {
-   }
+  constructor(private modalService: BsModalService, private projectService: ProjectService, private router: Router, private route: ActivatedRoute) {
+  }
 
   @ViewChild('uploadNotebookModal') uploadNotebookModal: TemplateRef<any>;
   @ViewChild('folderModal') folderModal: TemplateRef<any>;
 
-   @Input() project : Project
+  @Input() project: Project
 
   uploadNotebookModalRef: BsModalRef;
   folderModalRef: BsModalRef;
@@ -37,7 +37,7 @@ export class ProjectContentComponent implements OnInit {
 
   stackDirectories: string[] = ["notebook/"];
 
-  currentNotebook : Notebook = null;
+  currentNotebook: Notebook = null;
 
   notebookID = null;
 
@@ -57,51 +57,49 @@ export class ProjectContentComponent implements OnInit {
       }
     });
 
-    this.route.queryParams.subscribe((params: Params)=>{
+    this.route.queryParams.subscribe((params: Params) => {
       const {
         isNotebook,
-        notebookId 
+        notebookId
       } = params;
       this.notebookID = notebookId;
     })
-    if(this.isCurrentDirNotebook)
-    this.getNotebook();
+    if (this.isCurrentDirNotebook)
+      this.getNotebook();
   }
 
-  getNotebook(){
+  getNotebook() {
     this.projectService.getNotebook(this.notebookID).subscribe(result => {
       this.currentNotebook = result;
       this.displayNotebook(this.currentNotebook);
     });
   }
 
-  extractDirectory(url){
-    return url.split("/").slice(4).join('/')+'/';
+  extractDirectory(url) {
+    return url.split("/").slice(4).join('/') + '/';
   }
 
-  fetchNotebooks(){
-    if(!this.currentDirectory.includes("?"))
-    {
-    this.getNotebooks(this.currentDirectory);
-    this.isCurrentDirNotebook = false;
+  fetchNotebooks() {
+    if (!this.currentDirectory.includes("?")) {
+      this.getNotebooks(this.currentDirectory);
+      this.isCurrentDirNotebook = false;
     }
-    else
-    {
-    this.currentDirectory=this.currentDirectory.split("?")[0];
-    this.getNotebooks(this.currentDirectory);
-    this.isCurrentDirNotebook = true;
+    else {
+      this.currentDirectory = this.currentDirectory.split("?")[0];
+      this.getNotebooks(this.currentDirectory);
+      this.isCurrentDirNotebook = true;
     }
   }
 
-  displayNotebook(notebook : Notebook){
+  displayNotebook(notebook: Notebook) {
     this.currentNotebook = notebook;
     console.log(this.currentNotebook);
-    this.displayNotebookModalRef = this.modalService.show(this.displayNotebookModal,{
+    this.displayNotebookModalRef = this.modalService.show(this.displayNotebookModal, {
       backdrop: 'static',
     });
   }
 
-  toggleModalUpload(){
+  toggleModalUpload() {
     this.uploadNotebookModalRef = this.modalService.show(this.uploadNotebookModal);
   }
 
@@ -109,20 +107,20 @@ export class ProjectContentComponent implements OnInit {
     this.uploadNotebookModalRef.hide();
   }
 
-  closeDisplayNotebookModal(){
+  closeDisplayNotebookModal() {
     this.displayNotebookModalRef.hide();
     this.navigateToPreviousComponent();
   }
 
   getNotebooks(directory: string) {
-    this.projectService.getNotebooks(this.project.projectID,encodeURIComponent(directory)).subscribe(result => {
+    this.projectService.getNotebooks(this.project.projectID, encodeURIComponent(directory)).subscribe(result => {
       this.notebooks = result;
     });
 
   }
 
   openFolderModal() {
-      this.folderModalRef = this.modalService.show(this.folderModal)
+    this.folderModalRef = this.modalService.show(this.folderModal)
   }
 
   closeFolderModal() {
