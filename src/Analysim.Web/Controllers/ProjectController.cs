@@ -265,7 +265,7 @@ namespace Web.Controllers
 
                 return Ok(new
                 {
-                    message = "versions for the notebook retreived",
+                    message = "versions for the notebook retrieved",
                     versions = versions
                 });
             }
