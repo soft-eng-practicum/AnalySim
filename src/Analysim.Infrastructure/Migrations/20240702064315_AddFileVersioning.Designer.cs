@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240702064315_AddFileVersioning")]
+    partial class AddFileVersioning
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,35 +23,6 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Analysim.Core.Entities.NotebookContent", b =>
-                {
-                    b.Property<int>("NotebookID")
-                        .HasColumnType("integer")
-                        .HasColumnOrder(1);
-
-                    b.Property<int>("Version")
-                        .HasColumnType("integer")
-                        .HasColumnOrder(2);
-
-                    b.Property<string>("Author")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<byte[]>("Content")
-                        .IsRequired()
-                        .HasColumnType("bytea");
-
-                    b.Property<DateTimeOffset>("DateCreated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Size")
-                        .HasColumnType("integer");
-
-                    b.HasKey("NotebookID", "Version");
-
-                    b.ToTable("NotebookContent");
-                });
 
             modelBuilder.Entity("Core.Entities.BlobFile", b =>
                 {
@@ -115,6 +88,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<byte[]>("Content")
+                        .HasColumnType("bytea");
+
                     b.Property<DateTimeOffset>("DateCreated")
                         .HasColumnType("timestamp with time zone");
 
@@ -143,8 +119,14 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("author")
+                        .HasColumnType("text");
+
                     b.Property<string>("type")
                         .HasColumnType("text");
+
+                    b.Property<int>("version")
+                        .HasColumnType("integer");
 
                     b.HasKey("NotebookID");
 
@@ -404,21 +386,21 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "93ca655e-a94a-403a-a5e7-cf1db3905ccd",
+                            ConcurrencyStamp = "6d585686-3238-4e6d-9df3-592b2f3ee11d",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "0a6522d2-c24e-4969-8491-a2b3475b8678",
+                            ConcurrencyStamp = "a03b00b6-0863-4f46-915b-7f87d5ac2e34",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "2a2b0fb9-7f18-4cbc-9fcb-bb72c436400b",
+                            ConcurrencyStamp = "1f600912-efbb-4ab2-9e8f-fb3b53016827",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });
@@ -525,17 +507,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("Analysim.Core.Entities.NotebookContent", b =>
-                {
-                    b.HasOne("Core.Entities.Notebook", "Notebook")
-                        .WithMany("NotebookContents")
-                        .HasForeignKey("NotebookID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Notebook");
                 });
 
             modelBuilder.Entity("Core.Entities.BlobFile", b =>
@@ -685,8 +656,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.Notebook", b =>
                 {
-                    b.Navigation("NotebookContents");
-
                     b.Navigation("observableNotebookDatasets");
                 });
 
