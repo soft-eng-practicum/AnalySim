@@ -126,7 +126,6 @@ export class ProjectNotebookItemComponent implements OnInit {
 
   downloadNotebook() {
     this.projectService.downloadNotebook(this.notebook, this.selectedVersion).subscribe(res => {
-      // console.log("the respnse is : ", res);
       let url = window.URL.createObjectURL(res);
       let a = document.createElement('a');
       document.body.appendChild(a);
