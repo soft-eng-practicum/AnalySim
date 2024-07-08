@@ -24,7 +24,7 @@
                     <!-- Follow/UnFollow User -->
                     <div class="d-inline-flex ml-auto" *ngIf="currentUser == null || ( currentUser != null && profile.id != currentUser.id)">
                         <!-- Follow User Button -->
-                        <button class="user-follow" type="button" *ngIf="!isFollowing" (click)="followUser()">
+                        <button class="btn-primary" type="button" *ngIf="!isFollowing" (click)="followUser()">
                             Follow
                             <span class="badge badge-light font-weight-light ml-1">
                                 {{profile.followers.length}}
@@ -32,7 +32,7 @@
                         </button>
             
                         <!-- UnFollow User Button -->
-                        <button class="user-unfollow" type="button" *ngIf="isFollowing" (click)="unFollowUser()">
+                        <button class="btn-primary" type="button" *ngIf="isFollowing" (click)="unFollowUser()">
                             Unfollow
                             <span class="badge badge-light font-weight-light ml-1">
                                 {{profile.followers.length}}

@@ -119,7 +119,7 @@
                 <input type="button" value="Publications" [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "publications"]' [ngClass]='{"active": toggleView == "Publications"}' (click)="showPublication()">
               </div>
               <div class="project-view-interaction">
-                <input class="fork" type="button" value="Fork Project" (click)="forkProject()">
+                <button class="btn-primary" (click)="forkProject()">Fork Project</button>
                 <button type="button" *ngIf="!toggleMoreOption" (click)="toggleMoreOption = true;">
                   More <i class="fa-solid fa-arrow-down"></i>
                 </button>

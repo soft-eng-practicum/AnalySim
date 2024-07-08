@@ -13,9 +13,9 @@
                 <input formControlName="folderName" type="text" class="form-control" placeholder="" [class.invalid]="folderName.touched && folderName.invalid" [class.valid]="folderName.valid" [readOnly]="isLoading" required>
                 <div *ngIf="folderName.touched && folderName.errors" class="text-danger">
                     <span [hidden]="!folderName.errors?.['minlength']">Minimum 1 character</span>
-                    <span [hidden]="!folderName.errors?.['maxlength']">Maximum 20 character</span>
-                    <span [hidden]="!folderName.errors?.['noMatch']">Folder Already Exist</span>
-                    <span [hidden]="!folderName.errors?.['noSpaceSpecial']">No Space or Special Character</span>
+                    <span [hidden]="!folderName.errors?.['maxlength']">Maximum 20 characters</span>
+                    <span [hidden]="!folderName.errors?.['noMatch']">Folder Already Exists</span>
+                    <span [hidden]="!folderName.errors?.['noSpaceSpecial']">No Spaces or Special Characters</span>
                 </div>
             </div>
         </div>
