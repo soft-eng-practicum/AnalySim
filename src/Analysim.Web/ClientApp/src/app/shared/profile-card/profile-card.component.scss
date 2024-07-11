@@ -3,4 +3,18 @@
   
 }
 
+.user-follow, .user-unfollow {
+  margin-right: 10px;
+  padding: 5px 10px;
+  min-width: 90px;
+  color: var(--button-font-color);
+  background-color: var(--button-background-color);
+  border: 1px solid var(--button-font-color);
 
+  &:hover {
+    color: var(--button-font-color-secondary-hov);
+    background-color: var(--button-background-color-secondary-hov);
+    border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary-hov);
+    text-decoration: none;
+  }
+}
