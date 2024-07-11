@@ -1,0 +1,18 @@
+<div *ngFor="let element of folder | keyvalue">
+    <div *ngIf="element.key !== '__files__' && element.value.hasOwnProperty('__files__') === true">
+        <div (click)="toggleFolder(element.value)" style="cursor: pointer;">
+            <span *ngIf="!element.value.open"><i class="fa-solid fa-caret-right"></i></span>
+            <span *ngIf="element.value.open"><i class="fa-solid fa-caret-down"></i></span>
+            {{element.key}}
+        </div>
+        <div *ngIf="element.value.open" style="padding-left: 20px;">
+            <app-dataset-folder-view [folder]="element.value" [notebook]="notebook"></app-dataset-folder-view>
+        </div>
+    </div>
+    <div *ngIf="element.key === '__files__'">
+        <div *ngFor="let file of element.value">
+            {{file.name}}{{file.extension}}
+            <input type="checkbox" [checked]="datasetExists(file)" (change)="toggleDataset(file)" />
+        </div>
+    </div>
+</div>

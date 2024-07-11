@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Notebook } from '../../../../../interfaces/notebook';
 import { ProjectService } from '../../../../../services/project.service';
+import { Project } from 'src/app/interfaces/project';
 
 @Component({
   selector: 'app-project-notebook-item',
@@ -14,14 +15,16 @@ export class ProjectNotebookItemComponent implements OnInit {
   constructor(private modalService: BsModalService, private router: Router, private projectService: ProjectService) { }
 
 
+  @Input() project: Project;
   @Input() notebook: Notebook;
   @ViewChild('displayNotebookModal') displayNotebookModal: TemplateRef<any>;
 
   @ViewChild('displayRenameNotebookModal') displayRenameNotebookModal: TemplateRef<any>;
+  @ViewChild('displayDatasetsModal') displayDatasetsModal: TemplateRef<any>;
 
   @Input() currentDirectory: string;
 
-  @Input() isMember : boolean;
+  @Input() isMember: boolean;
 
   @Output() navigateToNewDirectory: EventEmitter<string> = new EventEmitter<string>();
 
@@ -30,9 +33,11 @@ export class ProjectNotebookItemComponent implements OnInit {
 
   displayRenameNotebookModalRef: BsModalRef;
 
+  displayDatasetsModalRef: BsModalRef;
+
   @Output() getNotebooks: EventEmitter<string> = new EventEmitter<string>();
 
-  @Output() setCurrentNotebook : EventEmitter<Notebook> = new EventEmitter<Notebook>();
+  @Output() setCurrentNotebook: EventEmitter<Notebook> = new EventEmitter<Notebook>();
 
   ngOnInit(): void {
   }
@@ -45,38 +50,58 @@ export class ProjectNotebookItemComponent implements OnInit {
     this.displayRenameNotebookModalRef = this.modalService.show(this.displayRenameNotebookModal);
   }
 
+  showDatasetsModal() {
+    this.displayDatasetsModalRef = this.modalService.show(this.displayDatasetsModal);
+  }
+
   closeRenameNotebookModal() {
     this.displayRenameNotebookModalRef.hide();
   }
 
-  navigate() {
-    this.router.navigate([this.router.url+"/"+this.notebook.name]);
+  closeDatasetModal() {
+    this.displayDatasetsModalRef.hide();
   }
 
-  changeNotebookName(notebookName: string){
+  navigate() {
+    this.router.navigate([this.router.url + "/" + this.notebook.name]);
+  }
+
+  changeNotebookName(notebookName: string) {
     this.notebook.name = notebookName;
   }
 
-  navigateToNotebook(){
+  navigateToNotebook() {
     this.setCurrentNotebook.emit(this.notebook);
-    let datasetParams ={};
-    if(this.notebook.type==="observable")
-    {
-      this.notebook.observableNotebookDatasets.forEach(observableNotebook=>{
+    let datasetParams = {};
+    if (this.notebook.type === "observable") {
+      this.notebook.observableNotebookDatasets.forEach(observableNotebook => {
         datasetParams[observableNotebook.datasetName] = observableNotebook.datasetURL;
       })
     }
-    this.router.navigate([this.router.url+"/"+this.notebook.name],{queryParams:{
-      isNotebook: true,
-      notebookId: this.notebook.notebookID,
-      ...datasetParams
-    },queryParamsHandling: 'merge'});
+    this.router.navigate([this.router.url + "/" + this.notebook.name], {
+      queryParams: {
+        isNotebook: true,
+        notebookId: this.notebook.notebookID,
+        ...datasetParams
+      }, queryParamsHandling: 'merge'
+    });
   }
 
   deleteNotebook() {
-    this.projectService.deleteNotebook(this.notebook.notebookID,this.isMember).subscribe(res => {
-      this.getNotebooks.emit(this.currentDirectory);
-    })
+    console.log("the notebook to be deleted is : ", this.notebook);
+    this.projectService.getProjectByID(this.project.projectID).subscribe(result => {
+      this.project = result;
+      console.log("the project is : ", this.project);
+      if (this.notebook.type === "folder") {
+        let notebooks = this.project.notebooks.filter(notebook => notebook.directory === this.currentDirectory + this.notebook.name + "/");
+        if (notebooks.length > 0) {
+          return alert("folder is not empty !!");
+        }
+      }
+      this.projectService.deleteNotebook(this.notebook.notebookID, this.isMember).subscribe(res => {
+        this.getNotebooks.emit(this.currentDirectory);
+      })
+    });
   }
 
   downloadNotebook() {
@@ -97,21 +122,19 @@ export class ProjectNotebookItemComponent implements OnInit {
     console.log("Go Back");
   }
 
-  openObservableNotebook(){
-    let datasetParams ={};
-    if(this.notebook.type==="observable")
-    {
-      this.notebook.observableNotebookDatasets.forEach(observableNotebook=>{
+  openObservableNotebook() {
+    let datasetParams = {};
+    if (this.notebook.type === "observable") {
+      this.notebook.observableNotebookDatasets.forEach(observableNotebook => {
         datasetParams[observableNotebook.datasetName] = observableNotebook.datasetURL;
       })
-      let url = this.notebook.uri+"?";
-      let queryParams=[]
-      for(const key of Object.keys(datasetParams))
-      {
-        queryParams.push(key+"="+datasetParams[key]);
+      let url = this.notebook.uri + "?";
+      let queryParams = []
+      for (const key of Object.keys(datasetParams)) {
+        queryParams.push(key + "=" + datasetParams[key]);
       }
-      url+=queryParams.join('&');
-      window.open(url,'_blank');
+      url += queryParams.join('&');
+      window.open(url, '_blank');
     }
   }
 

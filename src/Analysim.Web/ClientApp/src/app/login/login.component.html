@@ -33,10 +33,10 @@
                                             <form class="form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
                                                 <!-- Form Username -->
                                                 <div class="form-group">
-                                                    <label for="username">Username</label>
+                                                    <label for="username">Username/Email</label>
                                                     <input formControlName="username" type="text" class="form-control" placeholder="" required [readOnly]="isLoading">
                                                     <div *ngIf="username.touched && username.errors" class="errorMessage">
-                                                        <span *ngIf="username.hasError('required')" class="text-danger">Username is required</span>
+                                                        <span *ngIf="username.hasError('required')" class="text-danger">Username/Email is required</span>
                                                     </div>
                                                 </div>
                         

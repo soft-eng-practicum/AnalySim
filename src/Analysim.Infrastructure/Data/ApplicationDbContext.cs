@@ -99,6 +99,7 @@ namespace Infrastructure.Data
         public DbSet<UserUser> UserUsers { get; set; }
 
         public DbSet<Notebook> Notebook {get;set;}
+        public DbSet<ObservableNotebookDataset> ObservableNotebookDataset { get;set;}
 
 
 

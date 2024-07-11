@@ -1,9 +1,20 @@
-<div class="modal-content" style="width: 100vw;height: 100vh;top: 0; left: 0;margin: 0;position: fixed; overflow: auto;">
+<div #notebookWindow class="modal-content"
+    style="width: 100vw;height: 100vh;top: 0; left: 0;margin: 0;position: fixed; overflow: auto;">
     <div class="modal-header">
         <h5 class="modal-title">Notebook</h5>
         <button type="button" #closebutton class="close" data-dismiss="modal" (click)="closeNotebook()">&times;</button>
     </div>
+    <div id="jupyterlite-container" *ngIf="notebook.type === 'new'">
+        <div *ngIf="isLoading" class="spinner-container">
+            <div class="spinner-border" role="status">
+            </div>
+            <div>Loading Notebook...</div>
+        </div>
+        <iframe #jupyterFrame [src]="jupyterFrameSrc" width="100%" style="height: 100vh;"></iframe>
+    </div>
     <div #observablehqPanel class="m-3" *ngIf="notebook.type === 'observable'">
         <div id="notebook"></div>
     </div>
+    <app-save-confirmation-modal *ngIf="showSaveModal" (confirmSave)="onConfirmSave()"
+        (cancelSave)="onCancelSave()"></app-save-confirmation-modal>
 </div>

@@ -52,6 +52,9 @@ import { LineChartComponent } from './project-file-explorer/csvdata-browser/visu
 import { ScatterPlotComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/scatter-plot/scatter-plot.component';
 import { ThreeDScatterPlotComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/three-dscatter-plot/three-dscatter-plot.component';
 import { CheckboxModule } from 'primeng/checkbox';
+import { SaveConfirmationModalComponent } from './project-overview/project-overview-view/project-content/save-confirmation-modal/save-confirmation-modal.component';
+import { ModalDatasetsComponent } from './project-overview/project-overview-view/project-content/modal-datasets/modal-datasets.component';
+import { DatasetFolderViewComponent } from './project-overview/project-overview-view/project-content/dataset-folder-view/dataset-folder-view.component';
 
 @NgModule({
   declarations: [
@@ -95,7 +98,10 @@ import { CheckboxModule } from 'primeng/checkbox';
     BarChartComponent,
     LineChartComponent,
     ScatterPlotComponent,
-    ThreeDScatterPlotComponent
+    ThreeDScatterPlotComponent,
+    SaveConfirmationModalComponent,
+    ModalDatasetsComponent,
+    DatasetFolderViewComponent,
   ],
   imports: [
     CommonModule,
