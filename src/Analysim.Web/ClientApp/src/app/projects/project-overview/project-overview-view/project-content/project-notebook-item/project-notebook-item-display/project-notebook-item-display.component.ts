@@ -1,11 +1,9 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
-import { Notebook } from '../../../../../../interfaces/notebook';
+import { Notebook, NotebookFile } from '../../../../../../interfaces/notebook';
 import { ProjectService } from '../../../../../../services/project.service';
 import { HttpClient } from '@angular/common/http';
 import { JupyterLiteStorageService } from './localforageIndexdb';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { SaveConfirmationModalComponent } from '../../save-confirmation-modal/save-confirmation-modal.component';
-
 
 @Component({
   selector: 'app-project-notebook-item-display',
@@ -16,9 +14,12 @@ export class ProjectNotebookItemDisplayComponent {
 
 
   @Input() notebook: Notebook;
+  @Input() version: number;
+  @Input() isMember: boolean;
 
   @Output() closeModal: EventEmitter<any> = new EventEmitter();
-  showSaveModal = false;
+  showSaveWarningModal = false;
+  showSaveNotebookModal = false;
 
   constructor(private projectService: ProjectService, private _renderer2: Renderer2, private http: HttpClient
     , private sanitizer: DomSanitizer, private jupyterLiteStorageService: JupyterLiteStorageService
@@ -27,10 +28,11 @@ export class ProjectNotebookItemDisplayComponent {
   @ViewChild('observablehqPanel', { read: ElementRef }) observablehqPanel;
   @ViewChild('jupyterFrame') jupyterFrame: ElementRef;
   @ViewChild('notebookWindow') notebookWindow: ElementRef;
-  @ViewChild(SaveConfirmationModalComponent) saveConfirmationModal: SaveConfirmationModalComponent;
   jupyterFrameSrc: SafeResourceUrl;
   isLoading = true;
   timeoutId: any;
+  notebookFile: NotebookFile;
+  commitChangesLoading = false;
 
   ngOnInit(): void {
     window.addEventListener('message', this.receiveMessage.bind(this));
@@ -61,11 +63,10 @@ export class ProjectNotebookItemDisplayComponent {
   loadNotebook() {
     const url = `../../../../../../../assets/jupyter/dist/lab/index.html?path=${this.notebook.name}${this.notebook.extension}`;
     this.jupyterFrameSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    // console.log("notebook uri : ", this.notebook.uri);
-    this.http.get(this.notebook.uri, { responseType: 'json' })
+    //console.log("the version: ", this.version);
+
+    this.projectService.getNotebookFile(this.notebook, this.version)
       .subscribe(nbContent => {
-        // console.log("notebook content during fetching : ", nbContent);
-        // console.log("notebook : ", this.notebook);
         const notebookName = `${this.notebook.name}${this.notebook.extension}`;
         const notebookData = {
           content: nbContent, // The content of the notebook
@@ -153,8 +154,44 @@ export class ProjectNotebookItemDisplayComponent {
     });`
   }
 
+  saveNotebook() {
+    this.showSaveNotebookModal = true;
+  }
+
+  onConfirmSaveNotebook() {
+    if (this.notebook.type === 'notebook' || this.notebook.type === 'new') {
+      this.commitChangesLoading = true;
+      this.jupyterLiteStorageService.getFile(`${this.notebook.name}${this.notebook.extension}`).then(
+        (notebookJson) => {
+          //console.log('File:', notebookJson);
+          //console.log("the projectid si :", this.notebook.projectID);
+          const notebookBlob = new Blob([JSON.stringify(notebookJson.content)], { type: 'application/json' });
+          const file = new File([notebookBlob], `${this.notebook.name}${this.notebook.extension}`, { type: 'application/json' });
+          this.notebookFile = {
+            'file': file,
+            'name': `${this.notebook.name}`,
+            'projectID': this.notebook.projectID,
+          }
+          //console.log("the file is : ", file);
+          this.projectService.uploadNotebookNewVersion(this.notebookFile, this.notebook.directory).subscribe(result => {
+            //console.log(result);
+            this.commitChangesLoading = false;
+            this.showSaveNotebookModal = false;
+          });
+        },
+        (error) => {
+          console.error('Error getting file:', error);
+        }
+      );
+    }
+  }
+
+  onCancelSaveNotebook() {
+    this.showSaveNotebookModal = false;
+  }
+
   closeNotebook() {
-    this.showSaveModal = true;
+    this.showSaveWarningModal = true;
   }
 
   onConfirmSave() {
@@ -195,6 +232,6 @@ export class ProjectNotebookItemDisplayComponent {
   }
 
   onCancelSave() {
-    this.showSaveModal = false;
+    this.showSaveWarningModal = false;
   }
 }

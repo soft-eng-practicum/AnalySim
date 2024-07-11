@@ -38,8 +38,27 @@ export class ProjectNotebookItemComponent implements OnInit {
   @Output() getNotebooks: EventEmitter<string> = new EventEmitter<string>();
 
   @Output() setCurrentNotebook: EventEmitter<Notebook> = new EventEmitter<Notebook>();
+  versions: number[] = [];
+  selectedVersion: number = 0;
 
   ngOnInit(): void {
+    if (this.notebook.type === "new") {
+      this.loadVersions();
+    }
+  }
+
+  loadVersions() {
+    this.projectService.getNotebookVersions(this.notebook).subscribe(versions => {
+      this.versions = versions;
+      //console.log("Versions: ", this.versions);
+      if (this.versions.length > 0) {
+        this.selectedVersion = this.versions[0]; // Default to the latest version
+      }
+    });
+  }
+
+  onVersionChange(version: number) {
+    this.selectedVersion = version;
   }
 
   showNotebook() {
@@ -82,6 +101,7 @@ export class ProjectNotebookItemComponent implements OnInit {
       queryParams: {
         isNotebook: true,
         notebookId: this.notebook.notebookID,
+        version: this.selectedVersion,
         ...datasetParams
       }, queryParamsHandling: 'merge'
     });
@@ -98,20 +118,20 @@ export class ProjectNotebookItemComponent implements OnInit {
           return alert("folder is not empty !!");
         }
       }
-      this.projectService.deleteNotebook(this.notebook.notebookID, this.isMember).subscribe(res => {
+      this.projectService.deleteNotebook(this.notebook.notebookID, this.selectedVersion, this.isMember).subscribe(res => {
         this.getNotebooks.emit(this.currentDirectory);
       })
     });
   }
 
   downloadNotebook() {
-    this.projectService.downloadNotebook(this.notebook).subscribe(res => {
+    this.projectService.downloadNotebook(this.notebook, this.selectedVersion).subscribe(res => {
       let url = window.URL.createObjectURL(res);
       let a = document.createElement('a');
       document.body.appendChild(a);
       a.setAttribute('style', 'display: none');
       a.href = url;
-      a.download = this.notebook.name + this.notebook.extension;
+      a.download = this.notebook.name + "_v" + this.selectedVersion + this.notebook.extension;
       a.click();
       window.URL.revokeObjectURL(url);
       a.remove();

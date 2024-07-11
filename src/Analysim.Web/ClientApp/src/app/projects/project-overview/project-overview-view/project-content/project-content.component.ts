@@ -40,6 +40,7 @@ export class ProjectContentComponent implements OnInit {
   currentNotebook: Notebook = null;
 
   notebookID = null;
+  version: number = 0;
 
   isCurrentDirNotebook = false;
 
@@ -60,9 +61,11 @@ export class ProjectContentComponent implements OnInit {
     this.route.queryParams.subscribe((params: Params) => {
       const {
         isNotebook,
-        notebookId
+        notebookId,
+        version
       } = params;
       this.notebookID = notebookId;
+      this.version = version;
     })
     if (this.isCurrentDirNotebook)
       this.getNotebook();

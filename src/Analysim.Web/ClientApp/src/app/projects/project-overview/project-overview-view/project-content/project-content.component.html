@@ -35,6 +35,6 @@
 </ng-template>
 
 <ng-template #displayNotebookModal>
-    <app-project-notebook-item-display [notebook]="currentNotebook"
+    <app-project-notebook-item-display [notebook]="currentNotebook" [version]="version" [isMember]="isMember"
         (closeModal)="closeDisplayNotebookModal()"></app-project-notebook-item-display>
 </ng-template>

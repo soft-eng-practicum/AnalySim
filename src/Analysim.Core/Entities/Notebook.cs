@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Analysim.Core.Entities;
 using Core.Entities;
 
 namespace Core.Entities
@@ -45,6 +46,11 @@ namespace Core.Entities
         public string type { get; set; }
 
         public ICollection<ObservableNotebookDataset> observableNotebookDatasets
+        {
+            get;set;
+        }
+
+        public ICollection<NotebookContent> NotebookContents
         {
             get;set;
         }
