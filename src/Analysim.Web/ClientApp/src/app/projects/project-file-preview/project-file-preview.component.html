@@ -7,16 +7,18 @@
         <!-- File Explorer Button Start -->
         <div class="d-inline-flex ml-auto">
             <!-- Private Button Group Start -->
-            <div class="btn-group"  role="group">
+            <div class="btn-group" role="group">
                 <button type="button" class="btn" title="Load Notebook" (click)="toggleModalObservablehq()">
                     <span class="icon-observablehq bl-1"></span>
                 </button>
-            </div> <!-- Private Button Group End -->     
+            </div> <!-- Private Button Group End -->
         </div> <!-- File Explorer Button End -->
     </div> <!-- Card Header End -->
-    <app-observablehq *ngIf="showNotebook == true" [blobUri]="blobFile.uri" [observableNotebookLink]="notebookLink"></app-observablehq>
+    <app-observablehq *ngIf="showNotebook == true" [blobUri]="blobFile.uri"
+        [observableNotebookLink]="notebookLink"></app-observablehq>
 </div>
 
 <ng-template #observablehqModal>
-    <app-modal-observablehq [observablehqModalRef]="observablehqModalRef" (loadNotebookEvent)="loadNotebook($event)"></app-modal-observablehq>
+    <app-modal-observablehq [observablehqModalRef]="observablehqModalRef"
+        (loadNotebookEvent)="loadNotebook($event)"></app-modal-observablehq>
 </ng-template>

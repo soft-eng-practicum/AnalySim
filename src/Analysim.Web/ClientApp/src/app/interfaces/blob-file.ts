@@ -11,8 +11,8 @@ export interface BlobFile {
     uri: string
     dateCreated: Date
     lastModified: Date
-    user : User
-    userID : number
-    project : Project
-    projectID : number
+    user: User
+    userID: number
+    project: Project
+    projectID: number
 }

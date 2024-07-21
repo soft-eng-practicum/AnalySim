@@ -87,7 +87,7 @@ export class ProjectNotebookItemDisplayComponent {
         let datasets = this.notebook.observableNotebookDatasets;
         if (datasets) {
           datasets.forEach(dataset => {
-            this.http.get(dataset.datasetURL, { responseType: 'text' }).subscribe(data => {
+            this.projectService.downloadCSV(dataset.blobFileID).subscribe(data => {
               // console.log("dataset content during fetching : ", data);
               const datasetName = dataset.datasetName;
               const datasetData = {

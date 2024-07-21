@@ -1,4 +1,5 @@
-export interface ObservableHQDataset{
-    datasetName : string;
-    datasetURL : string;
+export interface ObservableHQDataset {
+    datasetName: string;
+    datasetURL: string;
+    blobFileID: number;
 }

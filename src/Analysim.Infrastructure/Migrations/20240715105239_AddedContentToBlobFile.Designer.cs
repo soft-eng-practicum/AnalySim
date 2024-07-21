@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240715105239_AddedContentToBlobFile")]
+    partial class AddedContentToBlobFile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,23 +23,6 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Analysim.Core.Entities.BlobFileContent", b =>
-                {
-                    b.Property<int>("BlobFileID")
-                        .HasColumnType("integer");
-
-                    b.Property<byte[]>("Content")
-                        .IsRequired()
-                        .HasColumnType("bytea");
-
-                    b.Property<DateTimeOffset>("DateCreated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("BlobFileID");
-
-                    b.ToTable("BlobFileContent");
-                });
 
             modelBuilder.Entity("Analysim.Core.Entities.NotebookContent", b =>
                 {
@@ -111,6 +96,10 @@ namespace Infrastructure.Migrations
                     b.Property<int>("UserID")
                         .HasColumnType("integer");
 
+                    b.Property<byte[]>("content")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
                     b.HasKey("BlobFileID");
 
                     b.HasIndex("ProjectID");
@@ -179,9 +168,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
-
-                    b.Property<int>("BlobFileID")
-                        .HasColumnType("integer");
 
                     b.Property<int>("NotebookID")
                         .HasColumnType("integer");
@@ -424,21 +410,21 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "d630afa7-f2be-44a5-80aa-a1f5efe4d02e",
+                            ConcurrencyStamp = "9fc99bb8-09a8-4ec2-bd5f-4a4af1dd3a77",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "183110f8-c919-481c-b637-47e18cf3c099",
+                            ConcurrencyStamp = "10fc1a18-c1f1-4d00-a45d-3bccf8c9bd88",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "61b1a777-55bb-4d58-9105-fa1b1503fe70",
+                            ConcurrencyStamp = "3c24d855-92d4-44f6-9a12-9171afa4c468",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });
@@ -545,17 +531,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("Analysim.Core.Entities.BlobFileContent", b =>
-                {
-                    b.HasOne("Core.Entities.BlobFile", "BlobFile")
-                        .WithMany("BlobFileContents")
-                        .HasForeignKey("BlobFileID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BlobFile");
                 });
 
             modelBuilder.Entity("Analysim.Core.Entities.NotebookContent", b =>
@@ -712,11 +687,6 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Core.Entities.BlobFile", b =>
-                {
-                    b.Navigation("BlobFileContents");
                 });
 
             modelBuilder.Entity("Core.Entities.Notebook", b =>

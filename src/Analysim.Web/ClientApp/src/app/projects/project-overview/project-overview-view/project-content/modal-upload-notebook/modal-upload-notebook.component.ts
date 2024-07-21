@@ -108,6 +108,7 @@ export class ModalUploadNotebookComponent implements OnInit {
         'type': this.notebookType,
         'datasets': this.datasets
       }
+      // console.log("Existing Notebook URL: ", this.existingNotebookURL);
       this.projectService.uploadExistingNotebook(this.existingNotebookURL, this.currentDirectory).subscribe(result => {
         console.log(result);
         this.closeModal.emit();
@@ -120,6 +121,7 @@ export class ModalUploadNotebookComponent implements OnInit {
     this.datasets.push({
       datasetName: "",
       datasetURL: "",
+      blobFileID: 0,
     })
     console.log(this.datasets);
   }

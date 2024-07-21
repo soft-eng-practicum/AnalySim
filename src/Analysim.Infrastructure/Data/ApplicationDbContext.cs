@@ -86,6 +86,13 @@ namespace Infrastructure.Data
                         .HasForeignKey(n => n.NotebookID)
                         .OnDelete(DeleteBehavior.Cascade);
 
+            // One To One Relationship (Blob -> BlobContent)
+            modelBuilder.Entity<BlobFile>()
+                        .HasMany(b => b.BlobFileContents)
+                        .WithOne(b => b.BlobFile)
+                        .HasForeignKey(b => b.BlobFileID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<IdentityRole<int>>().HasData(
                 new IdentityRole<int> { Id = 1, Name = "Admin", NormalizedName = "ADMIN"},
                 new IdentityRole<int> { Id = 2, Name = "Customer", NormalizedName = "CUSTOMER" },
@@ -111,6 +118,7 @@ namespace Infrastructure.Data
         public DbSet<Notebook> Notebook {get;set;}
         public DbSet<ObservableNotebookDataset> ObservableNotebookDataset { get;set;}
         public DbSet<NotebookContent> NotebookContent { get; set; }
+        public DbSet<BlobFileContent> BlobFileContent { get; set; }
 
 
 
