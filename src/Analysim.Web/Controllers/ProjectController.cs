@@ -36,7 +36,7 @@ namespace Web.Controllers
     {
 
         private readonly ApplicationDbContext _dbContext;
-        private readonly BlobServiceClient _blobServiceClient;
+        //private readonly BlobServiceClient _blobServiceClient;
         private readonly IConfiguration _configuration;
 
         public ProjectController(ApplicationDbContext dbContext, IConfiguration configuration)
@@ -1390,9 +1390,9 @@ namespace Web.Controllers
             }
 
             // Delete from Azure
-            var containerClient = _blobServiceClient.GetBlobContainerClient(deleteProject.Name.ToLower());
+            //var containerClient = _blobServiceClient.GetBlobContainerClient(deleteProject.Name.ToLower());
             // await containerClient.DeleteBlobIfExistsAsync(deleteProject.Name.ToLower());
-            containerClient.DeleteIfExists();
+            //containerClient.DeleteIfExists();
 
             // get the project by project ID
             var blobsResult = _dbContext.BlobFiles
@@ -1764,7 +1764,7 @@ namespace Web.Controllers
                 var project = await _dbContext.Projects.FindAsync(1);
                 if (project == null) return NotFound(new { message = "Project Not Found" });
 
-               // var relatedDirectory = await _blobService.ListBlobsAsync(project.Name.ToLower(), directory);
+                // var relatedDirectory = await _blobService.ListBlobsAsync(project.Name.ToLower(), directory);
 
                 // Return Ok Status
                 return Ok(new
