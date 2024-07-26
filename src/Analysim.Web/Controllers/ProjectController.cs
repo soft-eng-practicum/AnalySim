@@ -36,7 +36,6 @@ namespace Web.Controllers
     {
 
         private readonly ApplicationDbContext _dbContext;
-        //private readonly BlobServiceClient _blobServiceClient;
         private readonly IConfiguration _configuration;
 
         public ProjectController(ApplicationDbContext dbContext, IConfiguration configuration)
