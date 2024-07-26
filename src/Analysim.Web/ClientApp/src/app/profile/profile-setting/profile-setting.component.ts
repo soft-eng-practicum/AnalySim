@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { User } from 'src/app/interfaces/user';
 import { from, Observable } from 'rxjs';
 import { NotificationService } from 'src/app/services/notification.service';
+import { ProjectService } from 'src/app/services/project.service';
+import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-profile-setting',
@@ -13,38 +15,46 @@ import { NotificationService } from 'src/app/services/notification.service';
 })
 export class ProfileSettingComponent implements OnInit {
 
-  currentUser$ : Observable<User>
-  currentUser : User = null
+  currentUser$: Observable<User>
+  currentUser: User = null
   profileForm: FormGroup
-  bio : FormControl
+  bio: FormControl
+  profileImageUrl: SafeUrl;
 
   constructor(
-    private accountService : AccountService, 
-    private router : Router,
-    private formBuilder : FormBuilder,
-    private notif : NotificationService      
-  ) {}
+    private accountService: AccountService,
+    private projectService: ProjectService,
+    private router: Router,
+    private formBuilder: FormBuilder,
+    private sanitizer: DomSanitizer,
+    private notif: NotificationService
+  ) { }
 
   async ngOnInit(): Promise<void> {
-    if(!this.accountService.checkLoginStatus())
-      this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
+    if (!this.accountService.checkLoginStatus())
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } })
 
     await this.accountService.currentUser.then((x) => this.currentUser$ = x)
-    this.currentUser$.subscribe(x => this.currentUser = x)
+    this.currentUser$.subscribe(x => {
+      this.currentUser = x
+      this.profileImage();
+    })
 
     // Make Form Control
     this.bio = new FormControl(this.currentUser.bio)
 
     // Initialize FormGroup using FormBuilder
     this.profileForm = this.formBuilder.group({
-      bio : this.bio
+      bio: this.bio
     })
+
+    this.profileImage();
   }
 
   public useFileInput() {
     document.getElementById('fileInput').click();
   }
-  
+
   // Add FormControl to FormGroup for file input
   public fileEvent($event) {
     // Get Target File
@@ -54,48 +64,59 @@ export class ProfileSettingComponent implements OnInit {
     this.accountService.uploadProfileImage(file, this.currentUser.id).subscribe(
       result => {
         let index = this.currentUser.blobFiles.findIndex(x => x.blobFileID == result.blobFileID)
-        if(index > -1)
+        if (index > -1)
           this.currentUser.blobFiles[index] = result
         else
-          this.currentUser.blobFiles.push(result)  
+          this.currentUser.blobFiles.push(result)
+        // this.profileImage();
+        this.accountService.setCurrentUser(this.currentUser);
       }, error => {
         console.log(error)
       }
     )
   }
 
-  get profileImage(){
-    if(this.currentUser.blobFiles.length != 0)
-    {
+  profileImage() {
+    if (this.currentUser.blobFiles.length != 0) {
       var blobFile = this.currentUser.blobFiles.find(x => x.container == 'profile')
-      if(blobFile != null) { return blobFile.uri + "?" + blobFile.lastModified }
-    }  
-    return "../../assets/img/default-profile.png"
+      if (blobFile != null) {
+        this.projectService.downloadFile(blobFile.blobFileID).subscribe(
+          imageBlob => {
+            if (imageBlob == null) this.profileImageUrl = "../../assets/img/default-profile.png";
+            const objectURL = URL.createObjectURL(imageBlob);
+            this.profileImageUrl = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+          }, error => {
+            console.log(error)
+          }
+        )
+      }
+      else this.profileImageUrl = "../../assets/img/default-profile.png";
+    }
   }
 
-  clearProfile(){
+  clearProfile() {
     let imageFileID = this.currentUser.blobFiles.find(x => x.container == 'profile').blobFileID
-    if(imageFileID != undefined){
+    if (imageFileID != undefined) {
       this.accountService.deleteProfileImage(imageFileID).subscribe(
         result => {
           // Remove Item From Project File
-          let index = this.currentUser.blobFiles.indexOf(result,0)
+          let index = this.currentUser.blobFiles.indexOf(result, 0)
           this.currentUser.blobFiles.splice(index, 1);
-        },error => {
+        }, error => {
           console.log(error)
         }
       )
     }
   }
 
-  onSubmit(){
+  onSubmit() {
     let form = this.profileForm.value
 
     this.accountService.updateUser(form.bio, this.currentUser.id).subscribe(
       result => {
         this.currentUser = result
-        this.notif.showSuccess("Account has been successfully updated","Account Update")
-      }, error =>{
+        this.notif.showSuccess("Account has been successfully updated", "Account Update")
+      }, error => {
         console.log(error)
       }
     )

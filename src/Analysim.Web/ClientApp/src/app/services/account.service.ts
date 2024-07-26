@@ -25,6 +25,7 @@ export class AccountService {
   private urlGetUserByName: string = this.baseUrl + "getuserbyname/"
   private urlGetUserRange: string = this.baseUrl + "getuserrange?"
   private urlGetUserList: string = this.baseUrl + "getuserlist"
+  private urlGetProfileImage: string = this.baseUrl + "getprofileimage?"
   private urlSearch: string = this.baseUrl + "search?"
   private urlVerify: string = this.baseUrl + "verify"
 
@@ -114,6 +115,24 @@ export class AccountService {
       )
   }
 
+  getProfileImage(userID: number): Observable<BlobFile> {
+    let params = new HttpParams()
+    params = params.append("id", userID.toString())
+
+    return this.http.get<any>(this.urlGetProfileImage, { params: params })
+      .pipe(
+        map(body => {
+          // console.log(body.message)
+          if (body.result) return body.result;
+          return null;
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
   search(searchTerms: string[]): Observable<User[]> {
     let params = new HttpParams()
     searchTerms.forEach(function (x) {
@@ -152,12 +171,12 @@ export class AccountService {
       )
   }
 
-  register(username: string, password: string, emailaddress: string, registrationSurvey : string) {
+  register(username: string, password: string, emailaddress: string, registrationSurvey: string) {
     let body = new FormData()
     body.append('emailaddress', emailaddress)
     body.append('username', username)
     body.append('password', password)
-    body.append('registrationSurvey',registrationSurvey)
+    body.append('registrationSurvey', registrationSurvey)
 
     return this.http.post<any>(this.urlRegister, body)
       .pipe(
@@ -348,7 +367,7 @@ export class AccountService {
 
       // Get and Decode the Token
       const token = localStorage.getItem('jwt');
-      const decoded : any = jwt_decode(token)
+      const decoded: any = jwt_decode(token)
 
       // Check if the cookie is valid
       if (decoded.exp === undefined) {
@@ -412,6 +431,10 @@ export class AccountService {
       })
       return promise
     }
+  }
+
+  setCurrentUser(modifiedUser: User): void {
+    this.user.next(modifiedUser);
   }
 
   get currentUserID() {

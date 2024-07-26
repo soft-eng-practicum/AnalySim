@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240721053131_AddBlobFileContent")]
+    partial class AddBlobFileContent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -179,9 +181,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
-
-                    b.Property<int>("BlobFileID")
-                        .HasColumnType("integer");
 
                     b.Property<int>("NotebookID")
                         .HasColumnType("integer");
@@ -424,21 +423,21 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "d630afa7-f2be-44a5-80aa-a1f5efe4d02e",
+                            ConcurrencyStamp = "0984d128-6257-4161-8192-020f99f694be",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "183110f8-c919-481c-b637-47e18cf3c099",
+                            ConcurrencyStamp = "ea0606a3-23ff-4e21-b422-48e1978b3742",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "61b1a777-55bb-4d58-9105-fa1b1503fe70",
+                            ConcurrencyStamp = "cfefead9-0a1b-4538-b66d-087e71f89f81",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });

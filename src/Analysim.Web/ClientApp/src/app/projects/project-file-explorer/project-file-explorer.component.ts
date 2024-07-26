@@ -234,31 +234,34 @@ export class ProjectFileExplorerComponent implements OnInit {
   }
 
   saveFile() {
-    /*
-    if(this.selectedItem != null){
+    if (this.selectedItem != null) {
       // Get Current Selected Item
       var item = this.blobFileItemList[this.selectedItem]
-      if(item.type == "file"){
+      if (item.type == "file") {
         // Download The File
         var fileName = item.file.name + item.file.extension
         this.projectService.downloadFile(item.file.blobFileID).subscribe(
-          result =>{
-            console.log(result)
-            console.log(fileName)
-            saveAs(result, fileName);
-          },error =>{
+          result => {
+            const url = URL.createObjectURL(result);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, error => {
             console.log(error)
           }
         )
       }
     }
-    */
 
-    if (this.selectedItem != null) {
-      // Get Current Selected Item
-      var item = this.blobFileItemList[this.selectedItem]
-      window.open(item.file.uri, "_blank");
-    }
+    // if (this.selectedItem != null) {
+    //   // Get Current Selected Item
+    //   var item = this.blobFileItemList[this.selectedItem]
+    //   window.open(item.file.uri, "_blank");
+    // }
 
   }
 

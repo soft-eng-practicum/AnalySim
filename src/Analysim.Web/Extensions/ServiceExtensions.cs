@@ -29,11 +29,11 @@ namespace Web.Extensions
             });
         }
 
-        public static void ConfigureBlobsService(this IServiceCollection services, IConfiguration configuration) 
-        {
-            services.AddSingleton(x => new BlobServiceClient(configuration.GetConnectionString("AzureStorageConnectionString")));
-            services.AddSingleton<IBlobService, BlobService>();
-        }
+        // public static void ConfigureBlobsService(this IServiceCollection services, IConfiguration configuration) 
+        // {
+        //     services.AddSingleton(x => new BlobServiceClient(configuration.GetConnectionString("AzureStorageConnectionString")));
+        //     services.AddSingleton<IBlobService, BlobService>();
+        // }
 
         public static void ConfigureAuthorization(this IServiceCollection services)
         {
@@ -89,7 +89,7 @@ namespace Web.Extensions
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    
+
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,

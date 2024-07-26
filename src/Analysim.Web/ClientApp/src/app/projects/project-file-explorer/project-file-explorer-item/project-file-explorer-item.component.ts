@@ -83,8 +83,16 @@ export class ProjectFileExplorerItemComponent implements OnInit {
 
   displayShareableLink() {
     this.open = true;
-    alert(this.blobFileItem.file.uri);
-
+    // alert(this.blobFileItem.file.uri);
+    //get the host name from window.location
+    const host = window.location.host;
+    // console.log("the blobfile is : ", this.blobFileItem.file);
+    const username = this.blobFileItem.file.user.userName;
+    const projectname = this.blobFileItem.file.container;
+    const directory = this.blobFileItem.file.directory;
+    const filename = this.blobFileItem.file.name;
+    const extension = this.blobFileItem.file.extension;
+    alert("https://" + host + "/" + "api/project/download/" + username + "/" + projectname + "/" + directory + filename + extension);
   }
 
   onCloseAlert() {
