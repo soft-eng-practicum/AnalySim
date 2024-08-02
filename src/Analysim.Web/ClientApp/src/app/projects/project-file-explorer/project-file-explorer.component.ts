@@ -59,14 +59,17 @@ export class ProjectFileExplorerComponent implements OnInit {
     this.dataBrowserURL = 'https://observablehq.com/embed/@sfsu/untitled?cell=*&dataset=';
     this.currentDirectory = this.extractDirectory(this.router.url);
     this.setDirectoryFile(this.currentDirectory);
-    this.folders = "/ " + this.currentDirectory.split("/").join(" / ");
+    let directory = this.currentDirectory.endsWith('.csv') ? this.currentDirectory.split('/').slice(0, -1).join('/') : this.currentDirectory;
+    directory = directory.endsWith('/') ? directory.slice(0,-1) : directory;
+    this.folders = "/ " + directory.split("/").join(" / ");
     this.router.events.subscribe((ev) => {
       if (ev instanceof NavigationEnd) {
         this.currentDirectory = this.extractDirectory(this.router.url);
         this.setDirectoryFile(this.currentDirectory)
+        directory = this.currentDirectory.endsWith('.csv') ? this.currentDirectory.split('/').slice(0, -1).join('/') : this.currentDirectory;
+        directory = directory.endsWith('/') ? directory.slice(0,-1) : directory;
       }
-      // console.log(this.currentDirectory);
-      this.folders = "/ " + this.currentDirectory.split("/").join(" / ");
+      this.folders = "/ " + directory.split("/").join(" / ");
       // console.log(this.folders);
     });
   }
