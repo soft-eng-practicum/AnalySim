@@ -99,7 +99,10 @@
           </div>
         </div>
         <div class="row project-notebook-row" *ngIf='toggleNotebookExpand && toggleView != "Content"'>
-          <img src="../../../assets/img/notebook-example.png">
+          <div [innerHtml]="notebookContent"></div>
+        </div>
+        <div *ngIf='toggleNotebookExpand && toggleView != "Content"'>
+          <div class="readme-button" (click)="navigateToNotebook()">Go to Readme</div>
         </div>
         <div class="row project-option-row">
 
@@ -289,3 +292,5 @@
         </button> - ->
     </div> -->
 </div>
+<!-- <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/styles/default.min.css"> -->
+

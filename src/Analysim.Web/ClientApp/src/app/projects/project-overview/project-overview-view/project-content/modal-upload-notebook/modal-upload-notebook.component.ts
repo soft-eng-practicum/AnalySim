@@ -35,6 +35,7 @@ export class ModalUploadNotebookComponent implements OnInit {
   @Input() currentDirectory: string;
 
   ngOnInit(): void {
+    // console.log(this.project);
     this.showCreateNotebook = true;
 
     this.notebookName = new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(20)]);
@@ -70,6 +71,13 @@ export class ModalUploadNotebookComponent implements OnInit {
   }
 
   addNotebook() {
+
+    for(let notebook of this.project.notebooks){
+      if(notebook.name.toLowerCase() === this.notebookName.value.toLowerCase() && notebook.extension === ".ipynb"){
+        alert("Notebook name must be unique");
+        return;
+      }
+    }
     if (this.showCreateNotebook) {
       this.notebook = {
         'file': this.file,

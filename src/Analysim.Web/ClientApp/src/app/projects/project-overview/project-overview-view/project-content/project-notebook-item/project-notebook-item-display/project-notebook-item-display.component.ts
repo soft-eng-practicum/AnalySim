@@ -57,7 +57,7 @@ export class ProjectNotebookItemDisplayComponent {
         console.log("some unknown error occurred , please open the notebook again.");
         alert("some unknown error occurred , please open the notebook again.");
       }
-    }, 25000);
+    }, 30000);
   }
 
   loadNotebook() {
@@ -67,6 +67,7 @@ export class ProjectNotebookItemDisplayComponent {
 
     this.projectService.getNotebookFile(this.notebook, this.version)
       .subscribe(nbContent => {
+        // console.log("the notebook content is : ", nbContent);
         const notebookName = `${this.notebook.name}${this.notebook.extension}`;
         const notebookData = {
           content: nbContent, // The content of the notebook

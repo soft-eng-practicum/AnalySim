@@ -563,6 +563,56 @@ namespace Web.Controllers
             // Save Changes
             await _dbContext.SaveChangesAsync();
 
+            //uploading a readme file
+            var readmeContent = new
+            {
+                cells = new[]
+        {
+            new
+            {
+                cell_type = "markdown",
+                metadata = new { },
+                source = new[] { $"# Hello, this is Readme file of {formdata.Name}" }
+            }
+        },
+                metadata = new { },
+                nbformat = 4,
+                nbformat_minor = 2
+            };
+
+            var readmeJson = System.Text.Json.JsonSerializer.Serialize(readmeContent);
+            var readmeFileContent = System.Text.Encoding.UTF8.GetBytes(readmeJson);
+
+            Notebook readmeNotebook = new Notebook
+            {
+                Container = "notebook-" + newProject.Name.ToLower(),
+                Name = "readme",
+                Directory = "notebook/",
+                Extension = ".ipynb",
+                Uri = "",
+                Size = readmeFileContent.Length,
+                DateCreated = DateTime.UtcNow,
+                LastModified = DateTime.UtcNow,
+                ProjectID = newProject.ProjectID,
+                type = "new"
+            };
+
+            await _dbContext.Notebook.AddAsync(readmeNotebook);
+            await _dbContext.SaveChangesAsync();
+
+            NotebookContent readmeNotebookContent = new NotebookContent
+            {
+                NotebookID = readmeNotebook.NotebookID,
+                Version = 1,
+                Content = readmeFileContent,
+                Author = "hello",
+                Size = readmeFileContent.Length,
+                DateCreated = DateTime.UtcNow
+            };
+
+            await _dbContext.NotebookContent.AddAsync(readmeNotebookContent);
+            await _dbContext.SaveChangesAsync();
+
             // Return Ok Request
             return Ok(new
             {

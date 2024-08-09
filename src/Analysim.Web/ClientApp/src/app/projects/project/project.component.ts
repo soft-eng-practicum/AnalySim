@@ -9,6 +9,8 @@ import { ProjectFileExplorerComponent } from '../project-file-explorer/project-f
 import { ProjectUser } from 'src/app/interfaces/project-user';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { marked, Marked } from 'marked';
+import hljs from 'highlight.js';
 
 
 @Component({
@@ -43,6 +45,10 @@ export class ProjectComponent implements OnInit {
   fileDirectory: string
   forkedFrom: Project = null
   profileImageUrls: { [key: string]: SafeUrl } = {};
+  notebookContent: any;
+  versions: number[] = [];
+  latestVersion: number = 1;
+  readmeNotebook: any;
 
   toggleMoreOption: boolean = false
   toggleNotebookExpand: boolean = false
@@ -69,7 +75,7 @@ export class ProjectComponent implements OnInit {
       this.projectService.getProjectByRoute(owner, projectname).subscribe(
         result => {
           this.project = result
-          //console.log("project is : ", this.project);
+          // console.log("project is : ", this.project);
           this.loadProfileImages();
           this.forkedFrom = null
           if (this.project.forkedFromProjectID != 0) {
@@ -79,10 +85,25 @@ export class ProjectComponent implements OnInit {
               }
             )
           }
-          console.log(this.project.forkedFromProjectID)
+          // console.log(this.project.forkedFromProjectID)
           if (this.currentUser != null && this.project.projectUsers.find(x => x.userID == this.currentUser.id) != undefined) {
             this.projectUser = this.project.projectUsers.find(x => x.userID == this.currentUser.id)
           }
+          this.readmeNotebook = result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0];
+          this.projectService.getNotebookVersions(result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0]).subscribe(versions => {
+            this.versions = versions;
+            //console.log("Versions: ", this.versions);
+            if (this.versions.length > 0) {
+              this.latestVersion = this.versions[0]; // Default to the latest version
+            }
+            // console.log("the loatest version  : ", this.latestVersion);
+          });
+          // console.log("readme file is : ", result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0]);
+          this.projectService.getNotebookFile(result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0], this.latestVersion).subscribe(
+            notebookJson => {
+              this.notebookContent = this.sanitizer.bypassSecurityTrustHtml(this.renderNotebook(notebookJson));
+              // console.log("the notebook content is : ", this.notebookContent);
+            });
         }
 
       )
@@ -120,10 +141,56 @@ export class ProjectComponent implements OnInit {
     })
   }
 
+  ngAfterViewInit() {
+    // hljs.registerLanguage('python', python);
+    hljs.highlightAll();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['project']) {
       this.loadProfileImages();
     }
+  }
+
+  navigateToNotebook() {
+    // https://localhost:5001/project/uday-bi/testing-readme/notebook/readme?isNotebook=true&notebookId=93&version=0
+    this.router.navigate([this.router.url + "/notebook/" + this.readmeNotebook.name], {
+      queryParams: {
+        isNotebook: true,
+        notebookId: this.readmeNotebook.notebookID,
+        version: this.latestVersion,
+      }, queryParamsHandling: 'merge'
+    });
+  }
+
+  renderNotebook(notebookJson: any): string {
+    // Simple rendering of the notebook. Customize as needed.
+    let htmlContent = '<div class="notebook-readme">';
+    for (const cell of notebookJson.cells) {
+      htmlContent += '<div class="notebook-cell">';
+      if (cell.cell_type === 'markdown') {
+        htmlContent += marked(cell.source.join(''));
+      } else if (cell.cell_type === 'code') {
+        htmlContent += '<pre><code><div>' + hljs.highlight(cell.source.join(''), {language: 'python'}).value + '</div></code></pre>';
+        if (cell.outputs) {
+          for (const output of cell.outputs) {
+            if (output.data && output.data['text/html']) {
+              htmlContent += output.data['text/html'].join('');
+            } else if (output.data && output.data['image/png']) {
+              htmlContent += `<img src="data:image/png;base64,${output.data['image/png']}" />`;
+            } else if (output.data && output.data['text/plain']) {
+              htmlContent += '<pre>' + output.data['text/plain'].join('') + '</pre>';
+            }
+            else if (output.text) {
+              htmlContent += '<pre>' + output.text.join('') + '</pre>';
+            }
+          }
+        }
+      }
+      htmlContent += '</div>';
+    }
+    htmlContent += '</div>';
+    return htmlContent;
   }
 
   loadProfileImages(): void {
