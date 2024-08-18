@@ -1,7 +1,7 @@
-import { Component, OnInit, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
+import { Component, OnInit, SimpleChanges, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router, RouterStateSnapshot, NavigationEnd, NavigationError } from '@angular/router';
 import { User } from 'src/app/interfaces/user';
-import { Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { Project } from 'src/app/interfaces/project';
 import { AccountService } from 'src/app/services/account.service';
 import { ProjectService } from 'src/app/services/project.service';
@@ -9,6 +9,7 @@ import { ProjectFileExplorerComponent } from '../project-file-explorer/project-f
 import { ProjectUser } from 'src/app/interfaces/project-user';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { ExploreService } from 'src/app/services/explore.service';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 
 @Component({
@@ -22,6 +23,7 @@ export class ProjectComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private accountService: AccountService,
+    private sanitizer: DomSanitizer,
     private projectService: ProjectService,
     private modalService: BsModalService,
     private exploreService: ExploreService
@@ -42,6 +44,7 @@ export class ProjectComponent implements OnInit {
   projectUser: ProjectUser = null
   fileDirectory: string
   forkedFrom: Project = null
+  profileImageUrls: { [key: string]: SafeUrl } = {};
 
   toggleMoreOption: boolean = false
   toggleNotebookExpand: boolean = false
@@ -68,6 +71,8 @@ export class ProjectComponent implements OnInit {
       this.projectService.getProjectByRoute(owner, projectname).subscribe(
         result => {
           this.project = result
+          //console.log("project is : ", this.project);
+          this.loadProfileImages();
           this.forkedFrom = null
           if (this.project.forkedFromProjectID != 0) {
             this.projectService.getProjectByID(this.project.forkedFromProjectID).subscribe(
@@ -83,7 +88,7 @@ export class ProjectComponent implements OnInit {
         }
 
       )
-      console.log(this.route.snapshot)
+      // console.log(this.route.snapshot)
 
       // Set Directory Param When First Load
       this.route.url.subscribe(segments => {
@@ -115,6 +120,59 @@ export class ProjectComponent implements OnInit {
         }
       });
     })
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['project']) {
+      this.loadProfileImages();
+    }
+  }
+
+  loadProfileImages(): void {
+    if (this.project && this.project.projectUsers) {
+      this.project.projectUsers.forEach(member => {
+        // console.log("the member is : ", member)
+        this.loadProfileImage(member.user);
+      });
+    }
+  }
+
+  loadProfileImage(user: User): void {
+    if (user.id) {
+      this.accountService.getProfileImage(user.id).subscribe(
+        blobFile => {
+          if (blobFile) {
+            this.projectService.downloadFile(blobFile.blobFileID).subscribe(
+              imageBlob => {
+                if (imageBlob) {
+                  const objectURL = URL.createObjectURL(imageBlob);
+                  this.profileImageUrls[user.userName] = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+                } else {
+                  this.setDefaultImage(user.userName);
+                }
+              },
+              error => {
+                console.error('Error fetching profile image:', error);
+                this.setDefaultImage(user.userName);
+              }
+            );
+          } else {
+            this.setDefaultImage(user.userName);
+          }
+        },
+        error => {
+          console.error('Error fetching profile image:', error);
+          this.setDefaultImage(user.userName);
+        }
+      );
+    } else {
+      this.setDefaultImage(user.userName);
+    }
+  }
+
+  setDefaultImage(userName: string): void {
+    this.profileImageUrls[userName] = "../../assets/img/default-profile.png";
+    // console.log("the user is : ", userName, " and the image is : ", this.profileImageUrls[userName])
   }
 
   get isFollowing(): boolean {

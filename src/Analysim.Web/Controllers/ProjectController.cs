@@ -36,16 +36,11 @@ namespace Web.Controllers
     {
 
         private readonly ApplicationDbContext _dbContext;
-        private readonly IBlobService _blobService;
-        private readonly BlobServiceClient _blobServiceClient;
         private readonly IConfiguration _configuration;
 
-        public ProjectController(ApplicationDbContext dbContext, IBlobService blobService,
-                                 BlobServiceClient blobServiceClient, IConfiguration configuration)
+        public ProjectController(ApplicationDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
-            _blobService = blobService;
-            _blobServiceClient = blobServiceClient;
             _configuration = configuration;
         }
 
@@ -179,8 +174,8 @@ namespace Web.Controllers
         }
 
         /*
-         * Type : POST
-         * URL : /api/test/downloadfile/
+         * Type : GET
+         * URL : /api/project/downloadfile/
          * Param : {fileID}
          * Description: Download file from Azure Storage
          */
@@ -190,13 +185,51 @@ namespace Web.Controllers
             try
             {
 
-                // Find Project
+                // Find blobfile
                 var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
                 if (blobFile == null) return NotFound();
 
-                BlobDownloadInfo data = await _blobService.GetBlobAsync(blobFile);
+                //find blobfile content
+                var blobFileContent = await _dbContext.BlobFileContent.FindAsync(fileID);
+                if (blobFileContent == null) return NotFound();
 
-                return File(data.Content, data.ContentType, blobFile.Name + blobFile.Extension);
+                //BlobDownloadInfo data = await _blobService.GetBlobAsync(blobFile);
+
+                return File(blobFileContent.Content, "application/octet-stream", blobFile.Name + blobFile.Extension);
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(e);
+            }
+
+        }
+
+        /*
+         * Type : GET
+         * URL : /api/project/download/
+         * Param : {username}/{projectname}/{directory}/{filename}
+         * Description: Download file with user and project name
+         */
+        [HttpGet("[action]/{username}/{projectname}/{*filepath}")]
+        public async Task<IActionResult> Download([FromRoute] string username, [FromRoute] string projectname, [FromRoute] string filepath)
+        {
+            try
+            {
+
+                // Find blobfile
+                var blobFile = await _dbContext.BlobFiles
+                    .FirstOrDefaultAsync(b => b.User.UserName == username && b.Container == projectname && b.Directory + b.Name + b.Extension == filepath);
+
+                if (blobFile == null) return NotFound();
+
+                //find blobfile content
+                var blobFileContent = await _dbContext.BlobFileContent.FindAsync(blobFile.BlobFileID);
+                if (blobFileContent == null) return NotFound();
+
+                //BlobDownloadInfo data = await _blobService.GetBlobAsync(blobFile);
+
+                return File(blobFileContent.Content, "application/octet-stream", blobFile.Name + blobFile.Extension);
             }
             catch (Exception e)
             {
@@ -678,26 +711,30 @@ namespace Web.Controllers
                     return BadRequest($"Exceeds total user quota of {(maxsize / 1e6).ToString()} MB.");
 
                 // Set File Path
-                var filePath = formdata.Directory + formdata.File.FileName;
+                //var filePath = formdata.Directory + formdata.File.FileName;
 
-                System.Diagnostics.Debug.WriteLine($"filePath: {filePath}");
+                //System.Diagnostics.Debug.WriteLine($"filePath: {filePath}");
 
                 // Upload Blob File
-                BlobClient blobClient = await _blobService.UploadFileBlobAsync(formdata.File, project.Name.ToLower(), filePath);
-                System.Diagnostics.Debug.WriteLine($"after upload test");
-                BlobProperties properties = blobClient.GetProperties();
+                //BlobClient blobClient = await _blobService.UploadFileBlobAsync(formdata.File, project.Name.ToLower(), filePath);
+                //System.Diagnostics.Debug.WriteLine($"after upload test");
+                //BlobProperties properties = blobClient.GetProperties();
+
+                using var memoryStream = new MemoryStream();
+                await formdata.File.CopyToAsync(memoryStream);
+                var fileContent = memoryStream.ToArray();
 
                 // Create BlobFile
                 var newBlobFile = new BlobFile
                 {
-                    Container = blobClient.BlobContainerName,
+                    Container = project.Name.ToLower(),
                     Directory = formdata.Directory,
                     Name = Path.GetFileNameWithoutExtension(formdata.File.FileName),
                     Extension = Path.GetExtension(formdata.File.FileName),
-                    Size = (int)properties.ContentLength,
-                    Uri = blobClient.Uri.ToString(),
-                    DateCreated = properties.CreatedOn.UtcDateTime,
-                    LastModified = properties.LastModified.UtcDateTime,
+                    Size = (int)formdata.File.Length,
+                    Uri = "",
+                    DateCreated = DateTimeOffset.UtcNow,
+                    LastModified = DateTimeOffset.UtcNow,
                     UserID = formdata.UserID,
                     ProjectID = formdata.ProjectID
                 };
@@ -705,6 +742,19 @@ namespace Web.Controllers
                 // Update Database with entry
                 await _dbContext.BlobFiles.AddAsync(newBlobFile);
                 await _dbContext.SaveChangesAsync();
+
+                //create blobfilecontent
+                var newBlobFileContent = new BlobFileContent
+                {
+                    BlobFileID = newBlobFile.BlobFileID,
+                    Content = fileContent,
+                    DateCreated = DateTimeOffset.UtcNow
+                };
+
+                await _dbContext.BlobFileContent.AddAsync(newBlobFileContent);
+                await _dbContext.SaveChangesAsync();
+
+                newBlobFile.BlobFileContents = null;
 
                 // Return Ok Status
                 return Ok(new
@@ -1025,21 +1075,21 @@ namespace Web.Controllers
                 var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
                 if (project == null) return NotFound(new { message = "Project Not Found" });
 
-                var filePath = formdata.Directory + "$$$.$$";
-                BlobClient blobClient = await _blobService.CreateFolder(project.Name.ToLower(), filePath);
-                BlobProperties properties = blobClient.GetProperties();
+                //var filePath = formdata.Directory + "$$$.$$";
+                //BlobClient blobClient = await _blobService.CreateFolder(project.Name.ToLower(), filePath);
+                //BlobProperties properties = blobClient.GetProperties();
 
                 // Create BlobFile
                 var newBlobFile = new BlobFile
                 {
-                    Container = blobClient.BlobContainerName,
+                    Container = project.Name.ToLower(),
                     Directory = formdata.Directory,
                     Name = "$$$",
                     Extension = ".$$",
-                    Size = (int)properties.ContentLength,
-                    Uri = blobClient.Uri.ToString(),
-                    DateCreated = properties.CreatedOn.UtcDateTime,
-                    LastModified = properties.LastModified.UtcDateTime,
+                    Size = 0,
+                    Uri = "",
+                    DateCreated = DateTimeOffset.UtcNow,
+                    LastModified = DateTimeOffset.UtcNow,
                     UserID = formdata.UserID,
                     ProjectID = formdata.ProjectID
                 };
@@ -1127,12 +1177,12 @@ namespace Web.Controllers
          * Description: add dataset to the notebook
          */
         [HttpPost("[action]")]
-        public async Task<IActionResult> AddDatasetToNotebook([FromForm] int notebookID, [FromForm] string datasetURL, [FromForm] string datasetName)
+        public async Task<IActionResult> AddDatasetToNotebook([FromForm] int notebookID, [FromForm] int blobFileID, [FromForm] string datasetName)
         {
             try
             {
                 var dataset = await _dbContext.ObservableNotebookDataset
-                    .FirstOrDefaultAsync(d => d.NotebookID == notebookID && d.datasetURL == datasetURL);
+                    .FirstOrDefaultAsync(d => d.NotebookID == notebookID && d.BlobFileID == blobFileID);
 
                 if (dataset != null)
                 {
@@ -1142,7 +1192,8 @@ namespace Web.Controllers
                 var newDataset = new ObservableNotebookDataset
                 {
                     NotebookID = notebookID,
-                    datasetURL = datasetURL,
+                    //datasetURL = datasetURL,
+                    BlobFileID = blobFileID,
                     datasetName = datasetName
                 };
 
@@ -1220,12 +1271,12 @@ namespace Web.Controllers
          * Description: delete dataset from notebook
          */
         [HttpPut("[action]")]
-        public async Task<IActionResult> DeleteDatasetFromNotebook([FromForm] int notebookID, [FromForm] string datasetURL)
+        public async Task<IActionResult> DeleteDatasetFromNotebook([FromForm] int notebookID, [FromForm] int blobFileID)
         {
             try
             {
                 var dataset = await _dbContext.ObservableNotebookDataset
-                    .FirstOrDefaultAsync(d => d.NotebookID == notebookID && d.datasetURL == datasetURL);
+                    .FirstOrDefaultAsync(d => d.NotebookID == notebookID && d.BlobFileID == blobFileID);
 
                 if (dataset == null)
                 {
@@ -1338,9 +1389,9 @@ namespace Web.Controllers
             }
 
             // Delete from Azure
-            var containerClient = _blobServiceClient.GetBlobContainerClient(deleteProject.Name.ToLower());
+            //var containerClient = _blobServiceClient.GetBlobContainerClient(deleteProject.Name.ToLower());
             // await containerClient.DeleteBlobIfExistsAsync(deleteProject.Name.ToLower());
-            containerClient.DeleteIfExists();
+            //containerClient.DeleteIfExists();
 
             // get the project by project ID
             var blobsResult = _dbContext.BlobFiles
@@ -1457,7 +1508,7 @@ namespace Web.Controllers
 
                     if (blobFile.Extension != ".$$")
                     {
-                        var dataset = await _dbContext.ObservableNotebookDataset.FirstOrDefaultAsync(data => data.datasetURL == blobFile.Uri);
+                        var dataset = await _dbContext.ObservableNotebookDataset.FirstOrDefaultAsync(data => data.BlobFileID == blobFile.BlobFileID);
                         // Console.Write(blobFile.Uri);
 
                         if (dataset != null)
@@ -1467,7 +1518,7 @@ namespace Web.Controllers
                         }
                     }
 
-                    await _blobService.DeleteBlobAsync(blobFile);
+                    //await _blobService.DeleteBlobAsync(blobFile);
 
                     // Delete Blob Files From Database
                     _dbContext.BlobFiles.Remove(blobFile);
@@ -1517,25 +1568,33 @@ namespace Web.Controllers
                     // Delete Blob Files From Database
                     //_dbContext.Notebook.Remove(notebook);
 
-                    var noteContent = await _dbContext.NotebookContent
-                        .Where(n => n.NotebookID == notebookID && n.Version == version)
-                        .FirstOrDefaultAsync();
-                    if (noteContent == null) return NotFound(new { message = "Notebook Content Not Found" });
-
-                    _dbContext.NotebookContent.Remove(noteContent);
-
-                    // Save Change to Database
-                    await _dbContext.SaveChangesAsync();
-
-                    var notebookContents = await _dbContext.NotebookContent
-                        .Where(n => n.NotebookID == notebookID)
-                        .OrderByDescending(n => n.Version)
-                        .FirstOrDefaultAsync();
-
-                    if (notebookContents == null)
+                    if (notebook.type == "observable")
                     {
                         _dbContext.Notebook.Remove(notebook);
                         await _dbContext.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        var noteContent = await _dbContext.NotebookContent
+                            .Where(n => n.NotebookID == notebookID && n.Version == version)
+                            .FirstOrDefaultAsync();
+                        if (noteContent == null) return NotFound(new { message = "Notebook Content Not Found" });
+
+                        _dbContext.NotebookContent.Remove(noteContent);
+
+                        // Save Change to Database
+                        await _dbContext.SaveChangesAsync();
+
+                        var notebookContents = await _dbContext.NotebookContent
+                            .Where(n => n.NotebookID == notebookID)
+                            .OrderByDescending(n => n.Version)
+                            .FirstOrDefaultAsync();
+
+                        if (notebookContents == null)
+                        {
+                            _dbContext.Notebook.Remove(notebook);
+                            await _dbContext.SaveChangesAsync();
+                        }
                     }
 
                     // Return Ok Status
@@ -1668,16 +1727,16 @@ namespace Web.Controllers
             var project = await _dbContext.Projects.FindAsync(1);
             if (project == null) return NotFound(new { message = "Project Not Found" });
 
-            var relatedDirectory = await _blobService.ListBlobsAsync(project.Name.ToLower());
+            //var relatedDirectory = await _blobService.ListBlobsAsync(project.Name.ToLower());
 
             // Update Database with entry
-            _dbContext.BlobFiles.AddRange(relatedDirectory);
-            await _dbContext.SaveChangesAsync();
+            //_dbContext.BlobFiles.AddRange(relatedDirectory);
+            //await _dbContext.SaveChangesAsync();
 
             // Return Ok Status
             return Ok(new
             {
-                result = relatedDirectory,
+                //result = relatedDirectory,
                 message = "File Successfully Uploaded"
             });
         }
@@ -1704,13 +1763,13 @@ namespace Web.Controllers
                 var project = await _dbContext.Projects.FindAsync(1);
                 if (project == null) return NotFound(new { message = "Project Not Found" });
 
-                var relatedDirectory = await _blobService.ListBlobsAsync(project.Name.ToLower(), directory);
+                // var relatedDirectory = await _blobService.ListBlobsAsync(project.Name.ToLower(), directory);
 
                 // Return Ok Status
                 return Ok(new
                 {
                     directory = directory,
-                    result = relatedDirectory,
+                    //result = relatedDirectory,
                     message = "File Successfully Uploaded"
                 });
 
@@ -1746,12 +1805,12 @@ namespace Web.Controllers
 
                 var filePath = formdata.SubDirectory + blobFile.Name + blobFile.Extension;
 
-                BlobClient blobClient = await _blobService.MoveBlobAsync(blobFile, filePath);
-                BlobProperties properties = blobClient.GetProperties();
+                //BlobClient blobClient = await _blobService.MoveBlobAsync(blobFile, filePath);
+                //BlobProperties properties = blobClient.GetProperties();
 
                 blobFile.Directory = formdata.SubDirectory;
-                blobFile.Uri = blobClient.Uri.ToString();
-                blobFile.LastModified = properties.LastModified.LocalDateTime;
+                //blobFile.Uri = blobClient.Uri.ToString();
+                //blobFile.LastModified = properties.LastModified.LocalDateTime;
 
                 // Set Entity State
                 _dbContext.Entry(blobFile).State = EntityState.Modified;

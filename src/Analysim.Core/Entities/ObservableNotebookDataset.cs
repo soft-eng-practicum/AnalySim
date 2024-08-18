@@ -10,6 +10,8 @@ namespace Core.Entities
 
         public string datasetName { get; set; }
 
+        public int BlobFileID { get; set; }
+
         public string datasetURL { get; set; }
 
         public Notebook notebook

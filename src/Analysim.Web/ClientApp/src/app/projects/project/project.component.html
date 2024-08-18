@@ -10,7 +10,7 @@
             <ul class="project-authors-list">
               <li class="project-author" *ngFor='let members of project.projectUsers | projectMember:"owner"'
                 [routerLink]='["/profile/" + members.user.userName]'>
-                <img class="project-author-thumbnail" [src]="members.user | profileImage"/>
+                <img class="project-author-thumbnail" [src]="profileImageUrls[members.user.userName]" />
                 <div class="project-author-name">
                   {{members.user.userName}}
                 </div>

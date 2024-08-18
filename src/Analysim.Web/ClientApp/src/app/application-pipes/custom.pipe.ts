@@ -7,15 +7,15 @@ import { ProjectUser } from '../interfaces/project-user';
     name: 'route'
 })
 export class RoutePipe implements PipeTransform {
-    transform(route: string, type: string): string{
-        switch(type){
+    transform(route: string, type: string): string {
+        switch (type) {
             case "owner":
                 return route.split("/")[0];
             case "projectname":
                 return route.split("/")[1];
             default:
                 console.log("Error: Route Pipe")
-                return "null";           
+                return "null";
         }
     }
 }
@@ -26,17 +26,17 @@ export class RoutePipe implements PipeTransform {
 })
 export class RoleFilterPipe implements PipeTransform {
     transform(project: Project, type: string): number {
-        switch(type){
+        switch (type) {
             case "follower":
                 return project.projectUsers
-                    .filter(x => 
+                    .filter(x =>
                         x.isFollowing == true
                     ).length
             case "member":
                 return project.projectUsers
-                    .filter(x => 
-                        x.userRole == 'owner' || 
-                        x.userRole == 'admin' || 
+                    .filter(x =>
+                        x.userRole == 'owner' ||
+                        x.userRole == 'admin' ||
                         x.userRole == 'member'
                     ).length
             default:
@@ -54,32 +54,32 @@ export class TimeElapsedPipe implements PipeTransform {
         var timeNow = new Date()
 
         var elapsed = Math.floor(timeNow.getTime() - timeThen.getTime())
-        var secs = Math.floor(elapsed/1000);
-        var mins = Math.floor(secs/60);
-        var hours = Math.floor(mins/60);
-        var days = Math.floor(hours/24);
-        var months = Math.floor(days/31);
-        var years = Math.floor(months/12);
-    
-        if(years > 12){
-          return years + " Year"
+        var secs = Math.floor(elapsed / 1000);
+        var mins = Math.floor(secs / 60);
+        var hours = Math.floor(mins / 60);
+        var days = Math.floor(hours / 24);
+        var months = Math.floor(days / 31);
+        var years = Math.floor(months / 12);
+
+        if (years > 12) {
+            return years + " Year"
         }
-        else if(months > 0){
-          return months + " Month"
+        else if (months > 0) {
+            return months + " Month"
         }
-        else if(days > 0){
-          return days + " Day"
+        else if (days > 0) {
+            return days + " Day"
         }
-        else if(hours > 0){
-          return hours + " Hour"
+        else if (hours > 0) {
+            return hours + " Hour"
         }
-        else if(mins > 0){
-          return mins + " Minute"
+        else if (mins > 0) {
+            return mins + " Minute"
         }
-        else if(secs > 0){
-          return secs + " Second"
+        else if (secs > 0) {
+            return secs + " Second"
         }
-        else{
+        else {
             return ""
         }
     }
@@ -90,12 +90,11 @@ export class TimeElapsedPipe implements PipeTransform {
 })
 export class ProfileImagePipe implements PipeTransform {
     transform(profile: User): string {
-        if(profile.blobFiles.length != 0)
-        {
+        if (profile.blobFiles.length != 0) {
             var blobFile = profile.blobFiles.find(x => x.container == 'profile')
-            if(blobFile != null) { return blobFile.uri + "?" + blobFile.lastModified }
-        }  
-        return "../../assets/img/default-profile.png"         
+            if (blobFile != null) { return blobFile.uri + "?" + blobFile.lastModified }
+        }
+        return "../../assets/img/default-profile.png"
     }
 }
 
@@ -105,7 +104,7 @@ export class ProfileImagePipe implements PipeTransform {
 })
 export class ProjectMemberPipe implements PipeTransform {
     transform(projectUsers: ProjectUser[], type: string): ProjectUser[] {
-        switch(type){
+        switch (type) {
             case "owner":
                 return projectUsers.filter(x => {
                     return x.userRole == "owner" || x.userRole == "admin"

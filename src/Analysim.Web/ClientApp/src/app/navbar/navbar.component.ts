@@ -8,6 +8,7 @@ import { Project } from '../interfaces/project';
 import { NotificationService } from '../services/notification.service';
 import { Router } from '@angular/router';
 import { ExploreService } from '../services/explore.service';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-navbar',
@@ -19,6 +20,7 @@ export class NavbarComponent implements OnInit {
     private accountService: AccountService,
     private projectService: ProjectService,
     private exploreService: ExploreService,
+    private sanitizer: DomSanitizer,
     private formBuilder: FormBuilder,
     public notfi: NotificationService,
     private router: Router,
@@ -28,18 +30,42 @@ export class NavbarComponent implements OnInit {
   searchTerm: FormControl;
   termParam: string[];
   projects: Project[];
+  profileImageUrl: SafeUrl;
 
   loginStatus$: Observable<boolean>;
   currentUser$: Observable<User> = null;
+  currentUser: User = null;
 
   async ngOnInit() {
     this.loginStatus$ = this.accountService.isLoggedIn;
     this.currentUser$ = await this.accountService.currentUser;
+    this.currentUser$.subscribe(x => {
+      this.currentUser = x
+      if (x) this.profileImage();
+    });
 
     this.searchTerm = new FormControl();
     this.searchForm = new FormGroup({
       searchTerm: this.searchTerm
     });
+  }
+
+  profileImage() {
+    if (this.currentUser.blobFiles.length != 0) {
+      var blobFile = this.currentUser.blobFiles.find(x => x.container == 'profile')
+      if (blobFile != null) {
+        this.projectService.downloadFile(blobFile.blobFileID).subscribe(
+          imageBlob => {
+            if (imageBlob == null) this.profileImageUrl = "../../assets/img/default-profile.png";
+            const objectURL = URL.createObjectURL(imageBlob);
+            this.profileImageUrl = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+          }, error => {
+            console.log(error)
+          }
+        )
+      }
+      else this.profileImageUrl = "../../assets/img/default-profile.png";
+    }
   }
 
   searchProject(searchTerms: string[]) {
@@ -77,7 +103,7 @@ export class NavbarComponent implements OnInit {
     }
   }
 
-  onLogout(){
+  onLogout() {
     this.accountService.logout();
   }
 }

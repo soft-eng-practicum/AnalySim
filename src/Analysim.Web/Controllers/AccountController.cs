@@ -25,6 +25,8 @@ using Web.ViewModels.Account;
 using Web.ViewModels;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Data;
+using Analysim.Core.Entities;
 
 namespace Web.Controllers
 {
@@ -36,7 +38,6 @@ namespace Web.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signManager;
         private readonly ApplicationDbContext _dbContext;
-        private readonly IBlobService _blobService;
         private readonly ILoggerManager _loggerManager;
         private readonly IMailNetService _mailNetService;
 
@@ -44,14 +45,13 @@ namespace Web.Controllers
 
         public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager,
             SignInManager<User> signManager, ApplicationDbContext dbContext,
-                                 IBlobService blobService, ILoggerManager loggerManager,
+                                 ILoggerManager loggerManager,
                                  IMailNetService mailNetService,IConfiguration configuration)
         {
             _jwtSettings = jwtSettings.Value;
             _userManager = userManager;
             _signManager = signManager;
             _dbContext = dbContext;
-            _blobService = blobService;
             _loggerManager = loggerManager;
             _mailNetService = mailNetService;
             _configuration = configuration;
@@ -154,6 +154,29 @@ namespace Web.Controllers
             {
                 result = users,
                 message = "Received User List"
+            });
+        }
+
+        /*
+         * Type : GET
+         * URL : /api/account/getprofileimage?
+         * Description: Return blob file from user id
+         * Response Status: 200 Ok
+         */
+        [HttpGet("[action]")]
+        public IActionResult GetProfileImage([FromQuery(Name="id")] int id)
+        {
+            var blobfile = _dbContext.BlobFiles
+                .Where(b => b.UserID == id && b.Name == "profileImage")
+                .FirstOrDefault();
+            if (blobfile == null) return NotFound(new { message = "Profile Image Not Found"});
+
+            //blobfile.content = null;
+
+            return Ok(new
+            {
+                result = blobfile,
+                message = "Received user's profile picture"
             });
         }
 
@@ -662,26 +685,44 @@ namespace Web.Controllers
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
                 //Create File Path With File
-                var filePath = user.UserName + "/profileImage" + Path.GetExtension(formdata.File.FileName);
+                //var filePath = user.UserName + "/profileImage" + Path.GetExtension(formdata.File.FileName);
 
-                BlobClient blobClient = await _blobService.UploadFileBlobResizeAsync(formdata.File, "profile", filePath, 250, 250);
-                BlobProperties blobProperties = blobClient.GetProperties();
+                //BlobClient blobClient = await _blobService.UploadFileBlobResizeAsync(formdata.File, "profile", filePath, 250, 250);
+                //BlobProperties blobProperties = blobClient.GetProperties();
+
+                //byte[] imageBytes;
+                //using (var memoryStream = new MemoryStream())
+                //{
+                //    await formdata.File.CopyToAsync(memoryStream);
+                //    imageBytes = memoryStream.ToArray();
+                //}
+                using var memoryStream = new MemoryStream();
+                await formdata.File.CopyToAsync(memoryStream);
+                var fileContent = memoryStream.ToArray();
 
                 // Check For Existing
-                var blobFile = _dbContext.BlobFiles.FirstOrDefault(x => x.Uri == blobClient.Uri.AbsoluteUri.ToString());
+                var blobFile = _dbContext.BlobFiles.FirstOrDefault(x => x.UserID == formdata.UserID && x.Name == "profileImage");
                 if (blobFile != null)
                 {
                     blobFile.Extension = Path.GetExtension(formdata.File.FileName);
-                    blobFile.Size = (int)blobProperties.ContentLength;
-                    blobFile.Uri = blobClient.Uri.AbsoluteUri.ToString();
-                    blobFile.LastModified = blobProperties.LastModified.LocalDateTime;
+                    blobFile.Size = (int)formdata.File.Length;
+                    blobFile.LastModified = DateTime.UtcNow;
+                    //blobFile.content = fileContent;
+
+                    var blobFileContent = _dbContext.BlobFileContent.FirstOrDefault(x => x.BlobFileID == blobFile.BlobFileID);
+                    blobFileContent.Content = fileContent;
 
                     // Set Entity State
                     _dbContext.Entry(blobFile).State = EntityState.Modified;
+                    _dbContext.Entry(blobFileContent).State = EntityState.Modified;
 
                     await _dbContext.SaveChangesAsync();
 
-                    return Ok(new { result = blobFile, message = "Profile Image Updated" });
+                    blobFile.BlobFileContents = null;
+
+                    return Ok(new { 
+                        result = blobFile, 
+                        message = "Profile Image Updated" });
                 }
 
                 // Create BlobFile
@@ -691,16 +732,31 @@ namespace Web.Controllers
                     Directory = user.UserName + "/",
                     Name = "profileImage",
                     Extension = Path.GetExtension(formdata.File.FileName),
-                    Size = (int)blobProperties.ContentLength,
-                    Uri = blobClient.Uri.AbsoluteUri.ToString(),
-                    DateCreated = blobProperties.CreatedOn.UtcDateTime,
-                    LastModified = blobProperties.LastModified.UtcDateTime,
+                    Size = (int)formdata.File.Length,
+                    Uri = "",
+                    //content = fileContent,
+                    DateCreated = DateTime.UtcNow,
+                    LastModified = DateTime.UtcNow,
                     UserID = formdata.UserID
                 };
 
                 // Update Database with entry
                 await _dbContext.BlobFiles.AddAsync(newBlobFile);
                 await _dbContext.SaveChangesAsync();
+
+                // Create BlobFileContent
+                var newBlobFileContent = new BlobFileContent
+                {
+                    BlobFileID = newBlobFile.BlobFileID,
+                    Content = fileContent,
+                    DateCreated = DateTime.UtcNow
+                };
+
+                // Update Database with entry
+                await _dbContext.BlobFileContent.AddAsync(newBlobFileContent);
+                await _dbContext.SaveChangesAsync();
+
+                newBlobFile.BlobFileContents = null;
 
                 // Return Ok Status
                 return Ok(new
@@ -908,7 +964,7 @@ namespace Web.Controllers
                 var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
                 if (blobFile == null) return NotFound(new { message = "File Not Found" });
 
-                await _blobService.DeleteBlobAsync(blobFile);
+                //await _blobService.DeleteBlobAsync(blobFile);
 
                 // Delete Blob Files From Database
                 _dbContext.BlobFiles.Remove(blobFile);

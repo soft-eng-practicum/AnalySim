@@ -26,8 +26,6 @@ namespace Web
 
             services.ConfigureCors();
 
-            services.ConfigureBlobsService(Configuration);
-
             services.ConfigureAuthorization();
 
             services.AddSwaggerGen();

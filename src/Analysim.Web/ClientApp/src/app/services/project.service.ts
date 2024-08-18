@@ -35,6 +35,7 @@ export class ProjectService {
   private urlGetProjectList: string = this.baseUrl + "getprojectList"
   private urlSearch: string = this.baseUrl + "search/"
   private urlDownloadFile: string = this.baseUrl + "downloadFile/"
+  private urlDownloadImage: string = this.baseUrl + "downloadFile/"
   private urlDownloadNotebook: string = this.baseUrl + "DownloadNotebook/"
   private urlGetNotebookVersions: string = this.baseUrl + "getnotebookversions/"
 
@@ -159,6 +160,7 @@ export class ProjectService {
   downloadFile(blobFileID: number) {
     return this.http.get(this.urlDownloadFile + blobFileID, { responseType: "blob" }).pipe(
       map(body => {
+        // console.log("the body is: ", body);
         if (body.type != 'text/plain') {
           return new Blob([body])
         }
@@ -166,6 +168,18 @@ export class ProjectService {
           alert('File not found in Blob!');
           return null
         }
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
+  downloadCSV(blobFileID: number) {
+    return this.http.get(this.urlDownloadFile + blobFileID, { responseType: "text" }).pipe(
+      map(body => {
+        return body;
       }),
       catchError(error => {
         console.log(error)
@@ -438,11 +452,11 @@ export class ProjectService {
     );
   }
 
-  addDatasetToNotebook(notebookID: number, file: any): Observable<any> {
+  addDatasetToNotebook(notebookID: number, file: BlobFile): Observable<any> {
     let body = new FormData();
     body.append('notebookID', notebookID.toString());
     body.append('datasetName', `${file.name}${file.extension}`);
-    body.append('datasetURL', file.uri);
+    body.append('blobFileID', file.blobFileID.toString());
 
     return this.http.post<any>(this.urlAddDatasetToNotebook, body).pipe(
       map(body => {
@@ -518,11 +532,11 @@ export class ProjectService {
   }
 
 
-  deleteDatasetFromNotebook(notebookID: number, file: any): Observable<any> {
+  deleteDatasetFromNotebook(notebookID: number, file: BlobFile): Observable<any> {
     let body = new FormData();
     body.append('notebookID', notebookID.toString());
-    body.append('datasetURL', file.uri);
-    console.log("calling delete dataset from notebook api");
+    body.append('blobFileID', file.blobFileID.toString());
+    //console.log("calling delete dataset from notebook api");
 
     return this.http.put<any>(this.urlDeleteDatasetFromNotebook, body).pipe(
       map(result => {

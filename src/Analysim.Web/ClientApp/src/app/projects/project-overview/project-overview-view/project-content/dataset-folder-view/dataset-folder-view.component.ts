@@ -26,14 +26,16 @@ export class DatasetFolderViewComponent implements OnInit {
   }
 
   datasetExists(file: any): boolean {
-    return this.notebook.observableNotebookDatasets.some((dataset: any) => dataset.datasetURL === file.uri);
+    // console.log("file : ", file);
+    // console.log("notebook : ", this.notebook);
+    return this.notebook.observableNotebookDatasets.some((dataset: any) => dataset.blobFileID === file.blobFileID);
   }
 
   toggleDataset(file: any): void {
     if (this.datasetExists(file)) {
       this.projectService.deleteDatasetFromNotebook(this.notebook.notebookID, file).subscribe(() => {
         // Remove the dataset from the notebook.observablehqDatasets array
-        this.notebook.observableNotebookDatasets = this.notebook.observableNotebookDatasets.filter((dataset: any) => dataset.datasetURL !== file.uri);
+        this.notebook.observableNotebookDatasets = this.notebook.observableNotebookDatasets.filter((dataset: any) => dataset.blobFileID !== file.blobFileID);
       });
     } else {
       this.projectService.addDatasetToNotebook(this.notebook.notebookID, file).subscribe((newDataset: any) => {
