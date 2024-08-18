@@ -14,20 +14,27 @@
         </div>
     </div>
     <ul class="list-group">
-        <li class="list-group-item" *ngIf="currentDirectory.split('/').length>2" (click)="navigateToPreviousComponent()"> . . . </li>
+        <li class="list-group-item" *ngIf="currentDirectory.split('/').length>2"
+            (click)="navigateToPreviousComponent()"> . . . </li>
         <li class="list-group-item" *ngIf="notebooks.length === 0 && !isCurrentDirNotebook "> No Notebooks Found </li>
-        <app-project-notebook-item *ngFor="let notebook of notebooks" [notebook]="notebook" [currentDirectory]="currentDirectory" (navigateToNewDirectory)="navigate($event)" (getNotebooks)="getNotebooks($event)" (setCurrentNotebook)="displayNotebook($event)" [isMember]="isMember"></app-project-notebook-item>
+        <app-project-notebook-item *ngFor="let notebook of notebooks" [project]="project" [notebook]="notebook"
+            [currentDirectory]="currentDirectory" (navigateToNewDirectory)="navigate($event)"
+            (getNotebooks)="getNotebooks($event)" (setCurrentNotebook)="displayNotebook($event)"
+            [isMember]="isMember"></app-project-notebook-item>
     </ul>
 </div>
 
 <ng-template #uploadNotebookModal>
-    <app-modal-upload-notebook [project]="project" (getNotebooks)="getNotebooks($event)" (closeModal)="closeModal()" [currentDirectory]="currentDirectory"></app-modal-upload-notebook>
+    <app-modal-upload-notebook [project]="project" (getNotebooks)="getNotebooks($event)" (closeModal)="closeModal()"
+        [currentDirectory]="currentDirectory"></app-modal-upload-notebook>
 </ng-template>
 
 <ng-template #folderModal>
-    <app-modal-notebook-folder [project]="project" (getNotebooks)="getNotebooks($event)" (closeModal)="closeFolderModal()" [currentDirectory]="currentDirectory"></app-modal-notebook-folder>
+    <app-modal-notebook-folder [project]="project" (getNotebooks)="getNotebooks($event)"
+        (closeModal)="closeFolderModal()" [currentDirectory]="currentDirectory"></app-modal-notebook-folder>
 </ng-template>
 
 <ng-template #displayNotebookModal>
-    <app-project-notebook-item-display [notebook]="currentNotebook" (closeModal)="closeDisplayNotebookModal()"></app-project-notebook-item-display>
+    <app-project-notebook-item-display [notebook]="currentNotebook" [version]="version" [isMember]="isMember"
+        (closeModal)="closeDisplayNotebookModal()"></app-project-notebook-item-display>
 </ng-template>

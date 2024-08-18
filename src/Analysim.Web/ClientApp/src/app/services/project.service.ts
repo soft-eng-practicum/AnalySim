@@ -36,6 +36,7 @@ export class ProjectService {
   private urlSearch: string = this.baseUrl + "search/"
   private urlDownloadFile: string = this.baseUrl + "downloadFile/"
   private urlDownloadNotebook: string = this.baseUrl + "DownloadNotebook/"
+  private urlGetNotebookVersions: string = this.baseUrl + "getnotebookversions/"
 
 
   // Post
@@ -47,12 +48,14 @@ export class ProjectService {
   private urlCreateNotebookFolder: string = this.baseUrl + "createNotebookFolder"
   private urlForkProject: string = this.baseUrl + "forkproject"
   private urlForkProjectWithoutBlob: string = this.baseUrl + "forkprojectwithoutblob"
+  private urlAddDatasetToNotebook: string = this.baseUrl + "addDatasetToNotebook"
 
   // Put
   private urlUpdateProject: string = this.baseUrl + "updateproject/"
   private urlupdateUser: string = this.baseUrl + "updateuser"
   private urlUpdateFile: string = this.baseUrl + "updateFile"
   private urlRenameNotebook: string = this.baseUrl + "RenameNotebook"
+  private urlDeleteDatasetFromNotebook: string = this.baseUrl + "deleteDatasetFromNotebook/"
 
   // Delete
   private urlDeleteProject: string = this.baseUrl + "deleteproject/"
@@ -68,6 +71,7 @@ export class ProjectService {
   private urlGetTagList: string = this.baseUrl + "gettaglist/"
 
   private urlUploadNotebook: string = this.baseUrl + "uploadnotebook";
+  private urlUploadNotebookNewVersion: string = this.baseUrl + "uploadnotebooknewversion";
   private urlUploadExistingNotebook: string = this.baseUrl + "uploadexistingnotebook";
   private urlDeleteNotebook: string = this.baseUrl + "deleteNotebook/";
   private urlGetShareableLink: string = this.baseUrl + "GetShareableLinkofFile/";
@@ -170,8 +174,8 @@ export class ProjectService {
     )
   }
 
-  downloadNotebook(notebook: Notebook) {
-    return this.http.get(this.urlDownloadNotebook + notebook.notebookID, { responseType: "blob" }).pipe(
+  downloadNotebook(notebook: Notebook, version: number) {
+    return this.http.get(this.urlDownloadNotebook + notebook.notebookID + "/" + version, { responseType: "blob" }).pipe(
       map(body => {
         if (body.type != 'text/plain') {
           return new Blob([body])
@@ -180,6 +184,37 @@ export class ProjectService {
           alert('File not found in Blob!');
           return null
         }
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
+  getNotebookFile(notebook: Notebook, version: number): Observable<any> {
+    return this.http.get(this.urlDownloadNotebook + notebook.notebookID + "/" + version, { responseType: "json" }).pipe(
+      map(body => {
+        if (body != null) {
+          return body
+        }
+        else {
+          alert('File is empty !');
+          return null
+        }
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
+  getNotebookVersions(notebook: Notebook): Observable<number[]> {
+    return this.http.get<any>(this.urlGetNotebookVersions + notebook.notebookID).pipe(
+      map(body => {
+        console.log(body.versions)
+        return body.versions
       }),
       catchError(error => {
         console.log(error)
@@ -327,6 +362,25 @@ export class ProjectService {
     );
   }
 
+  uploadNotebookNewVersion(notebook: NotebookFile, directory: string) {
+    let body = new FormData();
+    body.append('NotebookFile', notebook.file);
+    body.append('NotebookName', notebook.name);
+    body.append('ProjectID', notebook.projectID.toString());
+    body.append('directory', directory);
+
+    return this.http.post<any>(this.urlUploadNotebookNewVersion, body).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.message
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
   uploadExistingNotebook(notebookURL: NotebookURL, directory: string) {
     let body = new FormData();
     body.append('NotebookURL', notebookURL.url);
@@ -373,6 +427,24 @@ export class ProjectService {
     body.append('projectID', projectID.toString());
 
     return this.http.post<any>(this.urlCreateNotebookFolder, body).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
+  addDatasetToNotebook(notebookID: number, file: any): Observable<any> {
+    let body = new FormData();
+    body.append('notebookID', notebookID.toString());
+    body.append('datasetName', `${file.name}${file.extension}`);
+    body.append('datasetURL', file.uri);
+
+    return this.http.post<any>(this.urlAddDatasetToNotebook, body).pipe(
       map(body => {
         console.log(body.message)
         return body.result
@@ -445,6 +517,25 @@ export class ProjectService {
       )
   }
 
+
+  deleteDatasetFromNotebook(notebookID: number, file: any): Observable<any> {
+    let body = new FormData();
+    body.append('notebookID', notebookID.toString());
+    body.append('datasetURL', file.uri);
+    console.log("calling delete dataset from notebook api");
+
+    return this.http.put<any>(this.urlDeleteDatasetFromNotebook, body).pipe(
+      map(result => {
+        console.log("after calling delete dataset from notebook : ", result.message)
+        return result.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
   deleteProject(projectID: number): Observable<Project> {
     return this.http.delete<any>(this.urlDeleteProject + projectID)
       .pipe(
@@ -502,8 +593,8 @@ export class ProjectService {
     );
   }
 
-  deleteNotebook(notebookID: number, isMember: boolean): Observable<Notebook> {
-    return this.http.delete<any>(this.urlDeleteNotebook + notebookID + '/' + isMember).pipe(
+  deleteNotebook(notebookID: number, version: number, isMember: boolean): Observable<Notebook> {
+    return this.http.delete<any>(this.urlDeleteNotebook + notebookID + '/' + version + '/' + isMember).pipe(
       map(body => {
         console.log(body.message)
         return body.result

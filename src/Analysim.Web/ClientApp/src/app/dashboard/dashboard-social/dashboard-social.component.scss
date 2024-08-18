@@ -1,3 +1,7 @@
 .card-header {
-    background-color: var(--background-color-tertiary);
-  }
+  background-color: var(--background-color-tertiary);
+}
+
+.nav-item:hover {
+  cursor: pointer;
+}

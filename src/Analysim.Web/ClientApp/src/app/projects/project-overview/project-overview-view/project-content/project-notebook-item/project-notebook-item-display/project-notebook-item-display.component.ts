@@ -1,11 +1,9 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
-import { Notebook } from '../../../../../../interfaces/notebook';
+import { Notebook, NotebookFile } from '../../../../../../interfaces/notebook';
 import { ProjectService } from '../../../../../../services/project.service';
 import { HttpClient } from '@angular/common/http';
 import { JupyterLiteStorageService } from './localforageIndexdb';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { SaveConfirmationModalComponent } from '../../save-confirmation-modal/save-confirmation-modal.component';
-
 
 @Component({
   selector: 'app-project-notebook-item-display',
@@ -16,9 +14,12 @@ export class ProjectNotebookItemDisplayComponent {
 
 
   @Input() notebook: Notebook;
+  @Input() version: number;
+  @Input() isMember: boolean;
 
   @Output() closeModal: EventEmitter<any> = new EventEmitter();
-  showSaveModal = false;
+  showSaveWarningModal = false;
+  showSaveNotebookModal = false;
 
   constructor(private projectService: ProjectService, private _renderer2: Renderer2, private http: HttpClient
     , private sanitizer: DomSanitizer, private jupyterLiteStorageService: JupyterLiteStorageService
@@ -27,10 +28,11 @@ export class ProjectNotebookItemDisplayComponent {
   @ViewChild('observablehqPanel', { read: ElementRef }) observablehqPanel;
   @ViewChild('jupyterFrame') jupyterFrame: ElementRef;
   @ViewChild('notebookWindow') notebookWindow: ElementRef;
-  @ViewChild(SaveConfirmationModalComponent) saveConfirmationModal: SaveConfirmationModalComponent;
   jupyterFrameSrc: SafeResourceUrl;
   isLoading = true;
   timeoutId: any;
+  notebookFile: NotebookFile;
+  commitChangesLoading = false;
 
   ngOnInit(): void {
     window.addEventListener('message', this.receiveMessage.bind(this));
@@ -61,12 +63,12 @@ export class ProjectNotebookItemDisplayComponent {
   loadNotebook() {
     const url = `../../../../../../../assets/jupyter/dist/lab/index.html?path=${this.notebook.name}${this.notebook.extension}`;
     this.jupyterFrameSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    this.http.get(this.notebook.uri, { responseType: 'json' })
+    //console.log("the version: ", this.version);
+
+    this.projectService.getNotebookFile(this.notebook, this.version)
       .subscribe(nbContent => {
-        console.log("notebook content during fetching : ", nbContent);
-        console.log("notebook : ", this.notebook);
-        const fileName = `${this.notebook.name}${this.notebook.extension}`;
-        const fileData = {
+        const notebookName = `${this.notebook.name}${this.notebook.extension}`;
+        const notebookData = {
           content: nbContent, // The content of the notebook
           created: new Date().toISOString(),
           format: "json",
@@ -74,18 +76,49 @@ export class ProjectNotebookItemDisplayComponent {
           hash_algorithm: null,
           last_modified: new Date().toISOString(),
           mimetype: 'application/x-ipynb+json',
-          name: fileName,
+          name: notebookName,
           size: this.notebook.size,
-          path: fileName,
+          path: notebookName,
           type: 'notebook',
           writable: true,
         };
 
-        // Add a file
-        this.jupyterLiteStorageService.addFile(fileName, fileData).then(
+        // Fetch and add datasets of the notebook
+        let datasets = this.notebook.observableNotebookDatasets;
+        if (datasets) {
+          datasets.forEach(dataset => {
+            this.http.get(dataset.datasetURL, { responseType: 'text' }).subscribe(data => {
+              // console.log("dataset content during fetching : ", data);
+              const datasetName = dataset.datasetName;
+              const datasetData = {
+                content: data, // The content of the dataset
+                created: new Date().toISOString(),
+                format: "text",
+                last_modified: new Date().toISOString(),
+                mimetype: 'text/csv',
+                name: datasetName,
+                path: datasetName,
+                size: 0,
+                type: 'file',
+                writable: true,
+              }
+
+              this.jupyterLiteStorageService.addFile(datasetName, datasetData).then(
+                () => {
+                  // console.log(`Dataset ${datasetName} added successfully`);
+                },
+                (error) => {
+                  console.error('Error adding dataset:', error);
+                }
+              );
+            });
+          });
+        }
+
+        // Add the notebook
+        this.jupyterLiteStorageService.addFile(notebookName, notebookData).then(
           () => {
             console.log('File added successfully');
-            // this.isLoading = false;
           },
           (error) => {
             console.error('Error adding file:', error);
@@ -121,8 +154,44 @@ export class ProjectNotebookItemDisplayComponent {
     });`
   }
 
+  saveNotebook() {
+    this.showSaveNotebookModal = true;
+  }
+
+  onConfirmSaveNotebook() {
+    if (this.notebook.type === 'notebook' || this.notebook.type === 'new') {
+      this.commitChangesLoading = true;
+      this.jupyterLiteStorageService.getFile(`${this.notebook.name}${this.notebook.extension}`).then(
+        (notebookJson) => {
+          //console.log('File:', notebookJson);
+          //console.log("the projectid si :", this.notebook.projectID);
+          const notebookBlob = new Blob([JSON.stringify(notebookJson.content)], { type: 'application/json' });
+          const file = new File([notebookBlob], `${this.notebook.name}${this.notebook.extension}`, { type: 'application/json' });
+          this.notebookFile = {
+            'file': file,
+            'name': `${this.notebook.name}`,
+            'projectID': this.notebook.projectID,
+          }
+          //console.log("the file is : ", file);
+          this.projectService.uploadNotebookNewVersion(this.notebookFile, this.notebook.directory).subscribe(result => {
+            //console.log(result);
+            this.commitChangesLoading = false;
+            this.showSaveNotebookModal = false;
+          });
+        },
+        (error) => {
+          console.error('Error getting file:', error);
+        }
+      );
+    }
+  }
+
+  onCancelSaveNotebook() {
+    this.showSaveNotebookModal = false;
+  }
+
   closeNotebook() {
-    this.showSaveModal = true;
+    this.showSaveWarningModal = true;
   }
 
   onConfirmSave() {
@@ -137,10 +206,32 @@ export class ProjectNotebookItemDisplayComponent {
           console.error('Error getting file:', error);
         }
       );
+      this.jupyterLiteStorageService.removeFile(`${this.notebook.name}${this.notebook.extension}`).then(
+        () => {
+          console.log('File removed successfully');
+        },
+        (error) => {
+          console.error('Error removing file:', error);
+        }
+      );
+    }
+
+    let datasets = this.notebook.observableNotebookDatasets;
+    if (datasets) {
+      datasets.forEach(dataset => {
+        this.jupyterLiteStorageService.removeFile(dataset.datasetName).then(
+          () => {
+            console.log(`Dataset ${dataset.datasetName} removed successfully`);
+          },
+          (error) => {
+            console.error('Error removing dataset:', error);
+          }
+        );
+      });
     }
   }
 
   onCancelSave() {
-    this.showSaveModal = false;
+    this.showSaveWarningModal = false;
   }
 }

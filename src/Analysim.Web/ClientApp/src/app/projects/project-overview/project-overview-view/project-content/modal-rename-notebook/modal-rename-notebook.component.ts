@@ -11,7 +11,7 @@ import { ProjectService } from 'src/app/services/project.service';
 export class ModalRenameNotebookComponent implements OnInit {
 
 
-  renameNotebookForm : FormGroup;
+  renameNotebookForm: FormGroup;
   notebookName: FormControl;
   isLoading: Boolean;
 
@@ -20,19 +20,19 @@ export class ModalRenameNotebookComponent implements OnInit {
 
   @Input() notebook: Notebook;
 
-  constructor(private formBuilder: FormBuilder,private projectService: ProjectService) { }
+  constructor(private formBuilder: FormBuilder, private projectService: ProjectService) { }
 
 
   ngOnInit(): void {
     this.notebookName = new FormControl('', [Validators.required]);
-    
+
     this.renameNotebookForm = this.formBuilder.group({
       'notebookName': this.notebookName,
     });
   }
 
-  renameNotebook(): void{
-    this.projectService.renameNotebook(this.notebook.notebookID,this.notebookName.value).subscribe(result => {
+  renameNotebook(): void {
+    this.projectService.renameNotebook(this.notebook.notebookID, this.notebookName.value).subscribe(result => {
       console.log(result);
       this.closeModal.emit();
       this.renameNotebookEvent.emit(result.name);

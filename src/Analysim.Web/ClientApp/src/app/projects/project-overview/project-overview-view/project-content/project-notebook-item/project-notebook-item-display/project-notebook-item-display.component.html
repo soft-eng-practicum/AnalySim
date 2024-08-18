@@ -1,10 +1,14 @@
 <div #notebookWindow class="modal-content"
     style="width: 100vw;height: 100vh;top: 0; left: 0;margin: 0;position: fixed; overflow: auto;">
-    <div class="modal-header">
+    <div class="header">
         <h5 class="modal-title">Notebook</h5>
-        <button type="button" #closebutton class="close" data-dismiss="modal" (click)="closeNotebook()">&times;</button>
+        <div style="display: flex; gap: 15px;">
+            <div class="commit" (click)="saveNotebook()" *ngIf="!isLoading && isMember">commit changes</div>
+            <button type="button" #closebutton class="close" data-dismiss="modal"
+                (click)="closeNotebook()">&times;</button>
+        </div>
     </div>
-    <div id="jupyterlite-container" *ngIf="notebook.type === 'notebook' || notebook.type === 'new'">
+    <div id="jupyterlite-container" *ngIf="notebook.type === 'new'">
         <div *ngIf="isLoading" class="spinner-container">
             <div class="spinner-border" role="status">
             </div>
@@ -15,6 +19,8 @@
     <div #observablehqPanel class="m-3" *ngIf="notebook.type === 'observable'">
         <div id="notebook"></div>
     </div>
-    <app-save-confirmation-modal *ngIf="showSaveModal" (confirmSave)="onConfirmSave()"
+    <app-save-confirmation-modal *ngIf="showSaveWarningModal" (confirmSave)="onConfirmSave()"
         (cancelSave)="onCancelSave()"></app-save-confirmation-modal>
+    <app-save-notebook-modal *ngIf="showSaveNotebookModal" (saveNotebook)="onConfirmSaveNotebook()"
+        (cancelSave)="onCancelSaveNotebook()" [loading]="commitChangesLoading"></app-save-notebook-modal>
 </div>

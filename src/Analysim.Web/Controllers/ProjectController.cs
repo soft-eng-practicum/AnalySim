@@ -26,6 +26,7 @@ using Analysim.Web.ViewModels.Project;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using System.Web;
 using Newtonsoft.Json;
+using Analysim.Core.Entities;
 
 namespace Web.Controllers
 {
@@ -63,6 +64,7 @@ namespace Web.Controllers
             var project = _dbContext.Projects
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectUsers)
+                .Include(p => p.Notebooks)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                 .SingleOrDefault(p => p.ProjectID == projectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
@@ -87,6 +89,7 @@ namespace Web.Controllers
             // Find Project
             var project = _dbContext.Projects
                 .Include(p => p.BlobFiles)
+                .Include(p => p.Notebooks)
                 .Include(p => p.ProjectUsers).ThenInclude(pu => pu.User)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                 .SingleOrDefault(p => p.Route.ToLower() == owner.ToLower() + "/" + projectname.ToLower());
@@ -203,19 +206,23 @@ namespace Web.Controllers
 
         }
 
-        [HttpGet("[action]/{notebookID}")]
-        public async Task<IActionResult> DownloadNotebook([FromRoute] int notebookID)
+        [HttpGet("[action]/{notebookID}/{version}")]
+        public async Task<IActionResult> DownloadNotebook([FromRoute] int notebookID, [FromRoute] int version)
         {
             try
             {
 
                 // Find Project
+                var notebookContent = await _dbContext.NotebookContent
+                    .FindAsync(notebookID, version);
+                if (notebookContent == null) return NotFound();
+
                 var notebook = await _dbContext.Notebook.FindAsync(notebookID);
                 if (notebook == null) return NotFound();
 
-                BlobDownloadInfo data = await _blobService.GetNotebookAsync(notebook);
+                //BlobDownloadInfo data = await _blobService.GetNotebookAsync(notebook);
 
-                return File(data.Content, data.ContentType, notebook.Name + notebook.Extension);
+                return File(notebookContent.Content, "application/octet-stream", notebook.Name + "_v" + version + notebook.Extension);
             }
             catch (Exception e)
             {
@@ -234,7 +241,7 @@ namespace Web.Controllers
                 observableNotebookDatasets).FirstOrDefaultAsync(notebook => notebook.NotebookID == notebookID);
                 return Ok(new
                 {
-                    message="Notebook Retrieved",
+                    message = "Notebook Retrieved",
                     notebook
                 });
             }
@@ -244,6 +251,31 @@ namespace Web.Controllers
                 return BadRequest(e);
             }
         }
+
+        [HttpGet("[action]/{notebookID}")]
+        public async Task<IActionResult> GetNotebookVersions([FromRoute] int notebookID)
+        {
+            try
+            {
+                var versions = await _dbContext.NotebookContent
+                .Where(n => n.NotebookID == notebookID)
+                .OrderByDescending(n => n.Version)
+                .Select(n => n.Version)
+                .ToListAsync();
+
+                return Ok(new
+                {
+                    message = "versions for the notebook retrieved",
+                    versions = versions
+                });
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                return BadRequest(e);
+            }
+        }
+
 
 
 
@@ -644,7 +676,7 @@ namespace Web.Controllers
                     .SumAsync(b => b.Size);
                 if (totalsize + formdata.File.Length > maxsize)
                     return BadRequest($"Exceeds total user quota of {(maxsize / 1e6).ToString()} MB.");
-                
+
                 // Set File Path
                 var filePath = formdata.Directory + formdata.File.FileName;
 
@@ -700,40 +732,121 @@ namespace Web.Controllers
         public async Task<IActionResult> UploadNotebook([FromForm] ProjectNotebookUploadVM noteBookData)
         {
 
-            try{
+            try
+            {
 
                 // Find Project
                 var project = await _dbContext.Projects.FindAsync(noteBookData.ProjectID);
                 if (project == null) return NotFound(new { message = "Project Not Found" });
 
-            
+                var existingFile = await _dbContext.Notebook
+                    .Where(n => n.ProjectID == noteBookData.ProjectID && n.Name == noteBookData.NotebookName && n.Directory == noteBookData.Directory && n.Extension == ".ipynb")
+                    .FirstOrDefaultAsync();
 
-                Notebook newNotebook = null;
-
-                var filePath = noteBookData.Directory + noteBookData.NotebookName+ Path.GetExtension(noteBookData.NotebookFile.FileName);
-
-                System.Diagnostics.Debug.WriteLine($"filePath: {filePath}");
-
-                // Upload Blob File
-
-                BlobClient blobClient = await _blobService.UploadFileBlobAsync(noteBookData.NotebookFile, "notebook-"+project.Name.ToLower(), filePath);
-                System.Diagnostics.Debug.WriteLine($"after upload test");
-                BlobProperties properties = blobClient.GetProperties();
-
-                newNotebook = new Notebook
+                if (existingFile != null)
                 {
-                    Container = blobClient.BlobContainerName,
+                    return Conflict(new { message = "Notebook Already Exist" });
+                }
+
+                using var memoryStream = new MemoryStream();
+                await noteBookData.NotebookFile.CopyToAsync(memoryStream);
+                var fileContent = memoryStream.ToArray();
+
+                Notebook newNotebook = new Notebook
+                {
+                    Container = "notebook-" + project.Name.ToLower(),
                     Name = Path.GetFileNameWithoutExtension(noteBookData.NotebookName),
                     Directory = noteBookData.Directory,
                     Extension = Path.GetExtension(noteBookData.NotebookFile.FileName),
-                    Size = (int)properties.ContentLength,
-                    Uri = blobClient.Uri.ToString(),
-                    DateCreated = properties.CreatedOn.UtcDateTime,
-                    LastModified = properties.LastModified.UtcDateTime,
+                    Uri = "",
+                    Size = 0,
+                    DateCreated = DateTime.UtcNow,
+                    LastModified = DateTime.UtcNow,
                     ProjectID = noteBookData.ProjectID,
                     type = "new"
                 };
                 await _dbContext.Notebook.AddAsync(newNotebook);
+                await _dbContext.SaveChangesAsync();
+
+                NotebookContent newNotebookContent = new NotebookContent
+                {
+                    NotebookID = newNotebook.NotebookID,
+                    Version = 1,
+                    Content = fileContent,
+                    Author = "hello",
+                    Size = (int)noteBookData.NotebookFile.Length,
+                    DateCreated = DateTime.UtcNow
+                };
+                await _dbContext.NotebookContent.AddAsync(newNotebookContent);
+
+
+                await _dbContext.SaveChangesAsync();
+                newNotebook.NotebookContents = null;
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    result = newNotebook,
+                    message = "Notebook Successfully Uploaded",
+                });
+
+            }
+            catch (Exception e)
+            {
+                // Return Bad Request If There Is Any Error
+                System.Console.WriteLine(e);
+                return BadRequest(e);
+            }
+
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/project/uploadnotebooknewversion
+         * Param : NotebookUploadProjectViewModel
+         * Description: Upload Notebook's new version 
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> UploadNotebookNewVersion([FromForm] ProjectNotebookUploadVM noteBookData)
+        {
+
+            try
+            {
+
+                // Find Project
+                var project = await _dbContext.Projects.FindAsync(noteBookData.ProjectID);
+                if (project == null) return NotFound(new { message = "Project Not Found" });
+
+                var decodedDirectory = HttpUtility.UrlDecode(noteBookData.Directory);
+
+                var existingNotebook = await _dbContext.Notebook
+                     .Where(n => n.ProjectID == noteBookData.ProjectID && n.Name == noteBookData.NotebookName && n.Directory == noteBookData.Directory && n.Extension == ".ipynb")
+                     .FirstOrDefaultAsync();
+                if (existingNotebook == null) return NotFound(new { message = "Notebook Not Found" });
+
+                var latestVersion = await _dbContext.NotebookContent
+                    .Where(n => n.NotebookID == existingNotebook.NotebookID)
+                    .OrderByDescending(n => n.Version)
+                    .Select(n => n.Version)
+                    .FirstOrDefaultAsync();
+
+
+                var version = latestVersion + 1;
+
+                using var memoryStream = new MemoryStream();
+                await noteBookData.NotebookFile.CopyToAsync(memoryStream);
+                var fileContent = memoryStream.ToArray();
+
+                NotebookContent newNotebookContent = new NotebookContent
+                {
+                    NotebookID = existingNotebook.NotebookID,
+                    Version = version,
+                    Content = fileContent,
+                    Author = "hello",
+                    Size = (int)noteBookData.NotebookFile.Length,
+                    DateCreated = DateTime.UtcNow
+                };
+                await _dbContext.NotebookContent.AddAsync(newNotebookContent);
 
 
                 await _dbContext.SaveChangesAsync();
@@ -741,8 +854,7 @@ namespace Web.Controllers
                 // Return Ok Status
                 return Ok(new
                 {
-                    result = newNotebook,
-                    message = "Notebook Successfully Uploaded",
+                    message = "Notebook new version Successfully Uploaded",
                 });
 
             }
@@ -762,7 +874,7 @@ namespace Web.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> UploadExistingNotebook([FromForm]  ExistingProjectUploadVM noteBookData)
+        public async Task<IActionResult> UploadExistingNotebook([FromForm] ExistingProjectUploadVM noteBookData)
         {
             try
             {
@@ -772,12 +884,13 @@ namespace Web.Controllers
                 Notebook newNotebook;
 
                 string notebookUrl = noteBookData.NotebookURL;
-                if (noteBookData.Type == "collab")
+                if (noteBookData.Type == "colab")
                 {
                     string fileId = GrabId(notebookUrl);
                     Console.WriteLine(fileId);
                     string url = $"https://docs.google.com/uc?export=download&id={fileId}";
-                    string fileName = noteBookData.NotebookName+".ipynb";
+                    string fileName = noteBookData.NotebookName + ".ipynb";
+                    string filePath = Path.Combine(Path.GetTempPath(), fileName); // Save file in the temp directory
                     using (HttpClient client = new HttpClient())
                     {
                         HttpResponseMessage response = await client.GetAsync(url);
@@ -786,45 +899,49 @@ namespace Web.Controllers
                         using (HttpContent content = response.Content)
                         {
                             byte[] data = await content.ReadAsByteArrayAsync();
-                            System.IO.File.WriteAllBytes(fileName, data);
+                            System.IO.File.WriteAllBytes(filePath, data);
                         }
                     }
 
-                    Console.WriteLine(fileName);
-                    var containerClient = _blobServiceClient.GetBlobContainerClient("notebook-" + project.Name.ToLower());
-                    Console.WriteLine(project.Name);
-
-                    // Create Container If Storage Doesn't Exist
-                    bool isExist = containerClient.Exists();
-                    if (!isExist)
-                    {
-                        containerClient = await _blobService.CreateContainer(containerClient);
-                    }
-                    BlobClient blob = containerClient.GetBlobClient(noteBookData.Directory + fileName);
-                    using (FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
-                    {
-                        containerClient.UploadBlob(noteBookData.Directory + fileName, fileStream);
-                    }
-
-                    BlobProperties properties = blob.GetProperties();
                     newNotebook = new Notebook
                     {
-                        Container = blob.BlobContainerName,
+                        Container = "notebook-" + project.Name.ToLower(),
                         Directory = noteBookData.Directory,
                         Name = Path.GetFileNameWithoutExtension(noteBookData.NotebookName),
                         Extension = Path.GetExtension(fileName),
-                        Size = (int)properties.ContentLength,
-                        Uri = blob.Uri.ToString(),
-                        DateCreated = properties.CreatedOn.UtcDateTime,
-                        LastModified = properties.LastModified.UtcDateTime,
+                        Size = 0,
+                        Uri = "",
+                        DateCreated = DateTimeOffset.UtcNow,
+                        LastModified = DateTimeOffset.UtcNow,
                         ProjectID = noteBookData.ProjectID,
-                        type = "collab"
+                        type = "new"
                     };
 
-                    Console.WriteLine(blob.Uri.ToString());
+                    await _dbContext.Notebook.AddAsync(newNotebook);
+                    await _dbContext.SaveChangesAsync();
 
-                    string ExitingFile = Path.Combine("", fileName);
-                    //System.IO.File.Delete(ExitingFile);
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                    {
+                        NotebookContent notebookContent = new NotebookContent
+                        {
+                            NotebookID = newNotebook.NotebookID,
+                            Version = 1,
+                            Content = System.IO.File.ReadAllBytes(filePath),
+                            Author = "hello",
+                            Size = (int)fileStream.Length,
+                            DateCreated = DateTime.UtcNow
+                        };
+                        await _dbContext.NotebookContent.AddAsync(notebookContent);
+                        await _dbContext.SaveChangesAsync();
+                    }
+
+                    newNotebook.NotebookContents = null;
+
+                    // Delete the local file after use
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
                 }
                 else if (noteBookData.Type == "observablehq")
                 {
@@ -845,6 +962,9 @@ namespace Web.Controllers
                         observableNotebookDatasets = observableNotebookDatasets
                     };
 
+                    await _dbContext.Notebook.AddAsync(newNotebook);
+                    await _dbContext.SaveChangesAsync();
+
 
                 }
                 else if (noteBookData.Type == "jupyter")
@@ -864,14 +984,14 @@ namespace Web.Controllers
                         type = "jupyter"
                     };
 
+                    await _dbContext.Notebook.AddAsync(newNotebook);
+                    await _dbContext.SaveChangesAsync();
+
                 }
                 else
                 {
                     return BadRequest("Nonacceptable type of notebook");
                 }
-
-                await _dbContext.Notebook.AddAsync(newNotebook);
-                await _dbContext.SaveChangesAsync();
 
                 return Ok(new
                 {
@@ -879,7 +999,7 @@ namespace Web.Controllers
                     message = "Notebook Uploaded Successfully"
                 });
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e);
             }
@@ -958,23 +1078,23 @@ namespace Web.Controllers
                 var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
                 if (project == null) return NotFound(new { message = "Project Not Found" });
 
-                var filePath = formdata.Directory + "/"+ formdata.folderName + ".$$";
-                BlobClient blobClient = await _blobService.CreateFolder("notebook-"+project.Name.ToLower(), filePath);
-                BlobProperties properties = blobClient.GetProperties();
+                //var filePath = formdata.Directory + formdata.folderName + ".$$";
+                //BlobClient blobClient = await _blobService.CreateFolder("notebook-" + project.Name.ToLower(), filePath);
+                //BlobProperties properties = blobClient.GetProperties();
 
                 // Create BlobFile
                 var newNotebook = new Notebook
                 {
-                    Container = blobClient.BlobContainerName,
+                    Container = "notebook-" + project.Name.ToLower(),
                     Directory = formdata.Directory,
                     Name = formdata.folderName,
                     Extension = ".$$",
-                    Size = (int)properties.ContentLength,
-                    Uri = blobClient.Uri.ToString(),
-                    DateCreated = properties.CreatedOn.UtcDateTime,
-                    LastModified = properties.LastModified.UtcDateTime,
+                    Size = 0,
+                    Uri = "",
+                    DateCreated = DateTimeOffset.UtcNow,
+                    LastModified = DateTimeOffset.UtcNow,
                     ProjectID = formdata.ProjectID,
-                    type= "folder"
+                    type = "folder"
                 };
 
                 // Update Database with entry
@@ -999,6 +1119,48 @@ namespace Web.Controllers
             }
 
         }
+
+        /*
+         * Type : POST
+         * URL : /api/project/addDatasetToNotebook
+         * Param : 
+         * Description: add dataset to the notebook
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> AddDatasetToNotebook([FromForm] int notebookID, [FromForm] string datasetURL, [FromForm] string datasetName)
+        {
+            try
+            {
+                var dataset = await _dbContext.ObservableNotebookDataset
+                    .FirstOrDefaultAsync(d => d.NotebookID == notebookID && d.datasetURL == datasetURL);
+
+                if (dataset != null)
+                {
+                    return Conflict(new { message = "Dataset Already Exist" });
+                }
+
+                var newDataset = new ObservableNotebookDataset
+                {
+                    NotebookID = notebookID,
+                    datasetURL = datasetURL,
+                    datasetName = datasetName
+                };
+
+                await _dbContext.ObservableNotebookDataset.AddAsync(newDataset);
+                await _dbContext.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    result = newDataset,
+                    message = "Dataset added to the notebook successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error.", error = ex.Message });
+            }
+        }
+
         #endregion
 
         #region PUT REQUEST
@@ -1049,6 +1211,39 @@ namespace Web.Controllers
                 message = "Project successfully updated."
             });
 
+        }
+
+        /*
+         * Type : PUT
+         * URL : /api/project/deleteDatasetFromNotebook
+         * Param : 
+         * Description: delete dataset from notebook
+         */
+        [HttpPut("[action]")]
+        public async Task<IActionResult> DeleteDatasetFromNotebook([FromForm] int notebookID, [FromForm] string datasetURL)
+        {
+            try
+            {
+                var dataset = await _dbContext.ObservableNotebookDataset
+                    .FirstOrDefaultAsync(d => d.NotebookID == notebookID && d.datasetURL == datasetURL);
+
+                if (dataset == null)
+                {
+                    return NotFound(new { message = "Dataset Not Found" });
+                }
+
+                _dbContext.ObservableNotebookDataset.Remove(dataset);
+                await _dbContext.SaveChangesAsync();
+                return Ok(new
+                {
+                    result = dataset,
+                    message = "Dataset deleted from the notebook successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error.", error = ex.Message });
+            }
         }
 
         /*
@@ -1104,14 +1299,15 @@ namespace Web.Controllers
         {
             Notebook notebook = await _dbContext.Notebook.FindAsync(notebookNameChangeVM.NotebookID);
 
-            if(notebook!=null)
+            if (notebook != null)
             {
                 notebook.Name = notebookNameChangeVM.NotebookName;
                 _dbContext.Update(notebook);
                 await _dbContext.SaveChangesAsync();
             }
-            return Ok(new { 
-                notebook ,
+            return Ok(new
+            {
+                notebook,
                 message = "Notebook name Successfully Changed"
             });
 
@@ -1259,6 +1455,18 @@ namespace Web.Controllers
                     var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
                     if (blobFile == null) return NotFound(new { message = "File Not Found" });
 
+                    if (blobFile.Extension != ".$$")
+                    {
+                        var dataset = await _dbContext.ObservableNotebookDataset.FirstOrDefaultAsync(data => data.datasetURL == blobFile.Uri);
+                        // Console.Write(blobFile.Uri);
+
+                        if (dataset != null)
+                        {
+                            // Console.Write("deleting the dataset from observable");
+                            _dbContext.ObservableNotebookDataset.Remove(dataset);
+                        }
+                    }
+
                     await _blobService.DeleteBlobAsync(blobFile);
 
                     // Delete Blob Files From Database
@@ -1293,8 +1501,8 @@ namespace Web.Controllers
 
         }
 
-        [HttpDelete("[action]/{notebookID}/{isMember}")]
-        public async Task<IActionResult> DeleteNotebook([FromRoute] int notebookID, [FromRoute] bool isMember)
+        [HttpDelete("[action]/{notebookID}/{version}/{isMember}")]
+        public async Task<IActionResult> DeleteNotebook([FromRoute] int notebookID, [FromRoute] int version, [FromRoute] bool isMember)
         {
             try
             {
@@ -1304,13 +1512,31 @@ namespace Web.Controllers
                     var notebook = await _dbContext.Notebook.FindAsync(notebookID);
                     if (notebook == null) return NotFound(new { message = "Notebook Not Found" });
 
-                    await _blobService.DeleteNotebookAsync(notebook);
+                    //await _blobService.DeleteNotebookAsync(notebook);
 
                     // Delete Blob Files From Database
-                    _dbContext.Notebook.Remove(notebook);
+                    //_dbContext.Notebook.Remove(notebook);
+
+                    var noteContent = await _dbContext.NotebookContent
+                        .Where(n => n.NotebookID == notebookID && n.Version == version)
+                        .FirstOrDefaultAsync();
+                    if (noteContent == null) return NotFound(new { message = "Notebook Content Not Found" });
+
+                    _dbContext.NotebookContent.Remove(noteContent);
 
                     // Save Change to Database
                     await _dbContext.SaveChangesAsync();
+
+                    var notebookContents = await _dbContext.NotebookContent
+                        .Where(n => n.NotebookID == notebookID)
+                        .OrderByDescending(n => n.Version)
+                        .FirstOrDefaultAsync();
+
+                    if (notebookContents == null)
+                    {
+                        _dbContext.Notebook.Remove(notebook);
+                        await _dbContext.SaveChangesAsync();
+                    }
 
                     // Return Ok Status
                     return Ok(new
@@ -1392,7 +1618,11 @@ namespace Web.Controllers
         public IActionResult GetNotebooks([FromRoute] int projectID, [FromRoute] string directory)
         {
             string decodedDirectory = HttpUtility.UrlDecode(directory);
-            var notebooks = _dbContext.Notebook.Include(notebook=>notebook.observableNotebookDatasets).ToList().Where(p => p.ProjectID == projectID && p.Directory == decodedDirectory);
+            var notebooks = _dbContext.Notebook
+                .Include(n => n.observableNotebookDatasets)
+                .Where(p => p.ProjectID == projectID && p.Directory == decodedDirectory)
+                .ToList();
+
             return Ok(new
             {
                 result = notebooks,

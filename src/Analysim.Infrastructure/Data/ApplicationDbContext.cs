@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Core.Entities;
+using Analysim.Core.Entities;
 
 namespace Infrastructure.Data
 {
@@ -21,6 +22,7 @@ namespace Infrastructure.Data
             modelBuilder.Entity<ProjectUser>().HasKey(pu => new { pu.UserID, pu.ProjectID });
             modelBuilder.Entity<ProjectTag>().HasKey(pt => new { pt.ProjectID, pt.TagID });
             modelBuilder.Entity<UserUser>().HasKey(uu => new { uu.UserID, uu.FollowerID });
+            modelBuilder.Entity<NotebookContent>().HasKey(nc => new { nc.NotebookID, nc.Version });
 
             // Many To Many Relationship (ProjectUser -> User)
             modelBuilder.Entity<ProjectUser>()
@@ -77,12 +79,20 @@ namespace Infrastructure.Data
                         .WithOne(p => p.Project)
                         .HasForeignKey(p => p.ProjectID);
 
+            // One To Many Relationship (Notebook -> NotebookContent)
+            modelBuilder.Entity<Notebook>()
+                        .HasMany(n => n.NotebookContents)
+                        .WithOne(n => n.Notebook)
+                        .HasForeignKey(n => n.NotebookID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<IdentityRole<int>>().HasData(
                 new IdentityRole<int> { Id = 1, Name = "Admin", NormalizedName = "ADMIN"},
                 new IdentityRole<int> { Id = 2, Name = "Customer", NormalizedName = "CUSTOMER" },
                 new IdentityRole<int> { Id = 3, Name = "Moderator", NormalizedName = "MODERATOR" }
             );
 
+            // Many To One Relationship ( ObservableNotebookDataset -> Notebook)
             modelBuilder.Entity<ObservableNotebookDataset>()
                         .HasOne(d=>d.notebook)
                         .WithMany(n=>n.observableNotebookDatasets)
@@ -99,6 +109,8 @@ namespace Infrastructure.Data
         public DbSet<UserUser> UserUsers { get; set; }
 
         public DbSet<Notebook> Notebook {get;set;}
+        public DbSet<ObservableNotebookDataset> ObservableNotebookDataset { get;set;}
+        public DbSet<NotebookContent> NotebookContent { get; set; }
 
 
 

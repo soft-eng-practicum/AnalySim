@@ -1,6 +1,6 @@
 import { ObservableHQDataset } from "./observablehqDatasets";
 
-export interface NotebookFile{
+export interface NotebookFile {
   name: string,
   file: File,
   projectID: number,
@@ -21,10 +21,10 @@ export interface Notebook {
   extension: string,
   size: number,
   uri: string,
-  datecreated: Date,
-  lastmodified: Date,
-  projectid: number,
+  dateCreated: Date,
+  lastModified: Date,
+  projectID: number,
   type: string,
   directory: string,
-  observableNotebookDatasets : ObservableHQDataset[]
+  observableNotebookDatasets: ObservableHQDataset[]
 }

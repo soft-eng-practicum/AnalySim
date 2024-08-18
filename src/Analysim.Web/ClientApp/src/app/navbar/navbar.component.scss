@@ -52,9 +52,18 @@
   }
   
   #navbarDropdownMenuLink {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 150px;
     text-decoration:none;
+  }
+
+  #navbarDropdownMenuLink > * {
+    margin-right: 10px;
   }
   
   .dropdown-item:hover {
     background-color: var(--background-color-tertiary) !important;
+    cursor: pointer;
   }

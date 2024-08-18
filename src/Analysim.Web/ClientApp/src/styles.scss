@@ -76,13 +76,6 @@ body {
 }
 
 
-
-.btn-primary {
-  color: #f8f8f8;
-  background-color: green !important;
-  border-color: green;
-}
-
 .bg-theme {
   background-color: white;
   color: var(--font-primary-color);
@@ -96,24 +89,30 @@ body {
 }
 
 
-.btn-primary-new {
-  background-color: var(--button-background-color);
-  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
-  color: var(--button-font-color);
+.btn-primary {
+  background-color: var(--button-background-color) !important;
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color) !important;
+  border-radius: var(--button-border-radius) !important;
+  color: var(--button-font-color) !important;
+  padding: var(--button-padding) !important;
 
-  &.btn:hover:not(:disabled) {
-    background-color: var(--button-background-color-hov);
+  &.btn-primary:hover:not(:disabled) {
+    background-color: var(--button-background-color-hov) !important;
     border: var(--button-border-width) var(--button-border-style) var(--button-border-color-hov) !important;
-    color: var(--button-font-color-hov);
+    color: var(--button-font-color-hov) !important;
+  }
+
+  &.btn-primary:disabled {
+    opacity: 50%;
   }
 }
 
-.btn-secondary-new {
+.btn-secondary {
   background-color: var(--button-background-color-secondary);
   border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary);
   color: var(--button-font-color-secondary);
 
-  &.btn:hover:not(:disabled) {
+  &.btn-secondary:hover:not(:disabled) {
     background-color: var(--button-background-color-secondary-hov);
     border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary-hov) !important;
     color: var(--button-font-color-secondary-hov);
