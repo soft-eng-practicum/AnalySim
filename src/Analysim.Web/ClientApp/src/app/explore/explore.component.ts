@@ -7,6 +7,7 @@ import { User } from '../interfaces/user';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JsonPipe } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
+import { ExploreService } from '../services/explore.service';
 
 @Component({
   selector: 'app-explore',
@@ -15,9 +16,11 @@ import { HttpParams } from '@angular/common/http';
 })
 export class ExploreComponent implements OnInit {
 
-  constructor(private projectService : ProjectService,
+  constructor(
+    private projectService : ProjectService,
     private accountService : AccountService,
     private formBuilder : FormBuilder,
+    public exploreService : ExploreService,
     private route : ActivatedRoute,
     private router: Router) { }
 
@@ -45,7 +48,7 @@ export class ExploreComponent implements OnInit {
 
     switch(this.categoryParam){
       case "project":
-        this.searchProject(this.termParam)
+        this.exploreService.exploreProject(searchTermString)
         break;
       case "profile":
         this.searchProfile(this.termParam)
@@ -53,7 +56,7 @@ export class ExploreComponent implements OnInit {
       default:
         this.categoryParam = "project"
         this.router.navigate(['/explore'], { queryParams: { category : 'project', term : JSON.stringify(this.termParam)}})
-        this.searchProject([])
+        this.exploreService.exploreProject('')
         break;
     }
 
@@ -71,25 +74,6 @@ export class ExploreComponent implements OnInit {
       this.searchForm.value.searchCategory = val
       this.onSubmit()
     })
-  }
-
-  searchProject(searchTerms : string[]){
-    if(searchTerms.length == 0){
-      this.projectService.getProjectList().subscribe(
-        result =>{
-          this.projects = result
-        }, error =>{
-          console.log(error);      
-        });
-    }
-    else{
-      this.projectService.search(searchTerms).subscribe(
-        result =>{
-          this.projects = result
-        }, error =>{
-          console.log(error);      
-        });
-    }
   }
 
   searchProfile(searchTerms : string[]){
@@ -123,8 +107,7 @@ export class ExploreComponent implements OnInit {
     switch(searchForm.searchCategory)
     {
         case "project":
-          this.searchProject(searchTerms)
-          this.router.navigate(['/explore'], { queryParams: { category : 'project', term : JSON.stringify(searchTerms)}})
+          this.exploreService.exploreProject(searchForm.searchTerm)
         break
         case "profile":
           this.searchProfile(searchTerms)

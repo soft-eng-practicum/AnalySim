@@ -7,6 +7,7 @@ import { User } from '../interfaces/user';
 import { Project } from '../interfaces/project';
 import { NotificationService } from '../services/notification.service';
 import { Router } from '@angular/router';
+import { ExploreService } from '../services/explore.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
@@ -18,10 +19,11 @@ export class NavbarComponent implements OnInit {
   constructor(
     private accountService: AccountService,
     private projectService: ProjectService,
+    private exploreService: ExploreService,
     private sanitizer: DomSanitizer,
     private formBuilder: FormBuilder,
     public notfi: NotificationService,
-    private router: Router
+    private router: Router,
   ) { }
 
   searchForm: FormGroup;
@@ -90,16 +92,7 @@ export class NavbarComponent implements OnInit {
 
   onSubmit() {
     const searchForm = this.searchForm.value;
-    const searchTerms: string[] = Array.from(
-      new Set(searchForm.searchTerm.split(' ').filter(x => x.length !== 0))
-    );
-
-    console.log('SEARCH TERMS:', searchTerms);
-
-    this.searchProject(searchTerms);
-    this.router.navigate(['/explore'], {
-      queryParams: { category: 'project', term: JSON.stringify(searchTerms) }
-    });
+    console.log(searchForm.searchTerm)
   }
 
   navigateHome() {

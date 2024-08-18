@@ -8,6 +8,7 @@ import { ProjectService } from 'src/app/services/project.service';
 import { ProjectFileExplorerComponent } from '../project-file-explorer/project-file-explorer.component';
 import { ProjectUser } from 'src/app/interfaces/project-user';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { ExploreService } from 'src/app/services/explore.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 
@@ -25,6 +26,7 @@ export class ProjectComponent implements OnInit {
     private sanitizer: DomSanitizer,
     private projectService: ProjectService,
     private modalService: BsModalService,
+    private exploreService: ExploreService
   ) { }
 
   @ViewChild('forkModal') forkModal: TemplateRef<any>
@@ -373,6 +375,10 @@ export class ProjectComponent implements OnInit {
   showComments(): void {
     this.activeView = 'Comment';
     this.toggleView = 'Comment';
+  }
+
+  exploreTag(tagValue: string){
+    this.exploreService.exploreProject(tagValue);
   }
 }
 

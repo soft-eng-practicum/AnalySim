@@ -39,15 +39,15 @@
                 <div class="card-body">
                     <!-- Project List-->
                     <ul class="list-group list-group-flush list-unstyled" *ngIf="searchForm.value.searchCategory == 'project'">
-                        <li *ngIf="projects == null" class="d-flex justify-content-center">
+                        <li *ngIf="exploreService.projects == null" class="d-flex justify-content-center">
                             <div class="spinner-border">
                                 <span class="sr-only"></span>
                             </div>
                         </li>
-                        <li *ngIf="projects != null && projects.length == 0" class="d-flex justify-content-center">
+                        <li *ngIf="exploreService.projects != null && exploreService.projects.length == 0" class="d-flex justify-content-center">
                             <p class="mb-0">No Result Found</p>
                         </li>
-                        <li class="list-group-item border-0 p-0" *ngFor="let project of projects; let lastItem = last" [class.mb-4]="!lastItem">
+                        <li class="list-group-item border-0 p-0" *ngFor="let project of exploreService.projects; let lastItem = last" [class.mb-4]="!lastItem">
                             <app-project-card [project]=project></app-project-card>
                         </li>
                     </ul>
