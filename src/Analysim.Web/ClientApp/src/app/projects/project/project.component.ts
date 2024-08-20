@@ -51,7 +51,7 @@ export class ProjectComponent implements OnInit {
   readmeNotebook: any;
 
   toggleMoreOption: boolean = false
-  toggleNotebookExpand: boolean = false
+  toggleNotebookExpand: boolean = true
   toggleView: string = "File"
   showFiles: boolean = false;
 

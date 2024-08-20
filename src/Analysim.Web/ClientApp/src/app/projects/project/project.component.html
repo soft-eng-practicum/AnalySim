@@ -98,16 +98,18 @@
             </ul>
           </div>
         </div>
-        <div class="row project-notebook-row" *ngIf='toggleNotebookExpand && toggleView != "Content"'>
+        <div class="row project-notebook-row" *ngIf='toggleNotebookExpand'>
           <div [innerHtml]="notebookContent"></div>
         </div>
-        <div *ngIf='toggleNotebookExpand && toggleView != "Content"'>
-          <div class="readme-button" (click)="navigateToNotebook()">Go to Readme</div>
+        <div *ngIf='toggleNotebookExpand'>
+          <div class="readme-button" (click)="navigateToNotebook()">More...</div>
         </div>
         <div class="row project-option-row">
 
           <div *ngIf="activeView === 'Content'" class="project-content-footer">
-            <input type="button" value="Go back to Content" (click)='toggleView = "File"'>
+            <input type="button" value="Go back to Content" 
+            [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname")]'
+            [ngClass]='{"active": toggleView == "File"}' (click)="showFile()">
           </div>
 
           <input type="button" value="Expand Notebook" *ngIf="!toggleNotebookExpand"
