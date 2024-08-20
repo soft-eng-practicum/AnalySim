@@ -141,11 +141,6 @@ export class ProjectComponent implements OnInit {
     })
   }
 
-  ngAfterViewInit() {
-    // hljs.registerLanguage('python', python);
-    hljs.highlightAll();
-  }
-
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['project']) {
       this.loadProfileImages();
@@ -154,7 +149,9 @@ export class ProjectComponent implements OnInit {
 
   navigateToNotebook() {
     // https://localhost:5001/project/uday-bi/testing-readme/notebook/readme?isNotebook=true&notebookId=93&version=0
-    this.router.navigate([this.router.url + "/notebook/" + this.readmeNotebook.name], {
+    // let url = this.router.url.split('/').slice(0, 4).join('/');
+    // console.log("the url is : ", url);
+    this.router.navigate([this.router.url.split('/').slice(0, 4).join('/') + "/notebook/" + this.readmeNotebook.name], {
       queryParams: {
         isNotebook: true,
         notebookId: this.readmeNotebook.notebookID,
