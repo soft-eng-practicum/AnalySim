@@ -99,18 +99,18 @@
           </div>
         </div>
         <div class="row project-notebook-row" *ngIf='toggleNotebookExpand'>
-          <div [innerHtml]="notebookContent"></div>
+          <div [innerHtml]="notebookContent" [ngClass]="isFull ? 'notebook-readme-full' : 'notebook-readme'"></div>
         </div>
         <div *ngIf='toggleNotebookExpand'>
-          <div class="readme-button" (click)="navigateToNotebook()">More...</div>
+          <div class="readme-button" (click)="toggleNotebook()">{{isFull ? 'Read Less..' : 'Read More..'}}</div>
         </div>
         <div class="row project-option-row">
 
-          <div *ngIf="activeView === 'Content'" class="project-content-footer">
+          <!-- <div *ngIf="activeView === 'Content'" class="project-content-footer">
             <input type="button" value="Go back to Content" 
             [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname")]'
             [ngClass]='{"active": toggleView == "File"}' (click)="showFile()">
-          </div>
+          </div> -->
 
           <input type="button" value="Expand Notebook" *ngIf="!toggleNotebookExpand"
             (click)="toggleNotebookExpand = true;">
@@ -122,7 +122,7 @@
         <div class="row project-view-option-row">
           <div class="project-view-toggle">
             <input type="button" value="Datasets"
-              [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname")]'
+              [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "file"]'
               [ngClass]='{"active": toggleView == "File"}' (click)="showFile()">
             <input type="button" value="Notebooks"
               [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname") + "/"  + "notebook"]'

@@ -49,6 +49,7 @@ export class ProjectComponent implements OnInit {
   versions: number[] = [];
   latestVersion: number = 1;
   readmeNotebook: any;
+  isFull: boolean = false;
 
   toggleMoreOption: boolean = false
   toggleNotebookExpand: boolean = true
@@ -147,22 +148,20 @@ export class ProjectComponent implements OnInit {
     }
   }
 
-  navigateToNotebook() {
-    // https://localhost:5001/project/uday-bi/testing-readme/notebook/readme?isNotebook=true&notebookId=93&version=0
-    // let url = this.router.url.split('/').slice(0, 4).join('/');
-    // console.log("the url is : ", url);
-    this.router.navigate([this.router.url.split('/').slice(0, 4).join('/') + "/notebook/" + this.readmeNotebook.name], {
-      queryParams: {
-        isNotebook: true,
-        notebookId: this.readmeNotebook.notebookID,
-        version: this.latestVersion,
-      }, queryParamsHandling: 'merge'
-    });
+  toggleNotebook() {
+    // this.router.navigate([this.router.url.split('/').slice(0, 4).join('/') + "/notebook/" + this.readmeNotebook.name], {
+    //   queryParams: {
+    //     isNotebook: true,
+    //     notebookId: this.readmeNotebook.notebookID,
+    //     version: this.latestVersion,
+    //   }, queryParamsHandling: 'merge'
+    // });
+    this.isFull = !this.isFull;
   }
 
   renderNotebook(notebookJson: any): string {
     // Simple rendering of the notebook. Customize as needed.
-    let htmlContent = '<div class="notebook-readme">';
+    let htmlContent = `<div class="notebookClass">`;
     for (const cell of notebookJson.cells) {
       htmlContent += '<div class="notebook-cell">';
       if (cell.cell_type === 'markdown') {

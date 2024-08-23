@@ -57,7 +57,7 @@ export class ProjectFileExplorerComponent implements OnInit {
 
   async ngOnInit() {
     this.dataBrowserURL = 'https://observablehq.com/embed/@sfsu/untitled?cell=*&dataset=';
-    this.currentDirectory = this.extractDirectory(this.router.url);
+    this.currentDirectory = this.extractDirectory(this.router.url).slice(5);
     this.setDirectoryFile(this.currentDirectory);
     let directory = this.currentDirectory.endsWith('.csv') ? this.currentDirectory.split('/').slice(0, -1).join('/') : this.currentDirectory;
     directory = directory.endsWith('/') ? directory.slice(0,-1) : directory;
