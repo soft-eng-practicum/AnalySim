@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, empty, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -158,7 +158,10 @@ export class AccountService {
     body.append('userID', userID.toString())
     body.append('followerID', followerID.toString())
 
-    return this.http.post<any>(this.urlFollow, body)
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+
+    return this.http.post<any>(this.urlFollow, body, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -295,8 +298,9 @@ export class AccountService {
     let body = new FormData()
     body.append('file', file)
     body.append('userID', userID.toString())
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
 
-    return this.http.post<any>(this.urlUploadProfileImage, body).pipe(
+    return this.http.post<any>(this.urlUploadProfileImage, body, {headers}).pipe(
       map(body => {
         console.log(body.message)
         return body.result
@@ -311,8 +315,10 @@ export class AccountService {
   updateUser(bio: string, userID: number): Observable<User> {
     let body = new FormData()
     body.append('bio', bio)
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
 
-    return this.http.put<any>(this.urlUpdateUser + userID, body)
+
+    return this.http.put<any>(this.urlUpdateUser + userID, body, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -326,7 +332,9 @@ export class AccountService {
   }
 
   unfollow(userID: number, followerID: number): Observable<UserUser> {
-    return this.http.delete<any>(this.urlUnfollow + userID + '/' + followerID)
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.delete<any>(this.urlUnfollow + userID + '/' + followerID, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -340,7 +348,9 @@ export class AccountService {
   }
 
   deleteProfileImage(blobFileID: number): Observable<BlobFile> {
-    return this.http.delete<any>(this.urlDeleteProfileImage + blobFileID).pipe(
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.delete<any>(this.urlDeleteProfileImage + blobFileID, {headers}).pipe(
       map(body => {
         console.log(body.message)
         return body.result

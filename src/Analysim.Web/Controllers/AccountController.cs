@@ -27,6 +27,7 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Data;
 using Analysim.Core.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Controllers
 {
@@ -213,12 +214,17 @@ namespace Web.Controllers
          * Description: Create and return new UserUser
          * Response Status: 200 Ok, 404 Not Found
          */
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> Follow([FromForm] AccountFollowVM formdata)
         {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
             // Find User
-            var user = await _dbContext.Users.FindAsync(formdata.UserID);
-            if (user == null) return NotFound(new { message = "User Not Found " + formdata.UserID });
+            //var user = await _dbContext.Users.FindAsync(formdata.UserID);
+            //if (user == null) return NotFound(new { message = "User Not Found " + formdata.UserID });
 
             // Find Follower
             var follower = await _dbContext.Users.FindAsync(formdata.FollowerID);
@@ -227,7 +233,7 @@ namespace Web.Controllers
             // Create Many To Many Connection
             var userFollower = new UserUser
             {
-                UserID = formdata.UserID,
+                UserID = user.Id,
                 FollowerID = formdata.FollowerID
             };
 
@@ -671,18 +677,23 @@ namespace Web.Controllers
          * URL : /api/account/uploadprofileimage
          * Description: Upload File To Azure Storage
          */
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> UploadProfileImage([FromForm] AccountUploadVM formdata)
         {
             try
             {
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
                 // Return Bad Request Status
                 if (formdata.File == null) return BadRequest("Null File");
                 if (formdata.File.Length == 0) return BadRequest("Empty File");
 
                 // Find User
-                var user = await _dbContext.Users.FindAsync(formdata.UserID);
-                if (user == null) return NotFound(new { message = "User Not Found" });
+                //var user = await _dbContext.Users.FindAsync(formdata.UserID);
+                //if (user == null) return NotFound(new { message = "User Not Found" });
 
                 //Create File Path With File
                 //var filePath = user.UserName + "/profileImage" + Path.GetExtension(formdata.File.FileName);
@@ -701,7 +712,7 @@ namespace Web.Controllers
                 var fileContent = memoryStream.ToArray();
 
                 // Check For Existing
-                var blobFile = _dbContext.BlobFiles.FirstOrDefault(x => x.UserID == formdata.UserID && x.Name == "profileImage");
+                var blobFile = _dbContext.BlobFiles.FirstOrDefault(x => x.UserID == user.Id && x.Name == "profileImage");
                 if (blobFile != null)
                 {
                     blobFile.Extension = Path.GetExtension(formdata.File.FileName);
@@ -737,7 +748,7 @@ namespace Web.Controllers
                     //content = fileContent,
                     DateCreated = DateTime.UtcNow,
                     LastModified = DateTime.UtcNow,
-                    UserID = formdata.UserID
+                    UserID = user.Id
                 };
 
                 // Update Database with entry
@@ -784,20 +795,25 @@ namespace Web.Controllers
         * Description: Update Project
         * Response Status: 200 Ok, 404 Not Found
         */
+        [Authorize]
         [HttpPut("[action]/{userID}")]
-        public IActionResult UpdateUser([FromRoute] int userID, [FromForm] AccountUpdateVM formdata)
+        public async Task<IActionResult> UpdateUser([FromRoute] int userID, [FromForm] AccountUpdateVM formdata)
         {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
             // Check Model State
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             // Find User
-            var user = _dbContext.Users
+            var userE = _dbContext.Users
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
                 .Include(u => u.ProjectUsers)
                 .Include(u => u.BlobFiles)
-                .FirstOrDefault(u => u.Id == userID);
-            if (user == null) return NotFound(new { message = "User Not Found" });
+                .FirstOrDefault(u => u.Id == user.Id);
+            if (userE == null) return NotFound(new { message = "User Not Found" });
 
             // Update Bio
             user.Bio = formdata.Bio;
@@ -823,12 +839,17 @@ namespace Web.Controllers
          * Description: Have the follower unfollow the user
          * Response Status: 200 Ok, 404 Not Found
          */
+        [Authorize]
         [HttpDelete("[action]/{userID}/{followerID}")]
         public async Task<IActionResult> Unfollow([FromRoute] int userID, [FromRoute] int followerID)
         {
-            // Find User
-            var user = await _dbContext.Users.FindAsync(userID);
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
             if (user == null) return NotFound(new { message = "User Not Found" });
+
+            // Find User
+            //var user = await _dbContext.Users.FindAsync(userID);
+            //if (user == null) return NotFound(new { message = "User Not Found" });
 
             // Find Follower
             var follower = await _dbContext.Users.FindAsync(followerID);
@@ -955,11 +976,16 @@ namespace Web.Controllers
          * Param : {fileID}
          * Description: Delete File From Azure Storage
          */
+        [Authorize]
         [HttpDelete("[action]/{fileID}")]
         public async Task<IActionResult> DeleteProfileImage([FromRoute] int fileID)
         {
             try
             {
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
                 // Find File
                 var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
                 if (blobFile == null) return NotFound(new { message = "File Not Found" });

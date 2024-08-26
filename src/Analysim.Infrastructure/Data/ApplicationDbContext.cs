@@ -70,14 +70,16 @@ namespace Infrastructure.Data
             modelBuilder.Entity<Project>()
                         .HasMany(p => p.BlobFiles)
                         .WithOne(p => p.Project)
-                        .HasForeignKey(p => p.ProjectID);
+                        .HasForeignKey(p => p.ProjectID)
+                        .OnDelete(DeleteBehavior.Cascade);
 
 
             // One To Many Relationship (Project -> Notebook)
             modelBuilder.Entity<Project>()
                         .HasMany(p => p.Notebooks)
                         .WithOne(p => p.Project)
-                        .HasForeignKey(p => p.ProjectID);
+                        .HasForeignKey(p => p.ProjectID)
+                        .OnDelete(DeleteBehavior.Cascade);
 
             // One To Many Relationship (Notebook -> NotebookContent)
             modelBuilder.Entity<Notebook>()

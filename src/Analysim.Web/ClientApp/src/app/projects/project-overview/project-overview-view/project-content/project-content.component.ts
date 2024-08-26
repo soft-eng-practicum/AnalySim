@@ -96,7 +96,7 @@ export class ProjectContentComponent implements OnInit {
 
   displayNotebook(notebook: Notebook) {
     this.currentNotebook = notebook;
-    console.log(this.currentNotebook);
+    // console.log(this.currentNotebook);
     this.displayNotebookModalRef = this.modalService.show(this.displayNotebookModal, {
       backdrop: 'static',
     });

@@ -101,8 +101,9 @@
         <div class="row project-notebook-row" *ngIf='toggleNotebookExpand'>
           <div [innerHtml]="notebookContent" [ngClass]="isFull ? 'notebook-readme-full' : 'notebook-readme'"></div>
         </div>
-        <div *ngIf='toggleNotebookExpand'>
+        <div class="buttons" *ngIf='toggleNotebookExpand'>
           <div class="readme-button" (click)="toggleNotebook()">{{isFull ? 'Read Less..' : 'Read More..'}}</div>
+          <div class="readme-button" (click)="NavigateToNotebook()">Run Notebook</div>
         </div>
         <div class="row project-option-row">
 
@@ -203,6 +204,10 @@
   <ng-template #memberListModal>
     <app-modal-member-list [memberListModalRef]="memberListModalRef" [projectUsers]="project.projectUsers"
       [currentUser]="currentUser"></app-modal-member-list>
+  </ng-template>
+  <ng-template #displayNotebookModal>
+    <app-project-notebook-item-display [notebook]="readmeNotebook" [version]="latestVersion" [isMember]="isMember"
+        (closeModal)="closeDisplayNotebookModal()"></app-project-notebook-item-display>
   </ng-template>
 
 

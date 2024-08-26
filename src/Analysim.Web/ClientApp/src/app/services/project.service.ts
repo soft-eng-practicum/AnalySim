@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
 import { Observable, empty, throwError } from 'rxjs';
@@ -13,6 +13,7 @@ import { User } from '../interfaces/user';
 import { NotificationService } from './notification.service';
 import { saveAs } from 'file-saver';
 import { Notebook, NotebookFile, NotebookURL } from '../interfaces/notebook';
+import { getItem } from 'localforage';
 
 @Injectable({
   providedIn: 'root'
@@ -242,10 +243,11 @@ export class ProjectService {
     body.append('name', projectName)
     body.append('visibility', visibility)
     body.append('description', description)
-    body.append('userid', currentUser.id.toString())
     body.append('route', currentUser.userName + "/" + projectName)
 
-    return this.http.post<any>(this.urlCreateProject, body)
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlCreateProject, body, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -260,14 +262,16 @@ export class ProjectService {
 
   forkProject(userID: number, projectID: number, blobFilesID: number[]): Observable<Project> {
     let body = new FormData()
-    body.append('userID', userID.toString())
+    // body.append('userID', userID.toString())
     body.append('projectID', projectID.toString())
     for (let i = 0; i < blobFilesID.length; i++) {
       body.append('BlobFilesID', blobFilesID[i].toString())
     }
     body.getAll('BlobFilesID')
 
-    return this.http.post<any>(this.urlForkProject, body)
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlForkProject, body, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -285,7 +289,9 @@ export class ProjectService {
     body.append('userID', userID.toString())
     body.append('projectID', projectID.toString())
 
-    return this.http.post<any>(this.urlForkProjectWithoutBlob, body)
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlForkProjectWithoutBlob, body, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -307,7 +313,9 @@ export class ProjectService {
     body.append('userrole', userRole)
     body.append('isFollowing', isFollowing ? 'true' : 'false')
 
-    return this.http.post<any>(this.urlAddUser, body)
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlAddUser, body, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -325,7 +333,9 @@ export class ProjectService {
     body.append('projectid', projectID.toString())
     body.append('tagname', tagName.toString())
 
-    return this.http.post<any>(this.urlAddTag, body)
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlAddTag, body, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -342,10 +352,12 @@ export class ProjectService {
     let body = new FormData()
     body.append('file', file)
     body.append('directory', directory)
-    body.append('userID', userID.toString())
+    // body.append('userID', userID.toString())
     body.append('projectID', projectID.toString())
 
-    return this.http.post<any>(this.urlUploadFile, body).pipe(
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlUploadFile, body, {headers}).pipe(
       map(body => {
         console.log(body.result)
         return body.result
@@ -364,7 +376,9 @@ export class ProjectService {
     body.append('ProjectID', notebook.projectID.toString());
     body.append('directory', directory);
 
-    return this.http.post<any>(this.urlUploadNotebook, body).pipe(
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlUploadNotebook, body, {headers}).pipe(
       map(body => {
         console.log(body.result)
         return body.result
@@ -383,7 +397,9 @@ export class ProjectService {
     body.append('ProjectID', notebook.projectID.toString());
     body.append('directory', directory);
 
-    return this.http.post<any>(this.urlUploadNotebookNewVersion, body).pipe(
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlUploadNotebookNewVersion, body, {headers}).pipe(
       map(body => {
         console.log(body.message)
         return body.message
@@ -404,7 +420,9 @@ export class ProjectService {
     body.append('observableNotebookDatasets', JSON.stringify(notebookURL.datasets));
     body.append('directory', directory);
 
-    return this.http.post<any>(this.urlUploadExistingNotebook, body).pipe(
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlUploadExistingNotebook, body, {headers}).pipe(
       map(body => {
         console.log(body.result)
         return body.result
@@ -419,10 +437,12 @@ export class ProjectService {
   createFolder(directory: string, userID: number, projectID: number): Observable<BlobFile> {
     let body = new FormData()
     body.append('directory', directory)
-    body.append('userID', userID.toString())
+    // body.append('userID', userID.toString())
     body.append('projectID', projectID.toString())
 
-    return this.http.post<any>(this.urlCreateFolder, body).pipe(
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlCreateFolder, body, {headers}).pipe(
       map(body => {
         console.log(body.message)
         return body.result
@@ -440,7 +460,9 @@ export class ProjectService {
     body.append('folderName', folderName);
     body.append('projectID', projectID.toString());
 
-    return this.http.post<any>(this.urlCreateNotebookFolder, body).pipe(
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlCreateNotebookFolder, body, {headers}).pipe(
       map(body => {
         console.log(body.message)
         return body.result
@@ -458,7 +480,9 @@ export class ProjectService {
     body.append('datasetName', `${file.name}${file.extension}`);
     body.append('blobFileID', file.blobFileID.toString());
 
-    return this.http.post<any>(this.urlAddDatasetToNotebook, body).pipe(
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlAddDatasetToNotebook, body, {headers}).pipe(
       map(body => {
         console.log(body.message)
         return body.result
@@ -497,7 +521,9 @@ export class ProjectService {
     body.append('visibility', updateProject.visibility)
     body.append('description', updateProject.description)
 
-    return this.http.put<any>(this.urlUpdateProject + updateProject.projectID, body)
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.put<any>(this.urlUpdateProject + updateProject.projectID, body, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -517,8 +543,9 @@ export class ProjectService {
     body.append('userrole', userRole.userRole)
     body.append('isFollowing', userRole.isFollowing ? 'true' : 'false')
 
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
 
-    return this.http.put<any>(this.urlupdateUser, body)
+    return this.http.put<any>(this.urlupdateUser, body, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -538,7 +565,9 @@ export class ProjectService {
     body.append('blobFileID', file.blobFileID.toString());
     //console.log("calling delete dataset from notebook api");
 
-    return this.http.put<any>(this.urlDeleteDatasetFromNotebook, body).pipe(
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.put<any>(this.urlDeleteDatasetFromNotebook, body, {headers}).pipe(
       map(result => {
         console.log("after calling delete dataset from notebook : ", result.message)
         return result.result
@@ -551,7 +580,12 @@ export class ProjectService {
   }
 
   deleteProject(projectID: number): Observable<Project> {
-    return this.http.delete<any>(this.urlDeleteProject + projectID)
+    let body = new FormData()
+    // body.append('projectID', projectID.toString())
+
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.delete<any>(this.urlDeleteProject + projectID, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -565,8 +599,10 @@ export class ProjectService {
   }
 
   removeUser(projectID: number, userID: number): Observable<ProjectUser> {
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
 
-    return this.http.delete<any>(this.urlRemoveUser + projectID + '/' + userID)
+
+    return this.http.delete<any>(this.urlRemoveUser + projectID + '/' + userID, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -581,7 +617,10 @@ export class ProjectService {
 
   removeTag(projectID: number, tagID: number): Observable<ProjectTag> {
 
-    return this.http.delete<any>(this.urlRemoveTag + projectID + '/' + tagID)
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+
+    return this.http.delete<any>(this.urlRemoveTag + projectID + '/' + tagID, {headers})
       .pipe(
         map(body => {
           console.log(body.message)
@@ -595,7 +634,10 @@ export class ProjectService {
   }
 
   deleteFile(blobFileID: number, isMember: boolean): Observable<BlobFile> {
-    return this.http.delete<any>(this.urlDeleteFile + blobFileID + '/' + isMember).pipe(
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.delete<any>(this.urlDeleteFile + blobFileID + '/' + isMember, {headers})
+    .pipe(
       map(body => {
         console.log(body.message)
         return body.result
@@ -608,7 +650,9 @@ export class ProjectService {
   }
 
   deleteNotebook(notebookID: number, version: number, isMember: boolean): Observable<Notebook> {
-    return this.http.delete<any>(this.urlDeleteNotebook + notebookID + '/' + version + '/' + isMember).pipe(
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.delete<any>(this.urlDeleteNotebook + notebookID + '/' + version + '/' + isMember, {headers}).pipe(
       map(body => {
         console.log(body.message)
         return body.result
