@@ -1416,20 +1416,20 @@ namespace Web.Controllers
 
 
             // Check If Project Already Exist
-            var userE = _dbContext.Users
+            var newuser = _dbContext.Users
                 .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
                     aup.User.Id == p.Id &&
                     aup.ProjectID == projectID &&
                     aup.Project.Name == formdata.Name &&
                     aup.UserRole == "owner"));
-            if (userE == null) return NotFound(new { message = "User Not Found" });
+            if (newuser == null) return NotFound(new { message = "User Not Found" });
 
             // If the product was found
             project.Name = formdata.Name;
             project.Visibility = formdata.Visibility;
             project.Description = formdata.Description;
             project.LastUpdated = DateTime.UtcNow;
-            project.Route = userE.UserName + "/" + formdata.Name;
+            project.Route = newuser.UserName + "/" + formdata.Name;
 
             // Set Entity State
             _dbContext.Entry(project).State = EntityState.Modified;
@@ -1621,9 +1621,9 @@ namespace Web.Controllers
                 if (deleteProject == null) return NotFound(new { message = "Project Not Found" });
 
                 // Remove all users that follow the project
-                foreach (var userE in deleteProject.ProjectUsers)
+                foreach (var newuser in deleteProject.ProjectUsers)
                 {
-                    _dbContext.ProjectUsers.Remove(userE);
+                    _dbContext.ProjectUsers.Remove(newuser);
                 }
 
                 // Delete from Azure

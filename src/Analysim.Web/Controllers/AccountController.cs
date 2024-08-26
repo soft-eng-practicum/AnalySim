@@ -807,13 +807,13 @@ namespace Web.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             // Find User
-            var userE = _dbContext.Users
+            var newuser = _dbContext.Users
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
                 .Include(u => u.ProjectUsers)
                 .Include(u => u.BlobFiles)
                 .FirstOrDefault(u => u.Id == user.Id);
-            if (userE == null) return NotFound(new { message = "User Not Found" });
+            if (newuser == null) return NotFound(new { message = "User Not Found" });
 
             // Update Bio
             user.Bio = formdata.Bio;
