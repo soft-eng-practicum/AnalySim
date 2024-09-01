@@ -27,6 +27,8 @@ using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using System.Web;
 using Newtonsoft.Json;
 using Analysim.Core.Entities;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Web.Controllers
 {
@@ -321,11 +323,13 @@ namespace Web.Controllers
        * Param : ProjectViewModel
        * Description: Fork Project
        */
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> ForkProject([FromForm] ProjectForkVM formdata)
         {
             // Find User
-            var user = await _dbContext.Users.FindAsync(formdata.UserID);
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
             // Find Project
@@ -414,11 +418,13 @@ namespace Web.Controllers
         * Param : ProjectViewModel
         * Description: Fork Project Without Blob
         */
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> ForkProjectWithoutBlob([FromForm] ProjectForkVM formdata)
         {
             // Find User
-            var user = await _dbContext.Users.FindAsync(formdata.UserID);
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
             // Find Project
@@ -478,11 +484,14 @@ namespace Web.Controllers
         * Param : ProjectViewModel
         * Description: Create Project
         */
+        [Authorize]
         [HttpPost("[action]")]
-        public async Task<IActionResult> CreateProject([FromForm] ProjectVM formdata)
-        {
+            public async Task<IActionResult> CreateProject([FromForm] ProjectVM formdata)
+            {
             // Find User
-            var user = await _dbContext.Users.FindAsync(formdata.UserID);
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            //var user = await _dbContext.Users.FindAsync(userId);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
             // Check If Project Already Exist
@@ -563,6 +572,56 @@ namespace Web.Controllers
             // Save Changes
             await _dbContext.SaveChangesAsync();
 
+            //uploading a readme file
+            var readmeContent = new
+            {
+                cells = new[]
+        {
+            new
+            {
+                cell_type = "markdown",
+                metadata = new { },
+                source = new[] { $"# Hello, this is Readme file of {formdata.Name}" }
+            }
+        },
+                metadata = new { },
+                nbformat = 4,
+                nbformat_minor = 2
+            };
+
+            var readmeJson = System.Text.Json.JsonSerializer.Serialize(readmeContent);
+            var readmeFileContent = System.Text.Encoding.UTF8.GetBytes(readmeJson);
+
+            Notebook readmeNotebook = new Notebook
+            {
+                Container = "notebook-" + newProject.Name.ToLower(),
+                Name = "readme",
+                Directory = "notebook/",
+                Extension = ".ipynb",
+                Uri = "",
+                Size = readmeFileContent.Length,
+                DateCreated = DateTime.UtcNow,
+                LastModified = DateTime.UtcNow,
+                ProjectID = newProject.ProjectID,
+                type = "new"
+            };
+
+            await _dbContext.Notebook.AddAsync(readmeNotebook);
+            await _dbContext.SaveChangesAsync();
+
+            NotebookContent readmeNotebookContent = new NotebookContent
+            {
+                NotebookID = readmeNotebook.NotebookID,
+                Version = 1,
+                Content = readmeFileContent,
+                Author = "hello",
+                Size = readmeFileContent.Length,
+                DateCreated = DateTime.UtcNow
+            };
+
+            await _dbContext.NotebookContent.AddAsync(readmeNotebookContent);
+            await _dbContext.SaveChangesAsync();
+
             // Return Ok Request
             return Ok(new
             {
@@ -577,9 +636,21 @@ namespace Web.Controllers
          * Param : ProjectUserViewModel
          * Description: Add User To Project
          */
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> AddUser([FromForm] ProjectUserVM formdata)
         {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+
+            var checkowner = _dbContext.Projects
+                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == formdata.ProjectID &&
+                    aup.UserRole == "owner"));
+
+            if (checkowner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+
             // Find Tag In Database
             var projectUser = _dbContext.ProjectUsers.Find(formdata.UserID, formdata.ProjectID);
 
@@ -634,9 +705,20 @@ namespace Web.Controllers
          * Description: Add Tag To Project
          */
         [HttpPost("[action]")]
-        //[Authorize(Policy = "RequireLoggedIn")]
+        [Authorize]
         public async Task<IActionResult> AddTag([FromForm] ProjectTagVM formdata)
         {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+
+            var checkowner = _dbContext.Projects
+                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == formdata.ProjectID &&
+                    aup.UserRole == "owner"));
+
+            if (checkowner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+
             // Find Tag In Database
             Tag tag = _dbContext.Tag.SingleOrDefault(t => t.Name == formdata.TagName);
             if (tag == null)
@@ -683,11 +765,24 @@ namespace Web.Controllers
          * Param : FileUploadProjectViewModel
          * Description: Upload file to Azure Storage
          */
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> UploadFile([FromForm] ProjectFileUploadVM formdata)
         {
             try
             {
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                var checkOwner = _dbContext.Projects
+                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == formdata.ProjectID &&
+                    aup.UserRole == "owner"));
+
+                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+
                 if (formdata.Directory == null) { formdata.Directory = ""; }
 
                 // Return Bad Request Status
@@ -695,8 +790,8 @@ namespace Web.Controllers
                 if (formdata.File.Length == 0) return BadRequest("Empty File");
 
                 // Find User
-                var user = await _dbContext.Users.FindAsync(formdata.UserID);
-                if (user == null) return NotFound(new { message = "User Not Found" });
+                //var user = await _dbContext.Users.FindAsync(formdata.UserID);
+                //if (user == null) return NotFound(new { message = "User Not Found" });
 
                 // Find Project
                 var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
@@ -778,12 +873,24 @@ namespace Web.Controllers
          * Param : NotebookUploadProjectViewModel
          * Description: Upload Notebook to Azure Storage
          */
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> UploadNotebook([FromForm] ProjectNotebookUploadVM noteBookData)
         {
 
             try
             {
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                var checkOwner = _dbContext.Projects
+                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == noteBookData.ProjectID &&
+                    aup.UserRole == "owner"));
+
+                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
 
                 // Find Project
                 var project = await _dbContext.Projects.FindAsync(noteBookData.ProjectID);
@@ -856,12 +963,24 @@ namespace Web.Controllers
          * Param : NotebookUploadProjectViewModel
          * Description: Upload Notebook's new version 
          */
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> UploadNotebookNewVersion([FromForm] ProjectNotebookUploadVM noteBookData)
         {
 
             try
             {
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                var checkOwner = _dbContext.Projects
+                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == noteBookData.ProjectID &&
+                    aup.UserRole == "owner"));
+
+                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
 
                 // Find Project
                 var project = await _dbContext.Projects.FindAsync(noteBookData.ProjectID);
@@ -923,11 +1042,24 @@ namespace Web.Controllers
             return match.Value;
         }
 
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> UploadExistingNotebook([FromForm] ExistingProjectUploadVM noteBookData)
         {
             try
             {
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                var checkOwner = _dbContext.Projects
+                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID ==noteBookData.ProjectID &&
+                    aup.UserRole == "owner"));
+
+                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+
                 var project = await _dbContext.Projects.FindAsync(noteBookData.ProjectID);
                 if (project == null) return NotFound(new { message = "Project Not Found" });
 
@@ -1060,16 +1192,25 @@ namespace Web.Controllers
          * Param : FileUploadProjectViewModel
          * Description: Upload Folder To Azure Storage
          */
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> CreateFolder([FromForm] FolderUploadProfileViewModel formdata)
         {
             try
             {
-                if (formdata.Directory == null) { formdata.Directory = ""; }
-
-                // Find User
-                var user = await _dbContext.Users.FindAsync(formdata.UserID);
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
                 if (user == null) return NotFound(new { message = "User Not Found" });
+
+                var checkOwner = _dbContext.Projects
+                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == formdata.ProjectID &&
+                    aup.UserRole == "owner"));
+
+                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+
+                if (formdata.Directory == null) { formdata.Directory = ""; }
 
                 // Find Project
                 var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
@@ -1117,11 +1258,24 @@ namespace Web.Controllers
 
         }
 
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> CreateNotebookFolder([FromForm] FolderUploadProfileViewModel formdata)
         {
             try
             {
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                var checkOwner = _dbContext.Projects
+                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == formdata.ProjectID &&
+                    aup.UserRole == "owner"));
+
+                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+
                 if (formdata.Directory == null) { formdata.Directory = ""; }
 
                 // Find Project
@@ -1176,11 +1330,26 @@ namespace Web.Controllers
          * Param : 
          * Description: add dataset to the notebook
          */
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> AddDatasetToNotebook([FromForm] int notebookID, [FromForm] int blobFileID, [FromForm] string datasetName)
         {
             try
             {
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                var notebook = _dbContext.Notebook.SingleOrDefault(n => n.NotebookID == notebookID);
+
+                var checkOwner = _dbContext.Projects
+                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == notebook.ProjectID &&
+                    aup.UserRole == "owner"));
+
+                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+
                 var dataset = await _dbContext.ObservableNotebookDataset
                     .FirstOrDefaultAsync(d => d.NotebookID == notebookID && d.BlobFileID == blobFileID);
 
@@ -1221,9 +1390,22 @@ namespace Web.Controllers
          * Param : {projectID}, ProjectViewModel
          * Description: Update Project
          */
+        [Authorize]
         [HttpPut("[action]/{projectID}")]
         public async Task<IActionResult> UpdateProject([FromRoute] int projectID, [FromForm] ProjectVM formdata)
         {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var checkOwner = _dbContext.Projects
+                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                aup.User.Id == user.Id &&
+                aup.Project.ProjectID == projectID &&
+                aup.UserRole == "owner"));
+
+            if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+
             // Check Model State
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -1234,20 +1416,20 @@ namespace Web.Controllers
 
 
             // Check If Project Already Exist
-            var user = _dbContext.Users
+            var newuser = _dbContext.Users
                 .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
                     aup.User.Id == p.Id &&
                     aup.ProjectID == projectID &&
                     aup.Project.Name == formdata.Name &&
                     aup.UserRole == "owner"));
-            if (user == null) return NotFound(new { message = "User Not Found" });
+            if (newuser == null) return NotFound(new { message = "User Not Found" });
 
             // If the product was found
             project.Name = formdata.Name;
             project.Visibility = formdata.Visibility;
             project.Description = formdata.Description;
             project.LastUpdated = DateTime.UtcNow;
-            project.Route = user.UserName + "/" + formdata.Name;
+            project.Route = newuser.UserName + "/" + formdata.Name;
 
             // Set Entity State
             _dbContext.Entry(project).State = EntityState.Modified;
@@ -1270,11 +1452,26 @@ namespace Web.Controllers
          * Param : 
          * Description: delete dataset from notebook
          */
+        [Authorize]
         [HttpPut("[action]")]
         public async Task<IActionResult> DeleteDatasetFromNotebook([FromForm] int notebookID, [FromForm] int blobFileID)
         {
             try
             {
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                var notebook = _dbContext.Notebook.SingleOrDefault(n => n.NotebookID == notebookID);
+
+                var checkOwner = _dbContext.Projects
+                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == notebook.ProjectID &&
+                    aup.UserRole == "owner"));
+
+                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+
                 var dataset = await _dbContext.ObservableNotebookDataset
                     .FirstOrDefaultAsync(d => d.NotebookID == notebookID && d.BlobFileID == blobFileID);
 
@@ -1303,9 +1500,21 @@ namespace Web.Controllers
          * Param : ProjectUserViewModel
          * Description: Update Project
          */
+        [Authorize]
         [HttpPut("[action]")]
         public async Task<IActionResult> UpdateUser([FromForm] ProjectUserVM formdata)
         {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var checkOwner = _dbContext.Projects
+                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                aup.User.Id == user.Id &&
+                aup.Project.ProjectID == formdata.ProjectID &&
+                aup.UserRole == "owner"));
+
+            if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
 
             // Find Many To Many
             var userRole = await _dbContext.ProjectUsers.FindAsync(formdata.UserID, formdata.ProjectID);
@@ -1345,9 +1554,25 @@ namespace Web.Controllers
             });
         }
 
+        [Authorize]
         [HttpPut("[action]")]
         public async Task<IActionResult> RenameNotebook([FromForm] NotebookNameChangeVM notebookNameChangeVM)
         {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var notebookE = await _dbContext.Notebook.FindAsync(notebookNameChangeVM.NotebookID);
+            if (notebookE == null) return NotFound(new { message = "File Not Found" });
+
+            var checkOwner = _dbContext.Projects
+                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                aup.User.Id == user.Id &&
+                aup.Project.ProjectID == notebookE.ProjectID &&
+                aup.UserRole == "owner"));
+
+            if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+
             Notebook notebook = await _dbContext.Notebook.FindAsync(notebookNameChangeVM.NotebookID);
 
             if (notebook != null)
@@ -1375,43 +1600,65 @@ namespace Web.Controllers
         [HttpDelete("[action]/{projectID}")]
         public async Task<IActionResult> DeleteProject([FromRoute] int projectID)
         {
-            // Check Model State
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            // Find Project
-            var deleteProject = await _dbContext.Projects.FindAsync(projectID);
-            if (deleteProject == null) return NotFound(new { message = "Project Not Found" });
-
-            // Remove all users that follow the project
-            foreach (var user in deleteProject.ProjectUsers)
+            try
             {
-                _dbContext.ProjectUsers.Remove(user);
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                var checkOwner = _dbContext.Projects
+                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == projectID &&
+                    aup.UserRole == "owner"));
+
+                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+                // Check Model State
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+
+                // Find Project
+                var deleteProject = await _dbContext.Projects.FindAsync(projectID);
+                if (deleteProject == null) return NotFound(new { message = "Project Not Found" });
+
+                // Remove all users that follow the project
+                foreach (var newuser in deleteProject.ProjectUsers)
+                {
+                    _dbContext.ProjectUsers.Remove(newuser);
+                }
+
+                // Delete from Azure
+                //var containerClient = _blobServiceClient.GetBlobContainerClient(deleteProject.Name.ToLower());
+                // await containerClient.DeleteBlobIfExistsAsync(deleteProject.Name.ToLower());
+                //containerClient.DeleteIfExists();
+
+                // get the project by project ID
+                var blobsResult = _dbContext.BlobFiles
+                    .Where(p => p.ProjectID == projectID).ToList();
+
+                // delete blobFiles
+                _dbContext.BlobFiles.RemoveRange(blobsResult);
+
+                // remove the project
+                _dbContext.Projects.Remove(await _dbContext.Projects.FindAsync(projectID));
+
+                // Save Change
+                await _dbContext.SaveChangesAsync();
+
+                // Return Ok Status
+                return Ok(new
+                {
+                    result = deleteProject,
+                    message = "Project successfully deleted."
+                });
             }
-
-            // Delete from Azure
-            //var containerClient = _blobServiceClient.GetBlobContainerClient(deleteProject.Name.ToLower());
-            // await containerClient.DeleteBlobIfExistsAsync(deleteProject.Name.ToLower());
-            //containerClient.DeleteIfExists();
-
-            // get the project by project ID
-            var blobsResult = _dbContext.BlobFiles
-                .Where(p => p.ProjectID == projectID).ToList();
-
-            // delete blobFiles
-            _dbContext.BlobFiles.RemoveRange(blobsResult);
-
-            // remove the project
-            _dbContext.Projects.Remove(await _dbContext.Projects.FindAsync(projectID));
-
-            // Save Change
-            await _dbContext.SaveChangesAsync();
-
-            // Return Ok Status
-            return Ok(new
+            catch (Exception e)
             {
-                result = deleteProject,
-                message = "Project successfully deleted."
-            });
+                // Return Bad Request If There Is Any Error
+                return BadRequest(new
+                {
+                    error = e
+                });
+            }
 
         }
 
@@ -1421,9 +1668,22 @@ namespace Web.Controllers
          * Param : {projectID}/{userID}
          * Description: Delete User
          */
+        [Authorize]
         [HttpDelete("[action]/{projectID}/{userID}")]
         public async Task<IActionResult> RemoveUser([FromRoute] int projectID, int userID)
         {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var checkOwner = _dbContext.Projects
+                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                aup.User.Id == user.Id &&
+                aup.Project.ProjectID == projectID &&
+                aup.UserRole == "owner"));
+
+            if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+
             // Find Many To Many
             var projectUser = await _dbContext.ProjectUsers.FindAsync(userID, projectID);
             if (projectUser == null) return NotFound(new { message = "User Not Found" });
@@ -1448,9 +1708,22 @@ namespace Web.Controllers
          * Param : {projectID}/{tagID}
          * Description: Delete User
          */
+        [Authorize]
         [HttpDelete("[action]/{projectID}/{tagID}")]
         public async Task<IActionResult> RemoveTag([FromRoute] int projectID, [FromRoute] int tagID)
         {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var checkOwner = _dbContext.Projects
+                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                aup.User.Id == user.Id &&
+                aup.Project.ProjectID == projectID &&
+                aup.UserRole == "owner"));
+
+            if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+
             // Find ProjectTag In Database
             ProjectTag projectTag = _dbContext.ProjectTags
                 .Include(pt => pt.Tag)
@@ -1494,18 +1767,28 @@ namespace Web.Controllers
          * Param : {fileID}
          * Description: Delete File From Azure Storage
          */
+        [Authorize]
         [HttpDelete("[action]/{fileID}/{isMember}")]
         public async Task<IActionResult> DeleteFile([FromRoute] int fileID, [FromRoute] bool isMember)
         {
             try
             {
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
+                if (blobFile == null) return NotFound(new { message = "File Not Found" });
+
+                var checkOwner = _dbContext.Projects
+                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == blobFile.ProjectID &&
+                    aup.UserRole == "owner"));
+
+                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
                 if (isMember)
                 {
-
-                    // Find File
-                    var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
-                    if (blobFile == null) return NotFound(new { message = "File Not Found" });
-
                     if (blobFile.Extension != ".$$")
                     {
                         var dataset = await _dbContext.ObservableNotebookDataset.FirstOrDefaultAsync(data => data.BlobFileID == blobFile.BlobFileID);
@@ -1552,17 +1835,28 @@ namespace Web.Controllers
 
         }
 
+        [Authorize]
         [HttpDelete("[action]/{notebookID}/{version}/{isMember}")]
         public async Task<IActionResult> DeleteNotebook([FromRoute] int notebookID, [FromRoute] int version, [FromRoute] bool isMember)
         {
             try
             {
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                if (user == null) return NotFound(new { message = "User Not Found" });
+
+                var notebook = await _dbContext.Notebook.FindAsync(notebookID);
+                if (notebook == null) return NotFound(new { message = "File Not Found" });
+
+                var checkOwner = _dbContext.Projects
+                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == notebook.ProjectID &&
+                    aup.UserRole == "owner"));
+
+                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
                 if (isMember)
                 {
-                    // Find File
-                    var notebook = await _dbContext.Notebook.FindAsync(notebookID);
-                    if (notebook == null) return NotFound(new { message = "Notebook Not Found" });
-
                     //await _blobService.DeleteNotebookAsync(notebook);
 
                     // Delete Blob Files From Database
