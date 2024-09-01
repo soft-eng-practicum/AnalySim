@@ -104,10 +104,9 @@ Alternatively, without Visual Studio, you use .Net CLI from command
 line by first navigating into the `src\Analysim.Web` folder:
 
 ```sh
-dotnet run
+dotnet run --environment Development
 ```
-
-(This will also automatically run Angular)
+(This will also automatically run Angular and a [Swagger](https://learn.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-8.0&tabs=visual-studio) UI on port 5001)
 
 ## Deploying
 
