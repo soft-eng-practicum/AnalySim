@@ -51,9 +51,8 @@ export class ProjectComponent implements OnInit {
   notebookContent: any;
   versions: number[] = [];
   latestVersion: number = 1;
-  readmeNotebook: Notebook;
+  readmeNotebook: Notebook; 
   isFull: boolean = false;
-  previousDirectory: string[]
 
   toggleMoreOption: boolean = false
   toggleNotebookExpand: boolean = true
@@ -153,13 +152,11 @@ export class ProjectComponent implements OnInit {
   }
 
   NavigateToNotebook(){
-    // https://localhost:5001/project/uday-bi/uday-testin/notebook/readme?isNotebook=true&notebookId=94&version=1
-    // https://localhost:5001/project/uday-bi/uday-testin/notebook/readme?isNotebook=true&notebookId=94&version=1
-    this.previousDirectory = this.router.url.split('/');
     this.displayNotebookModalRef = this.modalService.show(this.displayNotebookModal, {
       backdrop: 'static',
     });
-    this.router.navigate([this.router.url + "/" + this.readmeNotebook.name + this.readmeNotebook.extension], {
+
+    this.router.navigate([this.router.url.split('/').slice(0, 4).join('/') + "/notebook/" + this.readmeNotebook.name], {
       queryParams: {
         isNotebook: true,
         notebookId: this.readmeNotebook.notebookID,
@@ -174,7 +171,7 @@ export class ProjectComponent implements OnInit {
 
   closeDisplayNotebookModal() {
     this.displayNotebookModalRef.hide();
-    this.router.navigate([this.previousDirectory.join('/')])
+    this.router.navigate([this.router.url.split('/').slice(0,5).join('/')])
   }
 
   renderNotebook(notebookJson: any): string {
