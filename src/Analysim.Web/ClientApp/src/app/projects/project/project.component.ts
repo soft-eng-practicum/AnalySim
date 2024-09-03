@@ -103,13 +103,13 @@ export class ProjectComponent implements OnInit {
               this.latestVersion = this.versions[0]; // Default to the latest version
             }
             // console.log("the loatest version  : ", this.latestVersion);
+            this.projectService.getNotebookFile(result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0], this.latestVersion).subscribe(
+              notebookJson => {
+                this.notebookContent = this.sanitizer.bypassSecurityTrustHtml(this.renderNotebook(notebookJson));
+                // console.log("the notebook content is : ", this.notebookContent);
+              });
           });
           // console.log("readme file is : ", result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0]);
-          this.projectService.getNotebookFile(result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0], this.latestVersion).subscribe(
-            notebookJson => {
-              this.notebookContent = this.sanitizer.bypassSecurityTrustHtml(this.renderNotebook(notebookJson));
-              // console.log("the notebook content is : ", this.notebookContent);
-            });
         }
 
       )
@@ -182,20 +182,20 @@ export class ProjectComponent implements OnInit {
     for (const cell of notebookJson.cells) {
       htmlContent += '<div class="notebook-cell">';
       if (cell.cell_type === 'markdown') {
-        htmlContent += marked(cell.source.join(''));
+        htmlContent += marked(cell.source);
       } else if (cell.cell_type === 'code') {
-        htmlContent += '<pre><code><div>' + hljs.highlight(cell.source.join(''), {language: 'python'}).value + '</div></code></pre>';
+        htmlContent += '<pre><code><div>' + hljs.highlight(cell.source, {language: 'python'}).value + '</div></code></pre>';
         if (cell.outputs) {
           for (const output of cell.outputs) {
             if (output.data && output.data['text/html']) {
-              htmlContent += output.data['text/html'].join('');
+              htmlContent += output.data['text/html'];
             } else if (output.data && output.data['image/png']) {
               htmlContent += `<img src="data:image/png;base64,${output.data['image/png']}" />`;
             } else if (output.data && output.data['text/plain']) {
-              htmlContent += '<pre>' + output.data['text/plain'].join('') + '</pre>';
+              htmlContent += '<pre>' + output.data['text/plain'] + '</pre>';
             }
             else if (output.text) {
-              htmlContent += '<pre>' + output.text.join('') + '</pre>';
+              htmlContent += '<pre>' + output.text + '</pre>';
             }
           }
         }
