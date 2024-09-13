@@ -176,6 +176,19 @@ export class ProjectComponent implements OnInit {
   closeDisplayNotebookModal() {
     this.displayNotebookModalRef.hide();
     this.router.navigate([this.router.url.split('/').slice(0,5).join('/')])
+    this.projectService.getNotebookVersions(this.readmeNotebook).subscribe(versions => {
+      this.versions = versions;
+      // console.log("Versions: ", this.versions);
+      if (this.versions.length > 0) {
+        this.latestVersion = this.versions[0]; // Default to the latest version
+      }
+      // console.log("the loatest version  : ", this.latestVersion);
+      this.projectService.getNotebookFile(this.readmeNotebook, this.latestVersion).subscribe(
+        notebookJson => {
+          // console.log("the notebook content is : ", notebookJson);
+          this.notebookContent = this.sanitizer.bypassSecurityTrustHtml(this.renderNotebook(notebookJson));
+        });
+    });
   }
 
   renderNotebook(notebookJson: any): string {
