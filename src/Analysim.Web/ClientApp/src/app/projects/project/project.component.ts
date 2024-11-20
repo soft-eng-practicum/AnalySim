@@ -95,21 +95,23 @@ export class ProjectComponent implements OnInit {
           if (this.currentUser != null && this.project.projectUsers.find(x => x.userID == this.currentUser.id) != undefined) {
             this.projectUser = this.project.projectUsers.find(x => x.userID == this.currentUser.id)
           }
+          // console.log("Result : ", result);
           this.readmeNotebook = result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0];
+          // console.log("readme : " ,this.readmeNotebook);
           this.projectService.getNotebookVersions(result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0]).subscribe(versions => {
             this.versions = versions;
-            //console.log("Versions: ", this.versions);
+            // console.log("Versions: ", this.versions);
             if (this.versions.length > 0) {
               this.latestVersion = this.versions[0]; // Default to the latest version
             }
             // console.log("the loatest version  : ", this.latestVersion);
+            this.projectService.getNotebookFile(result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0], this.latestVersion).subscribe(
+              notebookJson => {
+                // console.log("the notebook content is : ", notebookJson);
+                this.notebookContent = this.sanitizer.bypassSecurityTrustHtml(this.renderNotebook(notebookJson));
+              });
           });
           // console.log("readme file is : ", result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0]);
-          this.projectService.getNotebookFile(result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0], this.latestVersion).subscribe(
-            notebookJson => {
-              this.notebookContent = this.sanitizer.bypassSecurityTrustHtml(this.renderNotebook(notebookJson));
-              // console.log("the notebook content is : ", this.notebookContent);
-            });
         }
 
       )
@@ -174,28 +176,47 @@ export class ProjectComponent implements OnInit {
   closeDisplayNotebookModal() {
     this.displayNotebookModalRef.hide();
     this.router.navigate([this.router.url.split('/').slice(0,5).join('/')])
+    this.projectService.getNotebookVersions(this.readmeNotebook).subscribe(versions => {
+      this.versions = versions;
+      // console.log("Versions: ", this.versions);
+      if (this.versions.length > 0) {
+        this.latestVersion = this.versions[0]; // Default to the latest version
+      }
+      // console.log("the loatest version  : ", this.latestVersion);
+      this.projectService.getNotebookFile(this.readmeNotebook, this.latestVersion).subscribe(
+        notebookJson => {
+          // console.log("the notebook content is : ", notebookJson);
+          this.notebookContent = this.sanitizer.bypassSecurityTrustHtml(this.renderNotebook(notebookJson));
+        });
+    });
   }
 
   renderNotebook(notebookJson: any): string {
-    // Simple rendering of the notebook. Customize as needed.
+    // console.log("notebook rendering content :" , notebookJson);
     let htmlContent = `<div class="notebookClass">`;
     for (const cell of notebookJson.cells) {
       htmlContent += '<div class="notebook-cell">';
       if (cell.cell_type === 'markdown') {
-        htmlContent += marked(cell.source.join(''));
+        const markdownContent = Array.isArray(cell.source) ? cell.source.join('') : cell.source;
+        htmlContent += marked(markdownContent);
       } else if (cell.cell_type === 'code') {
-        htmlContent += '<pre><code><div>' + hljs.highlight(cell.source.join(''), {language: 'python'}).value + '</div></code></pre>';
+        // console.log("error: ", hljs.highlight(cell.source, {language: 'python'}));
+        const codeContent = Array.isArray(cell.source) ? cell.source.join('') : cell.source;
+        htmlContent += '<pre><code><div>' + hljs.highlight(codeContent, { language: 'python' }).value + '</div></code></pre>';
         if (cell.outputs) {
           for (const output of cell.outputs) {
             if (output.data && output.data['text/html']) {
-              htmlContent += output.data['text/html'].join('');
+              const htmlOutput = Array.isArray(output.data['text/html']) ? output.data['text/html'].join('') : output.data['text/html'];
+              htmlContent += htmlOutput;
             } else if (output.data && output.data['image/png']) {
               htmlContent += `<img src="data:image/png;base64,${output.data['image/png']}" />`;
             } else if (output.data && output.data['text/plain']) {
-              htmlContent += '<pre>' + output.data['text/plain'].join('') + '</pre>';
+              const plainTextOutput = Array.isArray(output.data['text/plain']) ? output.data['text/plain'].join('') : output.data['text/plain'];
+              htmlContent += '<pre>' + plainTextOutput + '</pre>';
             }
             else if (output.text) {
-              htmlContent += '<pre>' + output.text.join('') + '</pre>';
+              const outputText = Array.isArray(output.text) ? output.text.join('') : output.text;
+              htmlContent += '<pre>' + outputText + '</pre>';
             }
           }
         }
