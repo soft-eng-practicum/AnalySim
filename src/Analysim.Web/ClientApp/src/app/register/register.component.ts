@@ -135,7 +135,13 @@ export class RegisterComponent implements OnInit {
         this.invalidRegister = true;
 
         //Set Error Message
-        this.errorMessage = error.error.message[0];
+        if (error.error.Message) {
+          this.errorMessage = error.error.Message;
+        }
+        else {
+          this.errorMessage = error.error.message[0];
+        }
+        
       }
     );
 
