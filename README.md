@@ -44,6 +44,12 @@ jupyter-lite build --output-dir dist
 
 Analysim requires two databases to operate: one SQL database (PostgreSQL) for relational data and one Azure BlobStorage database for keeping uploaded user files. In addition, an Outlook account is needed for the email functionality. All of these services are accessed via authentication information stored in the `appsettings.json` and `appsettings.Development.json` files under the `src/Analysim.Web` folder. The structure of the files are as follows (`XXX` means redacted):
 
+1. Create `appsettings.json` and `appsettings.Development.json`
+
+- Navigate to `src\Analysim.Web` folder in your cloned repository.
+- Create two files name `appsettings.json` and `appsettings.Development.json` if they do not exist.
+- Paste the following JSON structure into both files.
+
 ```json
 {
   "Logging": {
@@ -78,19 +84,19 @@ Analysim requires two databases to operate: one SQL database (PostgreSQL) for re
 
 ```
 
-#### SQL database (also see Docker Compose option below)
+2. SQL database (also see Docker Compose option below)
 
-If you don't have a SQL database yet, download and install [PostgreSQL](https://www.postgresql.org/download/). See the example for [installing on Ubuntu 22.04](https://linuxhint.com/install-and-setup-postgresql-database-ubuntu-22-04/). Create a user account ([tutorial](https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e)) and replace the `XXX` values in the `DBConnectionString` above with the correct ones. Once you entered the correct details, you must be able to initialize and populate the database by using the Entity Framework migration tool by rinning the following command in the `src/Analysim.Web` folder:
+If you don't have a SQL database yet, download and install [PostgreSQL](https://www.postgresql.org/download/). See the example for [installing on Ubuntu 22.04](https://linuxhint.com/install-and-setup-postgresql-database-ubuntu-22-04/). Create a user account ([tutorial](https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e)) and replace the `XXX` values in the `DBConnectionString` above with the correct ones. Once you entered the correct details, you must be able to initialize and populate the database by using the Entity Framework migration tool by running the following command in the `src/Analysim.Web` folder:
 
 ```
 dotnet ef database update
 ```
 
-#### Azure Blob Storage
+3. Azure Blob Storage
 
 If you don't have an existing blob storage account, log into [Microsoft Azure](https://portal.azure.com), and create a ["Storage Account"](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview) with "Blob service" enabled. Then, select "Access Keys" on the left sidebar menu and copy one of the keys and insert both to replace the `XXX` in the `AzureStorageConnectionString` entry above. You will also need to insert your storage account name. In the same section on Azure, you can see the formatting for the correct Connection String as a guide. Blob storage falls under the [free student services](https://azure.microsoft.com/en-us/free/students/).
 
-#### Outlook.com account
+4. Outlook.com account
 
 You can either use an existing Outlook account or create a new one and then fill in the `XXX` values under the section `EmailSettings` in the above file.
 
