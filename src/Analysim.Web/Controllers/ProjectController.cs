@@ -328,24 +328,30 @@ namespace Web.Controllers
         public async Task<IActionResult> ForkProject([FromForm] ProjectForkVM formdata)
         {
             // Find User
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
             // Find Project
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
 
-            // Check If Project Already Exist
-            var checkProject = _dbContext.Projects
-                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+            
+            // Check if the project already exists
+            bool projectExists = await _dbContext.Projects
+                .AnyAsync(p => p.ProjectUsers.Any(aup =>
                     aup.User.Id == formdata.UserID &&
                     aup.Project.Name == project.Name &&
                     aup.UserRole == "owner"));
 
-            // If Conflict If Project Found
-            if (checkProject != null) return Conflict(new { message = "Project Already Exist" });
-
+            // If the project exists, return a conflict response
+            if (projectExists)   return Conflict(new { message = "Project Already Exists" });
+            
             // Create Project
             var newProject = new Project
             {
@@ -423,24 +429,29 @@ namespace Web.Controllers
         public async Task<IActionResult> ForkProjectWithoutBlob([FromForm] ProjectForkVM formdata)
         {
             // Find User
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
             // Find Project
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
 
-            // Check If Project Already Exist
-            var checkProject = _dbContext.Projects
-                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+            // Check if the project already exists
+            bool projectExists = await _dbContext.Projects
+                .AnyAsync(p => p.ProjectUsers.Any(aup =>
                     aup.User.Id == formdata.UserID &&
                     aup.Project.Name == project.Name &&
                     aup.UserRole == "owner"));
 
-            // If Conflict If Project Found
-            if (checkProject != null) return Conflict(new { message = "Project Already Exist" });
-
+            // If the project exists, return a conflict response
+            if (projectExists)   return Conflict(new { message = "Project Already Exists" });
+            
             // Create Project
             var newProject = new Project
             {
@@ -488,21 +499,27 @@ namespace Web.Controllers
         [HttpPost("[action]")]
             public async Task<IActionResult> CreateProject([FromForm] ProjectVM formdata)
             {
+
             // Find User
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
             //var user = await _dbContext.Users.FindAsync(userId);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
-            // Check If Project Already Exist
-            var project = _dbContext.Projects
-                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+            // Check if the project already exists
+            bool projectExists = await _dbContext.Projects
+                .AnyAsync(p => p.ProjectUsers.Any(aup =>
                     aup.User.Id == formdata.UserID &&
                     aup.Project.Name == formdata.Name &&
                     aup.UserRole == "owner"));
 
-            // If Conflict If Project Found
-            if (project != null) return Conflict(new { message = "Project Already Exist" });
+            // If the project exists, return a conflict response
+            if (projectExists)  return Conflict(new { message = "Project Already Exists" }); 
 
             // Create Project
             var newProject = new Project
@@ -640,17 +657,23 @@ namespace Web.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> AddUser([FromForm] ProjectUserVM formdata)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "User Not Found" });
 
-            var checkowner = _dbContext.Projects
-                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+            bool isOwner = await _dbContext.Projects
+                .AnyAsync(p => p.ProjectUsers.Any(aup =>
                     aup.User.Id == user.Id &&
                     aup.Project.ProjectID == formdata.ProjectID &&
                     aup.UserRole == "owner"));
 
-            if (checkowner == null) return Unauthorized(new { message = "You are not the owner of the project" });
-
+            if (!isOwner)   return Unauthorized(new { message = "You are not the owner of the project" });
+            
             // Find Tag In Database
             var projectUser = _dbContext.ProjectUsers.Find(formdata.UserID, formdata.ProjectID);
 
@@ -708,16 +731,26 @@ namespace Web.Controllers
         [Authorize]
         public async Task<IActionResult> AddTag([FromForm] ProjectTagVM formdata)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "User Not Found" });
 
-            var checkowner = _dbContext.Projects
-                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
+
+            bool isOwner = await _dbContext.Projects
+                .AnyAsync(p => p.ProjectUsers.Any(aup =>
                     aup.User.Id == user.Id &&
                     aup.Project.ProjectID == formdata.ProjectID &&
                     aup.UserRole == "owner"));
 
-            if (checkowner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+            if (!isOwner)
+            {
+                return Unauthorized(new { message = "You are not the owner of the project" });
+            }
 
             // Find Tag In Database
             Tag tag = _dbContext.Tag.SingleOrDefault(t => t.Name == formdata.TagName);
@@ -771,17 +804,23 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                var checkOwner = _dbContext.Projects
-                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID == formdata.ProjectID &&
-                    aup.UserRole == "owner"));
+                bool isOwner = await _dbContext.Projects
+                     .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                         aup.User.Id == user.Id &&
+                         aup.Project.ProjectID == formdata.ProjectID &&
+                         aup.UserRole == "owner"));
 
-                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+                
 
                 if (formdata.Directory == null) { formdata.Directory = ""; }
 
@@ -880,17 +919,24 @@ namespace Web.Controllers
 
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                var checkOwner = _dbContext.Projects
-                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID == noteBookData.ProjectID &&
-                    aup.UserRole == "owner"));
 
-                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+                bool isOwner = await _dbContext.Projects
+                     .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                         aup.User.Id == user.Id &&
+                         aup.Project.ProjectID == noteBookData.ProjectID &&
+                         aup.UserRole == "owner"));
+
+                if (!isOwner)   return Unauthorized(new { message = "You are not the owner of the project" });
+                
 
                 // Find Project
                 var project = await _dbContext.Projects.FindAsync(noteBookData.ProjectID);
@@ -970,17 +1016,22 @@ namespace Web.Controllers
 
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                var checkOwner = _dbContext.Projects
-                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID == noteBookData.ProjectID &&
-                    aup.UserRole == "owner"));
-
-                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+                bool isOwner = await _dbContext.Projects
+                     .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                         aup.User.Id == user.Id &&
+                         aup.Project.ProjectID == noteBookData.ProjectID &&
+                         aup.UserRole == "owner"));
+                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+                
 
                 // Find Project
                 var project = await _dbContext.Projects.FindAsync(noteBookData.ProjectID);
@@ -1048,17 +1099,23 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                var checkOwner = _dbContext.Projects
-                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID ==noteBookData.ProjectID &&
-                    aup.UserRole == "owner"));
+                bool isOwner = await _dbContext.Projects
+                     .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                         aup.User.Id == user.Id &&
+                         aup.Project.ProjectID == noteBookData.ProjectID &&
+                         aup.UserRole == "owner"));
 
-                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!isOwner)   return Unauthorized(new { message = "You are not the owner of the project" });
+                
 
                 var project = await _dbContext.Projects.FindAsync(noteBookData.ProjectID);
                 if (project == null) return NotFound(new { message = "Project Not Found" });
@@ -1198,17 +1255,23 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                var checkOwner = _dbContext.Projects
-                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID == formdata.ProjectID &&
-                    aup.UserRole == "owner"));
+                bool isOwner = await _dbContext.Projects
+                    .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                        aup.User.Id == user.Id &&
+                        aup.Project.ProjectID == formdata.ProjectID &&
+                        aup.UserRole == "owner"));
 
-                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!isOwner)   return Unauthorized(new { message = "You are not the owner of the project" });
+                
 
                 if (formdata.Directory == null) { formdata.Directory = ""; }
 
@@ -1264,17 +1327,23 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                var checkOwner = _dbContext.Projects
-                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID == formdata.ProjectID &&
-                    aup.UserRole == "owner"));
+                bool isOwner = await _dbContext.Projects
+                    .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                        aup.User.Id == user.Id &&
+                        aup.Project.ProjectID == formdata.ProjectID &&
+                        aup.UserRole == "owner"));
 
-                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+                
 
                 if (formdata.Directory == null) { formdata.Directory = ""; }
 
@@ -1336,19 +1405,24 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
                 var notebook = _dbContext.Notebook.SingleOrDefault(n => n.NotebookID == notebookID);
 
-                var checkOwner = _dbContext.Projects
-                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID == notebook.ProjectID &&
-                    aup.UserRole == "owner"));
-
-                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+                bool isOwner = await _dbContext.Projects
+                    .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                        aup.User.Id == user.Id &&
+                        aup.Project.ProjectID == notebook.ProjectID &&
+                        aup.UserRole == "owner"));
+                if (!isOwner)   return Unauthorized(new { message = "You are not the owner of the project" });
+                
 
                 var dataset = await _dbContext.ObservableNotebookDataset
                     .FirstOrDefaultAsync(d => d.NotebookID == notebookID && d.BlobFileID == blobFileID);
@@ -1394,17 +1468,23 @@ namespace Web.Controllers
         [HttpPut("[action]/{projectID}")]
         public async Task<IActionResult> UpdateProject([FromRoute] int projectID, [FromForm] ProjectVM formdata)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
-            var checkOwner = _dbContext.Projects
-                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                aup.User.Id == user.Id &&
-                aup.Project.ProjectID == projectID &&
-                aup.UserRole == "owner"));
+            bool isOwner = await _dbContext.Projects
+                .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == projectID &&
+                    aup.UserRole == "owner"));
 
-            if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+            if (!isOwner)   return Unauthorized(new { message = "You are not the owner of the project" });
+            
 
             // Check Model State
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -1458,19 +1538,25 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
                 var notebook = _dbContext.Notebook.SingleOrDefault(n => n.NotebookID == notebookID);
 
-                var checkOwner = _dbContext.Projects
-                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID == notebook.ProjectID &&
-                    aup.UserRole == "owner"));
+                bool isOwner = await _dbContext.Projects
+                    .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                        aup.User.Id == user.Id &&
+                        aup.Project.ProjectID == notebook.ProjectID &&
+                        aup.UserRole == "owner"));
 
-                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+                
 
                 var dataset = await _dbContext.ObservableNotebookDataset
                     .FirstOrDefaultAsync(d => d.NotebookID == notebookID && d.BlobFileID == blobFileID);
@@ -1504,17 +1590,23 @@ namespace Web.Controllers
         [HttpPut("[action]")]
         public async Task<IActionResult> UpdateUser([FromForm] ProjectUserVM formdata)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
-            var checkOwner = _dbContext.Projects
-                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                aup.User.Id == user.Id &&
-                aup.Project.ProjectID == formdata.ProjectID &&
-                aup.UserRole == "owner"));
+            bool isOwner = await _dbContext.Projects
+                .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
+                    aup.Project.ProjectID == formdata.ProjectID &&
+                    aup.UserRole == "owner"));
 
-            if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+            if (!isOwner)   return Unauthorized(new { message = "You are not the owner of the project" });
+            
 
             // Find Many To Many
             var userRole = await _dbContext.ProjectUsers.FindAsync(formdata.UserID, formdata.ProjectID);
@@ -1558,20 +1650,25 @@ namespace Web.Controllers
         [HttpPut("[action]")]
         public async Task<IActionResult> RenameNotebook([FromForm] NotebookNameChangeVM notebookNameChangeVM)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
             var notebookE = await _dbContext.Notebook.FindAsync(notebookNameChangeVM.NotebookID);
             if (notebookE == null) return NotFound(new { message = "File Not Found" });
 
-            var checkOwner = _dbContext.Projects
-                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                aup.User.Id == user.Id &&
-                aup.Project.ProjectID == notebookE.ProjectID &&
-                aup.UserRole == "owner"));
+            bool isOwner = await _dbContext.Projects
+               .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                   aup.User.Id == user.Id &&
+                   aup.Project.ProjectID == notebookE.ProjectID &&
+                   aup.UserRole == "owner"));
 
-            if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+            if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
 
             Notebook notebook = await _dbContext.Notebook.FindAsync(notebookNameChangeVM.NotebookID);
 
@@ -1602,17 +1699,22 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                var checkOwner = _dbContext.Projects
-                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID == projectID &&
-                    aup.UserRole == "owner"));
+                bool isOwner = await _dbContext.Projects
+                   .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                       aup.User.Id == user.Id &&
+                       aup.Project.ProjectID == projectID &&
+                       aup.UserRole == "owner"));
 
-                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
                 // Check Model State
                 if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -1672,17 +1774,23 @@ namespace Web.Controllers
         [HttpDelete("[action]/{projectID}/{userID}")]
         public async Task<IActionResult> RemoveUser([FromRoute] int projectID, int userID)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
-            var checkOwner = _dbContext.Projects
-                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                aup.User.Id == user.Id &&
-                aup.Project.ProjectID == projectID &&
-                aup.UserRole == "owner"));
 
-            if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+            bool isOwner = await _dbContext.Projects
+               .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                   aup.User.Id == user.Id &&
+                   aup.Project.ProjectID == projectID &&
+                   aup.UserRole == "owner"));
+
+            if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
 
             // Find Many To Many
             var projectUser = await _dbContext.ProjectUsers.FindAsync(userID, projectID);
@@ -1712,17 +1820,22 @@ namespace Web.Controllers
         [HttpDelete("[action]/{projectID}/{tagID}")]
         public async Task<IActionResult> RemoveTag([FromRoute] int projectID, [FromRoute] int tagID)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
-            var checkOwner = _dbContext.Projects
-                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                aup.User.Id == user.Id &&
-                aup.Project.ProjectID == projectID &&
-                aup.UserRole == "owner"));
+            bool isOwner = await _dbContext.Projects
+               .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                   aup.User.Id == user.Id &&
+                   aup.Project.ProjectID == projectID &&
+                   aup.UserRole == "owner"));
 
-            if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+            if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
 
             // Find ProjectTag In Database
             ProjectTag projectTag = _dbContext.ProjectTags
@@ -1773,20 +1886,25 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
                 var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
                 if (blobFile == null) return NotFound(new { message = "File Not Found" });
 
-                var checkOwner = _dbContext.Projects
-                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID == blobFile.ProjectID &&
-                    aup.UserRole == "owner"));
+                bool isOwner = await _dbContext.Projects
+                  .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                      aup.User.Id == user.Id &&
+                      aup.Project.ProjectID == blobFile.ProjectID &&
+                      aup.UserRole == "owner"));
 
-                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
                 if (isMember)
                 {
                     if (blobFile.Extension != ".$$")
@@ -1841,20 +1959,25 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
                 var notebook = await _dbContext.Notebook.FindAsync(notebookID);
                 if (notebook == null) return NotFound(new { message = "File Not Found" });
 
-                var checkOwner = _dbContext.Projects
-                    .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID == notebook.ProjectID &&
-                    aup.UserRole == "owner"));
+                bool isOwner = await _dbContext.Projects
+                  .AnyAsync(p => p.ProjectUsers.Any(aup =>
+                      aup.User.Id == user.Id &&
+                      aup.Project.ProjectID == notebook.ProjectID &&
+                      aup.UserRole == "owner"));
 
-                if (checkOwner == null) return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
                 if (isMember)
                 {
                     //await _blobService.DeleteNotebookAsync(notebook);
