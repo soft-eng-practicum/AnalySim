@@ -620,11 +620,12 @@ namespace Web.Controllers
                 {
                     Subject = new ClaimsIdentity(new Claim[]
                     {
-                        new Claim(JwtRegisteredClaimNames.Sub, formdata.Username),
+                        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        //new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                         //new Claim(ClaimTypes.Role, roles.FirstOrDefault()),
-                        new Claim("LoggedOn", DateTime.UtcNow.ToString())
+                        new Claim("LoggedOn", DateTime.UtcNow.ToString()),
+                        new Claim(ClaimTypes.Name, formdata.Username)
                     }),
 
                     SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature),
