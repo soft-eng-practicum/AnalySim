@@ -56,7 +56,6 @@ Analysim requires two databases to operate: one SQL database (PostgreSQL) for re
   "AllowedHosts": "*",
   "ConnectionStrings": {
     "DBConnectionString": "User ID=XXX;Password=XXX;Server=XXX;Port=5432;Database=XXX;Integrated Security=true;Pooling=true;SSL Mode=Require;Trust Server Certificate=true",
-    "AzureStorageConnectionString": "DefaultEndpointsProtocol=https;AccountName=XXX;AccountKey=XXX;EndpointSuffix=core.windows.net"
   },
   "EmailSettings": {
     "Server": "smtp-mail.outlook.com",
@@ -88,11 +87,11 @@ dotnet ef database update
 
 #### Azure Blob Storage
 
-If you don't have an existing blob storage account, log into [Microsoft Azure](https://portal.azure.com), and create a ["Storage Account"](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview) with "Blob service" enabled. Then, select "Access Keys" on the left sidebar menu and copy one of the keys and insert both to replace the `XXX` in the `AzureStorageConnectionString` entry above. You will also need to insert your storage account name. In the same section on Azure, you can see the formatting for the correct Connection String as a guide. Blob storage falls under the [free student services](https://azure.microsoft.com/en-us/free/students/).
+Blob storage is now replaced with the PostgreSQL database and no longer necessary. If you want to set it up regardless, follow these instructions. If you don't have an existing blob storage account, log into [Microsoft Azure](https://portal.azure.com), and create a ["Storage Account"](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview) with "Blob service" enabled. Then, select "Access Keys" on the left sidebar menu and copy one of the keys and insert both to replace the `XXX` in the `AzureStorageConnectionString` entry above. You will also need to insert your storage account name. In the same section on Azure, you can see the formatting for the correct Connection String as a guide. Blob storage falls under the [free student services](https://azure.microsoft.com/en-us/free/students/).
 
-#### Outlook.com account
+#### Email account
 
-You can either use an existing Outlook account or create a new one and then fill in the `XXX` values under the section `EmailSettings` in the above file.
+Outlook no longer allows simple email authentication, so you must use another service that provides password authentication (e.g. Gmail). You can either use an existing account or create a new one and then fill in the `XXX` values under the section `EmailSettings` in the above file.
 
 ### Running the project
 
@@ -154,6 +153,10 @@ You can run Analysim and the PostGreSQL in containers using Docker Compose. You 
    You can test by opening a browser to http://localhost:80 (not https).
 
 ### Register and upload Docker image to Heroku
+
+### Prerequisites
+1. Docker setup (see above)
+2. Download [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
 
 *Note:* Prepend `sudo` before each `docker` and `heroku` (except `dotnet`) command on Mac/Linux.
 
