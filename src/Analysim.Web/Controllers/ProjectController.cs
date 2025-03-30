@@ -1694,6 +1694,7 @@ namespace Web.Controllers
          * Param : {projectID}
          * Description: Delete Project
          */
+        [Authorize]
         [HttpDelete("[action]/{projectID}")]
         public async Task<IActionResult> DeleteProject([FromRoute] int projectID)
         {
@@ -1719,26 +1720,42 @@ namespace Web.Controllers
                 if (!ModelState.IsValid) return BadRequest(ModelState);
 
                 // Find Project
-                var deleteProject = await _dbContext.Projects.FindAsync(projectID);
+                // Load project with all related data
+                var deleteProject = await _dbContext.Projects
+                    .Include(p => p.Notebooks)
+                        .ThenInclude(n => n.NotebookContents)
+                    .Include(p => p.Notebooks)
+                        .ThenInclude(n => n.observableNotebookDatasets)
+                    .Include(p => p.BlobFiles)
+                        .ThenInclude(b => b.BlobFileContents)
+                    .Include(p => p.ProjectTags)
+                    .Include(p => p.ProjectUsers)
+                    .FirstOrDefaultAsync(p => p.ProjectID == projectID);
                 if (deleteProject == null) return NotFound(new { message = "Project Not Found" });
 
-                // Remove all users that follow the project
-                foreach (var newuser in deleteProject.ProjectUsers)
+                // Delete in correct order to avoid FK constraint violations
+        
+                // 1. Delete notebook related data first
+                foreach (var notebook in deleteProject.Notebooks)
                 {
-                    _dbContext.ProjectUsers.Remove(newuser);
+                    // Delete notebook contents
+                    _dbContext.NotebookContent.RemoveRange(notebook.NotebookContents);
+                    
+                    // Delete observable notebook datasets
+                    _dbContext.ObservableNotebookDataset.RemoveRange(notebook.observableNotebookDatasets);
                 }
+                _dbContext.Notebook.RemoveRange(deleteProject.Notebooks);
 
-                // Delete from Azure
-                //var containerClient = _blobServiceClient.GetBlobContainerClient(deleteProject.Name.ToLower());
-                // await containerClient.DeleteBlobIfExistsAsync(deleteProject.Name.ToLower());
-                //containerClient.DeleteIfExists();
+                // 2. Delete blob files and contents
+                foreach (var blob in deleteProject.BlobFiles)
+                {
+                    _dbContext.BlobFileContent.RemoveRange(blob.BlobFileContents);
+                }
+                _dbContext.BlobFiles.RemoveRange(deleteProject.BlobFiles);
 
-                // get the project by project ID
-                var blobsResult = _dbContext.BlobFiles
-                    .Where(p => p.ProjectID == projectID).ToList();
-
-                // delete blobFiles
-                _dbContext.BlobFiles.RemoveRange(blobsResult);
+                // 3. Delete project relationships
+                _dbContext.ProjectTags.RemoveRange(deleteProject.ProjectTags);
+                _dbContext.ProjectUsers.RemoveRange(deleteProject.ProjectUsers);
 
                 // remove the project
                 _dbContext.Projects.Remove(await _dbContext.Projects.FindAsync(projectID));
