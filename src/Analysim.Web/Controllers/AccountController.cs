@@ -218,9 +218,14 @@ namespace Web.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Follow([FromForm] AccountFollowVM formdata)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
-            if (user == null) return NotFound(new { message = "Current user not Found" });
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "Current user not found" });
 
             // Find User to follow
             var userToFollow = await _dbContext.Users.FindAsync(formdata.UserID);
@@ -616,11 +621,12 @@ namespace Web.Controllers
                 {
                     Subject = new ClaimsIdentity(new Claim[]
                     {
-                        new Claim(JwtRegisteredClaimNames.Sub, formdata.Username),
+                        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        //new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                         //new Claim(ClaimTypes.Role, roles.FirstOrDefault()),
-                        new Claim("LoggedOn", DateTime.UtcNow.ToString())
+                        new Claim("LoggedOn", DateTime.UtcNow.ToString()),
+                        new Claim(ClaimTypes.Name, formdata.Username)
                     }),
 
                     SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature),
@@ -679,8 +685,13 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
                 // Return Bad Request Status
@@ -795,8 +806,13 @@ namespace Web.Controllers
         [HttpPut("[action]/{userID}")]
         public async Task<IActionResult> UpdateUser([FromRoute] int userID, [FromForm] AccountUpdateVM formdata)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
             // Check Model State
@@ -839,8 +855,13 @@ namespace Web.Controllers
         [HttpDelete("[action]/{userID}/{followerID}")]
         public async Task<IActionResult> Unfollow([FromRoute] int userID, [FromRoute] int followerID)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound(new { message = "Current user not found" });
 
             // Find UsertoFollow
@@ -974,8 +995,13 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
                 // Find File
