@@ -220,21 +220,17 @@ namespace Web.Controllers
         {
             var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
-            if (user == null) return NotFound(new { message = "User Not Found" });
+            if (user == null) return NotFound(new { message = "Current user not Found" });
 
-            // Find User
-            //var user = await _dbContext.Users.FindAsync(formdata.UserID);
-            //if (user == null) return NotFound(new { message = "User Not Found " + formdata.UserID });
-
-            // Find Follower
-            var follower = await _dbContext.Users.FindAsync(formdata.FollowerID);
-            if (follower == null) return NotFound(new { message = "User Not Found " + formdata.UserID });
+            // Find User to follow
+            var userToFollow = await _dbContext.Users.FindAsync(formdata.UserID);
+            if (userToFollow == null) return NotFound(new { message = "User to follow not Found" });
 
             // Create Many To Many Connection
             var userFollower = new UserUser
             {
-                UserID = user.Id,
-                FollowerID = formdata.FollowerID
+                UserID = userToFollow.Id,
+                FollowerID = user.Id
             };
 
             // Add To Database
@@ -246,7 +242,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = userFollower,
-                message = follower.UserName + " is now following " + user.UserName
+                message = user.UserName + " is now following " + userToFollow.UserName
             });
         }
 
@@ -845,18 +841,14 @@ namespace Web.Controllers
         {
             var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
-            if (user == null) return NotFound(new { message = "User Not Found" });
+            if (user == null) return NotFound(new { message = "Current user not found" });
 
-            // Find User
-            //var user = await _dbContext.Users.FindAsync(userID);
-            //if (user == null) return NotFound(new { message = "User Not Found" });
-
-            // Find Follower
-            var follower = await _dbContext.Users.FindAsync(followerID);
-            if (follower == null) return NotFound(new { message = "Follower Not Found" });
+            // Find UsertoFollow
+            var userToFollow = await _dbContext.Users.FindAsync(userID);
+            if (userToFollow == null) return NotFound(new { message = "User to follow not found" });
 
             // Find Many To Many
-            var userFollower = await _dbContext.UserUsers.FindAsync(user.Id, follower.Id);
+            var userFollower = await _dbContext.UserUsers.FindAsync(userToFollow.Id, user.Id);
             if (userFollower == null) return NotFound(new { message = "User Follower Connection Not FOund" });
 
             // Remove Project
@@ -868,7 +860,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = userFollower,
-                message = follower.UserName + " has unfollow " + user.UserName
+                message = user.UserName + " has unfollow " + userToFollow.UserName
             });
         }
         #endregion
