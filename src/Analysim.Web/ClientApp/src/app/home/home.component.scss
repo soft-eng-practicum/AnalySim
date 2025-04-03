@@ -111,3 +111,94 @@ font-family:var(--bs-body-font-family) !important;
         }
     }
 }
+
+
+.custom-card {
+  background: rgba(255, 255, 255, 0.15); // Semi-transparent for glass effect
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+  transition: all 0.4s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  &:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.25);
+  }
+
+  h3 {
+    font-size: 1.8rem;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  p {
+    color: #ddd;
+    font-size: 1.2rem;
+  }
+}
+
+
+
+.custom-card {
+background: #ffffff; // Clean white background
+border-radius: 12px;
+padding: 20px;
+box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); // Soft shadow for depth
+transition: all 0.3s ease-in-out;
+border: 1px solid #ddd;
+text-align: center;
+
+&:hover {
+  transform: translateY(-8px);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+h3 {
+  font-size: 1.6rem;
+  color: #021c36; // Dark blue for professionalism
+  font-weight: 500;
+}
+
+p {
+  color: #555;
+  font-size: 1.3rem;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  padding: 15px;
+  h3 {
+    font-size: 1.4rem;
+  }
+  p {
+    font-size: 1rem;
+  }
+}
+}
+
+// Button styling
+.btn-primary-custom {
+background: #0056b3;
+color: white;
+padding: 10px 20px;
+border-radius: 6px;
+font-size: 1rem;
+font-weight: 400;
+display: inline-block;
+text-transform: uppercase;
+transition: all 0.3s ease-in-out;
+position: relative;
+overflow: hidden;
+text-decoration: none;
+
+&:hover {
+  background: #003366; // Darker blue for hover
+  transform: scale(1.05);
+}
+
+&:active {
+  transform: scale(0.98);
+}
+}
