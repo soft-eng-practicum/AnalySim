@@ -1,0 +1,28 @@
+<div class="card">
+  <div class="card-header">
+    <h5>All Users</h5>
+  </div>
+  <div class="card-body p-0">
+    <table class="table mb-0" *ngIf="!loading && !error">
+      <thead class="thead-light">
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Date Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of users">
+          <td><a [routerLink]='["/profile/" + u.userName]'>{{u.userName}}</a></td>
+          <td>{{u.email}}</td>
+          <td>{{u.dateCreated | date:'short'}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="p-3" *ngIf="loading">
+      <div class="spinner-border spinner-border-sm mr-2"></div>Loading…
+    </div>
+    <div class="p-3 text-danger" *ngIf="error">{{ error }}</div>
+  </div>
+</div>

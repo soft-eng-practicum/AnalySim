@@ -26,5 +26,6 @@ export interface Notebook {
   projectID: number,
   type: string,
   directory: string,
+  route: string,
   observableNotebookDatasets: ObservableHQDataset[]
 }

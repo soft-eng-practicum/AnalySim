@@ -1,0 +1,31 @@
+<!-- src/app/admin/admin-datasets/admin-datasets.component.html -->
+<div class="card">
+  <div class="card-header">
+    <h5>All Datasets</h5>
+  </div>
+  <div class="card-body p-0">
+    <table class="table mb-0" *ngIf="!loading && !error">
+      <thead class="thead-light">
+        <tr>
+          <th>Name</th>
+          <th>Directory</th>
+          <th>Size</th>
+          <th>Date Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of datasets">
+          <td>{{d.name}}{{d.extension}}</td>
+          <td>{{d.directory || '/'}}</td>
+          <td>{{d.size | number}} bytes</td>
+          <td>{{d.dateCreated | date:'short'}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="p-3" *ngIf="loading">
+      <div class="spinner-border spinner-border-sm mr-2"></div>Loading…
+    </div>
+    <div class="p-3 text-danger" *ngIf="error">{{ error }}</div>
+  </div>
+</div>

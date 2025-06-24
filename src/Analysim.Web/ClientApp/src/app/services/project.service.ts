@@ -68,7 +68,9 @@ export class ProjectService {
   // Extra
   private urlGetUserList: string = this.baseUrl + "getuserlist/"
   private urlGetFileList: string = this.baseUrl + "getfilelist/"
+  private urlGetAllDatasetsList: string = this.baseUrl + "getAllDatasets/";
   private urlGetNotebookList: string = this.baseUrl + "getNotebooks/";
+  private urlGetAllNotebookList: string = this.baseUrl + "getAllNotebooks/";
   private urlGetNotebook: string = this.baseUrl + "GetNotebook/";
   private urlGetTagList: string = this.baseUrl + "gettaglist/"
 
@@ -697,8 +699,36 @@ export class ProjectService {
       )
   }
 
+  getAllDatasets(): Observable<BlobFile[]> {
+
+    return this.http.get<any>(this.urlGetAllDatasetsList)
+      .pipe(
+        map(body => {
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
   getNotebooks(projectID: number, directory: string): Observable<Notebook[]> {
     return this.http.get<any>(this.urlGetNotebookList + projectID + "/" + directory)
+      .pipe(
+        map(body => {
+          console.log(body)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
+  getAllNotebooks(): Observable<Notebook[]> {
+    return this.http.get<any>(this.urlGetAllNotebookList)
       .pipe(
         map(body => {
           console.log(body)

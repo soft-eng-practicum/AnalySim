@@ -1,0 +1,36 @@
+<div class="container my-4">
+  <h2>All Notebooks</h2>
+
+  <div *ngIf="loading" class="text-center my-3">
+    <div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <table *ngIf="!loading && !error" class="table table-striped table-hover">
+    <thead class="thead-light">
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Project</th>
+        <th>Directory</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let nb of notebooks; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ nb.name+nb.extension }}</td>
+        <td>{{ nb.route }}</td>
+        <td>
+          {{
+             nb.directory.startsWith('notebook')
+                  ? nb.directory.slice('notebook'.length)
+                  : nb.directory
+          }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
