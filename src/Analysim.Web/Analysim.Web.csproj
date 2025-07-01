@@ -48,6 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ClientApp\src\app\admin\" />
     <Folder Include="DataTransferObjects\" />
     <Folder Include="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\" />
     <Folder Include="ClientApp\src\app\projects\project-overview\project-overview-view\project-content\project-notebook-item\project-notebook-item-display\" />

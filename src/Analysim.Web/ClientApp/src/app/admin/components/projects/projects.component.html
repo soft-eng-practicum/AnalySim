@@ -1,0 +1,35 @@
+<!-- src/app/admin/admin-projects/admin-projects.component.html -->
+<div class="card">
+  <div class="card-header">
+    <h5>All Projects</h5>
+  </div>
+  <div class="card-body p-0">
+    <table class="table mb-0" *ngIf="!loading && !error">
+      <thead class="thead-light">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Visibility</th>
+          <th>Date Created</th>
+          <th>Last Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of projects">
+          <td>{{ p.projectID }}</td>
+          <td><a [routerLink]='["/project/" + p.route]'> {{p.route}}</a></td>
+          <td>{{ p.description }}</td>
+          <td>{{ p.visibility }}</td>
+          <td>{{ p.dateCreated | date:'short' }}</td>
+          <td>{{ p.lastUpdated | date:'short' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="p-3" *ngIf="loading">
+      <div class="spinner-border spinner-border-sm mr-2"></div>Loading…
+    </div>
+    <div class="p-3 text-danger" *ngIf="error">{{ error }}</div>
+  </div>
+</div>

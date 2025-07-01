@@ -287,6 +287,20 @@ namespace Web.Controllers
             }
         }
 
+        [HttpGet("[action]")]
+        public IActionResult GetAllNotebooks()
+        {
+            var notebooks = _dbContext.Notebook
+                .Include(n => n.observableNotebookDatasets)
+                .ToList();
+
+            return Ok(new
+            {
+                result = notebooks,
+                message = "All notebooks retrieved"
+            });
+        }
+
         [HttpGet("[action]/{notebookID}")]
         public async Task<IActionResult> GetNotebookVersions([FromRoute] int notebookID)
         {
@@ -620,7 +634,8 @@ namespace Web.Controllers
                 DateCreated = DateTime.UtcNow,
                 LastModified = DateTime.UtcNow,
                 ProjectID = newProject.ProjectID,
-                type = "new"
+                type = "new",
+                Route = user.UserName + "/" + newProject.Name
             };
 
             await _dbContext.Notebook.AddAsync(readmeNotebook);
@@ -966,7 +981,8 @@ namespace Web.Controllers
                     DateCreated = DateTime.UtcNow,
                     LastModified = DateTime.UtcNow,
                     ProjectID = noteBookData.ProjectID,
-                    type = "new"
+                    type = "new",
+                    Route = user.UserName + "/" + project.Name
                 };
                 await _dbContext.Notebook.AddAsync(newNotebook);
                 await _dbContext.SaveChangesAsync();
@@ -1153,7 +1169,8 @@ namespace Web.Controllers
                         DateCreated = DateTimeOffset.UtcNow,
                         LastModified = DateTimeOffset.UtcNow,
                         ProjectID = noteBookData.ProjectID,
-                        type = "new"
+                        type = "new",
+                        Route = user.UserName + "/" + project.Name
                     };
 
                     await _dbContext.Notebook.AddAsync(newNotebook);
@@ -1198,6 +1215,7 @@ namespace Web.Controllers
                         LastModified = DateTimeOffset.Now.UtcDateTime,
                         ProjectID = noteBookData.ProjectID,
                         type = "observable",
+                        Route = user.UserName + "/" + project.Name,
                         observableNotebookDatasets = observableNotebookDatasets
                     };
 
@@ -1220,7 +1238,8 @@ namespace Web.Controllers
                         DateCreated = DateTimeOffset.Now.UtcDateTime,
                         LastModified = DateTimeOffset.Now.UtcDateTime,
                         ProjectID = noteBookData.ProjectID,
-                        type = "jupyter"
+                        type = "jupyter",
+                        Route = user.UserName + "/" + project.Name
                     };
 
                     await _dbContext.Notebook.AddAsync(newNotebook);
@@ -1367,7 +1386,8 @@ namespace Web.Controllers
                     DateCreated = DateTimeOffset.UtcNow,
                     LastModified = DateTimeOffset.UtcNow,
                     ProjectID = formdata.ProjectID,
-                    type = "folder"
+                    type = "folder",
+                    Route = user.UserName + "/" + project.Name
                 };
 
                 // Update Database with entry
@@ -2087,6 +2107,21 @@ namespace Web.Controllers
             {
                 result = files,
                 message = "Project File Received"
+            });
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult GetAllDatasets()
+        {
+            var files = _dbContext.BlobFiles
+                .Where(b => b.Extension == ".csv")
+                .ToList();
+
+            // Return Ok Status
+            return Ok(new
+            {
+                result = files,
+                message = "Datasets Received"
             });
         }
 
