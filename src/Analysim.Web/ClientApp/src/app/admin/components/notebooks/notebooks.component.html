@@ -21,7 +21,7 @@
     <tbody>
       <tr *ngFor="let nb of notebooks; let i = index">
         <td>{{ i + 1 }}</td>
-        <td>{{ nb.name+nb.extension }}</td>
+        <app-admin-notebook-item [notebook]="nb"></app-admin-notebook-item>
         <td>{{ nb.route }}</td>
         <td>
           {{
@@ -34,3 +34,7 @@
     </tbody>
   </table>
 </div>
+<ng-template #displayNotebookModal>
+    <app-admin-notebook-item-display [notebook]="currentNotebook" [version]="version"
+        (closeModal)="closeDisplayNotebookModal()"></app-admin-notebook-item-display>
+</ng-template>

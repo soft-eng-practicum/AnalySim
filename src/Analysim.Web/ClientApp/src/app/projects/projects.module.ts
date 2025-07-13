@@ -118,6 +118,9 @@ import { SaveNotebookModalComponent } from './project-overview/project-overview-
     ButtonModule,
     DropdownModule,
     CheckboxModule
+  ],
+  exports: [
+    CSVDataBrowserComponent,
   ]
 })
 export class ProjectsModule { }
