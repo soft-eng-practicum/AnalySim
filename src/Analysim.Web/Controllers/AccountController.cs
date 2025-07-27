@@ -86,6 +86,29 @@ namespace Web.Controllers
 
         /*
         * Type : GET
+        * URL : /api/account/isadmin/
+        * Description: check the user is admin or not
+        * Response Status: 200 Ok, 404 Not Found
+        */
+        [HttpGet("[action]/{username}")]
+        public IActionResult IsAdmin([FromRoute] string username)
+        {
+            var user = _dbContext.Users
+                .SingleOrDefault(u => u.UserName == username);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var admins = _configuration
+                .GetSection("AdminUsers")
+                .Get<List<string>>() ?? new List<string>();
+
+            bool isAdmin = admins
+                .Any(u => string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+
+            return Ok(new { result = isAdmin });
+        }
+
+        /*
+        * Type : GET
         * URL : /api/account/getuserbyname/
         * Description: Return User from username
         * Response Status: 200 Ok, 404 Not Found

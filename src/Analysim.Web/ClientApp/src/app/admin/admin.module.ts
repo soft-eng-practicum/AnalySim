@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { AdminRoutingModule } from './admin-routing.module';
 import { AdminComponent } from './admin.component';
 import { NotebooksComponent } from './components/notebooks/notebooks.component';
@@ -13,7 +12,6 @@ import { ProjectsComponent } from './components/projects/projects.component';
 import { AdminNotebookItemComponent } from './components/notebooks/admin-notebook-item/admin-notebook-item.component';
 import { AdminNotebookItemDisplayComponent } from './components/notebooks/admin-notebook-item/admin-notebook-item-display/admin-notebook-item-display/admin-notebook-item-display.component';
 import { ProjectsModule } from '../projects/projects.module';
-import { AdminLoginComponent } from './components/admin-login/admin-login.component';
 
 @NgModule({
   declarations: [
@@ -25,8 +23,7 @@ import { AdminLoginComponent } from './components/admin-login/admin-login.compon
     DatasetsComponent,
     ProjectsComponent,
     AdminNotebookItemComponent,
-    AdminNotebookItemDisplayComponent,
-    AdminLoginComponent
+    AdminNotebookItemDisplayComponent
   ],
   imports: [
     CommonModule,

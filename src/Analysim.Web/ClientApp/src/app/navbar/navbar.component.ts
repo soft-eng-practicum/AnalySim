@@ -35,13 +35,17 @@ export class NavbarComponent implements OnInit {
   loginStatus$: Observable<boolean>;
   currentUser$: Observable<User> = null;
   currentUser: User = null;
+  isAdmin$: Observable<boolean>;
 
   async ngOnInit() {
     this.loginStatus$ = this.accountService.isLoggedIn;
     this.currentUser$ = await this.accountService.currentUser;
     this.currentUser$.subscribe(x => {
-      this.currentUser = x
-      if (x) this.profileImage();
+      this.currentUser = x;
+      if (x) {
+        this.isAdmin$ = this.accountService.getIsAdmin(x.userName);
+        this.profileImage();
+      }
     });
 
     this.searchTerm = new FormControl();

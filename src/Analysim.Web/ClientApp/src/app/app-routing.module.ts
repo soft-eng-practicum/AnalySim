@@ -35,6 +35,7 @@ const routes: Routes = [];
       { path: 'profile/:username', component: ProfileComponent },
       { path: 'project', loadChildren: () => import('./projects/projects.module').then(m => m.ProjectsModule) },
       { path: 'admin', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule) },
+      { path: '404', component: NotFoundComponent },
       { path: '**', component: NotFoundComponent }
       // todo: Add verify page routing and component
     ])],
