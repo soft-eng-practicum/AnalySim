@@ -17,6 +17,7 @@ export class ModalUploadNotebookComponent implements OnInit {
   uploadNotebookForm: FormGroup;
   notebookName: FormControl;
   notebookURL: FormControl;
+  notebookFile: FormControl;
   isLoading: Boolean;
   notebook: NotebookFile;
   existingNotebookURL: NotebookURL;
@@ -40,21 +41,42 @@ export class ModalUploadNotebookComponent implements OnInit {
 
     this.notebookName = new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(20)]);
     this.notebookURL = new FormControl('');
+    this.notebookFile = new FormControl(null);
 
     this.uploadNotebookForm = this.formBuilder.group({
       'notebookName': this.notebookName,
-      'notebookURL': this.notebookURL
+      'notebookURL': this.notebookURL,
+      'notebookFile': this.notebookFile
     });
+
+    this.applyModeValidators(true);
+  }
+
+  private applyModeValidators(isCreateMode: boolean) {
+    if (isCreateMode) {
+      this.notebookFile.setValidators([Validators.required]);
+      this.notebookURL.clearValidators();
+    } else {
+      this.notebookURL.setValidators([
+        Validators.required,
+        Validators.pattern(/^(https?:\/\/)[^\s]+$/i)
+      ]);
+      this.notebookFile.clearValidators();
+    }
+    this.notebookFile.updateValueAndValidity();
+    this.notebookURL.updateValueAndValidity();
   }
 
   onChange(selectedType) {
     if (selectedType === "true") {
       this.showCreateNotebook = true;
       this.showAddExistingNotebook = false;
+      this.applyModeValidators(true);
     }
     else {
       this.showCreateNotebook = false;
       this.showAddExistingNotebook = true;
+      this.applyModeValidators(false);
     }
   }
 
@@ -63,11 +85,17 @@ export class ModalUploadNotebookComponent implements OnInit {
   }
 
   fileEvent($event) {
-    this.file = $event.target.files[0];
+    const input = $event.target as HTMLInputElement;
+    this.file = (input.files && input.files[0]) || null;
+    this.uploadNotebookForm.patchValue({ notebookFile: this.file });
+    this.notebookFile.updateValueAndValidity();
   }
 
   urlEvent($event) {
-    this.url = $event.target.value;
+    const input = $event.target as HTMLInputElement;
+    this.url = input.value;
+    this.uploadNotebookForm.patchValue({ notebookURL: this.url });
+    this.notebookURL.updateValueAndValidity();
   }
 
   addNotebook() {
