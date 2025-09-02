@@ -9,13 +9,17 @@
           <th>Username</th>
           <th>Email</th>
           <th>Date Created</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let u of users">
-          <td><a [routerLink]='["/profile/" + u.userName]'>{{u.userName}}</a></td>
-          <td>{{u.email}}</td>
-          <td>{{u.dateCreated | date:'short'}}</td>
+          <td>
+            <a [routerLink]="['/profile/' + u.userName]">{{ u.userName }}</a>
+          </td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.dateCreated | date : "short" }}</td>
+        <app-user-display [user]="u" (userDeleted)="loadUsers()"></app-user-display>
         </tr>
       </tbody>
     </table>

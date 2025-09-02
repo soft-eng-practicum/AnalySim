@@ -1728,13 +1728,22 @@ namespace Web.Controllers
                 var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
+                var admins = _configuration
+                .GetSection("AdminUsers")
+                .Get<List<string>>() ?? new List<string>();
+
+                bool isAdmin = admins
+                    .Any(u => string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+
                 bool isOwner = await _dbContext.Projects
                    .AnyAsync(p => p.ProjectUsers.Any(aup =>
                        aup.User.Id == user.Id &&
                        aup.Project.ProjectID == projectID &&
                        aup.UserRole == "owner"));
 
-                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!isAdmin && !isOwner)
+                    return Forbid();
+                
                 // Check Model State
                 if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -1924,7 +1933,16 @@ namespace Web.Controllers
                       aup.Project.ProjectID == blobFile.ProjectID &&
                       aup.UserRole == "owner"));
 
-                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+                var admins = _configuration
+                .GetSection("AdminUsers")
+                .Get<List<string>>() ?? new List<string>();
+
+                bool isAdmin = admins
+                    .Any(u => string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+
+                if (!isAdmin && !isOwner)
+                    return Forbid();
+
                 if (isMember)
                 {
                     if (blobFile.Extension != ".$$")

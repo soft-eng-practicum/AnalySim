@@ -46,6 +46,7 @@ export class AccountService {
   // Delete
   private urlUnfollow: string = this.baseUrl + "unfollow/"
   private urlDeleteProfileImage: string = this.baseUrl + "deleteprofileimage/"
+  private urlDeleteUser: string = this.baseUrl + "deleteUser/"
 
   // Unuse
   private urlGetProjects: string = this.baseUrl + "getprojects/"
@@ -368,6 +369,21 @@ export class AccountService {
       map(body => {
         console.log(body.message)
         return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
+  deleteUser(userID: number): Observable<any> {
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.delete<any>(this.urlDeleteUser + userID, {headers}).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.message
       }),
       catchError(error => {
         console.log(error)

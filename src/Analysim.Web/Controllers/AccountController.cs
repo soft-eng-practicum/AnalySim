@@ -907,6 +907,93 @@ namespace Web.Controllers
                 message = user.UserName + " has unfollow " + userToFollow.UserName
             });
         }
+
+        /*
+         * Type : DELETE
+         * URL : /api/account/deleteuser/
+         * Param : {userID}
+         * Description: Delete the user and its associated entities
+         * Response Status: 200 Ok, 404 Not Found
+         */
+        [Authorize]
+        [HttpDelete("[action]/{userId:int}")]
+        public async Task<IActionResult> DeleteUser([FromRoute] int userId)
+        {
+            // Only the same user or an admin may delete the user
+            var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(currentUserIdStr, out var currentUserId))
+                return Unauthorized(new { message = "Invalid user identity." });
+
+            var currentUsername = User.Identity?.Name ?? User.FindFirstValue(ClaimTypes.Name);
+
+            var admins = _configuration
+                .GetSection("AdminUsers")
+                .Get<List<string>>() ?? new List<string>();
+
+            bool isAdmin = admins
+                .Any(u => string.Equals(u, currentUsername, StringComparison.OrdinalIgnoreCase));
+
+            var isSelf = currentUserId == userId;
+            if (!isAdmin && !isSelf)
+                return Forbid();
+
+            var user = await _dbContext.Users
+                .Include(u => u.ProjectUsers)
+                .Include(u => u.BlobFiles)       
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                return NotFound(new { message = "User not found." });
+
+            using var tx = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Delete projects the user owns (this cascades to notebooks, notebook contents, blobfiles, etc.)
+                var projectsOwned = await _dbContext.Projects
+                    .Include(p => p.ProjectUsers)
+                    .Where(p => p.ProjectUsers.Any(pu => pu.UserID == userId && pu.UserRole == "owner"))
+                    .ToListAsync();
+
+                _dbContext.Projects.RemoveRange(projectsOwned);
+                await _dbContext.SaveChangesAsync(); 
+
+                // Remove memberships from projects the user does not own
+                var memberships = await _dbContext.ProjectUsers
+                    .Where(pu => pu.UserID == userId)
+                    .ToListAsync();
+                _dbContext.ProjectUsers.RemoveRange(memberships);
+                await _dbContext.SaveChangesAsync();
+
+                // Remove followers/following
+                var followerEdges = await _dbContext.UserUsers
+                    .Where(uu => uu.UserID == userId || uu.FollowerID == userId)
+                    .ToListAsync();
+                _dbContext.UserUsers.RemoveRange(followerEdges);
+                await _dbContext.SaveChangesAsync();
+
+                // Remove profile images.
+                var userOnlyBlobs = await _dbContext.BlobFiles
+                    .Where(b => b.UserID == userId && (b.Container == "profile" || b.ProjectID == null))
+                    .ToListAsync();
+                _dbContext.BlobFiles.RemoveRange(userOnlyBlobs);
+                await _dbContext.SaveChangesAsync();
+
+                // Remove the user
+                _dbContext.Users.Remove(user);
+                await _dbContext.SaveChangesAsync();
+
+                await tx.CommitAsync();
+
+                return Ok(new { message = "User and associated data deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return BadRequest(new { message = "Failed to delete user.", error = ex.Message });
+            }
+        }
+
         #endregion
 
         #region Extra

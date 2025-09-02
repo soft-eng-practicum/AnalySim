@@ -10,7 +10,7 @@
         <th>Name</th>
         <th>Directory</th>
         <th>Size (bytes)</th>
-        <th></th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -18,11 +18,7 @@
         <td>{{ ds.name + ds.extension }}</td>
         <td>{{ ds.directory }}</td>
         <td>{{ ds.size }}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-primary" (click)="preview(ds)">
-            Preview
-          </button>
-        </td>
+        <app-dataset-actions [dataset]="ds" (datasetPreview)="preview($event)" (datasetDeleted)="loadDatasets()"></app-dataset-actions>
       </tr>
     </tbody>
   </table>

@@ -72,14 +72,24 @@ Analysim requires two databases to operate: one SQL database (PostgreSQL) for re
     "Audience": "https://www.analysim.tech/"
   },
   "UserQuota":  100000000,
-  "registrationCodes": [ "123" ]
+  "registrationCodes": [ "123" ],
+  "AdminUsers": [
+  "ADMIN",
+  "XXX"
+  ]
 }
 
 ```
 
+#### Adding admin users
+
+Admin access in Analysim is controlled through the AdminUsers section of the `appsettings.json` and `appsettings.Development.json`. Each entry in the list corresponds to the username of a registered Analysim user. Admin users will see an Admin link in the navigation bar and can access the /admin section of the platform. To add or remove admin privileges, simply update this list and restart the server.
+
+⚠️ Important: The usernames must exactly match the usernames stored in the database (case-sensitive).
+
 #### SQL database (also see Docker Compose option below)
 
-If you don't have a SQL database yet, download and install [PostgreSQL](https://www.postgresql.org/download/). See the example for [installing on Ubuntu 22.04](https://linuxhint.com/install-and-setup-postgresql-database-ubuntu-22-04/). Create a user account ([tutorial](https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e)) and replace the `XXX` values in the `DBConnectionString` above with the correct ones. Once you entered the correct details, you must be able to initialize and populate the database by using the Entity Framework migration tool by rinning the following command in the `src/Analysim.Web` folder:
+If you don't have a SQL database yet, download and install [PostgreSQL](https://www.postgresql.org/download/). See the example for [installing on Ubuntu 22.04](https://linuxhint.com/install-and-setup-postgresql-database-ubuntu-22-04/). Create a user account ([tutorial](https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e)) and replace the `XXX` values in the `DBConnectionString` above with the correct ones. Once you entered the correct details, you must be able to initialize and populate the database by using the Entity Framework migration tool by running the following command in the `src/Analysim.Web` folder:
 
 ```
 dotnet ef database update
