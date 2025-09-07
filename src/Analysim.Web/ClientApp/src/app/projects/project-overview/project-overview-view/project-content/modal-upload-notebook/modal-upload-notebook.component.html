@@ -22,8 +22,9 @@
                 <label>Do you want to add a new notebook or create one from an existing URL?</label>
                 <select #types class="form-control" aria-label="Default select example"
                     (change)="onChange(types.value)">
-                    <option selected value="true">Create a new one</option>
-                    <option value="false">Add an existing one</option>
+                    <option selected value="file">Create a new one from a file</option>
+                    <option value="url">Add an existing one from URL</option>
+                    <option value="blank">Create a blank notebook</option>
                 </select>
             </div>
 
@@ -73,6 +74,13 @@
                         <i class="fa fa-plus"></i>
                     </button>
                 </div>
+            </div>
+
+            <div class="form-group" *ngIf="showBlankNotebook">
+                <label>Create Blank Notebook</label>
+                <p class="text-muted mb-0">
+                    A minimal Jupyter notebook (<code>.ipynb</code>) will be generated.
+                </p>
             </div>
         </div>
         <div class="modal-footer justify-content-center">
