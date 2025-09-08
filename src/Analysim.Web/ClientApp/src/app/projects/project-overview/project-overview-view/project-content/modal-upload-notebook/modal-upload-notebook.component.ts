@@ -26,7 +26,7 @@ export class ModalUploadNotebookComponent implements OnInit {
   showBlankNotebook: boolean;
   file: File;
   url: string;
-  notebookType: "jupyter" | "observablehq" | "colab" = "jupyter";
+  notebookType: "observablehq" | "colab" = "colab";
 
   datasets: ObservableHQDataset[] = [];
 

@@ -41,9 +41,8 @@
                 <label for="notebookURL">Notebook Type</label>
                 <select #notebookTypes class="form-control" aria-label="Default select example"
                     (change)="onChangeNotebookType(notebookTypes.value)">
-                    <option selected value="jupyter">Jupyter</option>
+                    <option selected value="colab">Google Colab</option>
                     <option value="observablehq">ObservableHQ</option>
-                    <option value="colab">Google Colab</option>
                 </select>
             </div>
 
