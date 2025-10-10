@@ -16,15 +16,20 @@ export class ProjectsComponent implements OnInit {
   constructor(private projectService: ProjectService) { }
 
   ngOnInit() {
+    this.loadProjects();
+  }
+
+  loadProjects() {
+    this.loading = true;
     this.projectService.getProjectList().subscribe({
-      next: result => {
+      next: (result) => {
         this.projects = result;
         this.loading = false;
       },
-      error: () => {
-        this.error = 'Failed to load projects';
+      error: (err) => {
+        this.error = 'Failed to load users';
         this.loading = false;
-      }
+      },
     });
   }
 }

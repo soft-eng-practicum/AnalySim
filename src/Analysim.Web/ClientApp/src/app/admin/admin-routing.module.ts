@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AdminComponent } from './admin.component';
 import { AuthGuardService } from '../guards/auth-guard.service';
+import { AdminGuard } from '../guards/admin.guard';
 import { NotebooksComponent } from './components/notebooks/notebooks.component';
 import { UsersComponent } from './components/users/users.component';
 import { DatasetsComponent } from './components/datasets/datasets.component';
@@ -11,8 +12,9 @@ const routes: Routes = [
   {
     path: '',
     component: AdminComponent,
-    canActivate: [AuthGuardService],
+    canActivate: [AuthGuardService, AdminGuard],
     children: [
+      { path: 'notebooks/:notebookRoute', component: NotebooksComponent },
       { path: 'notebooks', component: NotebooksComponent },
       { path: 'users', component: UsersComponent },
       { path: 'datasets', component: DatasetsComponent },

@@ -61,6 +61,11 @@
     <!-- Logged In Nav Item Start -->
     <ul class="navbar-nav" *ngIf="(loginStatus$ | async) as loginStatus">
       <!-- Nav Profile Dropdown -->
+      <li class="nav-item mr-3" *ngIf="isAdmin$ | async">
+        <a class="nav-link text-white" routerLink="/admin">
+          <i class="fa fa-cogs mr-1"></i> Admin
+        </a>
+      </li>
       <li class="nav-item dropdown" *ngIf="(currentUser$ | async) as currentUser">
         <a class="text-white dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
           aria-haspopup="true" aria-expanded="false">

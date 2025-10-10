@@ -13,6 +13,7 @@
           <th>Visibility</th>
           <th>Date Created</th>
           <th>Last Updated</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -23,6 +24,7 @@
           <td>{{ p.visibility }}</td>
           <td>{{ p.dateCreated | date:'short' }}</td>
           <td>{{ p.lastUpdated | date:'short' }}</td>
+          <app-project-display [project]="p" (projectDeleted)="loadProjects()"></app-project-display>
         </tr>
       </tbody>
     </table>
