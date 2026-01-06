@@ -1,8 +1,10 @@
+#! /bin/bash
+CERT_DIR=`find /etc/letsencrypt/live -type d | tail -1`
 # Currently must pause .Net server before doing this
 http-server -p 80 /home/exouser/wwwroot/ &
 sleep 3s
 certbot renew
-./convert-pem2pfx.sh
-cp /etc/letsencrypt/live/analysim.tech/fullchain.pfx ~/.aspnet/https/
+./convert-pem2pfx.sh $CERT_DIR
+cp $CERT_DIR/fullchain.pfx ~/.aspnet/https/
 # kill the http server
 kill $(jobs -p)

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -104,11 +105,19 @@ namespace Web
 
             app.ConfigureExceptionHandler(logger);
             app.UseHttpsRedirection();
+
+            // Add MIME type for Jupyter Lite wheel files by creating a provider and add the .whl mapping
+            var provider = new FileExtensionContentTypeProvider();
+            provider.Mappings[".whl"] = "application/octet-stream";
+
             app.UseStaticFiles();
 
             if (!env.IsDevelopment())
             {
-                app.UseSpaStaticFiles();
+                app.UseSpaStaticFiles(new StaticFileOptions
+                {
+                    ContentTypeProvider = provider
+                });
             }
 
             app.UseCors("CorsPolicy");
