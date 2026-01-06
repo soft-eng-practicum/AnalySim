@@ -26,19 +26,21 @@ git clone https://github.com/soft-eng-practicum/AnalySim.git
 
 After you have cloned the Analysim repository on your local machine,
 use the terminal to navigate to the
-`AnalySim\src\Analysim.Web\ClientApp` folder and run the following
+`src/Analysim.Web/ClientApp` folder and run the following
 command.
 
 ```sh
 npm install
 ```
 
-Then navigate to `AnalySim\src\Analysim.Web\ClientApp\src\assets\jupyter` folder and run the following commands.
+Then navigate to `src/Analysim.Web/ClientApp/src/assets/jupyter` folder and run the following commands.
 
 ```sh
 python -m pip install -r requirements.txt
 jupyter-lite build --output-dir dist
 ```
+
+Then copy the file `index.html` under `dist\lab\index.html`.
 
 ### Connecting to databases and other services
 
