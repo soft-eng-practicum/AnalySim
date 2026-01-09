@@ -28,29 +28,38 @@
     <div class="col-md-10">
       <div class="row justify-content-center">
         <!-- Website Service1 -->
+
         <div class="col-md-4 mb-4 text-center">
-          <h3>Register for AnalySim</h3>
-                <hr>
-                <p class="lead">Begin building your data or colaborate with a team</p>
-                <a [routerLink]='["/register"]'>Register <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
-                <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/register"]'>Register &raquo;</button> -->
+          <div class="custom-card">
+            <h3>Register for AnalySim</h3>
+            <hr>
+            <p class="lead">Begin building your data or collaborate with a team</p>
+            <a [routerLink]='["/register"]' class="btn btn-primary-custom">
+              Register <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i>
+            </a>
+          </div>
         </div>
+        
         <!-- Website Service2 -->
         <div class="col-md-4 mb-4 text-center">
+          <div class="custom-card">
           <h3>Create your own project</h3>
                 <hr>
                 <p class="lead">Create your own project and share your ideas </p>
-                <a [routerLink]='["/project/create"]'>Create Project <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
+                <a [routerLink]='["/project/create"]' class="btn btn-primary-custom">Create Project <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
                 <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/project/create"]'>Create Project &raquo;</button> -->
+              </div>
         </div>
         <!-- Website Service2 -->
         <div class="col-md-4 mb-4 text-center">
+          <div class="custom-card">
           <h3>Browse our projects</h3>
                 <hr>
                 <p class="lead">Not ready yet? Get inspired from our projects</p>
-                <a [routerLink]='["/explore"]'>Explore Project <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
+                <a [routerLink]='["/explore"]' class="btn btn-primary-custom">Explore Project <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
                 <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/explore"]'>Explore Project &raquo;</button> -->
         </div>
+      </div>
       </div>
     </div>
     
