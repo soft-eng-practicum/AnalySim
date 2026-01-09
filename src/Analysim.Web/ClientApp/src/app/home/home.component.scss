@@ -111,3 +111,30 @@ font-family:var(--bs-body-font-family) !important;
         }
     }
 }
+
+
+
+// Button styling
+.btn-primary-custom {
+    background: #0056b3;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 400;
+    display: inline-block;
+    text-transform: uppercase;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    
+    &:hover {
+      background: #003366; // Darker blue for hover
+      transform: scale(1.05);
+    }
+    
+    &:active {
+      transform: scale(0.98);
+    }
+    }
