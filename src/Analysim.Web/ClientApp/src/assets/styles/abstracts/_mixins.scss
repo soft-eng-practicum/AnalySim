@@ -1,0 +1,36 @@
+/* 
+  Reusable layout mixins used across components.
+  Provides common flex patterns (card stacks, pinned CTAs), responsive stacking,
+  and square media sizing helpers to keep layouts consistent. 
+*/
+
+/* Flex column card with centered content */
+@mixin card-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+}
+
+/* Push element to bottom of flex column (for CTAs) */
+@mixin card-stack-cta {
+  margin-top: auto;
+  display: inline-block;
+}
+
+/* Force column layout on small screens */
+@mixin stack-md {
+  @media (max-width: 768px) {
+    flex-direction: column !important;
+  }
+}
+
+/* Fixed square container for media/logo */
+@mixin media-square($size: 44px) {
+  width: $size;
+  height: $size;
+  object-fit: contain;
+  display: block;
+  flex: 0 0 auto;
+}

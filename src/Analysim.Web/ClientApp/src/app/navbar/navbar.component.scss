@@ -1,69 +1,91 @@
-.bg-header {
-    background-color: var(--background-color-secondary);
-    /* background-color:rgb(19, 76, 167); */
-  }
-  
-  .navbar-brand:hover {
-    /*color: #808080;*/
-  }
-  
-  .nav-item {
-    border-bottom: none !important;
-  }
-  
-  .nav-link {
-    border-bottom: none !important;
-    border-radius: 3%;
-    padding: 5%;
-    display: flex;
-    align-items: center;
-  }
-  
-  .nav-link:hover {
-    background-color: var(--button-background-color);
-    color: var(--primary-color) !important;
-    transition: 0.2s;
-  }
-  
-  .navbar-brand {
-    margin-left: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-  }
-  
-  .navbar-brand:hover {
-    /*color: #4140aa !important;*/
-  }
-  
-  .form {
-    display: flex;
-    align-items: center;
-  }
-  
-  .input-group {
-    display: flex;
-    align-items: center;
-  }
-  
-  .input-group-append {
-    display: flex;
-    align-items: center;
-  }
-  
-  #navbarDropdownMenuLink {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-width: 150px;
-    text-decoration:none;
+/* Brand alignment and spacing */
+.navbar-brand {
+  margin-left: var(--navbar-brand-margin-left);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Remove default active borders */
+.nav-item,
+.nav-link {
+  border-bottom: none !important;
+}
+
+/* Align form and input groups in navbar */
+.form,
+.input-group,
+.input-group-append {
+  display: flex;
+  align-items: center;
+}
+
+/* Search field styling */
+.search-group .form-control {
+  border-color: var(--border-color);
+}
+
+.search-group .search-btn.btn {
+  background: transparent;
+  border-color: var(--border-color);
+  color: inherit;
+
+  padding-left: var(--space-3) !important;
+  padding-right: var(--space-3) !important;
+}
+
+/* Profile dropdown trigger */
+.nav-profile-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  min-width: var(--navbar-dropdown-min-width);
+  padding: var(--nav-link-padding-y) var(--nav-link-padding-x);
+  border-radius: var(--nav-link-radius);
+  line-height: 1;
+  text-decoration: none;
+}
+
+.nav-profile-trigger:hover {
+  background-color: var(--nav-hover-bg);
+}
+
+/* User avatar */
+.nav-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Dropdown menu items */
+.dropdown-item {
+  color: var(--c-text-0);
+}
+
+.dropdown-item:hover {
+  background-color: var(--background-color-tertiary) !important;
+  cursor: pointer;
+  color: var(--c-text-0);
+}
+
+/* Navbar shell theme adjustments */
+.navbar.bg-shell {
+  --nav-text-soft: rgba(255, 255, 255, 0.85);
+
+  .nav-link,
+  .navbar-brand,
+  .nav-profile-trigger,
+  .navbar-toggler {
+    color: var(--nav-text-soft);
   }
 
-  #navbarDropdownMenuLink > * {
-    margin-right: 10px;
+  .nav-link:hover,
+  .nav-interactive:hover {
+    color: var(--text-on-dark);
   }
-  
-  .dropdown-item:hover {
-    background-color: var(--background-color-tertiary) !important;
-    cursor: pointer;
-  }
+}

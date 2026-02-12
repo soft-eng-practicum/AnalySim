@@ -7,20 +7,20 @@
             <!-- Nav Search Bar Start-->
             <div class="card">
                 <div class="card-body">
-                    <form class="form-control p-0" [formGroup]="searchForm" (ngSubmit)="onSubmit()">
-                        <div class="input-group">
+                    <form class="form-control p-0 explore-search" [formGroup]="searchForm" (ngSubmit)="onSubmit()">
+                        <div class="input-group search-group">
                             <!-- Search Category -->
                             <div class="input-group-prepend">
-                                <select class="btn custom-select" style="color: #343a40; border-color: #343a40;" formControlName="searchCategory">
-                                    <option class="option-text" value="project" >Project</option>
-                                    <option value="profile" >Profile</option>
+                                <select class="custom-select explore-select" formControlName="searchCategory">
+                                    <option value="project">Project</option>
+                                    <option value="profile">Profile</option>
                                 </select>
                             </div>
                             <!-- Search Icon -->
-                            <input type="text" class="form-control border border-dark" placeholder="Search..." name="searchTerm" formControlName="searchTerm">
+                            <input type="text" class="form-control" placeholder="Search..." name="searchTerm" formControlName="searchTerm">
                             <!-- Search Button -->
                             <div class="input-group-append">
-                                <button class="btn btn-outline-dark">
+                                <button class="btn search-btn">
                                     <i class="fa fa-search"></i>
                                 </button>     
                             </div>          

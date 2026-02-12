@@ -1,23 +1,23 @@
 <!-- Footer Start -->
-<footer class="bg-footer pt-3 text-white">
+<footer class="bg-shell pt-3">
   <!-- Footer Links Start-->
-  <div class="container-fluid text-right text-md-left">
+  <div class="container-fluid text-right text-md-left footer-inner">
     <!-- Grid row Start-->
     <div class="row justify-content-center footer-link-row">
       <div class="col-md-10">
         <div class="row justify-content-center">
           <!-- Grid column Start-->
-          <div class="col-md-4 mb-md-0 mb-3 footer-about">
+          <div class="col-md-4 mb-md-0 mb-3">
             <div class="footer-about" id="about">
               About
             </div>
             <!-- Links Start-->
             <ul class="list-unstyled">
               <li>
-                <a class="footer-link text-white" [routerLink]='["/contactus"]'>Contact Us</a>
+                <a class="footer-link nav-interactive text-white" [routerLink]='["/contactus"]'>Contact Us</a>
               </li>
               <li>
-                <a class="footer-link text-white" [routerLink]='["/aboutus"]'>Learn More</a>
+                <a class="footer-link nav-interactive text-white" [routerLink]='["/aboutus"]'>Learn More</a>
               </li>
             </ul> <!-- Links End-->
           </div>
@@ -26,15 +26,33 @@
               Connect
             </div>
             <!-- Links Start-->
-            <ul class="list-unstyled">
+            <ul class="list-unstyled footer-icons">
               <li>
-                <img src="../../assets/img/icon-facebook.png" [routerLink]='["/aboutus"]'>
+                <a
+                  class="footer-icon nav-interactive text-white"
+                  [routerLink]="['/aboutus']"
+                >
+                  <img src="../../assets/img/icon-facebook.png" alt="Facebook" />
+                </a>
               </li>
               <li>
-                <img src="../../assets/img/icon-linkedin.png" [routerLink]='["/aboutus"]'>
+                <a
+                  class="footer-icon nav-interactive text-white"
+                  [routerLink]="['/aboutus']"
+                >
+                  <img
+                    src="../../assets/img/icon-linkedin.png"
+                    alt="LinkedIn"
+                  />
+                </a>
               </li>
               <li>
-                <img src="../../assets/img/icon-twitter.png" [routerLink]='["/aboutus"]'>
+                <a
+                  class="footer-icon nav-interactive text-white"
+                  [routerLink]="['/aboutus']"
+                >
+                  <img src="../../assets/img/icon-twitter.png" alt="Twitter" />
+                </a>
               </li>
             </ul> <!-- Links End-->
           </div>
@@ -53,10 +71,11 @@
         <!-- Links Start-->
       </div>
     </div>
-    
-  </div> <!-- Footer Links End-->
+  </div>
+  <!-- Footer Links End-->
 
   <!-- Copyright Start -->
-  <div class="footer-copyright p-2">
-  </div> <!-- Copyright End-->
-</footer> <!-- Footer End-->
+  <div class="footer-copyright p-2"></div>
+  <!-- Copyright End-->
+</footer>
+<!-- Footer End -->

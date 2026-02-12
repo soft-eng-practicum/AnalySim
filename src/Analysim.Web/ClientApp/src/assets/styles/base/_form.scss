@@ -1,0 +1,14 @@
+/* 
+  Form helpers.
+  Central place for shared form styling and states so inputs
+  behave consistently across the app (validation, feedback, etc.). 
+*/
+
+/* Validation states */
+.invalid {
+  border-color: var(--color-danger);
+}
+
+.valid {
+  border-color: var(--color-success);
+}
