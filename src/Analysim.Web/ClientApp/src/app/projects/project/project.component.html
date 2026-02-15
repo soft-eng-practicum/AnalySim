@@ -95,8 +95,8 @@
           {{ projectname }}
       </h3> -->
             <ul class="project-content-header-option">
-              <li>Share</li>
-              <li>Comment</li>
+              <li class="header-link" role="button" tabindex="0">Share</li>
+              <li class="header-link" role="button" tabindex="0">Comment</li>
             </ul>
           </div>
         </div>
@@ -104,8 +104,10 @@
           <div [innerHtml]="notebookContent" [ngClass]="isFull ? 'notebook-readme-full' : 'notebook-readme'"></div>
         </div>
         <div class="buttons" *ngIf='toggleNotebookExpand'>
-          <div class="readme-button" (click)="toggleNotebook()">{{isFull ? 'Read Less..' : 'Read More..'}}</div>
-          <div class="readme-button" (click)="NavigateToNotebook()">Run Notebook</div>
+          <button type="button" class="btn btn-outline-primary" (click)="toggleNotebook()">
+            {{isFull ? 'Read Less..' : 'Read More..'}}
+          </button>
+          <button type="button" class="btn btn-primary" (click)="NavigateToNotebook()">Run Notebook</button>
         </div>
         <div class="row project-option-row">
 
@@ -141,20 +143,28 @@
               [ngClass]='{"active": toggleView == "Publications"}' (click)="showPublication()">
           </div>
           <div class="project-view-interaction">
-            <button class="btn-primary" (click)="forkProject()">Fork Project</button>
-            <button type="button" *ngIf="!toggleMoreOption" (click)="toggleMoreOption = true;">
-              More <i class="fa-solid fa-arrow-down"></i>
-            </button>
-            <button type="button" *ngIf="toggleMoreOption" (click)="toggleMoreOption = false;">
-              Less <i class="fa-solid fa-arrow-up"></i>
-            </button>
-            <div class="project-view-extra-interaction" *ngIf="toggleMoreOption">
-              <input type="button" value="Share">
-              <input type="button" value="Recommend">
-              <input type="button" value="Join" *ngIf="!isMember && !isOwner">
-              <input type="button" value="Leave" *ngIf="isMember && !isOwner">
-              <input type="button" value="Follow" *ngIf="!isFollowing">
-              <input type="button" value="Unfollow" *ngIf="isFollowing">
+            <button type="button" class="btn btn-primary" (click)="forkProject()">Fork Project</button>
+            <div class="more-block" [class.is-open]="toggleMoreOption">
+              <div class="more-actions" [class.is-open]="toggleMoreOption">
+                <a class="more-link" role="button" tabindex="0">Share</a>
+                <a class="more-link" role="button" tabindex="0">Recommend</a>
+                <a class="more-link" role="button" tabindex="0" *ngIf="!isMember && !isOwner">Join</a>
+                <a class="more-link" role="button" tabindex="0" *ngIf="isMember && !isOwner">Leave</a>
+                <a class="more-link" role="button" tabindex="0" *ngIf="!isFollowing">Follow</a>
+                <a class="more-link" role="button" tabindex="0" *ngIf="isFollowing">Unfollow</a>
+              </div>
+
+              <button type="button"
+                      class="more-toggle"
+                      (click)="toggleMoreOption = !toggleMoreOption"
+                      [attr.aria-expanded]="toggleMoreOption">
+                <span class="more-toggle__label" [class.is-hidden]="toggleMoreOption">
+                  More <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
+                </span>
+                <span class="more-toggle__label" [class.is-hidden]="!toggleMoreOption">
+                  Less <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+                </span>
+              </button>
             </div>
           </div>
         </div>

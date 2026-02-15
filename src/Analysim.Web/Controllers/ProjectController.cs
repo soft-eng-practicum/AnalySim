@@ -464,43 +464,124 @@ namespace Web.Controllers
                     aup.UserRole == "owner"));
 
             // If the project exists, return a conflict response
-            if (projectExists)   return Conflict(new { message = "Project Already Exists" });
-            
-            // Create Project
-            var newProject = new Project
+            if (projectExists) return Conflict(new { message = "Project Already Exists" });
+
+            await using var tx = await _dbContext.Database.BeginTransactionAsync();
+
+            try
             {
-                Name = project.Name,
-                Visibility = project.Visibility,
-                Description = project.Description,
-                DateCreated = DateTimeOffset.UtcNow,
-                LastUpdated = DateTimeOffset.UtcNow,
-                Route = user.UserName + "/" + project.Name,
-                ForkedFromProjectID = project.ProjectID,
-            };
+                // 1) Create forked Project
+                var newProject = new Project
+                {
+                    Name = project.Name,
+                    Visibility = project.Visibility,
+                    Description = project.Description,
+                    DateCreated = DateTimeOffset.UtcNow,
+                    LastUpdated = DateTimeOffset.UtcNow,
+                    Route = user.UserName + "/" + project.Name,
+                    ForkedFromProjectID = project.ProjectID,
+                };
 
-            // Add Project And Save Change
-            await _dbContext.Projects.AddAsync(newProject);
-            await _dbContext.SaveChangesAsync();
+                // Add Project And Save Change
+                await _dbContext.Projects.AddAsync(newProject);
+                await _dbContext.SaveChangesAsync();
 
-            // Add ProjectUser And Save Change
-            await _dbContext.AddAsync(
-                new ProjectUser
+                // 2) Add owner
+                await _dbContext.AddAsync(new ProjectUser
                 {
                     UserID = user.Id,
                     ProjectID = newProject.ProjectID,
                     UserRole = "owner",
                     IsFollowing = true
+                });
+                await _dbContext.SaveChangesAsync();
+
+                // 3) Clone Notebooks + Contents + ObservableNotebookDataset
+                var sourceNotebooks = await _dbContext.Notebook
+                    .Where(n => n.ProjectID == project.ProjectID)
+                    .Include(n => n.NotebookContents)
+                    .Include(n => n.observableNotebookDatasets)
+                    .ToListAsync();
+
+                foreach (var oldNotebook in sourceNotebooks)
+                {
+                    var newNotebook = new Notebook
+                    {
+                        ProjectID = newProject.ProjectID,
+                        Project = newProject,
+
+                        Name = oldNotebook.Name,
+                        Directory = oldNotebook.Directory,
+                        Extension = oldNotebook.Extension,
+
+                        Container = "notebook-" + newProject.Name.ToLower(),
+                        Route = user.UserName + "/" + newProject.Name,
+
+                        Uri = oldNotebook.Uri,
+                        Size = oldNotebook.Size,
+
+                        DateCreated = DateTimeOffset.UtcNow,
+                        LastModified = DateTimeOffset.UtcNow,
+
+                        type = oldNotebook.type
+                    };
+
+                    await _dbContext.Notebook.AddAsync(newNotebook);
+                    await _dbContext.SaveChangesAsync();
+
+                    // Copy versions
+                    if (oldNotebook.NotebookContents != null && oldNotebook.NotebookContents.Count > 0)
+                    {
+                        foreach (var oldContent in oldNotebook.NotebookContents)
+                        {
+                            await _dbContext.NotebookContent.AddAsync(new NotebookContent
+                            {
+                                NotebookID = newNotebook.NotebookID,
+                                Version = oldContent.Version,
+                                Content = oldContent.Content,
+                                Author = oldContent.Author,
+                                Size = oldContent.Size,
+                                DateCreated = oldContent.DateCreated
+                            });
+                        }
+                    }
+
+                    // Copy observable dataset links
+                    if (oldNotebook.observableNotebookDatasets != null && oldNotebook.observableNotebookDatasets.Count > 0)
+                    {
+                        foreach (var oldObs in oldNotebook.observableNotebookDatasets)
+                        {
+                            await _dbContext.ObservableNotebookDataset.AddAsync(new ObservableNotebookDataset
+                            {
+                                NotebookID = newNotebook.NotebookID,
+                                datasetName = oldObs.datasetName,
+                                datasetURL = oldObs.datasetURL,
+                                BlobFileID = oldObs.BlobFileID
+                            });
+                        }
+                    }
+
+                    await _dbContext.SaveChangesAsync();
                 }
-            );
-            await _dbContext.SaveChangesAsync();
 
-            // Return Ok Request
-            return Ok(new
+                await tx.CommitAsync();
+
+                return Ok(new
+                {
+                    result = newProject,
+                    message = "Project Successfully Forked"
+                });
+            }
+            catch (Exception ex)
             {
-                result = newProject,
-                message = "Project Successfully Forked"
-            });
-
+                await tx.RollbackAsync();
+                Console.WriteLine(ex);
+                return BadRequest(new
+                {
+                    message = "Fork failed",
+                    detail = ex.Message
+                });
+            }
         }
 
         /*

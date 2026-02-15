@@ -1,43 +1,135 @@
-<li class="list-group-item d-flex h-100">
-  <div class="mr-auto" *ngIf="notebook.type!=='folder'" style="width: 100%">
-    <i class="fa fa-file mr-1"></i>
-    <a style="margin-right: 5px; cursor: pointer;"
-      (click)="navigateToNotebook()">{{notebook.name+notebook.extension}}</a>
-    <select [(ngModel)]="selectedVersion" (ngModelChange)="onVersionChange($event)"
-      *ngIf="notebook.type!=='observable'">
-      <option *ngFor="let version of versions" [value]="version">v{{ version }}</option>
-    </select>
-    <div class="btn-group mr-3" role="group" style="float: right">
-      <button title="Datasets" type="button" class="btn" (click)="showDatasetsModal()"
-        *ngIf="isMember && notebook.type!=='observable'">
-        <i class="fa fa-database mr-1"></i>
+<li class="list-group-item notebook-item d-flex h-100">
+  <!-- FILE / NOTEBOOK -->
+  <div class="mr-auto notebook-row" *ngIf="notebook.type !== 'folder'">
+    <div class="notebook-left">
+      <i class="fa fa-file notebook-icon" aria-hidden="true"></i>
+
+      <a
+        class="notebook-link"
+        title="Open notebook"
+        (click)="navigateToNotebook()"
+      >
+        {{ notebook.name + notebook.extension }}
+      </a>
+
+      <select
+        class="notebook-version"
+        [(ngModel)]="selectedVersion"
+        (ngModelChange)="onVersionChange($event)"
+        *ngIf="notebook.type !== 'observable'"
+        title="Select version"
+        aria-label="Select notebook version"
+      >
+        <option *ngFor="let version of versions" [value]="version">
+          v{{ version }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Actions (ordered by hierarchy) -->
+    <div
+      class="btn-group notebook-actions"
+      role="group"
+      aria-label="Notebook actions"
+    >
+      <!-- Observable: primary action is "Open link" -->
+      <button
+        *ngIf="notebook.type === 'observable'"
+        type="button"
+        class="btn btn-primary"
+        (click)="openObservableNotebook()"
+        title="Open link"
+        aria-label="Open link"
+      >
+        <i class="fa fa-link" aria-hidden="true"></i>
       </button>
-      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#exampleModalLong">
-        <i class="fa fa-comment mr-1"></i>
+
+      <!-- Normal notebook: primary action is Download -->
+      <button
+        *ngIf="notebook.type !== 'observable'"
+        type="button"
+        class="btn btn-primary"
+        (click)="downloadNotebook()"
+        title="Download"
+        aria-label="Download notebook"
+      >
+        <i class="fa fa-arrow-down" aria-hidden="true"></i>
       </button>
-      <button type="button" class="btn btn-secondary" *ngIf="isMember" data-toggle="modal"
-        [attr.data-target]="'#deleteModal' + notebook.notebookID">
-        <i class="fa fa-trash mr-1"></i>
+
+      <!-- Secondary actions: outline style -->
+      <button
+        *ngIf="isMember && notebook.type !== 'observable'"
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="showDatasetsModal()"
+        title="Datasets"
+        aria-label="Datasets"
+      >
+        <i class="fa fa-database" aria-hidden="true"></i>
       </button>
-      <button type="button" class="btn btn-secondary" (click)="downloadNotebook()" *ngIf="notebook.type!=='observable'">
-        <i class="fa fa-arrow-down mr-1"></i>
+
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        data-toggle="modal"
+        data-target="#exampleModalLong"
+        title="Comments"
+        aria-label="Comments"
+      >
+        <i class="fa fa-comment" aria-hidden="true"></i>
       </button>
-      <button type="button" class="btn btn-secondary" (click)="openObservableNotebook()"
-        *ngIf="notebook.type==='observable'">
-        <i class="fa fa-link mr-1"></i>
+
+      <button
+        *ngIf="isMember"
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="showRenameNotebookModal()"
+        title="Rename"
+        aria-label="Rename notebook"
+      >
+        <i class="fa fa-edit" aria-hidden="true"></i>
       </button>
-      <button type="button" class="btn btn-secondary" (click)="showRenameNotebookModal()" *ngIf="isMember">
-        <i class="fa fa-edit mr-1"></i>
+
+      <!-- Destructive: danger last -->
+      <button
+        *ngIf="isMember"
+        type="button"
+        class="btn btn-danger"
+        data-toggle="modal"
+        [attr.data-target]="'#deleteModal' + notebook.notebookID"
+        title="Delete"
+        aria-label="Delete notebook"
+      >
+        <i class="fa fa-trash" aria-hidden="true"></i>
       </button>
     </div>
   </div>
-  <div class="mr-auto" *ngIf="notebook.type==='folder'" style="width: 100%">
-    <i class="fa fa-folder mr-1"></i>
-    <a style="cursor: pointer;" (click)="navigate()">{{notebook.name}}</a>
-    <div class="btn-group mr-3" role="group" style="float: right">
-      <button type="button" class="btn btn-secondary" *ngIf="isMember" data-toggle="modal"
-        [attr.data-target]="'#deleteModal' + notebook.notebookID">
-        <i class="fa fa-trash mr-1"></i>
+
+  <!-- FOLDER -->
+  <div class="mr-auto notebook-row" *ngIf="notebook.type === 'folder'">
+    <div class="notebook-left">
+      <i class="fa fa-folder notebook-icon" aria-hidden="true"></i>
+
+      <a class="notebook-link" title="Open folder" (click)="navigate()">
+        {{ notebook.name }}
+      </a>
+    </div>
+
+    <div
+      class="btn-group notebook-actions"
+      role="group"
+      aria-label="Folder actions"
+    >
+      <button
+        *ngIf="isMember"
+        type="button"
+        class="btn btn-danger"
+        data-toggle="modal"
+        [attr.data-target]="'#deleteModal' + notebook.notebookID"
+        title="Delete folder"
+        aria-label="Delete folder"
+      >
+        <i class="fa fa-trash" aria-hidden="true"></i>
       </button>
     </div>
   </div>
@@ -45,20 +137,38 @@
 
 <!-- NoteBook Comment Model -->
 
-<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
-  aria-hidden="true">
+<div
+  class="modal fade"
+  id="exampleModalLong"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalLongTitle"
+  aria-hidden="true"
+>
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">NoteBook Comments</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <h5 class="modal-title" id="exampleModalLongTitle">
+          NoteBook Comments
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
         <form>
           <div class="row form-group">
-            <span class="col-9"><input type="text" class="form-control" placeholder="Add your Comment"></span>
+            <span class="col-9"
+              ><input
+                type="text"
+                class="form-control"
+                placeholder="Add your Comment"
+            /></span>
             <span class="col-2"><input type="submit" class="btn" /></span>
             <span class="col-1"></span>
           </div>
@@ -74,7 +184,13 @@
             <div class="d-flex flex-row">
               Tammie Smith - 02/23/2023
               <div class="d-inline-flex ml-auto">
-                <button type="button" class="btn ml-3" title="Delete" data-toggle="modal" data-target="#exampleModal">
+                <button
+                  type="button"
+                  class="btn ml-3"
+                  title="Delete"
+                  data-toggle="modal"
+                  data-target="#exampleModal"
+                >
                   <i class="fa fa-trash"></i>
                 </button>
               </div>
@@ -84,7 +200,13 @@
             <div class="d-flex flex-row">
               Oneal Smith - 02/23/2023
               <div class="d-inline-flex ml-auto">
-                <button type="button" class="btn ml-3" title="Delete" data-toggle="modal" data-target="#exampleModal">
+                <button
+                  type="button"
+                  class="btn ml-3"
+                  title="Delete"
+                  data-toggle="modal"
+                  data-target="#exampleModal"
+                >
                   <i class="fa fa-trash"></i>
                 </button>
               </div>
@@ -100,43 +222,77 @@
 </div>
 
 <!--Delete NoteBook Modal-->
-<div class="modal fade" [id]="'deleteModal' + notebook.notebookID" tabindex="-1" role="dialog"
-  aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  [id]="'deleteModal' + notebook.notebookID"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Delete Window</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
         <div>Are you sure you want to delete this item ?</div>
         <div>
-          <span *ngIf="notebook.type == 'new'">{{notebook.name}}{{notebook.extension}} version v{{selectedVersion}}
+          <span *ngIf="notebook.type == 'new'"
+            >{{ notebook.name }}{{ notebook.extension }} version v{{
+              selectedVersion
+            }}
           </span>
-          <span *ngIf="notebook.type == 'observable'">{{notebook.name}}{{notebook.extension}}</span>
-          <span *ngIf="notebook.type == 'folder'">{{notebook.name}} folder</span>
+          <span *ngIf="notebook.type == 'observable'"
+            >{{ notebook.name }}{{ notebook.extension }}</span
+          >
+          <span *ngIf="notebook.type == 'folder'"
+            >{{ notebook.name }} folder</span
+          >
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn" data-dismiss="modal">Close</button>
-        <button type="button" class="btn" (click)="deleteNotebook()" data-dismiss="modal">Delete</button>
+        <button
+          type="button"
+          class="btn"
+          (click)="deleteNotebook()"
+          data-dismiss="modal"
+        >
+          Delete
+        </button>
       </div>
     </div>
   </div>
 </div>
 
 <ng-template #displayNotebookModal>
-  <app-project-notebook-item-display [notebook]="notebook"
-    [version]="selectedVersion"></app-project-notebook-item-display>
+  <app-project-notebook-item-display
+    [notebook]="notebook"
+    [version]="selectedVersion"
+  ></app-project-notebook-item-display>
 </ng-template>
 
 <ng-template #displayRenameNotebookModal>
-  <app-modal-rename-notebook [notebook]="notebook" (closeModal)="closeRenameNotebookModal()"
-    (renameNotebookEvent)="changeNotebookName($event)"></app-modal-rename-notebook>
+  <app-modal-rename-notebook
+    [notebook]="notebook"
+    (closeModal)="closeRenameNotebookModal()"
+    (renameNotebookEvent)="changeNotebookName($event)"
+  ></app-modal-rename-notebook>
 </ng-template>
 
 <ng-template #displayDatasetsModal>
-  <app-modal-datasets [notebook]="notebook" [project]="project" (closeModal)="closeDatasetModal()"></app-modal-datasets>
+  <app-modal-datasets
+    [notebook]="notebook"
+    [project]="project"
+    (closeModal)="closeDatasetModal()"
+  ></app-modal-datasets>
 </ng-template>

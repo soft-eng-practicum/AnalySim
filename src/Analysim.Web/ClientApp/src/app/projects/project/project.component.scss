@@ -1,45 +1,14 @@
-// :host {
-//     height : 100%
-// }
-
-// .test {
-//     background-color: aqua;
-// }
-
-// .test2 {
-//     background-color: rebeccapurple;
-// }
-
-// .test3 {
-//     background-color:black;
-// }
-
-// .list-group-item{
-//     color: rgba(255,255,255,.5);
-//     background-color: white !important;
-// }
-
-// .membersList{
-//     padding-top: 120px;
-//     float: left;
-//     height: 500px;
-//     width: fit-content;
-//     padding-right: 50px;
-// }
-
-// .btn-primary{
-//     color: rgb(112, 41, 41);
-//     background-color: #0069d9;
-//     border-color: #0062cc;
-// }
-
-
 :host ::ng-deep .project-overview-container {
   border: 1px solid rgba(0,0,0,.125);
   padding-top: 20px;
 
   .row {
     padding: 0px 20px;
+  }
+
+  .project-view-option-row {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .project-notebook-row{
@@ -55,44 +24,34 @@
       margin-bottom: 4px;
       overflow-x: scroll;
     }
-    
-.notebook-cell pre code div {
-  background: #cfc8c8;
-  padding: 10px;
-}
-.notebook-cell pre{
-  padding: 10px;
-}
-.notebook-cell img {
-  max-width: 100%;
-  height: auto;
-}
 
-pre code.hljs{display:block;overflow-x:auto;padding:1em}
-code.hljs{padding:3px 5px}
-.hljs{background:#f3f3f3;color:#444}
-.hljs-comment{color:#697070}
-.hljs-punctuation,.hljs-tag{color:#444a}
-.hljs-tag .hljs-attr,.hljs-tag .hljs-name{color:#444}
-.hljs-attribute,.hljs-doctag,.hljs-keyword,.hljs-meta .hljs-keyword,.hljs-name,.hljs-selector-tag{font-weight:700}.hljs-deletion,.hljs-number,.hljs-quote,.hljs-selector-class,.hljs-selector-id,.hljs-string,.hljs-template-tag,.hljs-type{color:#800}.hljs-section,.hljs-title{color:#800;font-weight:700}.hljs-link,.hljs-operator,.hljs-regexp,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-symbol,.hljs-template-variable,.hljs-variable{color:#ab5656}.hljs-literal{color:#695}.hljs-addition,.hljs-built_in,.hljs-bullet,.hljs-code{color:#397300}.hljs-meta{color:#1f7199}.hljs-meta .hljs-string{color:#38a}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:700}
+    .notebook-cell pre code div {
+      background: #cfc8c8;
+      padding: 10px;
+    }
+    .notebook-cell pre{
+      padding: 10px;
+    }
+    .notebook-cell img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    pre code.hljs{display:block;overflow-x:auto;padding:1em}
+    code.hljs{padding:3px 5px}
+    .hljs{background:#f3f3f3;color:#444}
+    .hljs-comment{color:#697070}
+    .hljs-punctuation,.hljs-tag{color:#444a}
+    .hljs-tag .hljs-attr,.hljs-tag .hljs-name{color:#444}
+    .hljs-attribute,.hljs-doctag,.hljs-keyword,.hljs-meta .hljs-keyword,.hljs-name,.hljs-selector-tag{font-weight:700}.hljs-deletion,.hljs-number,.hljs-quote,.hljs-selector-class,.hljs-selector-id,.hljs-string,.hljs-template-tag,.hljs-type{color:#800}.hljs-section,.hljs-title{color:#800;font-weight:700}.hljs-link,.hljs-operator,.hljs-regexp,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-symbol,.hljs-template-variable,.hljs-variable{color:#ab5656}.hljs-literal{color:#695}.hljs-addition,.hljs-built_in,.hljs-bullet,.hljs-code{color:#397300}.hljs-meta{color:#1f7199}.hljs-meta .hljs-string{color:#38a}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:700}
   }
-    
+
   .buttons{
-  display: flex;
-  gap: 20px;
-  width: max-content;
-  margin: auto;
-  }
-  .readme-button{
-    margin: auto;
-    width: max-content;
-    padding: 8px;
-    color: white;
-    background-color: var(--button-background-color) !important;
-    border-radius: 5px;
-    // margin-top:-20px;
-    margin-bottom: 30px;
-    cursor: pointer;
+    display: flex;
+    gap: var(--space-3);
+    justify-content: center;
+    margin: var(--space-4) 0 var(--space-5);
+    flex-wrap: wrap;
   }
 
   .project-detail-row {
@@ -112,7 +71,7 @@ code.hljs{padding:3px 5px}
 
           &:hover {
             .project-author-name {
-              color: #0056b3;
+              color: var(--link-hover-color);
               text-decoration: underline;
             }
           }
@@ -146,9 +105,8 @@ code.hljs{padding:3px 5px}
         align-items: center;
         margin-bottom: 5px;
 
-
         .project-statistics-header {
-          color: #007bff;
+          color: var(--link-on-light);
           cursor: pointer;
         }
 
@@ -162,15 +120,15 @@ code.hljs{padding:3px 5px}
 
         .project-statistics-pill {
           padding: 1px 5px;
-          border: 1px solid gray;
+          border: 1px solid var(--border-color);
           border-radius: 20px;
           margin-right: 10px;
           font-size: 12px;
-          color: #007bff;
+          color: var(--link-on-light);
         }
 
         .project-statistics-current {
-          color: green;
+          color: var(--color-success);
         }
       }
     }
@@ -197,10 +155,10 @@ code.hljs{padding:3px 5px}
 
         li {
           margin-left: 10px;
-          color: #007bff;
+          color: var(--link-on-light);
 
           &:hover {
-            color: #0056b3;
+            color: var(--link-hover-color);
             text-decoration: underline;
           }
         }
@@ -215,13 +173,13 @@ code.hljs{padding:3px 5px}
       input, button {
         border: none;
         background-color: unset;
-        color: #007bff;
+        color: var(--link-on-light);
         display: flex;
         margin-left: auto;
         margin-right: auto;
 
         &:hover {
-          color: #0056b3;
+          color: var(--link-hover-color);
           text-decoration: underline;
         }
       }
@@ -235,69 +193,146 @@ code.hljs{padding:3px 5px}
     input, button {
       border: none;
       background-color: unset;
-      color: #007bff;
+      color: var(--link-on-light);
 
       &:hover {
-        color: #0056b3;
+        color: var(--link-hover-color);
         text-decoration: underline;
       }
     }
   }
 
   .project-view-option-row {
-    padding: 0px;
     border-top: 1px solid rgba(0,0,0,.125);
     align-items: center;
 
     .project-view-toggle {
-
       & > input {
         padding: 10px 20px;
         background: transparent;
         border: none;
-        //border-right: 1px solid rgba(0,0,0,.125);
 
         &.active {
-          background-color: #edfffb;
+          background-color: var(--background-color-tertiary);
         }
       }
     }
 
     .project-view-interaction {
       margin-left: auto;
-      margin-right: 10px;
+      margin-right: 0;
       display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-top: 2px;
+      margin-bottom: 2px;
 
-      input, button {
-        padding: 0px 10px;
-        background-color: unset;
-        border: none;
-        color: #007bff;
+      .project-view-extra-interaction {
+        display: flex;
+        gap: var(--space-2);
+        flex-wrap: wrap;
+      }
+
+      /* === More / Less pill === */
+      .more-block {
+        margin-right: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        height: 38px;
+        box-sizing: border-box;
+
+        border: var(--border-w-1) var(--border-style) var(--border-color);
+        border-radius: var(--nav-link-radius);
+
+        padding-left: var(--space-2);
+        padding-right: var(--space-2);
+
+        white-space: nowrap;
+      }
+
+      /* The actions expand LEFT from the right edge */
+      .more-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+
+        max-width: 0;
+        opacity: 0;
+        transform: translateX(8px);
+        overflow: hidden;
+        pointer-events: none;
+
+        transition:
+          max-width 240ms ease,
+          opacity 180ms ease,
+          transform 240ms ease;
+      }
+
+      .more-actions.is-open {
+        max-width: 520px;
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+
+      /* Links inside “More” */
+      .more-link {
+        display: inline-flex;
+        align-items: center;
+        height: 100%;
+
+        padding: 0 var(--space-1);
+        border-radius: var(--nav-link-radius);
+
+        color: var(--link-on-light);
+        cursor: pointer;
+        text-decoration: none;
+
+        transition: var(--motion-nav);
 
         &:hover {
-          color: #0056b3;
+          color: var(--link-hover-color);
           text-decoration: underline;
         }
       }
 
-      .fork {
-        margin-right: 10px;
-        padding: 5px 10px;
-        min-width: 90px;
-        color: var(--button-font-color);
-        background-color: var(--button-background-color);
+      .more-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        height: 100%;
+        padding: 0;
+
         border: none;
+        background: transparent;
+
+        color: var(--link-on-light);
+        cursor: pointer;
+        
+        min-width: 74px;
+        text-align: right;
+
+        transition: color var(--motion-fast);
 
         &:hover {
-          color: var(--button-font-color-secondary-hov);
-          background-color: var(--button-background-color-secondary-hov);
-          border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary-hov);
-          text-decoration: none;
+          color: var(--link-hover-color);
+          text-decoration: underline;
         }
       }
 
-      .project-view-extra-interaction {
-        display: flex;
+      .more-toggle__label {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        line-height: 1;
+        padding-right: var(--space-2);
+      }
+
+      .is-hidden {
+        display: none;
       }
     }
   }
@@ -308,12 +343,11 @@ code.hljs{padding:3px 5px}
     .project-view-container {
       width: 100%;
       padding: 20px;
-      border-top: 1px solid #edfffb;
-      background-color: #edfffb;
+      border-top: 1px solid var(--background-color-tertiary);
+      background-color: var(--background-color-tertiary);
     }
   }
 }
-
 
 .badge {
   color: #212529;
@@ -345,7 +379,6 @@ code.hljs{padding:3px 5px}
 }
 
 .project-comment-container {
-
   .project-comment-header {
     display: flex;
     justify-content: center;
@@ -378,4 +411,3 @@ code.hljs{padding:3px 5px}
     }
   }
 }
-
