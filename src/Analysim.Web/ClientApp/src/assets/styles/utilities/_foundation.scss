@@ -1,0 +1,203 @@
+/* 
+  Foundation styles and utilities.
+  Defines reusable surface themes, link behavior, interactive patterns (nav/CTA),
+  layout utilities, and Bootstrap-friendly helpers to keep the UI consistent and token-driven. 
+*/
+
+/* Surfaces */
+.surface-blue {
+  background-color: var(--surface-blue);
+  color: var(--text-on-dark);
+}
+
+.surface-blue-2 {
+  background-color: var(--surface-blue-2);
+  color: var(--text-on-dark);
+}
+
+/* Inherit readable text color on dark surfaces */
+.surface-blue *,
+.surface-blue-2 * {
+  color: inherit;
+}
+
+.bg-shell {
+  background-color: var(--background-color-secondary);
+  color: var(--text-on-dark);
+}
+
+.surface-soft {
+  background-color: var(--background-color-tertiary);
+  color: var(--text-on-light);
+}
+
+.hero-surface {
+  background-color: var(--surface-blue);
+  color: var(--text-on-dark);
+}
+
+/* Typography */
+.text-lead {
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+/* Links */
+a {
+  color: var(--link-on-light);
+  text-decoration: none;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+a:hover {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+}
+
+/* Links on dark surfaces */
+.surface-blue a,
+.surface-blue-2 a,
+.bg-shell a,
+.hero-surface a {
+  color: var(--link-on-dark);
+}
+
+.surface-blue a:hover,
+.surface-blue-2 a:hover,
+.bg-shell a:hover,
+.hero-surface a:hover {
+  color: var(--link-on-dark);
+}
+
+/* Simple inline CTA link */
+.link-basic {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Reusable nav-like interaction */
+.nav-interactive {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--nav-link-radius);
+  padding: var(--nav-link-padding-y) var(--nav-link-padding-x);
+  text-decoration: none;
+  transition: var(--motion-nav);
+}
+
+.nav-interactive:hover {
+  background-color: var(--nav-hover-bg);
+  color: var(--nav-hover-fg) !important;
+  text-decoration: none;
+}
+
+/* Nav-style CTA */
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+
+  padding: var(--cta-padding-y) var(--cta-padding-x);
+  border-radius: var(--nav-link-radius);
+
+  background: transparent;
+  border: none;
+
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+
+  transition: var(--motion-nav);
+}
+
+.nav-cta:hover:not(:disabled) {
+  background-color: var(--nav-hover-bg);
+  color: var(--nav-hover-fg) !important;
+  text-decoration: none;
+}
+
+.nav-cta--lg {
+  font-size: var(--cta-font-size);
+}
+
+/* Disabled nav CTA */
+.nav-cta:disabled,
+.nav-cta.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Vertical page centering */
+.page-center {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Search button hover */
+.search-btn:hover {
+  background-color: var(--button-background-color) !important;
+  border-color: var(--button-background-color) !important;
+  color: var(--primary-color) !important;
+}
+
+.search-btn i {
+  color: inherit;
+}
+
+/* Vertical card layout */
+.u-card-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+}
+
+/* Pin CTA to bottom of card */
+.u-card-stack__cta {
+  margin-top: auto;
+  display: inline-block;
+}
+
+/* Stack layout on small screens */
+@media (max-width: var(--bp-md)) {
+  .u-stack-md {
+    flex-direction: column !important;
+  }
+}
+
+/* Square media container */
+.u-media-square {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  display: block;
+  flex: 0 0 auto;
+}
+
+/* Nav-link sizing */
+.nav-link {
+  border-radius: var(--nav-link-radius);
+  padding: var(--nav-link-padding-y) var(--nav-link-padding-x);
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Nav hover behavior */
+.nav-link.nav-interactive:hover {
+  background-color: var(--nav-hover-bg);
+  color: var(--nav-hover-fg) !important;
+  text-decoration: none;
+  transition: var(--motion-nav);
+}
+
+/* Search input group styling */
+.search-group .form-control,
+.search-group .btn,
+.search-group .custom-select {
+  border-radius: var(--nav-link-radius);
+}

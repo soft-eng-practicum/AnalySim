@@ -1,0 +1,29 @@
+/* Borderless search input */
+.explore-search {
+  border: none;
+}
+
+/* Themed select input */
+.explore-select {
+  color: var(--text-on-light);
+  border-color: var(--border-color);
+}
+
+/* Consistent borders for grouped search controls */
+.search-group {
+  .form-control,
+  .custom-select,
+  .btn {
+    border-color: var(--border-color);
+  }
+
+  /* Search button styling */
+  .search-btn.btn {
+    background: transparent;
+    color: var(--text-on-light);
+    border-color: var(--border-color);
+
+    padding-left: var(--space-3) !important;
+    padding-right: var(--space-3) !important;
+  }
+}

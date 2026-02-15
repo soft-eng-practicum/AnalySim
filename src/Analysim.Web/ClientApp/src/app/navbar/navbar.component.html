@@ -1,5 +1,5 @@
 <!-- Nav Bar Start -->
-<nav class="navbar navbar-expand-md navbar-toggleable-sm navbar-dark bg-header text-white">
+<nav class="navbar navbar-expand-md navbar-toggleable-sm navbar-dark bg-shell">
   <!-- Nav Toggle Start -->
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse"
     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -13,20 +13,20 @@
     <ul class="navbar-nav mr-auto justify-content-start align-items-center">
       <!-- Nav Dashboard -->
       <li class="nav-item mt-1" *ngIf="(loginStatus$ | async) as loginStatus">
-        <a class="nav-link text-white" [routerLink]='["/dashboard"]' routerLinkActive="border-bottom">Dashboard</a>
+        <a class="nav-link nav-interactive" [routerLink]='["/dashboard"]' routerLinkActive="border-bottom">Dashboard</a>
       </li>
       <!-- Nav Explore -->
       <li class="nav-item pt-1 mr-3">
-        <a class="nav-link text-white" [routerLink]='["/explore"]' routerLinkActive="border-bottom">Explore</a>
+        <a class="nav-link nav-interactive" [routerLink]='["/explore"]' routerLinkActive="border-bottom">Explore</a>
       </li>
       <!-- Nav Search Bar -->
       <li class="nav-item d-flex align-items-center">
         <form class="form" [formGroup]="searchForm" (ngSubmit)="onSubmit()">
-          <div class="input-group input-group-sm">
-            <input type="text" class="form-control border border-dark" placeholder="Test..." name="searchTerm"
-              formControlName="searchTerm" />
+          <div class="input-group input-group-sm search-group">
+            <input type="text" class="form-control" placeholder="Test..." name="searchTerm"
+            formControlName="searchTerm" />
             <div class="input-group-append">
-              <button class="btn btn-outline-dark bg-white">
+              <button class="btn search-btn">
                 <i class="fa fa-search"></i>
               </button>
             </div>
@@ -39,7 +39,7 @@
     <ul class="navbar-nav" *ngIf="!(loginStatus$ | async) as loginStatus">
       <!-- Nav Home -->
       <li class="nav-item mr-2">
-        <a class="nav-link text-white" [routerLink]='["/home"]' routerLinkActive="border-bottom">Home</a>
+        <a class="nav-link nav-interactive" [routerLink]='["/home"]' routerLinkActive="border-bottom">Home</a>
       </li>
       <!-- Nav About Us -->
       <!-- <li class="nav-item">
@@ -51,25 +51,25 @@
     </li> -->
       <!-- Nav Register -->
       <li class="nav-item mr-2">
-        <a class="nav-link text-white" [routerLink]='["/register"]' routerLinkActive="border-bottom">Register</a>
+        <a class="nav-link nav-interactive" [routerLink]='["/register"]' routerLinkActive="border-bottom">Register</a>
       </li>
       <!-- Nav Login -->
       <li class="nav-item mr-2">
-        <a class="nav-link text-white" [routerLink]='["/login"]' routerLinkActive="border-bottom">Login</a>
+        <a class="nav-link nav-interactive" [routerLink]='["/login"]' routerLinkActive="border-bottom">Login</a>
       </li>
     </ul> <!-- Logged Out Nav Item End-->
     <!-- Logged In Nav Item Start -->
     <ul class="navbar-nav" *ngIf="(loginStatus$ | async) as loginStatus">
       <!-- Nav Profile Dropdown -->
       <li class="nav-item mr-3" *ngIf="isAdmin$ | async">
-        <a class="nav-link text-white" routerLink="/admin">
+        <a class="nav-link nav-interactive" routerLink="/admin">
           <i class="fa fa-cogs mr-1"></i> Admin
         </a>
       </li>
       <li class="nav-item dropdown" *ngIf="(currentUser$ | async) as currentUser">
-        <a class="text-white dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+        <a class="nav-link dropdown-toggle nav-interactive nav-profile-trigger" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
           aria-haspopup="true" aria-expanded="false">
-          <img [src]="profileImageUrl" class="card-img rounded-circle img-thumbnail p-0" style="max-width: 30px;">
+          <img [src]="profileImageUrl" class="nav-avatar rounded-circle" alt="Profile">
           {{currentUser.userName}}
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">

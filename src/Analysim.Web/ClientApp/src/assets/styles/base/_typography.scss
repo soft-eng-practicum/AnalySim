@@ -1,0 +1,17 @@
+/* 
+  Global typography defaults.
+  Establishes the base font and text styling for the app and provides
+  simple reusable text styles for consistent content hierarchy. 
+*/
+
+body {
+  font-family: var(--font-sans);
+  background: var(--surface-0);
+  color: var(--text-on-light);
+}
+
+/* Larger lead text style */
+.text-lead {
+  font-size: 1.25rem;
+  font-weight: 400;
+}
