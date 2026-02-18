@@ -30,7 +30,7 @@ export class ProjectFileExplorerComponent implements OnInit {
   @ViewChild('renameModal') renameModal: TemplateRef<any>;
   @ViewChild('closeDeleteModalbutton') closeDeleteModalbutton;
 
-  @ViewChild('observablehqPanel', { read: ElementRef }) observablehqPanel;
+  // @ViewChild('observablehqPanel', { read: ElementRef }) observablehqPanel;
 
   uploadModalRef: BsModalRef;
   folderModalRef: BsModalRef;
@@ -57,14 +57,15 @@ export class ProjectFileExplorerComponent implements OnInit {
 
   async ngOnInit() {
     this.dataBrowserURL = 'https://observablehq.com/embed/@sfsu/untitled?cell=*&dataset=';
-    this.currentDirectory = this.extractDirectory(this.router.url).slice(5);
+    const raw = this.extractDirectory(this.router.url);
+    this.currentDirectory = this.normalizeFileRoute(raw);
     this.setDirectoryFile(this.currentDirectory);
     let directory = this.currentDirectory.endsWith('.csv') ? this.currentDirectory.split('/').slice(0, -1).join('/') : this.currentDirectory;
     directory = directory.endsWith('/') ? directory.slice(0,-1) : directory;
     this.folders = "/ " + directory.split("/").join(" / ");
     this.router.events.subscribe((ev) => {
       if (ev instanceof NavigationEnd) {
-        this.currentDirectory = this.extractDirectory(this.router.url);
+        this.currentDirectory = this.normalizeFileRoute(this.extractDirectory(this.router.url));
         this.setDirectoryFile(this.currentDirectory)
         directory = this.currentDirectory.endsWith('.csv') ? this.currentDirectory.split('/').slice(0, -1).join('/') : this.currentDirectory;
         directory = directory.endsWith('/') ? directory.slice(0,-1) : directory;
@@ -78,7 +79,7 @@ export class ProjectFileExplorerComponent implements OnInit {
     let script = this._renderer2.createElement('script');
     script.type = `module`;
     script.text = this.generateScript;
-    this._renderer2.appendChild(this.observablehqPanel.nativeElement, script);
+    // this._renderer2.appendChild(this.observablehqPanel.nativeElement, script); // issue here
   }
 
   extractDirectory(url) {
@@ -87,6 +88,25 @@ export class ProjectFileExplorerComponent implements OnInit {
       return route;
     }
     return route + '/';
+  }
+
+  normalizeFileRoute(route: string): string {
+    let r = route || "";
+
+    // remove trailing slash for parsing
+    const hadTrailing = r.endsWith("/");
+    if (hadTrailing) r = r.slice(0, -1);
+
+    // split into segments
+    const parts = r.split("/").filter(Boolean);
+
+    // if first segment is "file", drop it
+    if (parts[0] === "file") parts.shift();
+
+    // rebuild
+    let rebuilt = parts.join("/");
+    if (rebuilt.length > 0) rebuilt += "/";
+    return rebuilt;
   }
 
 
