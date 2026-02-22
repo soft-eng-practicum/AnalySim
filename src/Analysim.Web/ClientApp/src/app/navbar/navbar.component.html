@@ -2,7 +2,7 @@
 <nav class="navbar navbar-expand-md navbar-toggleable-sm navbar-dark bg-shell">
   <!-- Nav Toggle Start -->
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse"
-    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon "></span>
   </button> <!-- Nav Toggle End -->
   <!-- Nav Brand -->
@@ -24,7 +24,7 @@
         <form class="form" [formGroup]="searchForm" (ngSubmit)="onSubmit()">
           <div class="input-group input-group-sm search-group">
             <input type="text" class="form-control" placeholder="Test..." name="searchTerm"
-            formControlName="searchTerm" />
+                   formControlName="searchTerm" />
             <div class="input-group-append">
               <button class="btn search-btn">
                 <i class="fa fa-search"></i>
@@ -66,9 +66,12 @@
           <i class="fa fa-cogs mr-1"></i> Admin
         </a>
       </li>
+      <li class="nav-item mr-3" *ngIf="(currentUser$ | async)">
+        <app-notification-bell></app-notification-bell>
+      </li>
       <li class="nav-item dropdown" *ngIf="(currentUser$ | async) as currentUser">
         <a class="nav-link dropdown-toggle nav-interactive nav-profile-trigger" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
-          aria-haspopup="true" aria-expanded="false">
+           aria-haspopup="true" aria-expanded="false">
           <img [src]="profileImageUrl" class="nav-avatar rounded-circle" alt="Profile">
           {{currentUser.userName}}
         </a>

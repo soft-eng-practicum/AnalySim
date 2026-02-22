@@ -107,6 +107,13 @@ namespace Infrastructure.Data
                         .WithMany(n=>n.observableNotebookDatasets)
                         .HasForeignKey(d=>d.NotebookID)
                         .OnDelete(DeleteBehavior.Cascade);
+
+            // One To Many Relationship (User -> Notifications)
+            modelBuilder.Entity<User>()
+                        .HasMany(u => u.Notifications)
+                        .WithOne(n => n.User)
+                        .HasForeignKey(n => n.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
         }
 
         
@@ -121,6 +128,7 @@ namespace Infrastructure.Data
         public DbSet<ObservableNotebookDataset> ObservableNotebookDataset { get;set;}
         public DbSet<NotebookContent> NotebookContent { get; set; }
         public DbSet<BlobFileContent> BlobFileContent { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
 
 

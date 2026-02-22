@@ -1,0 +1,61 @@
+<!-- Wrapper keeps the dropdown positioned relative to the bell -->
+<div class="notification-wrapper" (click)="stopProp($event)">
+
+  <!-- ── Bell Button ── -->
+  <button class="btn notification-bell" (click)="toggleDropdown($event)" title="Notifications">
+    <i class="fa fa-bell"></i>
+    <span class="notification-badge" *ngIf="(unreadCount$ | async) as count">
+      {{ count > 99 ? '99+' : count }}
+    </span>
+  </button>
+
+  <!-- ── Dropdown ── -->
+  <div class="notification-dropdown" *ngIf="showDropdown">
+
+    <!-- Header -->
+    <div class="notification-header">
+      <span class="notification-title">Notifications</span>
+      <button
+        class="btn btn-sm mark-all-btn"
+        (click)="onMarkAllRead($event)"
+        *ngIf="(unreadCount$ | async) > 0">
+        Mark all read
+      </button>
+    </div>
+
+    <!-- List -->
+    <div class="notification-list">
+      <ng-container *ngIf="(notifications$ | async) as notifications">
+
+        <!-- Empty state -->
+        <div class="notification-empty" *ngIf="notifications.length === 0">
+          <i class="fa fa-bell-slash"></i>
+          <p>No notifications yet</p>
+        </div>
+
+        <!-- Items (max 10) -->
+        <div
+          class="notification-item"
+          *ngFor="let n of notifications | slice:0:10"
+          [class.unread]="!n.isRead"
+          (click)="onNotificationClick(n)">
+
+          <div class="notification-icon" [ngClass]="'type-' + n.type.toLowerCase()">
+            <i [class]="getNotificationIcon(n.type)"></i>
+          </div>
+
+          <div class="notification-content">
+            <p class="notification-item-title">{{ n.title }}</p>
+            <p class="notification-item-msg">{{ n.message }}</p>
+            <small class="notification-time">{{ n.createdAt | date:'short' }}</small>
+          </div>
+
+          <span class="unread-dot" *ngIf="!n.isRead"></span>
+        </div>
+
+      </ng-container>
+    </div>
+
+  </div><!-- /dropdown -->
+
+</div><!-- /wrapper -->

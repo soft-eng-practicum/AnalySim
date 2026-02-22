@@ -1,0 +1,182 @@
+// ── Wrapper ────────────────────────────────────────────────────────────────
+.notification-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+// ── Bell Button ────────────────────────────────────────────────────────────
+.notification-bell {
+  position: relative;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.1rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: var(--nav-link-radius, 4px);
+  cursor: pointer;
+  transition: color 0.15s;
+
+  &:hover {
+    color: #94bdff;
+  }
+}
+
+// ── Unread Badge ───────────────────────────────────────────────────────────
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #e74c3c;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  pointer-events: none;
+}
+
+// ── Dropdown Panel ─────────────────────────────────────────────────────────
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 340px;
+  background: var(--background-color, #fff);
+  border: 1px solid var(--border-color, #dee2e6);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  z-index: 1050;
+  overflow: hidden;
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────
+.notification-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--border-color, #dee2e6);
+  background: var(--background-color-secondary, #f8f9fa);
+}
+
+.notification-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.mark-all-btn {
+  font-size: 0.75rem;
+  color: var(--c-primary, #0d6efd);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+}
+
+// ── List ───────────────────────────────────────────────────────────────────
+.notification-list {
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+// ── Empty State ────────────────────────────────────────────────────────────
+.notification-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  color: var(--c-text-muted, #6c757d);
+  gap: 0.5rem;
+
+  i  { font-size: 1.8rem; opacity: 0.5; }
+  p  { margin: 0; font-size: 0.85rem; }
+}
+
+// ── Notification Item ──────────────────────────────────────────────────────
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color, #dee2e6);
+  cursor: pointer;
+  transition: background 0.12s;
+  position: relative;
+
+  &:last-child { border-bottom: none; }
+  &:hover      { background:  #001f42; }
+  &.unread     { background: rgba(13, 110, 253, 0.05); }
+}
+
+// ── Type Icon Circle ───────────────────────────────────────────────────────
+.notification-icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: #fff;
+
+  &.type-projectinvitation { background: #6f42c1; }
+  &.type-newfollower       { background: #0d6efd; }
+  &.type-securityalert     { background: #dc3545; }
+  // fallback for any unknown type
+  &:not([class*="type-projectinvitation"]):not([class*="type-newfollower"]):not([class*="type-securityalert"]) {
+    background: #6c757d;
+  }
+}
+
+// ── Content ────────────────────────────────────────────────────────────────
+.notification-content {
+  flex: 1;
+  min-width: 0;
+
+  p { margin: 0; }
+}
+
+.notification-item-title {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-item-msg {
+  font-size: 0.78rem;
+  color: var(--c-text-muted, #6c757d);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notification-time {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--c-text-muted, #6c757d);
+  margin-top: 2px;
+}
+
+// ── Unread Dot ─────────────────────────────────────────────────────────────
+.unread-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0d6efd;
+  margin-top: 4px;
+}
