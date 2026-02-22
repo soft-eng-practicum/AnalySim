@@ -1,93 +1,55 @@
 @import "src/assets/styles/abstracts/mixins";
 
-/* Footer component styling */
-.footer-inner {
-  color: var(--text-on-dark);
+.footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
 
-  /* Inherit footer text color */
-  * {
-    color: inherit;
-  }
+  /* reduce “tall footer” feeling */
+  padding: var(--space-3);
+  min-height: 48px;
 }
 
-/* Footer link/content rows */
-.footer-link-row {
-  padding: var(--space-3) 0;
+.footer-left,
+.footer-right {
+  display: flex;
+  align-items: center;
+  font-size: medium;
+}
 
-  /* Section titles and about text */
-  .footer-about,
-  .footer-header {
-    margin-bottom: var(--space-3);
-    font-size: var(--fs-16);
-    font-weight: 700;
-    width: fit-content;
-  }
+.footer-right{
+  gap: var(--space-2)
+}
 
-  ul {
-    margin-bottom: 0;
-  }
+.footer-left {
+  flex-wrap: wrap;
+  gap: var(--space-3)
+}
 
-  li {
-    margin-bottom: var(--space-2);
-  }
+.footer-center {
+  text-align: center;
+  line-height: 1.2;
+  font-size: var(--fs-14);
+  opacity: 0.9;
+  white-space: nowrap;
+  flex: 1;
+  font-size: medium;
+}
 
-  .footer-link {
-    line-height: 1.2;
-  }
+.footer-right img {
+  @include media-square(32px);
+}
 
-  .footer-about {
-    text-align: left;
-  }
-
-  /* Social/icon list */
-  .footer-icons {
-    display: flex;
+/* Mobile */
+@media (max-width: 575.98px) {
+  .footer-bar {
+    flex-direction: column;
+    align-items: flex-start;
     gap: var(--space-2);
-    padding-left: 0;
   }
 
-  .footer-icon {
-    padding: 0;
-  }
-
-  /* Keep partner/social logos square */
-  .footer-connect img {
-    @include media-square(32px);
-  }
-}
-
-/* Bottom logo/copyright row */
-.footer-logo-row {
-  .col-md-10 {
-    display: flex;
-    border-top: var(--border-w-1) var(--border-style) var(--hr-on-dark);
-    padding-top: var(--space-3);
-
-    .footer-logo {
-      text-align: center;
-      width: 100%;
-      line-height: 1.2;
-      font-size: var(--fs-14);
-      opacity: 0.9;
-    }
-  }
-}
-
-/* Dark shell theme adjustments */
-.bg-shell {
-  --footer-text-soft: rgba(255, 255, 255, 0.85);
-
-  .footer-link,
-  .footer-icon,
-  .footer-about,
-  .footer-header,
-  .footer-logo {
-    color: var(--footer-text-soft);
-  }
-
-  .footer-link:hover,
-  .footer-icon:hover,
-  .nav-interactive:hover {
-    color: var(--text-on-dark);
+  .footer-center {
+    white-space: normal;
   }
 }

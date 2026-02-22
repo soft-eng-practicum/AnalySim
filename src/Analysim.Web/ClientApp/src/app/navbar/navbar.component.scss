@@ -4,6 +4,14 @@
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+
+  img {
+    height: 32px;
+    width: auto;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+  }
 }
 
 /* Remove default active borders */
