@@ -1224,28 +1224,6 @@ namespace Web.Controllers
 
 
                 }
-                else if (noteBookData.Type == "jupyter")
-                {
-                    string fileName = noteBookData.Directory + $"{noteBookData.NotebookName}.ipynb";
-                    newNotebook = new Notebook
-                    {
-                        Container = "notebook-" + project.Name.ToLower(),
-                        Directory = noteBookData.Directory,
-                        Name = Path.GetFileNameWithoutExtension(noteBookData.NotebookName),
-                        Extension = Path.GetExtension(fileName),
-                        Size = 0,
-                        Uri = notebookUrl,
-                        DateCreated = DateTimeOffset.Now.UtcDateTime,
-                        LastModified = DateTimeOffset.Now.UtcDateTime,
-                        ProjectID = noteBookData.ProjectID,
-                        type = "jupyter",
-                        Route = user.UserName + "/" + project.Name
-                    };
-
-                    await _dbContext.Notebook.AddAsync(newNotebook);
-                    await _dbContext.SaveChangesAsync();
-
-                }
                 else
                 {
                     return BadRequest("Nonacceptable type of notebook");
