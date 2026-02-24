@@ -2,6 +2,22 @@
   border: 1px solid rgba(0,0,0,.125);
   padding-top: 20px;
 
+  .owner-tools{
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: 8px;
+    padding: 8px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: end;
+  }
+
+  .owner-tools-actions{
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
   .row {
     padding: 0px 20px;
   }
@@ -11,18 +27,73 @@
     padding-right: 0 !important;
   }
 
-  .project-notebook-row{
-    /* Jupyter Notebook-like styling */
-    .notebook-readme{
-      max-height: 100vh;
-      overflow: hidden;
-      -webkit-mask-image: linear-gradient(rgb(0, 0, 0) 70%, transparent);
-      mask-image: linear-gradient(rgb(0, 0, 0) 70%, transparent);
+  .readme-area{
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: 8px;
+    background: white;
+    padding: 14px 16px 16px;
+    box-sizing: border-box;
+    margin: 10px 0 14px;
+
+    .readme-header{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(0,0,0,.08);
+
+      .readme-title{
+        font-weight: 600;
+        color: rgba(0,0,0,.75);
+        letter-spacing: .02em;
+      }
     }
 
-    .notebook-readme-full{
-      margin-bottom: 4px;
-      overflow-x: scroll;
+    .project-notebook-row{
+      padding: 0;
+    }
+
+    .readme-actions{
+      display: flex;
+      gap: var(--space-3);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      padding-top: 1rem;
+
+      border-top: 1px solid rgba(0,0,0,.1);
+    }
+  }
+
+  .project-notebook-row{
+    .notebook-readme,
+    .notebook-readme-full {
+      transition:
+        max-height 350ms ease,
+        -webkit-mask-image 350ms ease,
+        mask-image 350ms ease,
+        opacity 250ms ease;
+      will-change: max-height;
+      box-sizing: border-box;
+    }
+
+    /* COLLAPSED */
+    .notebook-readme {
+      max-height: 60vh;
+      overflow: hidden;
+
+      -webkit-mask-image: linear-gradient(rgb(0,0,0) 70%, transparent);
+      mask-image: linear-gradient(rgb(0,0,0) 70%, transparent);
+    }
+
+    /* EXPANDED */
+    .notebook-readme-full {
+      max-height: 2000px;
+      overflow-x: auto;
+
+      -webkit-mask-image: none;
+      mask-image: none;
     }
 
     .notebook-cell pre code div {
@@ -43,18 +114,35 @@
     .hljs-comment{color:#697070}
     .hljs-punctuation,.hljs-tag{color:#444a}
     .hljs-tag .hljs-attr,.hljs-tag .hljs-name{color:#444}
-    .hljs-attribute,.hljs-doctag,.hljs-keyword,.hljs-meta .hljs-keyword,.hljs-name,.hljs-selector-tag{font-weight:700}.hljs-deletion,.hljs-number,.hljs-quote,.hljs-selector-class,.hljs-selector-id,.hljs-string,.hljs-template-tag,.hljs-type{color:#800}.hljs-section,.hljs-title{color:#800;font-weight:700}.hljs-link,.hljs-operator,.hljs-regexp,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-symbol,.hljs-template-variable,.hljs-variable{color:#ab5656}.hljs-literal{color:#695}.hljs-addition,.hljs-built_in,.hljs-bullet,.hljs-code{color:#397300}.hljs-meta{color:#1f7199}.hljs-meta .hljs-string{color:#38a}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:700}
+    .hljs-attribute,.hljs-doctag,.hljs-keyword,.hljs-meta .hljs-keyword,.hljs-name,.hljs-selector-tag{font-weight:700}
+    .hljs-deletion,.hljs-number,.hljs-quote,.hljs-selector-class,.hljs-selector-id,.hljs-string,.hljs-template-tag,.hljs-type{color:#800}
+    .hljs-section,.hljs-title{color:#800;font-weight:700}
+    .hljs-link,.hljs-operator,.hljs-regexp,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-symbol,.hljs-template-variable,.hljs-variable{color:#ab5656}
+    .hljs-literal{color:#695}
+    .hljs-addition,.hljs-built_in,.hljs-bullet,.hljs-code{color:#397300}
+    .hljs-meta{color:#1f7199}
+    .hljs-meta .hljs-string{color:#38a}
+    .hljs-emphasis{font-style:italic}
+    .hljs-strong{font-weight:700}
   }
 
-  .buttons{
-    display: flex;
-    gap: var(--space-3);
-    justify-content: center;
-    margin: var(--space-4) 0 var(--space-5);
-    flex-wrap: wrap;
+  .readme-toggle{
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    padding: 0;
+    color: var(--link-on-light);
+    cursor: pointer;
+
+    &:hover{
+      color: var(--link-hover-color);
+      text-decoration: underline;
+    }
   }
+
 
   .project-detail-row {
+    margin-bottom: 1rem;
     .project-description {
       width: 70%;
 

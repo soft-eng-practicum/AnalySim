@@ -2,6 +2,13 @@
   <div class="row justify-content-center">
     <div class="col-md-10 mb-3 d-flex">
       <div class="container project-overview-container">
+        <!-- Owner Actions -->
+        <div class="owner-tools surface-soft" *ngIf="isOwner">
+          <div class="owner-tools-actions">
+            <button type="button" class="btn btn-primary" (click)="editProject()">Edit Project</button>
+            <button type="button" class="btn btn-outline-primary">Post Update</button>
+          </div>
+        </div>
         <div class="row project-detail-row">
           <div class="project-description">
             <h3 class="project-title" *ngIf="(project.route | route:'projectname') as projectname">
@@ -100,30 +107,49 @@
             </ul>
           </div>
         </div>
-        <div class="row project-notebook-row" *ngIf='toggleNotebookExpand'>
-          <div [innerHtml]="notebookContent" [ngClass]="isFull ? 'notebook-readme-full' : 'notebook-readme'"></div>
-        </div>
-        <div class="buttons" *ngIf='toggleNotebookExpand'>
-          <button type="button" class="btn btn-outline-primary" (click)="toggleNotebook()">
-            {{isFull ? 'Read Less..' : 'Read More..'}}
-          </button>
-          <button type="button" class="btn btn-primary" (click)="NavigateToNotebook()">Run Notebook</button>
-        </div>
-        <div class="row project-option-row">
 
-          <!-- <div *ngIf="activeView === 'Content'" class="project-content-footer">
-            <input type="button" value="Go back to Content" 
-            [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname")]'
-            [ngClass]='{"active": toggleView == "File"}' (click)="showFile()">
-          </div> -->
+        <!-- README AREA -->
+        <div class="readme-area" *ngIf="readmeNotebook">
+          <div class="readme-header">
+            <div class="readme-title">README</div>
 
-          <input type="button" value="Expand Notebook" *ngIf="!toggleNotebookExpand"
-            (click)="toggleNotebookExpand = true;">
-          <input type="button" value="Close Notebook" *ngIf="toggleNotebookExpand"
-            (click)="toggleNotebookExpand = false;">
-          <input type="button" value="Edit Project" *ngIf="isOwner">
-          <input type="button" value="Post Update" *ngIf="isOwner">
+            <button
+              type="button"
+              class="readme-toggle"
+              *ngIf="toggleNotebookExpand"
+              (click)="toggleNotebookExpand = false">
+              Hide Readme
+            </button>
+
+            <button
+              type="button"
+              class="readme-toggle"
+              *ngIf="!toggleNotebookExpand"
+              (click)="toggleNotebookExpand = true">
+              Show Readme
+            </button>
+          </div>
+
+          <!-- Readme content -->
+          <div class="project-notebook-row" *ngIf="toggleNotebookExpand">
+            <div
+              class="readme-content"
+              [innerHtml]="notebookContent"
+              [ngClass]="isFull ? 'notebook-readme-full' : 'notebook-readme'">
+            </div>
+
+            <div class="readme-actions">
+              <button type="button" class="btn btn-primary" (click)="toggleNotebook()">
+                {{isFull ? 'Read Less..' : 'Read More..'}}
+              </button>
+
+              <button type="button" class="btn btn-outline-primary" (click)="NavigateToNotebook()">
+                Open Notebook
+              </button>
+            </div>
+          </div>
         </div>
+
         <div class="row project-view-option-row">
           <div class="project-view-toggle">
             <input type="button" value="Datasets"
