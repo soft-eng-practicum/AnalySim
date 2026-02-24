@@ -17,14 +17,16 @@ export class ModalUploadNotebookComponent implements OnInit {
   uploadNotebookForm: FormGroup;
   notebookName: FormControl;
   notebookURL: FormControl;
+  notebookFile: FormControl;
   isLoading: Boolean;
   notebook: NotebookFile;
   existingNotebookURL: NotebookURL;
   showCreateNotebook: Boolean;
   showAddExistingNotebook: Boolean;
+  showBlankNotebook: boolean;
   file: File;
   url: string;
-  notebookType: "jupyter" | "observablehq" | "colab" = "jupyter";
+  notebookType: "observablehq" | "colab" = "colab";
 
   datasets: ObservableHQDataset[] = [];
 
@@ -37,25 +39,46 @@ export class ModalUploadNotebookComponent implements OnInit {
   ngOnInit(): void {
     // console.log(this.project);
     this.showCreateNotebook = true;
+    this.showAddExistingNotebook = false;
+    this.showBlankNotebook = false;
 
     this.notebookName = new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(20)]);
     this.notebookURL = new FormControl('');
+    this.notebookFile = new FormControl(null);
 
     this.uploadNotebookForm = this.formBuilder.group({
       'notebookName': this.notebookName,
-      'notebookURL': this.notebookURL
+      'notebookURL': this.notebookURL,
+      'notebookFile': this.notebookFile
     });
+
+    this.applyModeValidators('file');
   }
 
-  onChange(selectedType) {
-    if (selectedType === "true") {
-      this.showCreateNotebook = true;
-      this.showAddExistingNotebook = false;
+  private applyModeValidators(mode: string) {
+    if (mode === 'file') {
+      this.notebookFile.setValidators([Validators.required]);
+      this.notebookURL.clearValidators();
+    } else if (mode === 'url'){
+      this.notebookURL.setValidators([
+        Validators.required,
+        Validators.pattern(/^(https?:\/\/)[^\s]+$/i)
+      ]);
+      this.notebookFile.clearValidators();
+    } else { 
+      this.notebookFile.clearValidators();
+      this.notebookURL.clearValidators();
     }
-    else {
-      this.showCreateNotebook = false;
-      this.showAddExistingNotebook = true;
-    }
+    this.notebookFile.updateValueAndValidity();
+    this.notebookURL.updateValueAndValidity();
+  }
+
+  onChange(selected: string) {
+    this.showCreateNotebook = selected === 'file';
+    this.showAddExistingNotebook = selected === 'url';
+    this.showBlankNotebook = selected === 'blank';
+
+    this.applyModeValidators(selected as 'file' | 'url' | 'blank');
   }
 
   onChangeNotebookType(selectedType) {
@@ -63,11 +86,35 @@ export class ModalUploadNotebookComponent implements OnInit {
   }
 
   fileEvent($event) {
-    this.file = $event.target.files[0];
+    const input = $event.target as HTMLInputElement;
+    this.file = (input.files && input.files[0]) || null;
+    this.uploadNotebookForm.patchValue({ notebookFile: this.file });
+    this.notebookFile.updateValueAndValidity();
   }
 
   urlEvent($event) {
-    this.url = $event.target.value;
+    const input = $event.target as HTMLInputElement;
+    this.url = input.value;
+    this.uploadNotebookForm.patchValue({ notebookURL: this.url });
+    this.notebookURL.updateValueAndValidity();
+  }
+
+  private buildBlankNotebookFile(): File {
+    const title = this.notebookName.value?.trim() || 'Untitled';
+    const content = {
+      cells: [
+        {
+          cell_type: 'code',
+          metadata: {},
+          source: [``]
+        }
+      ],
+      metadata: {},
+      nbformat: 4,
+      nbformat_minor: 2
+    };
+    const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
+    return new File([blob], `${title}.ipynb`, { type: 'application/json' });
   }
 
   addNotebook() {
@@ -89,7 +136,9 @@ export class ModalUploadNotebookComponent implements OnInit {
         this.closeModal.emit();
         this.getNotebooks.emit(this.currentDirectory);
       });
+      return;
     }
+
     if (this.showAddExistingNotebook) {
       if (this.notebookType === "observablehq") {
         let datasetMap = {
@@ -122,6 +171,21 @@ export class ModalUploadNotebookComponent implements OnInit {
         this.closeModal.emit();
         this.getNotebooks.emit(this.currentDirectory);
       });
+      return;
+    }
+
+    if (this.showBlankNotebook) {
+      const blankFile = this.buildBlankNotebookFile();
+      const payload: NotebookFile = {
+        file: blankFile,
+        name: this.notebookName.value,
+        projectID: this.project.projectID
+      };
+      this.projectService.uploadNotebook(payload, this.currentDirectory).subscribe(result => {
+        this.closeModal.emit();
+        this.getNotebooks.emit(this.currentDirectory);
+      });
+      return;
     }
   }
 
