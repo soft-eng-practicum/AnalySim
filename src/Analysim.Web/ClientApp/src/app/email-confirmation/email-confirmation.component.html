@@ -1,1 +1,43 @@
-<p>{{result}}</p>
+<div class="ec-page surface-soft">
+  <div class="ec-card">
+    <h2 class="ec-title">Email Confirmation</h2>
+
+    <p class="ec-message">{{ message }}</p>
+
+    <!-- Missing params: send to login -->
+    <div *ngIf="!userId || !token" class="ec-block ec-actions">
+      <a class="btn btn-primary nav-cta nav-cta--lg" routerLink="/login">
+        Go to Login
+      </a>
+    </div>
+
+    <!-- User not registered: send to register -->
+    <div *ngIf="showRegister" class="ec-block ec-actions">
+      <a class="btn btn-primary nav-cta nav-cta--lg" routerLink="/register">
+        Register Account
+      </a>
+    </div>
+
+    <!-- Valid flow -->
+    <div *ngIf="userId && token && !linkInvalid && !showRegister" class="ec-block">
+      <!-- Before confirmation -->
+      <div *ngIf="!confirmed" class="ec-actions">
+        <button
+          type="button"
+          class="btn btn-primary nav-cta nav-cta--lg"
+          (click)="onConfirmClick()"
+          [disabled]="confirming"
+        >
+          {{ confirming ? "Confirming..." : "Confirm Email" }}
+        </button>
+      </div>
+
+      <!-- After confirmation -->
+      <div *ngIf="confirmed" class="ec-actions">
+        <a class="btn btn-primary nav-cta nav-cta--lg" routerLink="/login">
+          Go to Login
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

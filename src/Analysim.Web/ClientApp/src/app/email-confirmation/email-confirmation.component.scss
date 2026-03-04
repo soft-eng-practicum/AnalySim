@@ -1,0 +1,41 @@
+.ec-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  color: var(--text-on-light);
+}
+
+.ec-card {
+  width: 100%;
+  max-width: 520px;
+  border: var(--border-w-1) var(--border-style) var(--border-color);
+  border-radius: var(--radius-1);
+  background: var(--surface-0);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+/* Typography */
+.ec-title {
+  margin: 0 0 var(--space-7);
+}
+
+.ec-message {
+  color: var(--text-muted);
+  margin: 0 0 var(--space-7);
+}
+
+/* Layout helpers */
+.ec-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.ec-actions {
+  display: flex;
+  justify-content: center;
+}
