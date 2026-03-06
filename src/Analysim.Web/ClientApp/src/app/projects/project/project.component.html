@@ -2,6 +2,13 @@
   <div class="row justify-content-center">
     <div class="col-md-10 mb-3 d-flex">
       <div class="container project-overview-container">
+        <!-- Owner Actions -->
+        <div class="owner-tools surface-soft" *ngIf="isOwner">
+          <div class="owner-tools-actions">
+            <button type="button" class="btn btn-primary" (click)="editProject()">Edit Project</button>
+            <button type="button" class="btn btn-outline-primary">Post Update</button>
+          </div>
+        </div>
         <div class="row project-detail-row">
           <div class="project-description">
             <h3 class="project-title" *ngIf="(project.route | route:'projectname') as projectname">
@@ -95,33 +102,54 @@
           {{ projectname }}
       </h3> -->
             <ul class="project-content-header-option">
-              <li>Share</li>
-              <li>Comment</li>
+              <li class="header-link" role="button" tabindex="0">Share</li>
+              <li class="header-link" role="button" tabindex="0">Comment</li>
             </ul>
           </div>
         </div>
-        <div class="row project-notebook-row" *ngIf='toggleNotebookExpand'>
-          <div [innerHtml]="notebookContent" [ngClass]="isFull ? 'notebook-readme-full' : 'notebook-readme'"></div>
-        </div>
-        <div class="buttons" *ngIf='toggleNotebookExpand'>
-          <div class="readme-button" (click)="toggleNotebook()">{{isFull ? 'Read Less..' : 'Read More..'}}</div>
-          <div class="readme-button" (click)="NavigateToNotebook()">Run Notebook</div>
-        </div>
-        <div class="row project-option-row">
 
-          <!-- <div *ngIf="activeView === 'Content'" class="project-content-footer">
-            <input type="button" value="Go back to Content" 
-            [routerLink]='["/project/" +  (project.route | route:"owner") + "/" + (project.route | route:"projectname")]'
-            [ngClass]='{"active": toggleView == "File"}' (click)="showFile()">
-          </div> -->
+        <!-- README AREA -->
+        <div class="readme-area" *ngIf="readmeNotebook">
+          <div class="readme-header">
+            <div class="readme-title">README</div>
 
-          <input type="button" value="Expand Notebook" *ngIf="!toggleNotebookExpand"
-            (click)="toggleNotebookExpand = true;">
-          <input type="button" value="Close Notebook" *ngIf="toggleNotebookExpand"
-            (click)="toggleNotebookExpand = false;">
-          <input type="button" value="Edit Project" *ngIf="isOwner">
-          <input type="button" value="Post Update" *ngIf="isOwner">
+            <button
+              type="button"
+              class="readme-toggle"
+              *ngIf="toggleNotebookExpand"
+              (click)="toggleNotebookExpand = false">
+              Hide Readme
+            </button>
+
+            <button
+              type="button"
+              class="readme-toggle"
+              *ngIf="!toggleNotebookExpand"
+              (click)="toggleNotebookExpand = true">
+              Show Readme
+            </button>
+          </div>
+
+          <!-- Readme content -->
+          <div class="project-notebook-row" *ngIf="toggleNotebookExpand">
+            <div
+              class="readme-content"
+              [innerHtml]="notebookContent"
+              [ngClass]="isFull ? 'notebook-readme-full' : 'notebook-readme'">
+            </div>
+
+            <div class="readme-actions">
+              <button type="button" class="btn btn-primary" (click)="toggleNotebook()">
+                {{isFull ? 'Read Less..' : 'Read More..'}}
+              </button>
+
+              <button type="button" class="btn btn-outline-primary" (click)="NavigateToNotebook()">
+                Open Notebook
+              </button>
+            </div>
+          </div>
         </div>
+
         <div class="row project-view-option-row">
           <div class="project-view-toggle">
             <input type="button" value="Datasets"
@@ -141,20 +169,28 @@
               [ngClass]='{"active": toggleView == "Publications"}' (click)="showPublication()">
           </div>
           <div class="project-view-interaction">
-            <button class="btn-primary" (click)="forkProject()">Fork Project</button>
-            <button type="button" *ngIf="!toggleMoreOption" (click)="toggleMoreOption = true;">
-              More <i class="fa-solid fa-arrow-down"></i>
-            </button>
-            <button type="button" *ngIf="toggleMoreOption" (click)="toggleMoreOption = false;">
-              Less <i class="fa-solid fa-arrow-up"></i>
-            </button>
-            <div class="project-view-extra-interaction" *ngIf="toggleMoreOption">
-              <input type="button" value="Share">
-              <input type="button" value="Recommend">
-              <input type="button" value="Join" *ngIf="!isMember && !isOwner">
-              <input type="button" value="Leave" *ngIf="isMember && !isOwner">
-              <input type="button" value="Follow" *ngIf="!isFollowing">
-              <input type="button" value="Unfollow" *ngIf="isFollowing">
+            <button type="button" class="btn btn-primary" (click)="forkProject()">Fork Project</button>
+            <div class="more-block" [class.is-open]="toggleMoreOption">
+              <div class="more-actions" [class.is-open]="toggleMoreOption">
+                <a class="more-link" role="button" tabindex="0">Share</a>
+                <a class="more-link" role="button" tabindex="0">Recommend</a>
+                <a class="more-link" role="button" tabindex="0" *ngIf="!isMember && !isOwner">Join</a>
+                <a class="more-link" role="button" tabindex="0" *ngIf="isMember && !isOwner">Leave</a>
+                <a class="more-link" role="button" tabindex="0" *ngIf="!isFollowing">Follow</a>
+                <a class="more-link" role="button" tabindex="0" *ngIf="isFollowing">Unfollow</a>
+              </div>
+
+              <button type="button"
+                      class="more-toggle"
+                      (click)="toggleMoreOption = !toggleMoreOption"
+                      [attr.aria-expanded]="toggleMoreOption">
+                <span class="more-toggle__label" [class.is-hidden]="toggleMoreOption">
+                  More <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
+                </span>
+                <span class="more-toggle__label" [class.is-hidden]="!toggleMoreOption">
+                  Less <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+                </span>
+              </button>
             </div>
           </div>
         </div>

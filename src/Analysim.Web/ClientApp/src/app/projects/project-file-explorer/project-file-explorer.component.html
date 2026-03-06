@@ -1,116 +1,282 @@
 <!-- Card Start -->
 
-<div class="card" *ngIf="project != null">
+<div class="card file-explorer-card" *ngIf="project != null">
+  <!-- Card Header Start -->
+  <div class="d-flex card-header align-items-center file-explorer-card__header">
+    <div class="file-explorer-card__title">
+      <span class="file-explorer-card__label">Current folder</span>
 
-    <!-- Card Header Start -->
-    <div class="d-flex card-header flex-row align-items-center">
-
-        <!-- File Route Start -->
-
-        <span class="mr-2">{{folders}}</span>
-        <!--<span>{{currentDirectory}}</span>-->
-        <!-- File Explorer Button Start -->
-        <div class="d-inline-flex ml-auto">
-            <!-- Private Button Group Start -->
-            <div class="btn-group mr-3" role="group" *ngIf="isMember">
-                <button type="button" class="btn" title="Create Folder" (click)="toggleModalFolder()">
-                    <i class="fa fa-folder-plus"></i>
-                </button>
-                <button type="button" class="btn disabled" title="Rename" (click)="edit()">
-                    <i class="fa fa-edit"></i>
-                </button>
-                <button type="button" class="btn disabled" title="Move">
-                    <i class="fa fa-arrows-alt"></i>
-                </button>
-                <button type="button" class="btn disabled" title="Copy">
-                    <i class="fa fa-copy"></i>
-                </button>
-                <button type="button" class="btn" title="Delete" data-toggle="modal" data-target="#deleteModal">
-                    <i class="fa fa-trash"></i>
-                </button>
-                <button type="button" class="btn">
-                    <i class="fa fa-upload"></i>
-                    <input type="file" title="Upload" *ngIf="isValidDirectory" (change)=fileEvent($event) multiple>
-                </button>
-            </div> <!-- Private Button Group End -->
-            <!-- Public Button Group Start -->
-            <div class="btn-group" role="group">
-                <button type="button" class="btn" title="Refresh" (click)="setDirectoryFile(currentDirectory)">
-                    <i class="fa fa-sync"></i>
-                </button>
-                <button type="button" class="btn" title="Download" (click)="saveFile()">
-                    <i class="fa fa-download"></i>
-                </button>
-            </div> <!-- Public Button Group End -->
-        </div> <!-- File Explorer Button End -->
-    </div> <!-- Card Header End -->
-    <!-- File Explorer Content Start -->
-    <ul class="list-group">
-        <li class="list-group-item" *ngIf="project.blobFiles.length == 0"> No File Found </li>
-        <app-project-file-explorer-item *ngFor="let blobFileItem of blobFileItemList" [blobFileItem]="blobFileItem"
-            [isSelected]="blobFileItem.order == selectedItem" [currentDirectory]="currentDirectory"
-            (changeDirectory)="setDirectoryFile($event)"
-            (selectedItem)="setSelectedItem($event)"></app-project-file-explorer-item>
-    </ul> <!-- File Explorer Content End -->
-    <div class="card-footer">
-        <span><i class="fa fa-user mr-2"></i>{{ project | role:"member" }}</span>
-        <span class="float-right">Last Updated {{ project.lastUpdated | timeElapsed}} Ago</span>
-    </div>
-    <app-project-file-preview *ngIf="filePreview" [blobFile]="blobFileItemList[1].file"></app-project-file-preview>
-
-    <ng-template #uploadModal>
-        <app-modal-upload [uploadFileList]="uploadFileList" [uploadModalRef]="uploadModalRef"
-            (updatedFileListEvent)="updateFileList($event)" (uploadedFileEvent)="addNewFile($event)"></app-modal-upload>
-    </ng-template>
-    <ng-template #folderModal>
-        <app-modal-folder [folderModalRef]="folderModalRef" [blobList]="blobFileItemList"
-            [currentDirectory]="currentDirectory" [projectID]="project.projectID"
-            (newFolderEvent)="addNewFile($event)"></app-modal-folder>
-    </ng-template>
-    <ng-template #renameModal>
-        <app-modal-edit [renameModalRef]="renameModalRef" [blobList]="blobFileItemList"
-            [currentDirectory]="currentDirectory" [projectID]="project.projectID"
-            (newFolderEvent)="addNewFile($event)"></app-modal-edit>
-    </ng-template>
-
-    <div class="m-3" *ngIf="fileType === 'file'">
-        <app-csvdata-browser *ngIf="csvFile !== null" [csvFile]="csvFile"></app-csvdata-browser>
+      <span class="file-explorer-card__path">
+        <i class="fa fa-folder-open mr-1" aria-hidden="true"></i>
+        {{ folders }}
+      </span>
     </div>
 
-    <!--Delete Modal-->
-    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Delete Window</h5>
-                    <button type="button" class="close" #closeDeleteModalbutton data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this file ?
-                    <div class="note">* It will detach all the notebooks attached to it !!</div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn" (click)="delete()">Delete</button>
-                </div>
-            </div>
+    <div class="ml-auto d-inline-flex">
+      <div
+        class="btn-toolbar file-explorer-card__toolbar"
+        role="toolbar"
+        aria-label="File explorer actions"
+      >
+        <!-- Member actions -->
+        <div
+          class="btn-group file-explorer-card__actions"
+          role="group"
+          *ngIf="isMember"
+          aria-label="Member actions"
+        >
+          <!-- Primary -->
+          <button
+            type="button"
+            class="btn btn-primary file-explorer-card__upload-btn"
+            title="Upload"
+            aria-label="Upload"
+          >
+            <i class="fa fa-upload" aria-hidden="true"></i>
+            <input
+              class="file-explorer-card__file-input"
+              type="file"
+              title="Upload"
+              *ngIf="isValidDirectory"
+              (change)="fileEvent($event)"
+              multiple
+            />
+          </button>
+
+          <!-- Secondary -->
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            title="Create Folder"
+            aria-label="Create Folder"
+            (click)="toggleModalFolder()"
+          >
+            <i class="fa fa-folder-plus" aria-hidden="true"></i>
+          </button>
+
+          <!-- Disabled secondary -->
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            title="Rename"
+            aria-label="Rename"
+            (click)="edit()"
+            disabled
+          >
+            <i class="fa fa-edit" aria-hidden="true"></i>
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            title="Move"
+            aria-label="Move"
+            disabled
+          >
+            <i class="fa fa-arrows-alt" aria-hidden="true"></i>
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            title="Copy"
+            aria-label="Copy"
+            disabled
+          >
+            <i class="fa fa-copy" aria-hidden="true"></i>
+          </button>
+
+          <!-- Destructive -->
+          <button
+            type="button"
+            class="btn btn-danger"
+            title="Delete"
+            aria-label="Delete"
+            data-toggle="modal"
+            data-target="#deleteModal"
+          >
+            <i class="fa fa-trash" aria-hidden="true"></i>
+          </button>
         </div>
+
+        <!-- Public actions -->
+        <div
+          class="btn-group file-explorer-card__actions"
+          role="group"
+          aria-label="Public actions"
+        >
+          <!-- Primary FIRST -->
+          <button
+            type="button"
+            class="btn btn-primary"
+            title="Download"
+            aria-label="Download"
+            (click)="saveFile()"
+          >
+            <i class="fa fa-download" aria-hidden="true"></i>
+          </button>
+
+          <!-- Secondary -->
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            title="Refresh"
+            aria-label="Refresh"
+            (click)="setDirectoryFile(currentDirectory)"
+          >
+            <i class="fa fa-sync" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- File Explorer Content Start -->
+  <ul class="list-group file-explorer-card__list">
+    <li
+      class="list-group-item file-explorer-card__empty"
+      *ngIf="project.blobFiles.length == 0"
+    >
+      No File Found
+    </li>
+    <app-project-file-explorer-item
+      *ngFor="let blobFileItem of blobFileItemList"
+      [blobFileItem]="blobFileItem"
+      [isSelected]="blobFileItem.order == selectedItem"
+      [currentDirectory]="currentDirectory"
+      (changeDirectory)="setDirectoryFile($event)"
+      (selectedItem)="setSelectedItem($event)"
+    ></app-project-file-explorer-item>
+  </ul>
+  <!-- File Explorer Content End -->
+
+  <!-- Footer -->
+  <div class="card-footer file-explorer-card__footer">
+    <div class="file-explorer-card__footer-left">
+      <i class="fa fa-user" aria-hidden="true"></i>
+      <span>{{ project | role: "member" }}</span>
     </div>
 
-    <ng-template #uploadModal>
-        <app-modal-upload [uploadFileList]="uploadFileList" [uploadModalRef]="uploadModalRef"
-            (updatedFileListEvent)="updateFileList($event)" (uploadedFileEvent)="addNewFile($event)"></app-modal-upload>
-    </ng-template>
-    <ng-template #folderModal>
-        <app-modal-folder [folderModalRef]="folderModalRef" [blobList]="blobFileItemList"
-            [currentDirectory]="currentDirectory" [projectID]="project.projectID"
-            (newFolderEvent)="addNewFile($event)"></app-modal-folder>
-    </ng-template>
-    <ng-template #renameModal>
-        <app-modal-edit [renameModalRef]="renameModalRef" [blobList]="blobFileItemList"
-            [currentDirectory]="currentDirectory" [projectID]="project.projectID"
-            (newFolderEvent)="addNewFile($event)"></app-modal-edit>
-    </ng-template>
+    <div class="file-explorer-card__meta">
+      Last Updated {{ project.lastUpdated | timeElapsed }} Ago
+    </div>
+  </div>
+
+  <app-project-file-preview
+    *ngIf="filePreview"
+    [blobFile]="blobFileItemList[1].file"
+  ></app-project-file-preview>
+
+  <!-- Modals / templates unchanged -->
+  <ng-template #uploadModal>
+    <app-modal-upload
+      [uploadFileList]="uploadFileList"
+      [uploadModalRef]="uploadModalRef"
+      (updatedFileListEvent)="updateFileList($event)"
+      (uploadedFileEvent)="addNewFile($event)"
+    ></app-modal-upload>
+  </ng-template>
+
+  <ng-template #folderModal>
+    <app-modal-folder
+      [folderModalRef]="folderModalRef"
+      [blobList]="blobFileItemList"
+      [currentDirectory]="currentDirectory"
+      [projectID]="project.projectID"
+      (newFolderEvent)="addNewFile($event)"
+    ></app-modal-folder>
+  </ng-template>
+
+  <ng-template #renameModal>
+    <app-modal-edit
+      [renameModalRef]="renameModalRef"
+      [blobList]="blobFileItemList"
+      [currentDirectory]="currentDirectory"
+      [projectID]="project.projectID"
+      (newFolderEvent)="addNewFile($event)"
+    ></app-modal-edit>
+  </ng-template>
+
+  <div class="m-3" *ngIf="fileType === 'file'">
+    <app-csvdata-browser
+      *ngIf="fileType === 'file' && csvFile"
+      [csvFile]="csvFile"
+    ></app-csvdata-browser>
+  </div>
+
+  <!--Delete Modal-->
+  <div
+    class="modal fade"
+    id="deleteModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content file-explorer-card__modal">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Delete Window</h5>
+          <button
+            type="button"
+            class="close"
+            #closeDeleteModalbutton
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this file ?
+          <div class="note">
+            * It will detach all the notebooks attached to it !!
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            data-dismiss="modal"
+          >
+            Close
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            (click)="delete()"
+            data-dismiss="modal"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #uploadModal>
+  <app-modal-upload
+    [uploadFileList]="uploadFileList"
+    [uploadModalRef]="uploadModalRef"
+    (updatedFileListEvent)="updateFileList($event)"
+    (uploadedFileEvent)="addNewFile($event)"
+  ></app-modal-upload>
+</ng-template>
+<ng-template #folderModal>
+  <app-modal-folder
+    [folderModalRef]="folderModalRef"
+    [blobList]="blobFileItemList"
+    [currentDirectory]="currentDirectory"
+    [projectID]="project.projectID"
+    (newFolderEvent)="addNewFile($event)"
+  ></app-modal-folder>
+</ng-template>
+<ng-template #renameModal>
+  <app-modal-edit
+    [renameModalRef]="renameModalRef"
+    [blobList]="blobFileItemList"
+    [currentDirectory]="currentDirectory"
+    [projectID]="project.projectID"
+    (newFolderEvent)="addNewFile($event)"
+  ></app-modal-edit>
+</ng-template>
