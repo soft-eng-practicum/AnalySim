@@ -41,13 +41,15 @@ namespace Web.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly ILoggerManager _loggerManager;
         private readonly IMailNetService _mailNetService;
+        private readonly INotificationService _notificationService;
 
         private readonly IConfiguration _configuration;
 
         public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager,
             SignInManager<User> signManager, ApplicationDbContext dbContext,
                                  ILoggerManager loggerManager,
-                                 IMailNetService mailNetService,IConfiguration configuration)
+                                 IMailNetService mailNetService, IConfiguration configuration,
+                                 INotificationService notificationService)
         {
             _jwtSettings = jwtSettings.Value;
             _userManager = userManager;
@@ -56,6 +58,7 @@ namespace Web.Controllers
             _loggerManager = loggerManager;
             _mailNetService = mailNetService;
             _configuration = configuration;
+            _notificationService = notificationService;
         }
 
         #region GET REQUEST
@@ -266,6 +269,15 @@ namespace Web.Controllers
 
             // Save Change
             await _dbContext.SaveChangesAsync();
+
+            // Notify the followed user
+            await _notificationService.SendNotificationAsync(
+                userToFollow.Id,
+                "New Follower",
+                $"{user.UserName} started following you.",
+                NotificationType.NewFollower,
+                $"/profile/{user.UserName}"
+            );
 
             return Ok(new
             {
@@ -663,6 +675,25 @@ namespace Web.Controllers
 
                 // Update Last Online
                 user.LastOnline = DateTime.UtcNow;
+
+                // Check login IP for security alert
+                var currentIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+                if (!string.IsNullOrEmpty(currentIp) &&
+                    !string.IsNullOrEmpty(user.LastLoginIp) &&
+                    user.LastLoginIp != currentIp)
+                {
+                    // New IP detected — send security alert (fire-and-forget, don't block login)
+                    await _notificationService.SendNotificationAsync(
+                        user.Id,
+                        "Security Alert",
+                        $"We detected a login from a new location ({currentIp}). If this wasn't you, please secure your account.",
+                        NotificationType.SecurityAlert,
+                        "/settings/security"
+                    );
+                }
+
+                // Update last login IP
+                user.LastLoginIp = currentIp;
 
                 // Save Database Change
                 await _dbContext.SaveChangesAsync();

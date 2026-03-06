@@ -39,11 +39,13 @@ namespace Web.Controllers
 
         private readonly ApplicationDbContext _dbContext;
         private readonly IConfiguration _configuration;
+        private readonly INotificationService _notificationService;
 
-        public ProjectController(ApplicationDbContext dbContext, IConfiguration configuration)
+        public ProjectController(ApplicationDbContext dbContext, IConfiguration configuration, INotificationService notificationService)
         {
             _dbContext = dbContext;
             _configuration = configuration;
+            _notificationService = notificationService;
         }
 
         #region GET REQUEST
@@ -727,6 +729,19 @@ namespace Web.Controllers
             await _dbContext.SaveChangesAsync();
 
             _dbContext.Entry(projectUser).Reference(pu => pu.User).Load();
+
+            // Notify the invited user
+            var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+            if (project != null)
+            {
+                await _notificationService.SendNotificationAsync(
+                    formdata.UserID,
+                    "Project Invitation",
+                    $"You have been added to the project \"{project.Name}\".",
+                    NotificationType.ProjectInvitation,
+                    $"/projects/{formdata.ProjectID}"
+                );
+            }
 
             // Return Ok Status
             return Ok(new

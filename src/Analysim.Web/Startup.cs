@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Web.Extensions;
+using Web.Hubs;
 
 namespace Web
 {
@@ -76,6 +77,10 @@ namespace Web
 
             services.ConfigureMailService(Configuration);
 
+            services.ConfigureSignalR();
+
+            services.ConfigureNotificationService();
+
             services.AddAutoMapper(typeof(Startup));
 
             services.AddControllers(config =>
@@ -138,6 +143,7 @@ namespace Web
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}"
                 );
+                endpoints.MapHub<NotificationHub>("/hubs/notification");
             });
 
             app.UseSpa(spa =>

@@ -20,8 +20,11 @@ namespace Core.Entities
         public ICollection<UserUser> Following { get; } = new List<UserUser>();
         public ICollection<ProjectUser> ProjectUsers { get; } = new List<ProjectUser>();
         public ICollection<BlobFile> BlobFiles { get; } = new List<BlobFile>();
+        public ICollection<Notification> Notifications { get; } = new List<Notification>();
 
         public string RegistrationSurvey {get; set;}
+
+        public string LastLoginIp { get; set; }
 
     }
 }

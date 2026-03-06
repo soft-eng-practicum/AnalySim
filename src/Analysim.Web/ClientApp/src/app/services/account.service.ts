@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable, empty, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import jwt_decode from "jwt-decode";
@@ -17,460 +17,299 @@ export class AccountService {
 
   constructor(private http: HttpClient, private router: Router, private notfi: NotificationService) { }
 
-  // Url to access Web API
+  // ─── URLs ─────────────────────────────────────────────────────────────────
   private baseUrl: string = '/api/account/'
 
-  // Get
-  private urlGetUserByID: string = this.baseUrl + "getuserbyid/"
-  private urlGetUserByName: string = this.baseUrl + "getuserbyname/"
-  private urlGetUserRange: string = this.baseUrl + "getuserrange?"
-  private urlGetUserList: string = this.baseUrl + "getuserlist"
-  private urlGetProfileImage: string = this.baseUrl + "getprofileimage?"
-  private urlSearch: string = this.baseUrl + "search?"
-  private urlVerify: string = this.baseUrl + "verify"
-  private urlIsAdmin: string = this.baseUrl + "isAdmin/"
+  private urlGetUserByID: string       = this.baseUrl + "getuserbyid/"
+  private urlGetUserByName: string     = this.baseUrl + "getuserbyname/"
+  private urlGetUserRange: string      = this.baseUrl + "getuserrange?"
+  private urlGetUserList: string       = this.baseUrl + "getuserlist"
+  private urlGetProfileImage: string   = this.baseUrl + "getprofileimage?"
+  private urlSearch: string            = this.baseUrl + "search?"
+  private urlVerify: string            = this.baseUrl + "verify"
+  private urlIsAdmin: string           = this.baseUrl + "isAdmin/"
 
-  // Post
-  private urlFollow: string = this.baseUrl + "follow"
-  private urlRegister: string = this.baseUrl + "register"
-  private urlLogin: string = this.baseUrl + "login"
+  private urlFollow: string            = this.baseUrl + "follow"
+  private urlRegister: string          = this.baseUrl + "register"
+  private urlLogin: string             = this.baseUrl + "login"
   private urlUploadProfileImage: string = this.baseUrl + "uploadprofileimage"
 
-  // Post
-  private urlUpdateUser: string = this.baseUrl + "updateuser/"
-  private urlForgotPassEmail: string = this.baseUrl + "forgotPassword/"
-  private urlResetPassword: string = this.baseUrl + "resetPassword?"
-  private urlChangePassword: string = this.baseUrl + "changePassword"
+  private urlUpdateUser: string        = this.baseUrl + "updateuser/"
+  private urlForgotPassEmail: string   = this.baseUrl + "forgotPassword/"
+  private urlResetPassword: string     = this.baseUrl + "resetPassword?"
+  private urlChangePassword: string    = this.baseUrl + "changePassword"
   private urlReSendVerification: string = this.baseUrl + "sendConfirmationEmail"
 
-  // Delete
-  private urlUnfollow: string = this.baseUrl + "unfollow/"
+  private urlUnfollow: string          = this.baseUrl + "unfollow/"
   private urlDeleteProfileImage: string = this.baseUrl + "deleteprofileimage/"
-  private urlDeleteUser: string = this.baseUrl + "deleteUser/"
+  private urlDeleteUser: string        = this.baseUrl + "deleteUser/"
 
-  // Unuse
-  private urlGetProjects: string = this.baseUrl + "getprojects/"
-  private urlGetFollowers: string = this.baseUrl + "getfollowers/"
-  private urlGetFollowings: string = this.baseUrl + "getfollowings/"
+  private urlGetProjects: string       = this.baseUrl + "getprojects/"
+  private urlGetFollowers: string      = this.baseUrl + "getfollowers/"
+  private urlGetFollowings: string     = this.baseUrl + "getfollowings/"
 
-  //User properties
-  private loginStatus = new BehaviorSubject<boolean>(this.checkLoginStatus())
-  private user = new BehaviorSubject<User>(null)
-  private userID = new BehaviorSubject<number>(parseInt(localStorage.getItem('userID')))
+  // ─── State ────────────────────────────────────────────────────────────────
+
+  isLoggedIn = new BehaviorSubject<boolean>(this.checkLoginStatus());
+
+  private user   = new BehaviorSubject<User>(null);
+  private userID = new BehaviorSubject<number>(parseInt(localStorage.getItem('userID')));
+
+  // ─── GET ──────────────────────────────────────────────────────────────────
 
   getUserByID(userID: number): Observable<User> {
-    return this.http.get<any>(this.urlGetUserByID + userID)
-      .pipe(
-        map(body => {
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.get<any>(this.urlGetUserByID + userID).pipe(
+      map(body => { console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   getUserByName(username: string): Observable<User> {
-    return this.http.get<any>(this.urlGetUserByName + username)
-      .pipe(
-        map(body => {
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.get<any>(this.urlGetUserByName + username).pipe(
+      map(body => { console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   getIsAdmin(username: string): Observable<boolean> {
-    return this.http.get<any>(this.urlIsAdmin + username)
-      .pipe(
-        map(body => {
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.get<any>(this.urlIsAdmin + username).pipe(
+      map(body => body.result),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   getUserRange(ids: number[]): Observable<User[]> {
-    let params = new HttpParams()
-    ids.forEach(x => params = params.append("id", x.toString()))
+    let params = new HttpParams();
+    ids.forEach(x => params = params.append("id", x.toString()));
 
-    return this.http.get<any>(this.urlGetUserRange, { params: params })
-      .pipe(
-        map(body => {
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.get<any>(this.urlGetUserRange, { params }).pipe(
+      map(body => { console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   getUserList(): Observable<User[]> {
-    return this.http.get<any>(this.urlGetUserList)
-      .pipe(
-        map(body => {
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.get<any>(this.urlGetUserList).pipe(
+      map(body => { console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   getProfileImage(userID: number): Observable<BlobFile> {
-    let params = new HttpParams()
-    params = params.append("id", userID.toString())
+    let params = new HttpParams();
+    params = params.append("id", userID.toString());
 
-    return this.http.get<any>(this.urlGetProfileImage, { params: params })
-      .pipe(
-        map(body => {
-          // console.log(body.message)
-          if (body.result) return body.result;
-          return null;
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.get<any>(this.urlGetProfileImage, { params }).pipe(
+      map(body => body.result ?? null),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   search(searchTerms: string[]): Observable<User[]> {
-    let params = new HttpParams()
-    searchTerms.forEach(function (x) {
-      params = params.append("term", x)
-    })
+    let params = new HttpParams();
+    searchTerms.forEach(x => params = params.append("term", x));
 
-    return this.http.get<any>(this.urlSearch, { params: params })
-      .pipe(
-        map(body => {
-          if (!body) return []
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.get<any>(this.urlSearch, { params }).pipe(
+      map(body => { if (!body) return []; console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
+  // ─── POST ─────────────────────────────────────────────────────────────────
+
   follow(userID: number, followerID: number): Observable<UserUser> {
-    let body = new FormData()
-    body.append('userID', userID.toString())
-    body.append('followerID', followerID.toString())
+    let body = new FormData();
+    body.append('userID', userID.toString());
+    body.append('followerID', followerID.toString());
 
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
-
-
-    return this.http.post<any>(this.urlFollow, body, {headers})
-      .pipe(
-        map(body => {
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.post<any>(this.urlFollow, body, { headers: this.authHeaders() }).pipe(
+      map(body => { console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   register(username: string, password: string, emailaddress: string, registrationSurvey: string) {
-    let body = new FormData()
-    body.append('emailaddress', emailaddress)
-    body.append('username', username)
-    body.append('password', password)
-    body.append('registrationSurvey', registrationSurvey)
+    let body = new FormData();
+    body.append('emailaddress', emailaddress);
+    body.append('username', username);
+    body.append('password', password);
+    body.append('registrationSurvey', registrationSurvey);
 
-    return this.http.post<any>(this.urlRegister, body)
-      .pipe(
-        map(body => {
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.post<any>(this.urlRegister, body).pipe(
+      map(body => { console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   login(username: string, password: string) {
-    let body = new FormData()
-    body.append('username', username)
-    body.append('password', password)
+    let body = new FormData();
+    body.append('username', username);
+    body.append('password', password);
 
-    return this.http.post<any>(this.urlLogin, body)
-      .pipe(
-        map(body => {
-          if (body && body.token) {
-            this.loginStatus.next(true)
-            this.user.next(body.result)
-            this.userID = new BehaviorSubject<number>(parseInt(body.result.id))
-            localStorage.setItem('loginStatus', '1')
-            localStorage.setItem('jwt', body.token)
-            localStorage.setItem('userID', body.result.id)
-            localStorage.setItem('expiration', body.expiration)
-          }
-          return body
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
+    return this.http.post<any>(this.urlLogin, body).pipe(
+      map(body => {
+        if (body && body.token) {
+          localStorage.setItem('loginStatus', '1');
+          localStorage.setItem('jwt', body.token);
+          localStorage.setItem('userID', body.result.id);
+          localStorage.setItem('expiration', body.expiration);
 
-      )
+          this.isLoggedIn.next(true);
+          this.user.next(body.result);
+          this.userID = new BehaviorSubject<number>(parseInt(body.result.id));
+
+          this.notfi.fetchNotifications();
+          this.notfi.startSignalRConnection(body.token);
+        }
+        return body;
+      }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   resetPassword(userID: string, token: string) {
-    let body = new FormData()
-    body.append('user', userID)
-    body.append('code', token)
+    let body = new FormData();
+    body.append('user', userID);
+    body.append('code', token);
 
-    return this.http.post<any>(this.urlResetPassword, body)
-      .pipe(
-        map(body => {
-          return body
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-
-      )
+    return this.http.post<any>(this.urlResetPassword, body).pipe(
+      map(body => body),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   resendVerificationLink(email: string) {
     let params = new HttpParams();
     params = params.append("EmailAddress", email);
 
-    return this.http.get<any>(this.urlReSendVerification, { params: params })
-      .pipe(
-        map(body => {
-          return body
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-
-      )
-  }
-
-  sendPasswordResetToken(email: string) {
-    let body = new FormData()
-    body.append('EmailAddress', email)
-    console.log("sendPasswordResetToken is called");
-    return this.http.post<any>(this.urlForgotPassEmail, body)
-      .pipe(
-        map(body => {
-          return body
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-
-      )
-  }
-
-
-  changePassword(userID: string, password: string, confirmPassword: string, token: string) {
-    let body = new FormData()
-    body.append('userID', userID)
-    body.append('NewPassword', password)
-    body.append('ConfirmPassword', confirmPassword)
-    body.append('passwordToken', token)
-
-    return this.http.post<any>(this.urlChangePassword, body)
-      .pipe(
-        map(body => {
-          return body
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-
-      )
-  }
-
-  uploadProfileImage(file: any, userID: number): Observable<BlobFile> {
-    let body = new FormData()
-    body.append('file', file)
-    body.append('userID', userID.toString())
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
-
-    return this.http.post<any>(this.urlUploadProfileImage, body, {headers}).pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
+    return this.http.get<any>(this.urlReSendVerification, { params }).pipe(
+      map(body => body),
+      catchError(error => { console.log(error); return throwError(error); })
     );
   }
 
-  updateUser(bio: string, userID: number): Observable<User> {
-    let body = new FormData()
-    body.append('bio', bio)
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+  sendPasswordResetToken(email: string) {
+    let body = new FormData();
+    body.append('EmailAddress', email);
+    console.log("sendPasswordResetToken is called");
 
-
-    return this.http.put<any>(this.urlUpdateUser + userID, body, {headers})
-      .pipe(
-        map(body => {
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.post<any>(this.urlForgotPassEmail, body).pipe(
+      map(body => body),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
-  unfollow(userID: number, followerID: number): Observable<UserUser> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+  changePassword(userID: string, password: string, confirmPassword: string, token: string) {
+    let body = new FormData();
+    body.append('userID', userID);
+    body.append('NewPassword', password);
+    body.append('ConfirmPassword', confirmPassword);
+    body.append('passwordToken', token);
 
-    return this.http.delete<any>(this.urlUnfollow + userID + '/' + followerID, {headers})
-      .pipe(
-        map(body => {
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.post<any>(this.urlChangePassword, body).pipe(
+      map(body => body),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
+  }
+
+  uploadProfileImage(file: any, userID: number): Observable<BlobFile> {
+    let body = new FormData();
+    body.append('file', file);
+    body.append('userID', userID.toString());
+
+    return this.http.post<any>(this.urlUploadProfileImage, body, { headers: this.authHeaders() }).pipe(
+      map(body => { console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
+  }
+
+  // ─── PUT ──────────────────────────────────────────────────────────────────
+
+  updateUser(bio: string, userID: number): Observable<User> {
+    let body = new FormData();
+    body.append('bio', bio);
+
+    return this.http.put<any>(this.urlUpdateUser + userID, body, { headers: this.authHeaders() }).pipe(
+      map(body => { console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
+  }
+
+  // ─── DELETE ───────────────────────────────────────────────────────────────
+
+  unfollow(userID: number, followerID: number): Observable<UserUser> {
+    return this.http.delete<any>(this.urlUnfollow + userID + '/' + followerID, { headers: this.authHeaders() }).pipe(
+      map(body => { console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   deleteProfileImage(blobFileID: number): Observable<BlobFile> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
-
-    return this.http.delete<any>(this.urlDeleteProfileImage + blobFileID, {headers}).pipe(
-      map(body => {
-        console.log(body.message)
-        return body.result
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
+    return this.http.delete<any>(this.urlDeleteProfileImage + blobFileID, { headers: this.authHeaders() }).pipe(
+      map(body => { console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
     );
   }
 
   deleteUser(userID: number): Observable<any> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
-
-    return this.http.delete<any>(this.urlDeleteUser + userID, {headers}).pipe(
-      map(body => {
-        console.log(body.message)
-        return body.message
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
-      })
+    return this.http.delete<any>(this.urlDeleteUser + userID, { headers: this.authHeaders() }).pipe(
+      map(body => { console.log(body.message); return body.message; }),
+      catchError(error => { console.log(error); return throwError(error); })
     );
   }
 
+  // ─── Auth Helpers ─────────────────────────────────────────────────────────
+
   checkLoginStatus(): boolean {
-    // Get Login Cookie
-    var loginCookie = localStorage.getItem('loginStatus');
+    const loginCookie = localStorage.getItem('loginStatus');
 
-    // Check Login Cookie
-    // 0 = Not Logged In
-    // 1 = Logged In 
-    if (loginCookie == "1") {
-      // Return False If Null
-      if (localStorage.getItem('jwt') === null || localStorage.getItem('jwt') === undefined) {
-        return false;
-      }
-
-      // Get and Decode the Token
-      const token = localStorage.getItem('jwt');
-      const decoded: any = jwt_decode(token)
-
-      // Check if the cookie is valid
-      if (decoded.exp === undefined) {
-        return false;
-      }
-
-      // Get Current Time
-      const date = new Date(0)
-
-      // Convert Expiration to UTC
-      let tokenExpDate = date.setUTCSeconds(decoded.exp)
-
-      // Compare Expiration time with current time
-      if (tokenExpDate.valueOf() > new Date().valueOf()) {
-        return true;
-      }
-
-      // Return False Since Token Expire
-      this.user = new BehaviorSubject<User>(null)
+    if (loginCookie !== "1") {
+      this.user = new BehaviorSubject<User>(null);
       return false;
     }
-    this.user = new BehaviorSubject<User>(null)
+
+    const token = localStorage.getItem('jwt');
+    if (!token) return false;
+
+    const decoded: any = jwt_decode(token);
+    if (decoded.exp === undefined) return false;
+
+    const tokenExpDate = new Date(0).setUTCSeconds(decoded.exp);
+    if (tokenExpDate.valueOf() > new Date().valueOf()) return true;
+
+    this.user = new BehaviorSubject<User>(null);
     return false;
   }
 
   logout() {
-    // Set Login Status to false
-    this.loginStatus.next(false)
+    this.notfi.stopConnection();
 
-    // Remove item from localStorage
-    localStorage.setItem('loginStatus', '0')
-    localStorage.removeItem('jwt')
-    localStorage.removeItem('expiration')
-    localStorage.removeItem('userID')
+    this.isLoggedIn.next(false);
 
-    // Navigate back to the login page
-    this.router.navigate(['/login'])
+    localStorage.setItem('loginStatus', '0');
+    localStorage.removeItem('jwt');
+    localStorage.removeItem('expiration');
+    localStorage.removeItem('userID');
+
+    this.router.navigate(['/login']);
   }
 
-  get isLoggedIn() {
-    return this.loginStatus.asObservable()
+  private authHeaders(): HttpHeaders {
+    return new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
   }
+
+  // ─── Getters ──────────────────────────────────────────────────────────────
 
   get currentUser() {
-    if (this.userID.value != null && this.user.value == null && this.loginStatus.value == true) {
-      let promise = new Promise<any>((resolve, reject) => {
-        this.getUserByID(this.userID.value)
-          .toPromise()
-          .then(
-            body => {
-              this.user.next(body)
-              resolve(this.user.asObservable())
-            }
-          )
-      })
-      return promise
+    if (this.userID.value != null && this.user.value == null && this.isLoggedIn.value == true) {
+      return new Promise<any>((resolve) => {
+        this.getUserByID(this.userID.value).toPromise().then(body => {
+          this.user.next(body);
+          resolve(this.user.asObservable());
+        });
+      });
     }
-    else {
-      let promise = new Promise<any>((resolve, reject) => {
-        resolve(this.user.asObservable())
-      })
-      return promise
-    }
+    return Promise.resolve(this.user.asObservable());
   }
 
   setCurrentUser(modifiedUser: User): void {
@@ -478,72 +317,36 @@ export class AccountService {
   }
 
   get currentUserID() {
-    return this.userID.asObservable()
+    return this.userID.asObservable();
   }
 
-  // Error
+  // ─── Unused / Legacy ─────────────────────────────────────────────────────
+
   getProjectList(userID: number): Observable<ProjectUser[]> {
-    return this.http.get<any>(this.urlGetProjects + userID)
-      .pipe(
-        map(body => {
-          console.log(body)
-          if (body == null)
-            return []
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.get<any>(this.urlGetProjects + userID).pipe(
+      map(body => { if (!body) return []; console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   getFollower(userID: number): Observable<UserUser[]> {
-    return this.http.get<any>(this.urlGetFollowers + userID)
-      .pipe(
-        map(body => {
-          if (body == null)
-            return []
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.get<any>(this.urlGetFollowers + userID).pipe(
+      map(body => { if (!body) return []; console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   getFollowing(followerID: number): Observable<UserUser[]> {
-    return this.http.get<any>(this.urlGetFollowings + followerID)
-      .pipe(
-        map(body => {
-          if (body == null)
-            return []
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.get<any>(this.urlGetFollowings + followerID).pipe(
+      map(body => { if (!body) return []; console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 
   testApiCall(): Observable<string> {
-    return this.http.get<any>(this.urlVerify)
-      .pipe(
-        map(body => {
-          if (body == null)
-            return []
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
+    return this.http.get<any>(this.urlVerify).pipe(
+      map(body => { if (!body) return []; console.log(body.message); return body.result; }),
+      catchError(error => { console.log(error); return throwError(error); })
+    );
   }
 }
