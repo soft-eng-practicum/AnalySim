@@ -393,6 +393,9 @@ namespace Web.Controllers
                 });
                 await _dbContext.SaveChangesAsync();
 
+                // Maps old blob ids with new blob ids
+                var blobFileIdMap = new Dictionary<int, int>();
+
                 // 3) Add BlobFiles 
                 if (formdata.BlobFilesID != null && formdata.BlobFilesID.Length > 0)
                 {
@@ -401,23 +404,39 @@ namespace Web.Controllers
                         var file = await _dbContext.BlobFiles.FindAsync(formdata.BlobFilesID[i]);
                         if (file == null) continue; 
 
-                        await _dbContext.BlobFiles.AddAsync(new BlobFile
-                        {
-                            Container = file.Container,
-                            Directory = file.Directory,
-                            Name = file.Name,
-                            Extension = file.Extension,
-                            Size = file.Size,
-                            Uri = file.Uri,
-                            DateCreated = DateTimeOffset.UtcNow,
-                            LastModified = DateTimeOffset.UtcNow,
-                            User = user,
-                            UserID = user.Id,
-                            Project = newProject,
-                            ProjectID = newProject.ProjectID,
-                        });
+                       var newBlobFile = new BlobFile
+                       {
+                           Container = file.Container,
+                           Directory = file.Directory,
+                           Name = file.Name,
+                           Extension = file.Extension,
+                           Size = file.Size,
+                           Uri = file.Uri,
+                           DateCreated = DateTimeOffset.UtcNow,
+                           LastModified = DateTimeOffset.UtcNow,
+                           User = user,
+                           UserID = user.Id,
+                           Project = newProject,
+                           ProjectID = newProject.ProjectID,
+                       };
 
-                        await _dbContext.SaveChangesAsync();
+                       await _dbContext.BlobFiles.AddAsync(newBlobFile);
+                       await _dbContext.SaveChangesAsync();
+
+                       // Link blob ids
+                       blobFileIdMap[file.BlobFileID] = newBlobFile.BlobFileID;
+
+                       var oldBlobFileContent = await _dbContext.BlobFileContent.FindAsync(file.BlobFileID);
+                       if(oldBlobFileContent != null)
+                        {
+                            await _dbContext.BlobFileContent.AddAsync(new BlobFileContent
+                            {
+                                BlobFileID = newBlobFile.BlobFileID,
+                                Content = oldBlobFileContent.Content
+                            });
+
+                            await _dbContext.SaveChangesAsync();
+                        }
                     }
                 }
 
@@ -476,12 +495,19 @@ namespace Web.Controllers
                     {
                         foreach (var oldObs in oldNotebook.observableNotebookDatasets)
                         {
+                            // Checks if map includes blob copy
+                            // if not, do not create row
+                            if(!blobFileIdMap.TryGetValue(oldObs.BlobFileID, out var newBlobFileId))
+                            {
+                                continue;
+                            }
+
                             await _dbContext.ObservableNotebookDataset.AddAsync(new ObservableNotebookDataset
                             {
                                 NotebookID = newNotebook.NotebookID,
                                 datasetName = oldObs.datasetName,
                                 datasetURL = oldObs.datasetURL,
-                                BlobFileID = oldObs.BlobFileID
+                                BlobFileID = newBlobFileId
                             });
                         }
                     }
@@ -536,7 +562,7 @@ namespace Web.Controllers
             // Check if the project already exists
             bool projectExists = await _dbContext.Projects
                 .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == formdata.UserID &&
+                    aup.User.Id == userId &&
                     aup.Project.Name == project.Name &&
                     aup.UserRole == "owner"));
 
@@ -623,20 +649,8 @@ namespace Web.Controllers
                         }
                     }
 
-                    // Copy observable dataset links
-                    if (oldNotebook.observableNotebookDatasets != null && oldNotebook.observableNotebookDatasets.Count > 0)
-                    {
-                        foreach (var oldObs in oldNotebook.observableNotebookDatasets)
-                        {
-                            await _dbContext.ObservableNotebookDataset.AddAsync(new ObservableNotebookDataset
-                            {
-                                NotebookID = newNotebook.NotebookID,
-                                datasetName = oldObs.datasetName,
-                                datasetURL = oldObs.datasetURL,
-                                BlobFileID = oldObs.BlobFileID
-                            });
-                        }
-                    }
+                    // Do not copy observable dataset links
+                    // this fork mode does not copy blob files.
 
                     await _dbContext.SaveChangesAsync();
                 }

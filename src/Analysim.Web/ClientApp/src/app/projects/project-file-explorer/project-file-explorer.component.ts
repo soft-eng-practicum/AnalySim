@@ -30,7 +30,7 @@ export class ProjectFileExplorerComponent implements OnInit {
   @ViewChild('renameModal') renameModal: TemplateRef<any>;
   @ViewChild('closeDeleteModalbutton') closeDeleteModalbutton;
 
-  // @ViewChild('observablehqPanel', { read: ElementRef }) observablehqPanel;
+  @ViewChild('observablehqPanel', { read: ElementRef }) observablehqPanel; // ISsue here
 
   uploadModalRef: BsModalRef;
   folderModalRef: BsModalRef;
@@ -79,7 +79,7 @@ export class ProjectFileExplorerComponent implements OnInit {
     let script = this._renderer2.createElement('script');
     script.type = `module`;
     script.text = this.generateScript;
-    // this._renderer2.appendChild(this.observablehqPanel.nativeElement, script); // issue here
+    this._renderer2.appendChild(this.observablehqPanel.nativeElement, script); // issue here
   }
 
   extractDirectory(url) {
