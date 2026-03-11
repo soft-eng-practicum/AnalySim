@@ -143,3 +143,19 @@
   gap: var(--space-3);
   text-align: center;
 }
+
+.hero-logo {
+  display: block;
+  width: clamp(220px, 30vw, 420px);
+  height: auto;
+  object-fit: contain;
+}
+
+/* phone centering */
+@media (max-width: 576px) {
+  .hero-logo {
+    display: block;
+    margin: 0 auto;
+    width: clamp(180px, 60vw, 320px);
+  }
+}

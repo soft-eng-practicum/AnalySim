@@ -1,9 +1,63 @@
-.btn {
-  background-color: var(--button-background-color);
-  color: var(--primary-color);
+.notebooks-card {
+  border: var(--border-w-1) var(--border-style) var(--border-color);
+  border-radius: var(--radius-1);
+  overflow: hidden;
 }
-.card-header {
-  background-color: var(--primary-color);
+
+.notebooks-card__header {
+  background: var(--surface-0);
+  color: var(--text-on-light);
+  font-size: var(--fs-18);
+
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-w-1) var(--border-style) var(--border-color);
+}
+
+.notebooks-card__list {
+  margin: 0;
+}
+
+.notebooks-card__list-item {
+  border-left: 0;
+  border-right: 0;
+}
+
+.notebooks-card__nav-up {
+  cursor: pointer;
+}
+
+.notebooks-card__actions {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.notebooks-card__actions .btn {
+  padding: var(--space-2) var(--space-3) !important;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 0 !important;
+  font-size: var(--fs-16);
+  line-height: 1;
+}
+
+.notebooks-card__actions .btn + .btn {
+  margin-left: calc(var(--border-w-1) * -1);
+}
+
+.notebooks-card__actions .btn:first-child {
+  border-top-left-radius: var(--radius-1) !important;
+  border-bottom-left-radius: var(--radius-1) !important;
+}
+
+.notebooks-card__actions .btn:last-child {
+  border-top-right-radius: var(--radius-1) !important;
+  border-bottom-right-radius: var(--radius-1) !important;
+}
+
+.notebooks-card__actions .btn i {
   font-size: 18px;
-  font-weight: 500;
+  color: currentColor;
 }

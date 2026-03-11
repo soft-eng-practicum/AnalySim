@@ -49,3 +49,36 @@
     var(--button-border-color-secondary-hov) !important;
   color: var(--button-font-color-secondary-hov) !important;
 }
+
+/* Outline primary button (secondary actions) */
+.btn-outline-primary {
+  background: transparent !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--button-border-color) !important;
+  color: var(--button-border-color) !important;
+}
+
+.btn-outline-primary:hover:not(:disabled):not(.disabled),
+.btn-outline-primary:focus:not(:disabled):not(.disabled) {
+  background: var(--button-background-color) !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--button-border-color) !important;
+  color: var(--button-font-color) !important;
+}
+
+/* Quiet danger button */
+.btn-danger {
+  background: transparent !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--color-danger) !important;
+  color: var(--color-danger) !important;
+}
+
+/* Hover = full danger */
+.btn-danger:hover:not(:disabled):not(.disabled),
+.btn-danger:focus:not(:disabled):not(.disabled) {
+  background: var(--color-danger) !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--color-danger) !important;
+  color: var(--c-text-inverse) !important;
+}

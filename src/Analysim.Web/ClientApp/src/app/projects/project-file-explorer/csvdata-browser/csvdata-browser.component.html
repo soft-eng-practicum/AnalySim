@@ -1,81 +1,114 @@
-<div class="card">
-    <p-table #table
-             [value]="loadedData"
-             [(selection)]="selectedData"
-             [tableStyle]="{'min-width': '100%'}"
-             [resizableColumns]="true"
-             styleClass="p-datatable-gridlines"
-             [scrollable]="true"
-             scrollHeight="100%"
-             [rows]="50"
-             [paginator]="true"
-             [loading]="loading"
-             [rowsPerPageOptions]="[10, 25, 50]"
-             [showCurrentPageReport]="true"
-             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-             [filterDelay]="0"
-             [globalFilterFields]="selectedColumns"
-             [columns]="selectedColumns"
-             [reorderableColumns]="true"
-             (onSort)="resetSelectedData($event)"
-             (onFilter)="resetSelectedData($event)"
-             >
-        <ng-template pTemplate="caption">
-            <div class="table-header" style="margin-bottom: 10px;">
-                <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash" (click)="clear(table)"></button>
-                <span class="p-input-icon-left" style="float:right">
-                    <i class="pi pi-search"></i>
-                    <input #searchFilter pInputText type="text" placeholder="Global Search" (input)="applyFilterGlobal($event, 'contains')" />
-                </span>
-            </div>
-            <div>
-            <p-multiSelect [options]="cols" [(ngModel)]="selectedColumns"
-                           selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px'}" placeholder="Choose Columns">
-                <ng-template let-item pTemplate="selectedItem">
-                    {{item}}
-                </ng-template>
-                <ng-template let-item pTemplate="item">
-                    {{item}}
-                </ng-template>
-            </p-multiSelect>
-            <p-button label="Visualize Data" style="float: right;" (onClick)="toggleModalVisualizeData()"></p-button>
-            </div>
-        </ng-template>
-        <ng-template pTemplate="header" let-columns>
-            <tr>
-                <th style="width: 4rem" pResizableColumn>
-                    <p-checkbox
-                    [(ngModel)]="checked"
-                    [binary]="true"
-                    (onChange)="onCheckboxClick($event)">
-                  </p-checkbox>
-                </th>
-                <th *ngFor="let column of columns" [pSortableColumn]="column" pResizableColumn pReorderableColumn>
-                    <div class="flex justify-content-between align-items-center">
-                        {{column}}
-                        <p-sortIcon field={{column}}></p-sortIcon>
-                        <p-columnFilter [type]="columnDataTypes[column]" [field]="column" display="menu" class="ml-auto"></p-columnFilter>
-                    </div>
-                </th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-item let-columns="columns">
-            <tr>
-                <td>
-                    <p-tableCheckbox [value]="item"></p-tableCheckbox>
-                </td>
-                <td *ngFor="let col of columns">{{ item[col] }}</td>
-            </tr>
-        </ng-template>
-    </p-table>
-    <div style="display: flex;width: 100%; align-items: center;justify-content: center;margin: 10px;">
-        <p-button  label="Export Data"  (onClick)="seeSelectedData()"></p-button>
-        </div>
+<div class="card data-table-card">
+  <p-table #table
+           [value]="loadedData"
+           [(selection)]="selectedData"
+           [tableStyle]="{'min-width': '100%'}"
+           [resizableColumns]="true"
+           styleClass="p-datatable-gridlines"
+           [scrollable]="true"
+           scrollHeight="100%"
+           [rows]="50"
+           [paginator]="true"
+           [loading]="loading"
+           [rowsPerPageOptions]="[10, 25, 50]"
+           [showCurrentPageReport]="true"
+           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+           [filterDelay]="0"
+           [globalFilterFields]="selectedColumns"
+           [columns]="selectedColumns"
+           [reorderableColumns]="true"
+           (onSort)="resetSelectedData($event)"
+           (onFilter)="resetSelectedData($event)">
+
+    <ng-template pTemplate="caption">
+      <div class="table-header">
+        <!-- Clear -->
+        <button type="button"
+                class="btn btn-outline-primary"
+                (click)="clear(table)">
+          <i class="pi pi-filter-slash" aria-hidden="true"></i>
+          <span>Clear</span>
+        </button>
+
+        <!-- Search -->
+        <span class="p-input-icon-left table-search">
+          <i class="pi pi-search"></i>
+          <input #searchFilter
+                 pInputText
+                 type="text"
+                 placeholder="Global Search"
+                 (input)="applyFilterGlobal($event, 'contains')" />
+        </span>
+      </div>
+
+      <div class="table-tools">
+        <p-multiSelect [options]="cols"
+                       [(ngModel)]="selectedColumns"
+                       selectedItemsLabel="{0} columns selected"
+                       [style]="{'min-width': '200px'}"
+                       placeholder="Choose Columns">
+          <ng-template let-item pTemplate="selectedItem">{{item}}</ng-template>
+          <ng-template let-item pTemplate="item">{{item}}</ng-template>
+        </p-multiSelect>
+
+        <button type="button"
+                class="btn btn-primary"
+                (click)="toggleModalVisualizeData()">
+          Visualize Data
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th style="width: 4rem" pResizableColumn>
+          <p-checkbox [(ngModel)]="checked"
+                      [binary]="true"
+                      (onChange)="onCheckboxClick($event)">
+          </p-checkbox>
+        </th>
+
+        <th *ngFor="let column of columns"
+            [pSortableColumn]="column"
+            pResizableColumn
+            pReorderableColumn>
+          <div class="flex justify-content-between align-items-center">
+            {{column}}
+            <p-sortIcon field="{{column}}"></p-sortIcon>
+            <p-columnFilter [type]="columnDataTypes[column]"
+                            [field]="column"
+                            display="menu"
+                            class="ml-auto">
+            </p-columnFilter>
+          </div>
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item let-columns="columns">
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="item"></p-tableCheckbox>
+        </td>
+        <td *ngFor="let col of columns">{{ item[col] }}</td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+
+  <div class="export-row">
+    <button type="button"
+            class="btn btn-primary"
+            (click)="seeSelectedData()">
+      Export Data
+    </button>
+  </div>
 </div>
 
 <ng-template #visualizeDataModal>
-    <app-visualize-data [cols]="selectedColumns" 
-    (closeModalEvent)="closeModalVisualizeData()" 
-    [data]="(!selectedData || selectedData.length===0)  ? tableData : selectedData"
-    [columnDataTypes]="columnDataTypes"></app-visualize-data>
+  <app-visualize-data [cols]="selectedColumns"
+                      (closeModalEvent)="closeModalVisualizeData()"
+                      [data]="(!selectedData || selectedData.length===0) ? tableData : selectedData"
+                      [columnDataTypes]="columnDataTypes">
+  </app-visualize-data>
 </ng-template>

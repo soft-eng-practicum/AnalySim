@@ -1,12 +1,17 @@
-/* Brand alignment and spacing */
+.navbar-body {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
 .navbar-brand {
   margin-left: var(--navbar-brand-margin-left);
+  margin-right: 1em;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
 
   img {
-    height: 32px;
+    height: 36px;
     width: auto;
     max-height: 100%;
     object-fit: contain;
@@ -14,7 +19,6 @@
   }
 }
 
-/* Remove default active borders */
 .nav-item,
 .nav-link {
   border-bottom: none !important;
@@ -28,18 +32,48 @@
   align-items: center;
 }
 
-/* Search field styling */
+/* Left nav layout */
+.left-nav {
+  display: flex;
+  gap: .5em;
+  width: 75%;
+}
+
+/* Search takes remaining space on desktop */
+.nav-search {
+  flex: 1;
+  min-width: 0;
+  margin-left: .5em;
+}
+
+.nav-search form {
+  width: 100%;
+}
+
+.search-group {
+  width: 100%;
+}
+
 .search-group .form-control {
   border-color: var(--border-color);
+
+  flex: 1;
+  width: auto;
+
+  transition: width 0.25s ease;
 }
 
 .search-group .search-btn.btn {
   background: transparent;
   border-color: var(--border-color);
   color: inherit;
-
   padding-left: var(--space-3) !important;
   padding-right: var(--space-3) !important;
+}
+
+.right-nav {
+  display: flex;
+  gap: .5em;
 }
 
 /* Profile dropdown trigger */
@@ -83,7 +117,6 @@
 
 /* Navbar shell theme adjustments */
 .navbar.bg-shell {
-  --nav-text-soft: rgba(255, 255, 255, 0.85);
 
   .nav-link,
   .navbar-brand,
@@ -95,5 +128,54 @@
   .nav-link:hover,
   .nav-interactive:hover {
     color: var(--text-on-dark);
+  }
+}
+
+/* MOBILE */
+@media (max-width: 767.98px) {
+  .navbar-collapse.collapse:not(.show) {
+    display: none !important;
+  }
+
+  .navbar-collapse.show {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+  }
+
+  .left-nav {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  .nav-search {
+    order: -1;
+    width: 100%;
+    max-width: 520px;
+    padding: 0 1rem;
+    margin-right: 0;
+  }
+
+  .nav-search form,
+  .search-group {
+    width: 100%;
+  }
+
+  .right-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0.25rem 1rem 0.75rem;
+  }
+
+  .right-nav .nav-item.mr-2,
+  .right-nav .nav-item.mr-3 {
+    margin-right: 0 !important;
   }
 }
