@@ -1,5 +1,5 @@
 .ec-page {
-  min-height: 100vh;
+  min-height: 75vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,7 +12,6 @@
   max-width: 520px;
   border: var(--border-w-1) var(--border-style) var(--border-color);
   border-radius: var(--radius-1);
-  background: var(--surface-0);
   padding: var(--space-6);
   text-align: center;
 }
