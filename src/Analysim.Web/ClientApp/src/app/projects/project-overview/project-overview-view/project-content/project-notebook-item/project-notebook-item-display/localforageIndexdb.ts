@@ -10,12 +10,12 @@ export class JupyterLiteStorageService {
 
     constructor() {
         this.filesStore = localforage.createInstance({
-            name: 'JupyterLite Storage',
+            name: 'JupyterLite Storage - /assets/jupyter/dist/',
             storeName: 'files', // Object store name
             description: 'Storage for JupyterLite files',
         });
         this.checkpointsStore = localforage.createInstance({
-            name: 'JupyterLite Storage',
+            name: 'JupyterLite Storage - /assets/jupyter/dist/',
             storeName: 'checkpoints', // Object store name
             description: 'Storage for JupyterLite checkpoints',
         });

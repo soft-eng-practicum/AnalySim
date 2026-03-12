@@ -1,45 +1,42 @@
-/* You can add global styles to this file, and also import other style files */
-.container{
-    padding-right:5px;
-    padding-left:5px;
-}
-.invalid{
-    border-color: #dc3545 !important;
-}
-
-.valid{
-    border-color: #28a745 !important;
-}
-
-.card {
-  background-color: var(--background-color-tertiary);
-}
-// .btn-navy{
-//     background-color:
-//     #04132a;color: #FFF;}
-//     .btn-black:hover{color: #FFF;}
-// .bg-theme{
-//     background-color:  rgb(226, 234, 247);
-//     /* background-image: linear-gradient(#0c1a34,#102958); */
-// }
-// .bg-navy{
-//     background-color:  #102958;
-//     /* background-image: linear-gradient(#0c1a34,#102958); */
-// }
-.background {
-  background-color: var(--primary-color);
-  box-sizing: border-box;
+:host {
   height: 100%;
+}
+
+/* Full-height centered page background */
+.background {
+  background-color: var(--surface-0);
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  box-sizing: border-box;
 }
 
-
-
-:host {
-    height: 100%;
+/* Container padding adjustment */
+.container.background {
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
 }
-.bg-theme{
-    background-color: none;
+
+/* Soft card styling */
+.card.surface-soft {
+  border-radius: var(--border-radius);
+}
+
+/* Divider inside soft cards */
+.card.surface-soft hr {
+  border: 0;
+  border-top: var(--border-w-1) var(--border-style) var(--border-color);
+  margin: var(--space-3) 0;
+}
+
+/* Spinner sizing inside buttons */
+.btn .spinner-border {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Checkbox/radio label spacing */
+.form-check label {
+  margin-left: var(--space-2);
 }

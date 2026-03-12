@@ -2,7 +2,7 @@
 <div class="container-fluid background">
     <div class="row-fluid">
         <div class="row">
-            <div  class="col-lg-12 bg-navy">
+            <div  class="col-lg-12">
                 <div class="container">
                     <!-- Row Start -->
                     <div class="row justify-content-center">
@@ -13,7 +13,7 @@
                                 <!-- Column Start -->
                                 <div class="col-lg-4 col-md-7 col-sm-12 mb-4">
                                     <!-- Card Start -->
-                                    <div class="card bg-theme">
+                                    <div class="card surface-soft">
                                         <div class="card-body">
                                             <!-- Card Title -->
                                             <h4 class="card-title text-center mb-4 mt-1">Sign in</h4>
@@ -23,7 +23,7 @@
                                             <div class="text-center alert alert-warning alert-dismissible" *ngIf="invalidLogin" role="alert">
                                               <strong>{{errorMessage}}
                                               <span *ngIf="emailConf">
-                                                <a href="javascript:void(0);" (click)="sendReverifyLink()"> Click here to resend the email</a>.</span></strong>
+                                                <a class="link-basic" href="javascript:void(0);" (click)="sendReverifyLink()"> Click here to resend the email</a>.</span></strong>
                                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="invalidLogin = null;">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
@@ -42,7 +42,7 @@
                         
                                                 <!-- Form Password -->
                                                 <div class="form-group">
-                                                    <a class="float-right" href="javascript:void(0);" [routerLink]='["/emailForgotPass"]'>Forgot?</a>
+                                                    <a class="float-right link-basic" href="javascript:void(0);" [routerLink]='["/emailForgotPass"]'>Forgot?</a>
                                                     <label for="password">Password</label>
                                                     <input formControlName="password" type="password" class="form-control" placeholder="" required [readOnly]="isLoading">
                                                     <div *ngIf="password.touched && password.errors" class="errorMessage">
@@ -52,7 +52,7 @@
                         
                                                 <!-- Form Login-->
                                                 <div class="form-group">
-                                                    <button type="submit" class="btn-primary btn-block" value="Submit" [disabled]="loginForm.invalid">
+                                                    <button type="submit" class="btn btn-primary btn-block" value="Submit" [disabled]="loginForm.invalid">
                                                         <div *ngIf="!isLoading">
                                                             <span>Login</span>
                                                         </div>
@@ -71,7 +71,7 @@
                     <!-- Row Start -->
                     <div class="row justify-content-center">
                         <div class="col-lg-4 col-md-7 col-sm-12 mb-4">
-                            <div class="card bg-theme">
+                            <div class="card surface-soft">
                                 <article class="card-body">
                                     <div class="text-center">
                                         <p class ="d-inline">Don't have an account? </p>

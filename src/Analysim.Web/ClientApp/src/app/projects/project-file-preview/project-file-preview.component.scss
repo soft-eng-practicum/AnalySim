@@ -1,4 +1,54 @@
-.btn {
-  background-color: var(--button-background-color);
-  color:var(--primary-color);
+.file-preview-card {
+  border: var(--border-w-1) var(--border-style) var(--border-color);
+  border-radius: var(--radius-1);
+  overflow: hidden;
 }
+
+.file-preview-card__header {
+  background: var(--background-color-tertiary);
+  color: var(--text-on-light);
+  font-size: var(--fs-16);
+
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-w-1) var(--border-style) var(--border-color);
+}
+
+.file-preview-card {
+  border: var(--border-w-1) var(--border-style) var(--border-color);
+  border-radius: var(--radius-1);
+  overflow: hidden;
+  background: var(--background-color-tertiary);
+}
+
+.file-preview-card__header {
+  background: transparent;
+  color: var(--text-on-light);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-w-1) var(--border-style) var(--border-color);
+}
+
+.file-preview-card__title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.file-preview-card__heading {
+  font-size: var(--fs-12);
+  opacity: 0.75;
+}
+
+.file-preview-card__filename {
+  font-size: var(--fs-16);
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-preview-card__body {
+  padding: var(--space-3);
+}
+

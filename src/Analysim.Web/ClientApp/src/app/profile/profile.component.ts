@@ -58,18 +58,16 @@ export class ProfileComponent implements OnInit {
             this.loadProject(result)
             this.loadFollowing(result)
             this.loadFollower(result)
+            this.profileImage()
           }, error => {
             this.showError = true
           })
     })
-    this.profileImage();
-
-
   }
 
   profileImage() {
-    if (this.currentUser.blobFiles.length != 0) {
-      var blobFile = this.currentUser.blobFiles.find(x => x.container == 'profile')
+    if (this.profile.blobFiles.length != 0) {
+      var blobFile = this.profile.blobFiles.find(x => x.container == 'profile')
       if (blobFile != null) {
         this.projectService.downloadFile(blobFile.blobFileID).subscribe(
           imageBlob => {
@@ -78,11 +76,13 @@ export class ProfileComponent implements OnInit {
             this.profileImageUrl = this.sanitizer.bypassSecurityTrustUrl(objectURL);
           }, error => {
             console.log(error)
+            this.profileImageUrl = "../../assets/img/default-profile.png";
           }
         )
       }
       else this.profileImageUrl = "../../assets/img/default-profile.png";
     }
+    else this.profileImageUrl = "../../assets/img/default-profile.png";
   }
 
   changeTab(num: number) {

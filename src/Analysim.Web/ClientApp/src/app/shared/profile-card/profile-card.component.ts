@@ -1,6 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { User } from 'src/app/interfaces/user';
 import { AccountService } from 'src/app/services/account.service';
+import { ProjectService } from 'src/app/services/project.service';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -11,23 +13,51 @@ import { Observable } from 'rxjs';
 })
 export class ProfileCardComponent implements OnInit {
 
-  constructor(private accountService : AccountService,
-    private router : Router) { }
+  @Input() profile : User;
+  currentUser$ : Observable<User>;
+  currentUser : User = null;
+  profileImageUrl: SafeUrl;
 
-  @Input() profile : User
-  currentUser$ : Observable<User>
-  currentUser : User = null
+  constructor(
+    private accountService: AccountService,
+    private router: Router,
+    private projectService: ProjectService,
+    private sanitizer: DomSanitizer
+  ) { }
 
   async ngOnInit() {
     if(this.accountService.checkLoginStatus()){
       await this.accountService.currentUser.then((x) => this.currentUser$ = x)
       this.currentUser$.subscribe(x => this.currentUser = x)
     }
+    this.loadProfileImage();
+  }
+
+  loadProfileImage() {
+    if (this.profile.blobFiles.length != 0) {
+      var blobFile = this.profile.blobFiles.find(x => x.container == 'profile')
+      if (blobFile != null) {
+        this.projectService.downloadFile(blobFile.blobFileID).subscribe(
+          imageBlob => {
+            if (imageBlob == null) this.profileImageUrl = "../../assets/img/default-profile.png";
+            const objectURL = URL.createObjectURL(imageBlob);
+            this.profileImageUrl = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+          }, error => {
+            console.log(error)
+            this.profileImageUrl = "../../assets/img/default-profile.png";
+          }
+        )
+      }
+      else this.profileImageUrl = "../../assets/img/default-profile.png";
+    }
+    else {
+      this.profileImageUrl = "../../assets/img/default-profile.png";
+    }
   }
 
   get isFollowing() : boolean{
     if(this.currentUser == null) return false
-    if(this.profile.followers.findIndex(x => x.followerID == this.currentUser.id) > -1) return true
+    if(this.profile.followers.findIndex(x => x.followerID === this.currentUser.id) > -1) return true
     return false;
   }
 
@@ -46,13 +76,18 @@ export class ProfileCardComponent implements OnInit {
 
   unFollowUser(){
     this.accountService.unfollow(this.profile.id, this.currentUser.id).subscribe(
-      result =>{
-        let index = this.profile.followers.indexOf(result)
-        this.profile.followers.splice(index, 1)
-      }, error =>{
-        console.log(error)
-      }
-    )
+        result => {
+          const index = this.profile.followers.findIndex(userFollower =>
+            userFollower.userID === result.userID && userFollower.followerID === result.followerID
+          );
+
+          if (index > -1) {
+            this.profile.followers.splice(index, 1);
+          }
+        }, error => {
+          console.log(error);
+        }
+      );
   }
 
 }

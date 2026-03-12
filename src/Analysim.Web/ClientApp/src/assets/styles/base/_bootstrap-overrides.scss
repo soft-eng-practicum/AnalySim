@@ -1,0 +1,84 @@
+/* 
+  Bootstrap normalization layer.
+  Centralizes overrides for Bootstrap components so they follow
+  the app’s design tokens and visual system instead of default Bootstrap styles. 
+*/
+
+/* Base button */
+.btn {
+  border-radius: var(--button-border-radius) !important;
+  padding: var(--button-padding) !important;
+  transition: var(--motion-nav);
+
+  /* Disabled state */
+  &:disabled,
+  &.disabled {
+    cursor: not-allowed;
+    opacity: var(--opacity-disabled);
+  }
+}
+
+/* Primary button */
+.btn-primary {
+  background-color: var(--button-background-color) !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--button-border-color) !important;
+  color: var(--button-font-color) !important;
+}
+
+.btn-primary:hover:not(:disabled):not(.disabled),
+.btn-primary:focus:not(:disabled):not(.disabled) {
+  background-color: var(--button-background-color-hov) !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--button-border-color-hov) !important;
+  color: var(--button-font-color-hov) !important;
+}
+
+/* Secondary button */
+.btn-secondary {
+  background-color: var(--button-background-color-secondary) !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--button-border-color-secondary) !important;
+  color: var(--button-font-color-secondary) !important;
+}
+
+.btn-secondary:hover:not(:disabled):not(.disabled),
+.btn-secondary:focus:not(:disabled):not(.disabled) {
+  background-color: var(--button-background-color-secondary-hov) !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--button-border-color-secondary-hov) !important;
+  color: var(--button-font-color-secondary-hov) !important;
+}
+
+/* Outline primary button (secondary actions) */
+.btn-outline-primary {
+  background: transparent !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--button-border-color) !important;
+  color: var(--button-border-color) !important;
+}
+
+.btn-outline-primary:hover:not(:disabled):not(.disabled),
+.btn-outline-primary:focus:not(:disabled):not(.disabled) {
+  background: var(--button-background-color) !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--button-border-color) !important;
+  color: var(--button-font-color) !important;
+}
+
+/* Quiet danger button */
+.btn-danger {
+  background: transparent !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--color-danger) !important;
+  color: var(--color-danger) !important;
+}
+
+/* Hover = full danger */
+.btn-danger:hover:not(:disabled):not(.disabled),
+.btn-danger:focus:not(:disabled):not(.disabled) {
+  background: var(--color-danger) !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--color-danger) !important;
+  color: var(--c-text-inverse) !important;
+}

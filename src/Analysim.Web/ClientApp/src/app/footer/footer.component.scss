@@ -1,104 +1,55 @@
-.bg-footer {
-    background-color: var(--background-color-secondary);
+@import "src/assets/styles/abstracts/mixins";
+
+.footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+
+  /* reduce “tall footer” feeling */
+  padding: var(--space-3);
+  min-height: 48px;
+}
+
+.footer-left,
+.footer-right {
+  display: flex;
+  align-items: center;
+  font-size: medium;
+}
+
+.footer-right{
+  gap: var(--space-2)
+}
+
+.footer-left {
+  flex-wrap: wrap;
+  gap: var(--space-3)
+}
+
+.footer-center {
+  text-align: center;
+  line-height: 1.2;
+  font-size: var(--fs-14);
+  opacity: 0.9;
+  white-space: nowrap;
+  flex: 1;
+  font-size: medium;
+}
+
+.footer-right img {
+  @include media-square(32px);
+}
+
+/* Mobile */
+@media (max-width: 575.98px) {
+  .footer-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
   }
-  
 
-
-.row{
-line-height: 0px;
-}
-
-.footer-link{
-    text-decoration:none;
-}
-
-.footer-link:hover {
-  background-color: var(--button-background-color);
-  border-radius: 5%;
-  color: var(--primary-color) !important;
-  transition: 0.2s;
-  border-bottom: none !important;
-}
-
-.footer-link-row {
-    padding: 10px 0px;
-
-    .footer-about {
-        height: 19px;
-        line-height: 14px;
-        margin-bottom: 15px;
-        //font-weight: 500;
-        font-size: 18px;
-        width: min-content;
-    }
-
-    .footer-header {
-        height: 19px;
-        line-height: 14px;
-        margin-bottom: 15px;
-        font-weight: 500;
-        font-size: 18px;
-        width: min-content; 
-        font-weight: bold;
-    }
-
-    ul {
-        @media (max-width: 576px) {
-            margin-bottom: 0px;
-        }
-    }
-
-    li {
-        margin-bottom: 10px;
-
-        a {
-            line-height: 16px;
-            padding: 5px;
-        }
-    }
-
-    .footer-sponser {
-        img {
-            width: 28px;
-            height: 28px;
-        }
-    }
-
-    #about {
-        font-weight: bold;
-    }
-
-    .footer-about {
-        text-align: left;
-    }
-
-    .footer-connect {
-
-        ul {
-            display: flex;
-            img {
-                width: 32px;
-                height: 32px;
-            }
-        }
-    }
-}
-
-.footer-logo-row {
-    .col-md-10 {
-        display: flex;
-        border-top: 1px solid var(--primary-color);
-        padding-top: 10px;
-
-        div {
-            line-height: 16px;
-        }
-        .footer-copyright {
-            margin-left: auto
-        }
-        .footer-logo{
-            text-align: center;
-            width: 100%;
-        }
-    }
+  .footer-center {
+    white-space: normal;
+  }
 }

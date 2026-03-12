@@ -23,6 +23,9 @@ namespace Core.Entities
         [Required(ErrorMessage = "Notebook Name is a required field.")]
         public string Name { get; set; }
 
+        [Required(ErrorMessage = "Route name is a required field.")]
+        public string Route { get; set; }
+
         [Required(ErrorMessage = "Notebook Extension is a required field.")]
         public string Extension { get; set; }
 

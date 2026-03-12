@@ -1,113 +1,161 @@
-.header{
-    /* background-image: url("../../assets/img/background2.png");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center center; */
-    background-color: var(--background-color);
+@import "src/assets/styles/abstracts/mixins";
+
+.header {
+  background-color: var(--surface-blue);
+  color: var(--text-on-dark);
+
+  * {
+    color: inherit;
+  }
 }
 
-.header-text{
-    font-size: 1.25rem !important;
-    font-weight: 400;
+.header-text {
+  font-size: 1.25rem;
+  font-weight: 400;
 }
 
-.bg-navy {
-  /* background-color:#04132a; */
-  color: var(--primary-color);
-  background-color: var(--background-color);
-}
-.btn-primary {
-  color: var(--primary-color);
-  background-color: var(--button-background-color) !important;
-  border-color: var(--button-background-color) !important;
+.services-grid {
+  align-items: stretch;
 }
 
-a {
-  color: var(--button-background-color);
-  text-decoration: underline;
-}
+.service-card {
+  @include card-stack;
+  min-height: 200px;
 
-  .NBTitle{
-    font-size: calc(1.325rem + .9vw);
-    margin-top: 0;
-margin-bottom: .5rem !important;
-font-weight: 500 !important;
-line-height: 1.2 !important;
-font-family:var(--bs-body-font-family) !important;
---fa-font-light: normal 300 1em/1 "Font Awesome 6 Light" !important;
---fa-font-thin: normal 100 1em/1 "Font Awesome 6 Thin" !important;
---fa-font-duotone: normal 900 1em/1 "Font Awesome 6 Duotone"!important;
+  p {
+    margin-bottom: 1rem;
   }
 
-.notebook-row {
-    @media (max-width: 768px){
-        flex-direction: column;
-    }
-
-    .notebook-container{
-        display: flex;
-        flex-direction: column; 
-        align-items: center;
-
-        @media (max-width: 768px){
-            width: 100%
-        }
-    
-        hr {
-            width: 100%
-        }
-    
-        .note-title {
-            border-bottom: 1px solid #c6c8c8;
-            width: 50%;
-            text-align: center;
-            padding-bottom: 10px;
-            font-size: 2rem;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-    
-        .note-img {
-            width: 200px;
-            height: 200px;
-        }
-    
-        .note-btn {
-            font-size: 1.25rem;
-            margin-top: 15px;
-        }
-    }
-    
-    .note-desc{
-        align-items: center;
-        display: flex;
-        font-size: 1.25rem;
-        padding: 30px;
-    }
+  a {
+    @include card-stack-cta;
+  }
 }
- .sponsor-left{
-    justify-content: center;
- }
 
- .home-sponser {
+.service-card hr,
+.notebook-container hr {
+  width: 100%;
+  border: 0;
+  border-top: var(--border-w-1) var(--border-style) var(--border-color);
+  margin: var(--space-2) 0;
+}
 
-    .sponser-column {
-        align-self: center;
+.notebook-row {
+  @include stack-md;
 
-        .hero-sponser {
-            display: flex;
-            align-items: center;
-        
-            img {
-                margin-right: 10px;
-                width: 48px;
-                height: 48px;
-            }
+  .notebook-container {
+    @include card-stack;
+    min-height: 420px;
 
-            a {
-                text-decoration: none;
-                color: inherit;
-            }
-        }
+    @media (max-width: var(--bp-md)) {
+      width: 100%;
+      min-height: 380px;
     }
+
+    .note-img {
+      width: 200px;
+      height: 200px;
+      margin: auto 0;
+      display: block;
+      object-fit: contain;
+    }
+
+    .note-btn {
+      @include card-stack-cta;
+      padding-top: var(--link-cta-padding-top);
+    }
+  }
+
+  .note-desc {
+    display: flex;
+    align-items: center;
+    font-size: 1.25rem;
+    padding: 30px;
+  }
+}
+
+.sponsor-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @media (max-width: 1199.98px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 575.98px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sponsor-card {
+  @include card-stack;
+
+  width: 100%;
+  min-height: 220px;
+
+  text-decoration: none;
+  color: var(--text-on-light);
+
+  /* --- Border --- */
+  border: var(--border-w-1) var(--border-style) var(--border-color);
+  border-radius: 6px;
+
+  /* --- Shadow --- */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  transition: transform var(--motion-fast), box-shadow var(--motion-fast);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  &:focus-visible {
+    outline: var(--border-w-2) solid var(--link-color);
+    outline-offset: 2px;
+  }
+}
+
+.sponsor-card__logo {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  display: block;
+}
+
+.sponsor-card__name {
+  font-size: 0.95rem;
+  line-height: 1.2;
+  font-weight: 600;
+  max-width: 32ch;
+}
+
+.sponsor-content {
+  margin: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.hero-logo {
+  display: block;
+  width: clamp(220px, 30vw, 420px);
+  height: auto;
+  object-fit: contain;
+}
+
+/* phone centering */
+@media (max-width: 576px) {
+  .hero-logo {
+    display: block;
+    margin: 0 auto;
+    width: clamp(180px, 60vw, 320px);
+  }
 }

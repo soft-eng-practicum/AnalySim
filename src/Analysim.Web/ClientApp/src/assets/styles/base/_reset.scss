@@ -1,0 +1,22 @@
+/* 
+  Basic layout reset.
+  Normalizes default browser spacing and ensures full-height layout
+  so pages can reliably use flex and vertical centering. 
+*/
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  height: 100vh !important;
+}
+
+body {
+  margin: 0;
+}
+
+section {
+  margin: 0 !important;
+}

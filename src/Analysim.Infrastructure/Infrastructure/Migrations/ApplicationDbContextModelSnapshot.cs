@@ -153,6 +153,10 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("ProjectID")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Route")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int>("Size")
                         .HasColumnType("integer");
 
@@ -424,21 +428,21 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "b2996c18-b35e-4568-b061-1c3c2027543b",
+                            ConcurrencyStamp = "ebd0169f-30be-4ab7-9fb9-038a9de20efb",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "90f1b211-a965-4941-b973-71cd8a653cd7",
+                            ConcurrencyStamp = "371acb40-c941-4714-9c2c-bc9de9bff144",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "21584cfd-491d-4638-9753-5f9ec755712f",
+                            ConcurrencyStamp = "7ee39326-5034-4323-85cc-6da801861458",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });

@@ -1,24 +1,40 @@
-<div class="card">
-    <!-- Card Header Start -->
-    <div class="d-flex card-header flex-row align-items-center">
-        <!-- File Route Start -->
-        <span class="mr-2">File Preview</span>
+<div class="card file-preview-card">
+  <div class="d-flex card-header align-items-center file-preview-card__header">
+    <div class="file-preview-card__title">
+      <span class="file-preview-card__heading">Previewing</span>
+      <span class="file-preview-card__filename">
+        {{ blobFile?.name }}{{ blobFile?.extension }}
+      </span>
+    </div>
 
-        <!-- File Explorer Button Start -->
-        <div class="d-inline-flex ml-auto">
-            <!-- Private Button Group Start -->
-            <div class="btn-group" role="group">
-                <button type="button" class="btn" title="Load Notebook" (click)="toggleModalObservablehq()">
-                    <span class="icon-observablehq bl-1"></span>
-                </button>
-            </div> <!-- Private Button Group End -->
-        </div> <!-- File Explorer Button End -->
-    </div> <!-- Card Header End -->
-    <app-observablehq *ngIf="showNotebook == true" [blobUri]="blobFile.uri"
-        [observableNotebookLink]="notebookLink"></app-observablehq>
+    <div class="ml-auto d-inline-flex">
+      <div class="btn-group" role="group" aria-label="File preview actions">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="toggleModalObservablehq()"
+          title="Analyze in Notebook"
+          aria-label="Analyze in Notebook"
+        >
+          <i class="fa fa-play mr-1" aria-hidden="true"></i>
+          Analyze in Notebook
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="file-preview-card__body">
+    <app-observablehq
+      *ngIf="showNotebook"
+      [blobUri]="blobFile.uri"
+      [observableNotebookLink]="notebookLink"
+    ></app-observablehq>
+  </div>
 </div>
 
 <ng-template #observablehqModal>
-    <app-modal-observablehq [observablehqModalRef]="observablehqModalRef"
-        (loadNotebookEvent)="loadNotebook($event)"></app-modal-observablehq>
+  <app-modal-observablehq
+    [observablehqModalRef]="observablehqModalRef"
+    (loadNotebookEvent)="loadNotebook($event)"
+  ></app-modal-observablehq>
 </ng-template>

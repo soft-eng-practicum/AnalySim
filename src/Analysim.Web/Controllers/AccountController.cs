@@ -86,6 +86,29 @@ namespace Web.Controllers
 
         /*
         * Type : GET
+        * URL : /api/account/isadmin/
+        * Description: check the user is admin or not
+        * Response Status: 200 Ok, 404 Not Found
+        */
+        [HttpGet("[action]/{username}")]
+        public IActionResult IsAdmin([FromRoute] string username)
+        {
+            var user = _dbContext.Users
+                .SingleOrDefault(u => u.UserName == username);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var admins = _configuration
+                .GetSection("AdminUsers")
+                .Get<List<string>>() ?? new List<string>();
+
+            bool isAdmin = admins
+                .Any(u => string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+
+            return Ok(new { result = isAdmin });
+        }
+
+        /*
+        * Type : GET
         * URL : /api/account/getuserbyname/
         * Description: Return User from username
         * Response Status: 200 Ok, 404 Not Found
@@ -218,23 +241,24 @@ namespace Web.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Follow([FromForm] AccountFollowVM formdata)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
-            if (user == null) return NotFound(new { message = "User Not Found" });
-
             // Find User
-            //var user = await _dbContext.Users.FindAsync(formdata.UserID);
-            //if (user == null) return NotFound(new { message = "User Not Found " + formdata.UserID });
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "Current user not found" });
 
-            // Find Follower
-            var follower = await _dbContext.Users.FindAsync(formdata.FollowerID);
-            if (follower == null) return NotFound(new { message = "User Not Found " + formdata.UserID });
+            // Find User to follow
+            var userToFollow = await _dbContext.Users.FindAsync(formdata.UserID);
+            if (userToFollow == null) return NotFound(new { message = "User to follow not Found" });
 
             // Create Many To Many Connection
             var userFollower = new UserUser
             {
-                UserID = user.Id,
-                FollowerID = formdata.FollowerID
+                UserID = userToFollow.Id,
+                FollowerID = user.Id
             };
 
             // Add To Database
@@ -246,7 +270,7 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = userFollower,
-                message = follower.UserName + " is now following " + user.UserName
+                message = user.UserName + " is now following " + userToFollow.UserName
             });
         }
 
@@ -620,11 +644,12 @@ namespace Web.Controllers
                 {
                     Subject = new ClaimsIdentity(new Claim[]
                     {
-                        new Claim(JwtRegisteredClaimNames.Sub, formdata.Username),
+                        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        //new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                         //new Claim(ClaimTypes.Role, roles.FirstOrDefault()),
-                        new Claim("LoggedOn", DateTime.UtcNow.ToString())
+                        new Claim("LoggedOn", DateTime.UtcNow.ToString()),
+                        new Claim(ClaimTypes.Name, formdata.Username)
                     }),
 
                     SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature),
@@ -683,8 +708,13 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
                 // Return Bad Request Status
@@ -799,8 +829,13 @@ namespace Web.Controllers
         [HttpPut("[action]/{userID}")]
         public async Task<IActionResult> UpdateUser([FromRoute] int userID, [FromForm] AccountUpdateVM formdata)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound(new { message = "User Not Found" });
 
             // Check Model State
@@ -843,20 +878,21 @@ namespace Web.Controllers
         [HttpDelete("[action]/{userID}/{followerID}")]
         public async Task<IActionResult> Unfollow([FromRoute] int userID, [FromRoute] int followerID)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
-            if (user == null) return NotFound(new { message = "User Not Found" });
-
             // Find User
-            //var user = await _dbContext.Users.FindAsync(userID);
-            //if (user == null) return NotFound(new { message = "User Not Found" });
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "Current user not found" });
 
-            // Find Follower
-            var follower = await _dbContext.Users.FindAsync(followerID);
-            if (follower == null) return NotFound(new { message = "Follower Not Found" });
+            // Find UsertoFollow
+            var userToFollow = await _dbContext.Users.FindAsync(userID);
+            if (userToFollow == null) return NotFound(new { message = "User to follow not found" });
 
             // Find Many To Many
-            var userFollower = await _dbContext.UserUsers.FindAsync(user.Id, follower.Id);
+            var userFollower = await _dbContext.UserUsers.FindAsync(userToFollow.Id, user.Id);
             if (userFollower == null) return NotFound(new { message = "User Follower Connection Not FOund" });
 
             // Remove Project
@@ -868,9 +904,96 @@ namespace Web.Controllers
             return Ok(new
             {
                 result = userFollower,
-                message = follower.UserName + " has unfollow " + user.UserName
+                message = user.UserName + " has unfollow " + userToFollow.UserName
             });
         }
+
+        /*
+         * Type : DELETE
+         * URL : /api/account/deleteuser/
+         * Param : {userID}
+         * Description: Delete the user and its associated entities
+         * Response Status: 200 Ok, 404 Not Found
+         */
+        [Authorize]
+        [HttpDelete("[action]/{userId:int}")]
+        public async Task<IActionResult> DeleteUser([FromRoute] int userId)
+        {
+            // Only the same user or an admin may delete the user
+            var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(currentUserIdStr, out var currentUserId))
+                return Unauthorized(new { message = "Invalid user identity." });
+
+            var currentUsername = User.Identity?.Name ?? User.FindFirstValue(ClaimTypes.Name);
+
+            var admins = _configuration
+                .GetSection("AdminUsers")
+                .Get<List<string>>() ?? new List<string>();
+
+            bool isAdmin = admins
+                .Any(u => string.Equals(u, currentUsername, StringComparison.OrdinalIgnoreCase));
+
+            var isSelf = currentUserId == userId;
+            if (!isAdmin && !isSelf)
+                return Forbid();
+
+            var user = await _dbContext.Users
+                .Include(u => u.ProjectUsers)
+                .Include(u => u.BlobFiles)       
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                return NotFound(new { message = "User not found." });
+
+            using var tx = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Delete projects the user owns (this cascades to notebooks, notebook contents, blobfiles, etc.)
+                var projectsOwned = await _dbContext.Projects
+                    .Include(p => p.ProjectUsers)
+                    .Where(p => p.ProjectUsers.Any(pu => pu.UserID == userId && pu.UserRole == "owner"))
+                    .ToListAsync();
+
+                _dbContext.Projects.RemoveRange(projectsOwned);
+                await _dbContext.SaveChangesAsync(); 
+
+                // Remove memberships from projects the user does not own
+                var memberships = await _dbContext.ProjectUsers
+                    .Where(pu => pu.UserID == userId)
+                    .ToListAsync();
+                _dbContext.ProjectUsers.RemoveRange(memberships);
+                await _dbContext.SaveChangesAsync();
+
+                // Remove followers/following
+                var followerEdges = await _dbContext.UserUsers
+                    .Where(uu => uu.UserID == userId || uu.FollowerID == userId)
+                    .ToListAsync();
+                _dbContext.UserUsers.RemoveRange(followerEdges);
+                await _dbContext.SaveChangesAsync();
+
+                // Remove profile images.
+                var userOnlyBlobs = await _dbContext.BlobFiles
+                    .Where(b => b.UserID == userId && (b.Container == "profile" || b.ProjectID == null))
+                    .ToListAsync();
+                _dbContext.BlobFiles.RemoveRange(userOnlyBlobs);
+                await _dbContext.SaveChangesAsync();
+
+                // Remove the user
+                _dbContext.Users.Remove(user);
+                await _dbContext.SaveChangesAsync();
+
+                await tx.CommitAsync();
+
+                return Ok(new { message = "User and associated data deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return BadRequest(new { message = "Failed to delete user.", error = ex.Message });
+            }
+        }
+
         #endregion
 
         #region Extra
@@ -982,8 +1105,13 @@ namespace Web.Controllers
         {
             try
             {
-                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                // Find User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
                 // Find File

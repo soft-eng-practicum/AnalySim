@@ -1,44 +1,29 @@
 .project-card-container {
   border: var(--border-width) var(--border-style) var(--border-color);
 
+  /* Header: title + actions row */
   .project-card-header {
-    padding: .75rem 1.25rem;
+    padding: 0.75rem 1.25rem;
     margin-bottom: 0;
     background-color: var(--background-color-tertiary);
-    border-bottom: 1px solid rgba(0,0,0,.125);
+    border-bottom: var(--border-width) var(--border-style) var(--border-color);
     display: flex;
     line-height: 24px;
     align-items: center;
 
-    .project-user {
-      font-weight: 500;
-      line-height: 1.2;
-      font-size: 1.25rem;
-    }
-
+    .project-user,
     .project-name {
       font-weight: 500;
       line-height: 1.2;
       font-size: 1.25rem;
     }
 
+    /* Follow button aligned right */
     .project-follow-option {
       margin-left: auto;
 
-      .project-follow, .project-unfollow {
-        margin-right: 10px;
-        padding: 5px 10px;
+      .btn-primary {
         min-width: 90px;
-        color: var(--button-font-color);
-        background-color: var(--button-background-color);
-        border: 1px solid var(--button-font-color);
-
-        &:hover {
-          color: var(--button-font-color-secondary-hov);
-          background-color: var(--button-background-color-secondary-hov);
-          border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary-hov);
-          text-decoration: none;
-        }
       }
     }
   }
@@ -47,19 +32,52 @@
     background-color: var(--background-color-tertiary);
   }
 
+  /* Main content area */
   .project-card-body {
     padding: 20px;
 
     .project-tag-list {
       list-style: none;
-      padding: 0px;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* Tag pills */
+    .badge.badge-pill {
+      color: var(--button-font-color) !important;
+      background-color: var(--button-background-color) !important;
+      border: 0 !important;
+
+      padding-right: 0.8em;
+      padding-left: 0.8em;
+      border-radius: 10rem;
+
+      display: inline-block;
+      padding: 0.25em 0.4em;
+      font-size: 14px;
+      line-height: 1;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: baseline;
+      box-sizing: border-box;
+    }
+
+    .badge.badge-pill .tag-link {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .badge.badge-pill .tag-link:hover {
+      text-decoration: none;
+      cursor: pointer;
     }
   }
 
+  /* Footer: meta info row */
   .project-card-footer {
-    padding: .75rem 1.25rem;
+    padding: 0.75rem 1.25rem;
     background-color: var(--background-color-tertiary);
-    border-top: 1px solid var(--background-color-tertiary);
+    border-top: var(--border-width) var(--border-style) var(--border-color);
 
     .project-member {
       margin-right: 10px;
@@ -72,37 +90,26 @@
   }
 }
 
+/* Local link styling */
 a {
-  color: var(--button-background-color);
+  color: var(--link-on-light);
   text-decoration: none;
   background-color: transparent;
 }
 
+a:hover {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+}
+
+/* Default badge styling */
 .badge {
-  color: var(--button-background-color) !important;
-  margin-left: .25rem !important;
+  color: var(--text-on-light) !important;
+  background-color: var(--surface-0);
+  margin-left: 0.25rem !important;
   position: relative;
   top: -1px;
   font-weight: 300 !important;
   display: inline-block;
-  border: none;
-}
-
-.badge-pill {
-  color: var(--primary-color) !important;
-  background-color: var(--button-background-color) !important;
-  font-weight: 300 !important;
-  margin-right: .5rem !important;
-  padding-right: .6em;
-  padding-left: .6em;
-  border-radius: 10rem;
-  display: inline-block;
-  padding: .25em .4em;
-  font-size: 14px;
-  line-height: 1;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: baseline;
-  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-  box-sizing: border-box;
+  border: 0;
 }

@@ -1,0 +1,153 @@
+/* 
+  Design tokens for the app (source of truth).
+  Defines core CSS variables for colors, spacing, typography, motion, and component sizing,
+  plus legacy aliases so older styles keep working during the migration. 
+*/
+
+:root {
+  /* Core colors */
+  --c-brand-700: #002B5B;
+  --c-brand-800: #042449;
+  --c-accent-600: #256D85;
+
+  /* Surfaces */
+  --c-surface-0: #ffffff;
+  --c-surface-blue: var(--c-brand-700);
+  --c-surface-blue-2: var(--c-brand-800);
+
+  /* Text */
+  --c-text-0: #111111;
+  --c-text-inverse: #ffffff;
+  --c-text-500: #808080;
+
+  /* Borders */
+  --c-border-200: #dee2e6;
+  --c-border-on-dark-weak: rgba(255, 255, 255, 0.35);
+
+  /* Semantic */
+  --c-danger-600: #dc3545;
+  --c-success-600: #28a745;
+
+  /* Links */
+  --c-link: var(--c-accent-600);
+  --c-link-inverse: #ffffff;
+  --c-link-hover: var(--c-brand-800);
+
+  /* Spacing scale */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  /* Borders and radius */
+  --border-w-1: 1px;
+  --border-style: solid;
+  --radius-1: 4px;
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI",
+             Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fs-12: 12px;
+  --fs-14: 14px;
+  --fs-16: 16px;
+  --fs-18: 18px;
+  --fs-20: 20px;
+
+  /* Effects */
+  --opacity-disabled: 0.5;
+
+  /* Motion */
+  --motion-fast: 0.2s ease;
+  --motion-nav: background-color var(--motion-fast), color var(--motion-fast);
+
+  /* Nav sizing and hover behavior */
+  --nav-link-radius: var(--radius-1);
+  --nav-link-padding-y: var(--space-1);
+  --nav-link-padding-x: var(--space-2);
+  --nav-hover-bg: var(--c-accent-600);
+  --nav-hover-fg: var(--c-text-inverse);
+
+  /* CTA sizing */
+  --cta-padding-y: var(--space-1);
+  --cta-padding-x: var(--space-2);
+  --cta-font-size: var(--fs-18);
+
+  /* Link CTA sizing */
+  --link-cta-font-size: var(--fs-16);
+  --link-cta-padding-top: var(--space-1);
+
+  /* Breakpoints */
+  --bp-md: 768px;
+  --bp-lg: 992px;
+
+  /* Legacy aliases used by older styles */
+  --brand-blue: var(--c-brand-700);
+  --brand-blue-2: var(--c-brand-800);
+  --brand-blue-3: var(--c-accent-600);
+
+  --surface-0: var(--c-surface-0);
+  --surface-blue: var(--c-surface-blue);
+  --surface-blue-2: var(--c-surface-blue-2);
+
+  --text-on-light: var(--c-text-0);
+  --text-on-dark: var(--c-text-inverse);
+
+  --link-on-light: var(--c-link);
+  --link-on-dark: var(--c-link-inverse);
+  --link-hover-color: var(--c-link-hover);
+
+  --color-danger: var(--c-danger-600);
+  --color-success: var(--c-success-600);
+
+  --background-color: var(--c-surface-blue);
+  --background-color-secondary: var(--c-surface-blue-2);
+
+  /* Light panel surface used across the app */
+  --background-color-tertiary: #edfffb;
+
+  --border-color: var(--c-border-200);
+  --border-color-secondary: var(--c-surface-0);
+  --border-color-selected: var(--c-surface-0);
+  --border-width: var(--border-w-1);
+  --border-radius: var(--radius-1);
+
+  /* Buttons */
+  --button-background-color: var(--c-accent-600);
+  --button-background-color-disabled: color-mix(
+    in srgb,
+    var(--c-accent-600) 60%,
+    var(--c-surface-0)
+  );
+  --button-border-color: var(--c-accent-600);
+  --button-border-color-hov: var(--c-accent-600);
+
+  --button-font-color: var(--c-text-inverse);
+  --button-font-color-hov: var(--c-accent-600);
+
+  --button-background-color-hov: var(--c-surface-0);
+  --button-border-width: var(--border-w-1);
+  --button-border-style: var(--border-style);
+  --button-border-radius: var(--radius-1);
+  --button-padding: var(--space-1);
+
+  /* Secondary buttons */
+  --button-background-color-secondary: var(--c-brand-700);
+  --button-border-color-secondary: var(--c-brand-700);
+  --button-font-color-secondary: var(--c-text-inverse);
+
+  --button-background-color-secondary-hov: var(--c-surface-0);
+  --button-border-color-secondary-hov: var(--c-brand-700);
+  --button-font-color-secondary-hov: var(--c-brand-700);
+
+  /* Legacy font colors */
+  --font-primary-color: var(--c-text-0);
+  --font-secondary-color: var(--c-text-inverse);
+  --font-link-primary-color: var(--c-link-inverse);
+
+  /* Navbar sizing */
+  --navbar-brand-margin-left: var(--space-3);
+  --navbar-dropdown-min-width: 150px;
+}

@@ -1,0 +1,38 @@
+<!-- src/app/admin/components/datasets/admin-datasets.component.html -->
+<div class="card p-3">
+  <h4>All Datasets</h4>
+  <div *ngIf="loading" class="alert alert-info">Loading…</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <table class="table table-striped" *ngIf="!loading && !error">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Directory</th>
+        <th>Size (bytes)</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let ds of datasets">
+        <td>{{ ds.name + ds.extension }}</td>
+        <td>{{ ds.directory }}</td>
+        <td>{{ ds.size }}</td>
+        <app-dataset-actions [dataset]="ds" (datasetPreview)="preview($event)" (datasetDeleted)="loadDatasets()"></app-dataset-actions>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<ng-template #previewModal>
+  <div class="modal-header">
+    <h5 class="modal-title">Preview: {{ selectedDataset?.name + selectedDataset?.extension }}</h5>
+    <button type="button" class="close" (click)="closePreview()">&times;</button>
+  </div>
+  <div class="modal-body">
+    <app-csvdata-browser
+      [csvFile]="selectedDataset!"
+      style="display: block;"
+    ></app-csvdata-browser>
+  </div>
+</ng-template>

@@ -28,6 +28,7 @@ export class AccountService {
   private urlGetProfileImage: string = this.baseUrl + "getprofileimage?"
   private urlSearch: string = this.baseUrl + "search?"
   private urlVerify: string = this.baseUrl + "verify"
+  private urlIsAdmin: string = this.baseUrl + "isAdmin/"
 
   // Post
   private urlFollow: string = this.baseUrl + "follow"
@@ -45,6 +46,7 @@ export class AccountService {
   // Delete
   private urlUnfollow: string = this.baseUrl + "unfollow/"
   private urlDeleteProfileImage: string = this.baseUrl + "deleteprofileimage/"
+  private urlDeleteUser: string = this.baseUrl + "deleteUser/"
 
   // Unuse
   private urlGetProjects: string = this.baseUrl + "getprojects/"
@@ -75,6 +77,19 @@ export class AccountService {
       .pipe(
         map(body => {
           console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
+  getIsAdmin(username: string): Observable<boolean> {
+    return this.http.get<any>(this.urlIsAdmin + username)
+      .pipe(
+        map(body => {
           return body.result
         }),
         catchError(error => {
@@ -354,6 +369,21 @@ export class AccountService {
       map(body => {
         console.log(body.message)
         return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
+  deleteUser(userID: number): Observable<any> {
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.delete<any>(this.urlDeleteUser + userID, {headers}).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.message
       }),
       catchError(error => {
         console.log(error)

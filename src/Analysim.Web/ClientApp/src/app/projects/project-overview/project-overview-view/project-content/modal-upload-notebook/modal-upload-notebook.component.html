@@ -22,23 +22,27 @@
                 <label>Do you want to add a new notebook or create one from an existing URL?</label>
                 <select #types class="form-control" aria-label="Default select example"
                     (change)="onChange(types.value)">
-                    <option selected value="true">Create a new one</option>
-                    <option value="false">Add an existing one</option>
+                    <option selected value="file">Create a new one from a file</option>
+                    <option value="url">Add an existing one from URL</option>
+                    <option value="blank">Create a blank notebook</option>
                 </select>
             </div>
 
             <div class="form-group" *ngIf="showCreateNotebook">
                 <label>Create Notebook</label>
-                <input type="file" class="form-control p-1" placeholder="" (change)="fileEvent($event)" />
+                <input type="file" class="form-control p-1" placeholder="" (change)="fileEvent($event)" formControlName="notebookFile" required/>
+                <div *ngIf="uploadNotebookForm.get('notebookFile')?.touched && uploadNotebookForm.get('notebookFile')?.errors"
+                    class="text-danger">
+                    <span *ngIf="uploadNotebookForm.get('notebookFile')?.errors?.['required']">File is required</span>
+                </div>
             </div>
 
             <div class="form-group" *ngIf="showAddExistingNotebook">
                 <label for="notebookURL">Notebook Type</label>
                 <select #notebookTypes class="form-control" aria-label="Default select example"
                     (change)="onChangeNotebookType(notebookTypes.value)">
-                    <option selected value="jupyter">Jupyter</option>
+                    <option selected value="colab">Google Colab</option>
                     <option value="observablehq">ObservableHQ</option>
-                    <option value="colab">Google Colab</option>
                 </select>
             </div>
 
@@ -46,6 +50,11 @@
                 <label for="notebookURL">Add Existing Notebook (URL)</label>
                 <input formControlName="notebookURL" type="text" class="form-control" placeholder=""
                     (change)="urlEvent($event)" [readOnly]="isLoading" />
+                <div *ngIf="uploadNotebookForm.get('notebookURL')?.touched && uploadNotebookForm.get('notebookURL')?.errors"
+                    class="text-danger">
+                    <span *ngIf="uploadNotebookForm.get('notebookURL')?.errors?.['required']">URL is required</span>
+                    <span *ngIf="uploadNotebookForm.get('notebookURL')?.errors?.['pattern']">Enter a valid URL</span>
+                </div>
             </div>
 
             <div class="form-group" *ngIf="showAddExistingNotebook && notebookType==='observablehq'">
@@ -65,11 +74,18 @@
                     </button>
                 </div>
             </div>
+
+            <div class="form-group" *ngIf="showBlankNotebook">
+                <label>Create Blank Notebook</label>
+                <p class="text-muted mb-0">
+                    A minimal Jupyter notebook (<code>.ipynb</code>) will be generated.
+                </p>
+            </div>
         </div>
         <div class="modal-footer justify-content-center">
             <!-- Form Group Register -->
             <div class="form-group">
-                <button type="submit" class="btn" [disabled]="notebookName.invalid" (click)="addNotebook()">
+                <button type="submit" class="btn" [disabled]="uploadNotebookForm.invalid" (click)="addNotebook()">
                     <div>
                         <span>Add Notebook</span>
                     </div>
