@@ -1,107 +1,127 @@
-<div class="card data-table-card">
-  <p-table #table
-           [value]="loadedData"
-           [(selection)]="selectedData"
-           [tableStyle]="{'min-width': '100%'}"
-           [resizableColumns]="true"
-           styleClass="p-datatable-gridlines"
-           [scrollable]="true"
-           scrollHeight="100%"
-           [rows]="50"
-           [paginator]="true"
-           [loading]="loading"
-           [rowsPerPageOptions]="[10, 25, 50]"
-           [showCurrentPageReport]="true"
-           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-           [filterDelay]="0"
-           [globalFilterFields]="selectedColumns"
-           [columns]="selectedColumns"
-           [reorderableColumns]="true"
-           (onSort)="resetSelectedData($event)"
-           (onFilter)="resetSelectedData($event)">
+<div class="csv-container">
+  <div class="data-table-card">
+    <p-table #table
+             [value]="loadedData"
+             [(selection)]="selectedData"
+             [tableStyle]="{'min-width': '100%'}"
+             [resizableColumns]="true"
+             styleClass="p-datatable-gridlines csv-datatable"
+             [scrollable]="true"
+             scrollHeight="100%"
+             [rows]="50"
+             [paginator]="true"
+             [loading]="loading"
+             [rowsPerPageOptions]="[10, 25, 50]"
+             [showCurrentPageReport]="true"
+             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+             [filterDelay]="0"
+             [globalFilterFields]="selectedColumns"
+             [columns]="selectedColumns"
+             [reorderableColumns]="true"
+             (onSort)="resetSelectedData($event)"
+             (onFilter)="resetSelectedData($event)">
 
-    <ng-template pTemplate="caption">
-      <div class="table-header">
-        <!-- Clear -->
-        <button type="button"
-                class="btn btn-outline-primary"
-                (click)="clear(table)">
-          <i class="pi pi-filter-slash" aria-hidden="true"></i>
-          <span>Clear</span>
-        </button>
+      <ng-template pTemplate="caption">
+        <div class="table-controls">
+          <div class="table-header">
+            <div class="header-filters">
+              <!-- Clear -->
+              <button type="button"
+                      class="btn btn-sm btn-outline-secondary"
+                      (click)="clear(table)"
+                      title="Clear filters">
+                <i class="pi pi-filter-slash" aria-hidden="true"></i>
+                <span>Clear Filters</span>
+              </button>
 
-        <!-- Search -->
-        <span class="p-input-icon-left table-search">
-          <i class="pi pi-search"></i>
-          <input #searchFilter
-                 pInputText
-                 type="text"
-                 placeholder="Global Search"
-                 (input)="applyFilterGlobal($event, 'contains')" />
-        </span>
-      </div>
+              <!-- Search -->
+              <span class="p-input-icon-left table-search">
+                <i class="pi pi-search"></i>
+                <input #searchFilter
+                       pInputText
+                       type="text"
+                       placeholder="Search all columns..."
+                       (input)="applyFilterGlobal($event, 'contains')"
+                       class="search-input" />
+              </span>
+            </div>
 
-      <div class="table-tools">
-        <p-multiSelect [options]="cols"
-                       [(ngModel)]="selectedColumns"
-                       selectedItemsLabel="{0} columns selected"
-                       [style]="{'min-width': '200px'}"
-                       placeholder="Choose Columns">
-          <ng-template let-item pTemplate="selectedItem">{{item}}</ng-template>
-          <ng-template let-item pTemplate="item">{{item}}</ng-template>
-        </p-multiSelect>
+            <div class="header-actions">
+              <p-multiSelect [options]="cols"
+                             [(ngModel)]="selectedColumns"
+                             selectedItemsLabel="{0} columns selected"
+                             [style]="{'min-width': '200px'}"
+                             placeholder="Select Columns"
+                             [showToggleAll]="true"
+                             class="column-selector">
+                <ng-template let-item pTemplate="selectedItem">{{item}}</ng-template>
+                <ng-template let-item pTemplate="item">{{item}}</ng-template>
+              </p-multiSelect>
 
-        <button type="button"
-                class="btn btn-primary"
-                (click)="toggleModalVisualizeData()">
-          Visualize Data
-        </button>
-      </div>
-    </ng-template>
-
-    <ng-template pTemplate="header" let-columns>
-      <tr>
-        <th style="width: 4rem" pResizableColumn>
-          <p-checkbox [(ngModel)]="checked"
-                      [binary]="true"
-                      (onChange)="onCheckboxClick($event)">
-          </p-checkbox>
-        </th>
-
-        <th *ngFor="let column of columns"
-            [pSortableColumn]="column"
-            pResizableColumn
-            pReorderableColumn>
-          <div class="flex justify-content-between align-items-center">
-            {{column}}
-            <p-sortIcon field="{{column}}"></p-sortIcon>
-            <p-columnFilter [type]="columnDataTypes[column]"
-                            [field]="column"
-                            display="menu"
-                            class="ml-auto">
-            </p-columnFilter>
+              <button type="button"
+                      class="btn btn-primary"
+                      (click)="toggleModalVisualizeData()"
+                      title="Visualize selected data">
+                <i class="pi pi-chart-bar mr-2" aria-hidden="true"></i>
+                Visualize
+              </button>
+            </div>
           </div>
-        </th>
-      </tr>
-    </ng-template>
+        </div>
+      </ng-template>
 
-    <ng-template pTemplate="body" let-item let-columns="columns">
-      <tr>
-        <td>
-          <p-tableCheckbox [value]="item"></p-tableCheckbox>
-        </td>
-        <td *ngFor="let col of columns">{{ item[col] }}</td>
-      </tr>
-    </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th style="width: 3rem" class="checkbox-col" pResizableColumn>
+            <p-checkbox [(ngModel)]="checked"
+                        [binary]="true"
+                        (onChange)="onCheckboxClick($event)">
+            </p-checkbox>
+          </th>
 
-  </p-table>
+          <th *ngFor="let column of columns"
+              [pSortableColumn]="column"
+              pResizableColumn
+              pReorderableColumn
+              class="data-header">
+            <div class="header-content">
+              <span class="column-name">{{column}}</span>
+              <div class="header-icons">
+                <p-sortIcon field="{{column}}"></p-sortIcon>
+                <p-columnFilter [type]="columnDataTypes[column]"
+                                [field]="column"
+                                display="menu"
+                                class="ml-auto">
+                </p-columnFilter>
+              </div>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
 
-  <div class="export-row">
-    <button type="button"
-            class="btn btn-primary"
-            (click)="seeSelectedData()">
-      Export Data
-    </button>
+      <ng-template pTemplate="body" let-item let-columns="columns">
+        <tr>
+          <td class="checkbox-col">
+            <p-tableCheckbox [value]="item"></p-tableCheckbox>
+          </td>
+          <td *ngFor="let col of columns" class="data-cell">
+            <span class="cell-content">{{ item[col] }}</span>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+
+    <div class="table-footer">
+      <button type="button"
+              class="btn btn-success"
+              (click)="seeSelectedData()"
+              [disabled]="!selectedData || selectedData.length === 0"
+              title="Export selected rows to CSV">
+        <i class="pi pi-download mr-2" aria-hidden="true"></i>
+        Export Data
+      </button>
+    </div>
   </div>
 </div>
 

@@ -1,0 +1,335 @@
+::ng-deep .dashboard-container {
+  padding: var(--space-5);
+  background: linear-gradient(135deg, rgba(37, 109, 133, 0.03) 0%, rgba(2, 43, 91, 0.02) 100%);
+  min-height: calc(100vh - 200px);
+
+  .row {
+    row-gap: var(--space-4);
+  }
+
+  .col-md-4,
+  .col-md-8 {
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+  }
+
+  /* Card styling */
+  .card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all var(--motion-fast);
+    background: white;
+    overflow: hidden;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(37, 109, 133, 0.12);
+      border-color: var(--c-accent-600);
+    }
+
+    .card-header {
+      background-color: var(--background-color-tertiary);
+      border-bottom: 1px solid var(--border-color);
+      padding: var(--space-4);
+      font-weight: 600;
+      font-size: var(--fs-16);
+      color: var(--c-text-0);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      span {
+        margin: 0;
+      }
+    }
+
+    .card-body {
+      padding: var(--space-4);
+
+      .card-block {
+        margin-bottom: var(--space-4);
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      .form {
+        .input-group {
+          margin-bottom: var(--space-2);
+
+          .form-control {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-1);
+            padding: var(--space-2) var(--space-3);
+            font-size: var(--fs-14);
+            transition: var(--motion-fast);
+
+            &:focus {
+              border-color: var(--c-accent-600);
+              box-shadow: 0 0 0 3px rgba(37, 109, 133, 0.1);
+            }
+
+            &::placeholder {
+              color: var(--c-text-500);
+            }
+          }
+
+          .input-group-append {
+            .input-group-text {
+              border: 1px solid var(--border-color);
+              background: white;
+              color: var(--c-text-500);
+              cursor: pointer;
+              transition: var(--motion-fast);
+
+              &:hover {
+                color: var(--c-accent-600);
+              }
+            }
+          }
+        }
+      }
+
+      /* Nav tabs styling */
+      .nav-tabs {
+        border-bottom: 2px solid var(--border-color);
+        gap: var(--space-2);
+        margin-bottom: var(--space-3);
+
+        .nav-item {
+          .nav-link {
+            color: var(--c-text-500);
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: var(--space-2) var(--space-3);
+            font-size: var(--fs-14);
+            font-weight: 500;
+            transition: var(--motion-fast);
+            cursor: pointer;
+
+            &:hover {
+              color: var(--c-text-0);
+              border-bottom-color: var(--c-accent-600);
+            }
+
+            &.active {
+              color: var(--c-accent-600);
+              border-bottom-color: var(--c-accent-600);
+              background: transparent;
+            }
+
+            &.disabled {
+              color: var(--c-text-500);
+              opacity: 0.5;
+              cursor: not-allowed;
+            }
+          }
+        }
+      }
+
+      /* List styling */
+      .nav-tabs-content {
+        padding: var(--space-2) 0;
+
+        .list-unstyled {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+
+          li {
+            padding: var(--space-2) 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            a {
+              display: flex;
+              align-items: center;
+              color: var(--c-link);
+              text-decoration: none;
+              font-size: var(--fs-14);
+              transition: var(--motion-fast);
+              padding: var(--space-2);
+              border-radius: var(--radius-1);
+              margin: calc(var(--space-2) * -1);
+
+              i {
+                margin-right: var(--space-2);
+                width: 16px;
+                text-align: center;
+              }
+
+              &:hover {
+                color: var(--c-link-hover);
+                background: rgba(37, 109, 133, 0.05);
+
+              }
+            }
+
+            .d-flex {
+              justify-content: center;
+              padding: var(--space-4) 0;
+
+              .spinner-border {
+                width: 2rem;
+                height: 2rem;
+                border-color: var(--c-accent-600);
+                border-right-color: transparent;
+              }
+
+              p {
+                color: var(--c-text-500);
+                font-size: var(--fs-14);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* Button styling */
+  .btn-sm {
+    background-color: var(--c-accent-600);
+    color: white;
+    border: none;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-1);
+    font-size: var(--fs-14);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--motion-fast);
+
+    &:hover {
+      background-color: var(--c-brand-800);
+      box-shadow: 0 2px 8px rgba(37, 109, 133, 0.2);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  ::ng-deep .dashboard-container {
+    padding: var(--space-4);
+
+    .col-md-4,
+    .col-md-8 {
+      padding-left: var(--space-2);
+      padding-right: var(--space-2);
+    }
+
+    .container-fluid {
+      padding: 0;
+    }
+
+    .row {
+      margin-left: calc(var(--space-2) * -1);
+      margin-right: calc(var(--space-2) * -1);
+    }
+
+    .card {
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+
+        span {
+          width: 100%;
+        }
+
+        .btn-sm {
+          width: 100%;
+        }
+      }
+
+      .card-body {
+        padding: var(--space-3);
+
+        .form {
+          .input-group {
+            .input-group-append {
+              margin-left: -1px;
+
+              .input-group-text {
+                border-left: none;
+              }
+            }
+          }
+        }
+
+        .nav-tabs {
+          gap: 0;
+
+          .nav-item {
+            flex: 1;
+
+            .nav-link {
+              padding: var(--space-2) var(--space-1);
+              text-align: center;
+              border-bottom: 2px solid var(--border-color);
+              border-radius: 0;
+
+              &.active {
+                border-bottom-color: var(--c-accent-600);
+              }
+            }
+          }
+        }
+
+        .nav-tabs-content {
+          .list-unstyled {
+            li {
+              padding: var(--space-1) 0;
+
+              a {
+                padding: var(--space-1);
+                margin: 0;
+                font-size: var(--fs-13);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  ::ng-deep .dashboard-container {
+    padding: var(--space-3);
+
+    .col-md-4,
+    .col-md-8 {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .card {
+      .card-body {
+        padding: var(--space-2);
+
+        .card-block {
+          margin-bottom: var(--space-2);
+        }
+
+        .nav-tabs {
+          margin-bottom: var(--space-2);
+
+          .nav-item {
+            .nav-link {
+              padding: var(--space-1) var(--space-2);
+              font-size: var(--fs-13);
+            }
+          }
+        }
+      }
+    }
+  }
+}

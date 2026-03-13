@@ -131,6 +131,29 @@
     </div>
   </div>
   <!-- File Explorer Content Start -->
+  <div class="file-explorer-card__search-section">
+    <div class="file-explorer-card__search-wrapper">
+      <i class="pi pi-search file-explorer-card__search-icon" aria-hidden="true"></i>
+      <input
+        type="text"
+        class="file-explorer-card__search-input"
+        placeholder="Search files and folders..."
+        [(ngModel)]="searchTerm"
+        aria-label="Search files"
+      />
+      <button
+        *ngIf="searchTerm"
+        class="file-explorer-card__search-clear"
+        type="button"
+        (click)="clearSearch()"
+        title="Clear search"
+        aria-label="Clear search"
+      >
+        <i class="pi pi-times" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
   <ul class="list-group file-explorer-card__list">
     <li
       class="list-group-item file-explorer-card__empty"
@@ -138,8 +161,14 @@
     >
       No File Found
     </li>
+    <li
+      class="list-group-item file-explorer-card__empty"
+      *ngIf="project.blobFiles.length > 0 && filteredBlobFileItemList.length == 0"
+    >
+      No files match your search
+    </li>
     <app-project-file-explorer-item
-      *ngFor="let blobFileItem of blobFileItemList"
+      *ngFor="let blobFileItem of filteredBlobFileItemList"
       [blobFileItem]="blobFileItem"
       [isSelected]="blobFileItem.order == selectedItem"
       [currentDirectory]="currentDirectory"

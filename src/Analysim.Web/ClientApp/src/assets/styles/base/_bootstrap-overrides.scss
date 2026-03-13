@@ -1,14 +1,22 @@
-/* 
+/*
   Bootstrap normalization layer.
   Centralizes overrides for Bootstrap components so they follow
-  the app’s design tokens and visual system instead of default Bootstrap styles. 
+  the app's design tokens and visual system instead of default Bootstrap styles.
 */
 
-/* Base button */
+/* === Base button === */
 .btn {
   border-radius: var(--button-border-radius) !important;
-  padding: var(--button-padding) !important;
-  transition: var(--motion-nav);
+  padding: var(--space-2) var(--space-3) !important;
+  transition: var(--motion-fast) !important;
+  font-weight: 500;
+  font-size: var(--fs-14);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  cursor: pointer;
+  border: var(--border-w-1) solid transparent !important;
+  white-space: nowrap;
 
   /* Disabled state */
   &:disabled,
@@ -16,30 +24,60 @@
     cursor: not-allowed;
     opacity: var(--opacity-disabled);
   }
+
+  /* Hover effect - subtle lift */
+  &:not(:disabled):not(.disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Active state */
+  &:not(:disabled):not(.disabled):active {
+    transform: translateY(0);
+  }
+
+  /* Focus state */
+  &:focus {
+    outline: none;
+  }
+
+  /* Icon spacing */
+  i {
+    &:first-child {
+      margin-right: var(--space-1);
+    }
+
+    &:last-child {
+      margin-left: var(--space-1);
+    }
+  }
 }
 
-/* Primary button */
+/* === Primary button === */
 .btn-primary {
   background-color: var(--button-background-color) !important;
   border: var(--button-border-width) var(--button-border-style)
     var(--button-border-color) !important;
   color: var(--button-font-color) !important;
+  box-shadow: 0 1px 3px rgba(37, 109, 133, 0.2);
 }
 
 .btn-primary:hover:not(:disabled):not(.disabled),
 .btn-primary:focus:not(:disabled):not(.disabled) {
-  background-color: var(--button-background-color-hov) !important;
+  background-color: var(--c-brand-800) !important;
   border: var(--button-border-width) var(--button-border-style)
     var(--button-border-color-hov) !important;
-  color: var(--button-font-color-hov) !important;
+  color: var(--button-font-color) !important;
+  box-shadow: 0 4px 12px rgba(37, 109, 133, 0.3);
 }
 
-/* Secondary button */
+/* === Secondary button === */
 .btn-secondary {
   background-color: var(--button-background-color-secondary) !important;
   border: var(--button-border-width) var(--button-border-style)
     var(--button-border-color-secondary) !important;
   color: var(--button-font-color-secondary) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary:hover:not(:disabled):not(.disabled),
@@ -48,11 +86,12 @@
   border: var(--button-border-width) var(--button-border-style)
     var(--button-border-color-secondary-hov) !important;
   color: var(--button-font-color-secondary-hov) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Outline primary button (secondary actions) */
+/* === Outline primary button (secondary actions) === */
 .btn-outline-primary {
-  background: transparent !important;
+  background: white !important;
   border: var(--button-border-width) var(--button-border-style)
     var(--button-border-color) !important;
   color: var(--button-border-color) !important;
@@ -60,25 +99,194 @@
 
 .btn-outline-primary:hover:not(:disabled):not(.disabled),
 .btn-outline-primary:focus:not(:disabled):not(.disabled) {
-  background: var(--button-background-color) !important;
+  background: var(--background-color-tertiary) !important;
   border: var(--button-border-width) var(--button-border-style)
     var(--button-border-color) !important;
-  color: var(--button-font-color) !important;
+  color: var(--c-accent-600) !important;
+  box-shadow: 0 2px 8px rgba(37, 109, 133, 0.1);
 }
 
-/* Quiet danger button */
-.btn-danger {
-  background: transparent !important;
+/* === Success button === */
+.btn-success {
+  background-color: var(--c-success-600) !important;
   border: var(--button-border-width) var(--button-border-style)
-    var(--color-danger) !important;
-  color: var(--color-danger) !important;
+    var(--c-success-600) !important;
+  color: white !important;
+  box-shadow: 0 1px 3px rgba(40, 167, 69, 0.2);
 }
 
-/* Hover = full danger */
+.btn-success:hover:not(:disabled):not(.disabled),
+.btn-success:focus:not(:disabled):not(.disabled) {
+  background-color: #228f47 !important;
+  border: var(--button-border-width) var(--button-border-style)
+    #228f47 !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+/* === Danger button === */
+.btn-danger {
+  background: white !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--c-danger-600) !important;
+  color: var(--c-danger-600) !important;
+}
+
 .btn-danger:hover:not(:disabled):not(.disabled),
 .btn-danger:focus:not(:disabled):not(.disabled) {
-  background: var(--color-danger) !important;
+  background: var(--c-danger-600) !important;
   border: var(--button-border-width) var(--button-border-style)
-    var(--color-danger) !important;
+    var(--c-danger-600) !important;
   color: var(--c-text-inverse) !important;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* === Warning button === */
+.btn-warning {
+  background-color: #ffc107 !important;
+  border: var(--button-border-width) var(--button-border-style)
+    #ffc107 !important;
+  color: #212529 !important;
+  box-shadow: 0 1px 3px rgba(255, 193, 7, 0.2);
+}
+
+.btn-warning:hover:not(:disabled):not(.disabled),
+.btn-warning:focus:not(:disabled):not(.disabled) {
+  background-color: #e0a800 !important;
+  border: var(--button-border-width) var(--button-border-style)
+    #e0a800 !important;
+  color: #212529 !important;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+/* === Info button === */
+.btn-info {
+  background-color: #17a2b8 !important;
+  border: var(--button-border-width) var(--button-border-style)
+    #17a2b8 !important;
+  color: white !important;
+  box-shadow: 0 1px 3px rgba(23, 162, 184, 0.2);
+}
+
+.btn-info:hover:not(:disabled):not(.disabled),
+.btn-info:focus:not(:disabled):not(.disabled) {
+  background-color: #138496 !important;
+  border: var(--button-border-width) var(--button-border-style)
+    #138496 !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+}
+
+/* === Small button === */
+.btn-sm {
+  padding: var(--space-1) var(--space-2) !important;
+  font-size: var(--fs-13);
+}
+
+/* === Large button === */
+.btn-lg {
+  padding: var(--space-3) var(--space-4) !important;
+  font-size: var(--fs-16);
+}
+
+/* === Button block === */
+.btn-block {
+  width: 100%;
+}
+
+/* === Link styling === */
+a {
+  color: var(--c-link);
+  text-decoration: none;
+  transition: var(--motion-fast);
+
+  &:hover {
+    color: var(--c-link-hover);
+    text-decoration: underline;
+  }
+
+  &:active {
+    color: var(--c-brand-800);
+  }
+}
+
+/* === Badge styling === */
+.badge {
+  padding: var(--space-1) var(--space-2);
+  border-radius: 12px;
+  font-size: var(--fs-13);
+  font-weight: 500;
+
+  &.badge-primary {
+    background-color: var(--c-accent-600);
+    color: white;
+  }
+
+  &.badge-success {
+    background-color: var(--c-success-600);
+    color: white;
+  }
+
+  &.badge-danger {
+    background-color: var(--c-danger-600);
+    color: white;
+  }
+
+  &.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+  }
+
+  &.badge-info {
+    background-color: #17a2b8;
+    color: white;
+  }
+
+  &.badge-light {
+    background-color: #f8f9fa;
+    color: #212529;
+  }
+
+  &.badge-dark {
+    background-color: #343a40;
+    color: white;
+  }
+}
+
+/* === Alert styling === */
+.alert {
+  border: 1px solid;
+  border-radius: var(--radius-1);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-3);
+
+  &.alert-primary {
+    background-color: rgba(37, 109, 133, 0.1);
+    border-color: var(--c-accent-600);
+    color: var(--c-accent-600);
+  }
+
+  &.alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-color: var(--c-success-600);
+    color: var(--c-success-600);
+  }
+
+  &.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: var(--c-danger-600);
+    color: var(--c-danger-600);
+  }
+
+  &.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-color: #ffc107;
+    color: #856404;
+  }
+
+  &.alert-info {
+    background-color: rgba(23, 162, 184, 0.1);
+    border-color: #17a2b8;
+    color: #0c5460;
+  }
 }

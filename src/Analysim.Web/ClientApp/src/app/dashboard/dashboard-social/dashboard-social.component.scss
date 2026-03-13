@@ -1,5 +1,64 @@
-.card-header {
-  background-color: var(--background-color-tertiary);
+.card {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all var(--motion-fast);
+  background: white;
+  height: 100%;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(37, 109, 133, 0.12);
+    border-color: var(--c-accent-600);
+  }
+
+  .card-header {
+    background-color: var(--background-color-tertiary);
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--space-3) var(--space-4);
+    font-weight: 600;
+    font-size: var(--fs-16);
+    color: var(--c-text-0);
+  }
+
+  .list-group {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: none;
+
+    .list-group-item {
+      border: none;
+      padding: 0;
+      background: transparent;
+
+      &:not(:last-child) {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      &.d-flex {
+        justify-content: center;
+        padding: var(--space-4);
+
+        p {
+          color: var(--c-text-500);
+          font-size: var(--fs-14);
+          margin: 0;
+        }
+      }
+    }
+
+    .list-group-flush {
+      margin: 0;
+
+      .list-group-item {
+        padding: var(--space-3) var(--space-4);
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+  }
 }
 
 .nav-item:hover {

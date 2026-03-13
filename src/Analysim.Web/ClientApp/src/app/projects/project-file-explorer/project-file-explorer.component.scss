@@ -31,6 +31,97 @@
   border-right: 0;
 }
 
+/* Search Section Styling */
+.file-explorer-card__search-section {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-w-1) var(--border-style) var(--border-color);
+  background: var(--background-color-tertiary);
+}
+
+.file-explorer-card__search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.file-explorer-card__search-icon {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--c-text-500);
+  pointer-events: none;
+  font-size: 16px;
+}
+
+.file-explorer-card__search-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-5);
+  border: var(--border-w-1) var(--border-style) var(--border-color);
+  border-radius: var(--radius-1);
+  font-size: var(--fs-14);
+  font-family: inherit;
+  color: var(--c-text-0);
+  background-color: white;
+  transition: var(--motion-fast);
+
+  &::placeholder {
+    color: var(--c-text-500);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--c-accent-600);
+    box-shadow: 0 0 0 3px rgba(37, 109, 133, 0.1);
+  }
+
+  &:hover:not(:focus) {
+    border-color: var(--c-accent-600);
+  }
+}
+
+.file-explorer-card__search-clear {
+  position: absolute;
+  right: var(--space-3);
+  background: none;
+  border: none;
+  color: var(--c-text-500);
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-1);
+  transition: var(--motion-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+
+  &:hover {
+    color: var(--c-text-0);
+    background: rgba(37, 109, 133, 0.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@media (max-width: 576px) {
+  .file-explorer-card__search-section {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .file-explorer-card__search-input {
+    padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4);
+    font-size: var(--fs-13);
+  }
+
+  .file-explorer-card__search-icon,
+  .file-explorer-card__search-clear {
+    left: var(--space-2);
+    right: var(--space-2);
+    font-size: 14px;
+  }
+}
+
 /* Footer */
 .file-explorer-card__footer {
   background: var(--surface-0);
