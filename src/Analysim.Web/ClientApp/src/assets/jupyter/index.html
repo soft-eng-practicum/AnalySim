@@ -30,17 +30,6 @@
         await import(
           '../config-utils.js?_=dba8133'
         );
-
-        const originalConsoleLog = console.info;
-        console.log("copying files through dotnet run succeeded");
-        console.info = function (...args) {
-          originalConsoleLog.apply(console, args);
-          if (args[0] && typeof args[0] === 'string' && args[0].includes('Pyodide contents will be synced with Jupyter Contents')) {
-            // Send a message to the parent window
-            console.log('Analysim: Sending jupyterlite-loaded message to window');
-            window.parent.postMessage('jupyterlite-load', '*');
-          }
-        };
       }.call(this));
     </script>
     <style>

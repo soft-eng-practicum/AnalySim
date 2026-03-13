@@ -55,6 +55,9 @@ export class ProjectFileExplorerComponent implements OnInit {
   csvFile: any;
   folders: string = "";
 
+  // Search/Filter property
+  searchTerm: string = "";
+
   async ngOnInit() {
     this.dataBrowserURL = 'https://observablehq.com/embed/@sfsu/untitled?cell=*&dataset=';
     const raw = this.extractDirectory(this.router.url);
@@ -109,6 +112,35 @@ export class ProjectFileExplorerComponent implements OnInit {
     return rebuilt;
   }
 
+  /**
+   * Getter for filtered file list based on search term
+   * Filters files and folders by name (case-insensitive)
+   * Always shows the ".." navigation item
+   */
+  get filteredBlobFileItemList(): BlobFileItem[] {
+    if (!this.searchTerm.trim()) {
+      return this.blobFileItemList;
+    }
+
+    const searchLower = this.searchTerm.toLowerCase();
+
+    return this.blobFileItemList.filter(item => {
+      // Always show navigation items (..)
+      if (item.type === "none") {
+        return true;
+      }
+
+      // Filter by name (case-insensitive)
+      return item.name.toLowerCase().includes(searchLower);
+    });
+  }
+
+  /**
+   * Clear the search term
+   */
+  clearSearch() {
+    this.searchTerm = "";
+  }
 
   public fileEvent($event) {
     for (let file of $event.target.files) {
@@ -325,6 +357,9 @@ export class ProjectFileExplorerComponent implements OnInit {
     // Reset Item List
     this.blobFileItemList = []
 
+    // Reset search when changing directories
+    this.searchTerm = "";
+
     // Set Current Directory
     this.currentDirectory = directory;
 
@@ -343,7 +378,7 @@ export class ProjectFileExplorerComponent implements OnInit {
         // Input Directory Num
         var currentDirectoryNum = directory.split("/").length - 1;
 
-        // Check If File 
+        // Check If File
         this.project.blobFiles.forEach(file => {
 
           // Get Full Path Of File
