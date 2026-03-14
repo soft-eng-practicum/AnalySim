@@ -7,20 +7,32 @@
       <div class="row justify-content-center">
         <!-- Column Header Start -->
         <div class="col-xl-5 col-lg-5 ml-3 align-self-center">
-          <img src="../../assets/img/AnalySim-Logo.png" class="hero-logo" alt="AnalySim Logo">
-          <p class="header-text text-white">A data sharing platform to simplify the visualization of datasets.
-            Collaborate together and host your data to the world, or browser through our multiple user generated projects.
+          <img
+            src="../../assets/img/AnalySim-Logo.png"
+            class="hero-logo"
+            alt="AnalySim Logo"
+          />
+          <p class="header-text text-white">
+            A data sharing platform to simplify the visualization of datasets.
+            Collaborate together and host your data to the world, or browser
+            through our multiple user generated projects.
           </p>
-        </div> <!-- Column Header End -->
-
+        </div>
+        <!-- Column Header End -->
         <div class="col-xl-6 col-lg-5 ml-2">
-          <img class="img-fluid d-block" src="../../assets/img/graph.gif" alt="">
+          <img
+            class="img-fluid d-block"
+            src="../../assets/img/graph.gif"
+            alt=""
+          />
         </div>
       </div>
-    </div> <!-- Row End -->
-  </div> <!-- Container End -->
-</header> <!-- Header End -->
-
+    </div>
+    <!-- Row End -->
+  </div>
+  <!-- Container End -->
+</header>
+<!-- Header End -->
 <!-- Page Content Start -->
 <div class="container-fluid lead">
   <!-- Row Services Start -->
@@ -28,85 +40,141 @@
     <div class="col-md-10">
       <div class="row justify-content-center services-grid">
         <!-- Website Service1 -->
-        <div class="col-md-4 mb-4 text-center service-card">
-          <h3>Register for AnalySim</h3>
-                <hr>
-                <p class="lead">Begin building your data or colaborate with a team</p>
-                <a class="link-basic" [routerLink]='["/register"]'>Register <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
-                <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/register"]'>Register &raquo;</button> -->
+        <div class="col-md-4 mb-4">
+          <div class="service-card h-100">
+            <div class="card-icon">📝</div>
+            <h3>Register for AnalySim</h3>
+            <hr class="card-divider" />
+            <p class="lead">
+              Begin building your data or colaborate with a team
+            </p>
+            <!-- <a class="link-basic" [routerLink]='["/register"]'>Register <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a> -->
+            <button
+              class="btn btn-outline-success btn-lg"
+              [routerLink]="['/register']"
+            >
+              Register &raquo;
+            </button>
+          </div>
         </div>
         <!-- Website Service2 -->
-        <div class="col-md-4 mb-4 text-center service-card">
-          <h3>Create your own project</h3>
-                <hr>
-                <p class="lead">Create your own project and share your ideas </p>
-                <a class="link-basic" [routerLink]='["/project/create"]'>Create Project <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
-                <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/project/create"]'>Create Project &raquo;</button> -->
+        <div class="col-md-4 mb-4">
+          <div class="service-card h-100">
+            <div class="card-icon">💡</div>
+            <h3>Create your own project</h3>
+            <hr class="card-divider" />
+            <p class="lead">Create your own project and share your ideas</p>
+            <!-- <a class="link-basic" [routerLink]='["/project/create"]'>Create Project <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a> -->
+            <button
+              class="btn btn-outline-success btn-lg"
+              [routerLink]="['/project/create']">
+              Create Project &raquo;
+            </button>
+          </div>
         </div>
         <!-- Website Service2 -->
-        <div class="col-md-4 mb-4 text-center service-card">
-          <h3>Browse our projects</h3>
-                <hr>
-                <p class="lead">Not ready yet? Get inspired from our projects</p>
-                <a class="link-basic" [routerLink]='["/explore"]'>Explore Project <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
-                <!-- <button class="btn btn-outline-success btn-lg " [routerLink]='["/explore"]'>Explore Project &raquo;</button> -->
+        <div class="col-md-4 mb-4">
+          <div class="service-card h-100">
+            <div class="card-icon">🔍</div>
+            <h3>Browse our projects</h3>
+            <hr class="card-divider" />
+            <p class="lead">Not ready yet? Get inspired from our projects</p>
+            <!-- <a class="link-basic" [routerLink]='["/explore"]'>Explore Project <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a> -->
+
+            <button
+              class="btn btn-outline-success btn-lg"
+              [routerLink]="['/explore']">
+              Explore Project &raquo;
+            </button>
+          </div>
         </div>
       </div>
     </div>
-    
   </div> <!-- Row Services End -->
-
   <!-- Row Organization Start -->
-  <div class="row py-4 justify-content-center surface-blue surface-fade surface-fade--right">
-    <div class="col-md-6">
-      <!-- Organizaiton Description -->
-      <div class="row justify-content-center">
-        <h2 class="text-center">Gather Data Together Collectively</h2>        <!-- <p class="text-center">Organization brings teams together to tackle an issue together, learn from each other,
-          and foster a community</p> -->
-      </div>
-      <div class="row justify-content-center">
-        <div class="text-center">
-          <button type="button" class="nav-cta nav-cta--lg" [routerLink]='["/register"]'>Register Your Account &raquo;</button>
-     <!-- <button2> type="button"     </button2> -->
-        </div>
-      </div>
-    </div>
-  </div> <!-- Row Organization End -->
 
+  <div
+    class="row py-4 justify-content-center surface-blue surface-fade surface-fade--right">
+    <div class="col-md-6 text-center">
+      <!-- Organizaiton Description -->
+      <!-- <div class="row justify-content-center"> -->
+      <h2>Gather Data Together Collectively</h2>
+      <!-- <p class="text-center">Organization brings teams together to tackle an issue together, learn from each other,
+          and foster a community</p> -->
+      <!-- </div> -->
+      <!-- <div class="row justify-content-center"> -->
+      <!-- <div class="text-center"> -->
+      <button
+        type="button"
+        class="nav-cta nav-cta--lg"
+        [routerLink]="['/register']">
+        Register Your Account &raquo;
+      </button>
+      <!-- <button2> type="button"     </button2> -->
+    </div>
+    <!-- </div> -->
+  </div>
+  <!-- Row Organization End -->
   <!-- Page Content Start -->
-  <div class="container-fluid lead">
-    <!-- Row Services Start -->
-    <div class="row p-2 mt-5 justify-content-center notebook-row">
-      <div class="col-md-10">
-        <div class="row justify-content-center">
-          <!-- Website Service1 -->
-          <div class="col-md-12 col-lg-4 mb-4 text-center notebook-container">
-            <h3>Jupyter Notebooks</h3>
-            <hr>
-            <p class="lead">Host your data and notebooks on AnalySim</p>
-            <img class="note-img" src="../../assets/img/Jupyter.png">
-            <a class="note-btn link-basic" href="https://nbviewer.org/urls/neruosimhubstorage.blob.core.windows.net/test1/GoogleColab/network_8cell.ipynb" target="_blank">Open Notebook <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
-          </div>
-          <!-- Website Service2 -->
-          <div class="col-md-12 col-lg-4 mb-4 text-center notebook-container">
-            <h3>Observable Notebooks</h3>
-            <hr>
-            <p class="lead">Harvest power and flexibility of JavaScript, host data on AnalySim</p>
-            <img class="note-img" src="../../assets/img/observ.png">
-            <a class="note-btn link-basic" href="https://observablehq.com/@cengique/csv-dataset-visualization?API=https:%2F%2Fneruosimhubstorage.blob.core.windows.net%2Ftest1%2Ftest%252FAnalySim-nodtypes.csv" target="_blank">Open Notebook <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
-          </div>
-          <!-- Website Service2 -->
-          <div class="col-md-12 col-lg-4 mb-4 text-center notebook-container">
-            <h3>Google Colab</h3>
-            <hr>
-            <p class="lead">Run your notebooks on Google, host data on AnalySim</p>
-            <img class="note-img" src="../../assets/img/colab.png">
-            <a class="note-btn link-basic" href="https://colab.research.google.com/drive/1TCg8BqvJi55XKpqkyNuXVjza9thRta_s#scrollTo=mnCW0x2eL7nK" target="_blank">Open Notebook <i class="fa fa-angle-right fa-xs"></i><i class="fa fa-angle-right fa-xs"></i></a>
-          </div>
+  <!-- <div class="container-fluid lead"> -->
+  <!-- Row Services Start -->
+  <div class="row p-2 mt-5 justify-content-center notebook-row">
+    <div class="col-md-10">
+      <div class="row justify-content-center">
+        <!-- Website Service1 -->
+        <div class="col-md-12 col-lg-4 mb-4 text-center notebook-container">
+          <h3>Jupyter Notebooks</h3>
+          <hr>
+          <p class="lead">Host your data and notebooks on AnalySim</p>
+          <img
+            class="note-img"
+            src="../../assets/img/Jupyter.png"
+            alt="Jupyter"
+          >
+          <a
+            class="note-btn link-basic"
+            href="https://nbviewer.org/urls/neruosimhubstorage.blob.core.windows.net/test1/GoogleColab/network_8cell.ipynb"
+            target="_blank">
+            Open Notebook <i class="fa fa-angle-right fa-xs"></i>
+          </a>
+          <!-- <a class="note-btn link-basic" href="https://nbviewer.org/urls/neruosimhubstorage.blob.core.windows.net/test1/GoogleColab/network_8cell.ipynb" target="_blank">Opngle-right fa-xs"></i></a> -->
+
+        </div>
+        <!-- Website Service2 -->
+        <div class="col-md-12 col-lg-4 mb-4 text-center notebook-container">
+          <h3>Observable Notebooks</h3>
+          <hr>
+          <p class="lead">
+            Harvest power and flexibility of JavaScript, host data on AnalySim
+          </p>
+          <img class="note-img" src="../../assets/img/observ.png" alt="Observable">
+          <a
+            class="note-btn link-basic"
+            href="https://observablehq.com/@cengique/csv-dataset-visualization?API=https:%2F%2Fneruosimhubstorage.blob.core.windows.net%2Ftest1%2Ftest%252FAnalySim-nodtypes.csv"
+            target="_blank">
+          Open Notebook <i class="fa fa-angle-right fa-xs"></i>
+        </a>
+        </div>
+
+        <!-- Website Service2 -->
+        <div class="col-md-12 col-lg-4 mb-4 text-center notebook-container">
+          <h3>Google Colab</h3>
+          <hr>
+          <p class="lead">
+            Run your notebooks on Google, host data on AnalySim
+          </p>
+          <img class="note-img" src="../../assets/img/colab.png" alt="Colab">
+          <a
+            class="note-btn link-basic"
+            href="https://colab.research.google.com/drive/1TCg8BqvJi55XKpqkyNuXVjza9thRta_s#scrollTo=mnCW0x2eL7nK"
+            target="_blank">
+            Open Notebook <i class="fa fa-angle-right fa-xs"></i>
+          </a>
         </div>
       </div>
     </div>
   </div>
+</div>
 
   <!-- Row Organization Start -->
   <div class="row py-4 justify-content-center surface-blue surface-fade surface-fade--left">
@@ -119,7 +187,7 @@
       <div class="row justify-content-center">
         <div class="text-center">
           <button type="button" class="nav-cta nav-cta--lg" [routerLink]='["/login"]'>Create Notebook &raquo;</button>
-     <!-- <button2> type="button"     </button2> -->
+    <!-- <button2> type="button"     </button2> -->
         </div>
       </div>
     </div>
