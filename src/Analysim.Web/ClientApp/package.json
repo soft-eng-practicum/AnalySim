@@ -3,12 +3,16 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
   "private": true,
+  "overrides": {
+    "@types/d3-dispatch": "3.0.1",
+    "@types/node": "16.18.101"
+  },
   "dependencies": {
     "@angular/animations": "^14.0.0",
     "@angular/common": "^14.0.0",
@@ -48,11 +52,11 @@
     "@angular-devkit/build-angular": "^14.0.3",
     "@angular/cli": "~14.0.3",
     "@angular/compiler-cli": "^14.0.0",
-    "@types/d3": "^7.4.1",
+    "@types/d3": "7.4.0",
     "@types/jasmine": "~4.0.0",
     "@types/jest": "^29.5.4",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^20.4.2",
+    "@types/node": "16.18.101",
     "css-loader": "^7.1.2",
     "jasmine-core": "~4.1.0",
     "karma": "~6.3.0",
