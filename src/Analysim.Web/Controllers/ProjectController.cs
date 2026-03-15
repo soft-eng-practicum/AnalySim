@@ -1,4 +1,4 @@
-﻿using Internal;
+using Internal;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +29,8 @@ using Newtonsoft.Json;
 using Analysim.Core.Entities;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Core.Helper;
+using Microsoft.Extensions.Options;
 
 namespace Web.Controllers
 {
@@ -39,11 +41,14 @@ namespace Web.Controllers
 
         private readonly ApplicationDbContext _dbContext;
         private readonly IConfiguration _configuration;
+        private readonly FileValidationSettings _fileValidationSettings;
 
-        public ProjectController(ApplicationDbContext dbContext, IConfiguration configuration)
+        public ProjectController(ApplicationDbContext dbContext, IConfiguration configuration,
+                                 IOptions<FileValidationSettings> fileValidationSettings)
         {
             _dbContext = dbContext;
             _configuration = configuration;
+            _fileValidationSettings = fileValidationSettings.Value;
         }
 
         #region GET REQUEST
@@ -1045,6 +1050,12 @@ namespace Web.Controllers
                 await formdata.File.CopyToAsync(memoryStream);
                 var fileContent = memoryStream.ToArray();
 
+                // Validate file type and size
+                var fileValidator = new Core.Helper.FileTypeValidator(_fileValidationSettings);
+                var validationResult = fileValidator.ValidateProjectFile(formdata.File.FileName, fileContent);
+                if (!validationResult.IsValid)
+                    return BadRequest(validationResult.ErrorMessage);
+
                 // Create BlobFile
                 var newBlobFile = new BlobFile
                 {
@@ -1141,6 +1152,12 @@ namespace Web.Controllers
                 using var memoryStream = new MemoryStream();
                 await noteBookData.NotebookFile.CopyToAsync(memoryStream);
                 var fileContent = memoryStream.ToArray();
+
+                // Validate notebook file type and size
+                var fileValidator = new Core.Helper.FileTypeValidator(_fileValidationSettings);
+                var validationResult = fileValidator.ValidateNotebookFile(noteBookData.NotebookFile.FileName, fileContent);
+                if (!validationResult.IsValid)
+                    return BadRequest(validationResult.ErrorMessage);
 
                 Notebook newNotebook = new Notebook
                 {
@@ -1244,6 +1261,12 @@ namespace Web.Controllers
                 using var memoryStream = new MemoryStream();
                 await noteBookData.NotebookFile.CopyToAsync(memoryStream);
                 var fileContent = memoryStream.ToArray();
+
+                // Validate notebook file type and size
+                var fileValidator = new Core.Helper.FileTypeValidator(_fileValidationSettings);
+                var validationResult = fileValidator.ValidateNotebookFile(noteBookData.NotebookFile.FileName, fileContent);
+                if (!validationResult.IsValid)
+                    return BadRequest(validationResult.ErrorMessage);
 
                 NotebookContent newNotebookContent = new NotebookContent
                 {
@@ -1350,11 +1373,19 @@ namespace Web.Controllers
 
                     using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                     {
+                        byte[] fileContent = System.IO.File.ReadAllBytes(filePath);
+
+                        // Validate notebook file type and size for colab downloads
+                        var fileValidator = new Core.Helper.FileTypeValidator(_fileValidationSettings);
+                        var validationResult = fileValidator.ValidateNotebookFile(fileName, fileContent);
+                        if (!validationResult.IsValid)
+                            return BadRequest(validationResult.ErrorMessage);
+
                         NotebookContent notebookContent = new NotebookContent
                         {
                             NotebookID = newNotebook.NotebookID,
                             Version = 1,
-                            Content = System.IO.File.ReadAllBytes(filePath),
+                            Content = fileContent,
                             Author = "hello",
                             Size = (int)fileStream.Length,
                             DateCreated = DateTime.UtcNow

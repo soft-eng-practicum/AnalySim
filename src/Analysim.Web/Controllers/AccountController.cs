@@ -41,18 +41,21 @@ namespace Web.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly ILoggerManager _loggerManager;
         private readonly IMailNetService _mailNetService;
+        private readonly FileValidationSettings _fileValidationSettings;
 
         private readonly IConfiguration _configuration;
 
         public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager,
             SignInManager<User> signManager, ApplicationDbContext dbContext,
                                  ILoggerManager loggerManager,
-                                 IMailNetService mailNetService,IConfiguration configuration)
+                                 IMailNetService mailNetService,IConfiguration configuration,
+                                 IOptions<FileValidationSettings> fileValidationSettings)
         {
             _jwtSettings = jwtSettings.Value;
             _userManager = userManager;
             _signManager = signManager;
             _dbContext = dbContext;
+            _fileValidationSettings = fileValidationSettings.Value;
             _loggerManager = loggerManager;
             _mailNetService = mailNetService;
             _configuration = configuration;
@@ -79,7 +82,7 @@ namespace Web.Controllers
             // user.EmailConfirmed ;
             return Ok(new
             {
-                result = user,
+                result = ViewModels.Account.UserSafeDTO.FromUser(user),
                 message = "Received User: " + user.UserName
             });
         }
@@ -126,7 +129,7 @@ namespace Web.Controllers
             if (user == null) return NotFound(new { message = "User Not Found" });
             return Ok(new
             {
-                result = user,
+                result = ViewModels.Account.UserSafeDTO.FromUser(user),
                 message = "Received User: " + user.UserName
             });
         }
@@ -152,7 +155,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = users,
+                result = ViewModels.Account.UserSafeDTO.FromUsers(users),
                 message = "Received User Range"
             });
         }
@@ -176,7 +179,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = users,
+                result = ViewModels.Account.UserSafeDTO.FromUsers(users),
                 message = "Received User List"
             });
         }
@@ -224,7 +227,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = matchedUser,
+                result = ViewModels.Account.UserSafeDTO.FromUsers(matchedUser.ToList()),
                 message = "Search Successful"
             });
         }
@@ -782,6 +785,12 @@ namespace Web.Controllers
                 using var memoryStream = new MemoryStream();
                 await formdata.File.CopyToAsync(memoryStream);
                 var fileContent = memoryStream.ToArray();
+
+                // Validate file type and size for profile image
+                var fileValidator = new Core.Helper.FileTypeValidator(_fileValidationSettings);
+                var validationResult = fileValidator.ValidateProfileImage(formdata.File.FileName, fileContent);
+                if (!validationResult.IsValid)
+                    return BadRequest(validationResult.ErrorMessage);
 
                 // Check For Existing
                 var blobFile = _dbContext.BlobFiles.FirstOrDefault(x => x.UserID == user.Id && x.Name == "profileImage");
