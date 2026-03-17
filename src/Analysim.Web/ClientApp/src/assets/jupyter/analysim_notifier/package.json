@@ -1,0 +1,10 @@
+﻿{
+  "name": "analysim-notifier",
+  "version": "0.1.0",
+  "description": "Notifies the parent AnalySim window when JupyterLite has finished loading",
+  "main": "index.js",
+  "jupyterlab": {
+    "extension": true,
+    "outputDir": "."
+  }
+}
