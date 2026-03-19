@@ -1,37 +1,64 @@
 <!-- Modal -->
 <div class="modal-content">
-    <div class="modal-header justify-content-center">
-        <h5 class="modal-title">Create Folder</h5>
+  <div class="modal-header modal-header--center">
+    <h5 class="modal-title">Create Folder</h5>
+
+    <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <form [formGroup]="folderForm" (ngSubmit)="onSubmit()">
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="folderName">Folder Name:</label>
+
+        <input
+          id="folderName"
+          formControlName="folderName"
+          type="text"
+          class="form-control"
+          [class.invalid]="folderName.touched && folderName.invalid"
+          [class.valid]="folderName.touched && folderName.valid"
+          [readOnly]="isLoading"
+          required
+        />
+
+        <div *ngIf="folderName.touched && folderName.errors" class="text-danger">
+          <span [hidden]="!folderName.errors?.['minlength']">Minimum 1 character</span>
+          <span [hidden]="!folderName.errors?.['maxlength']">Maximum 20 characters</span>
+          <span [hidden]="!folderName.errors?.['noMatch']">Folder already exists</span>
+          <span [hidden]="!folderName.errors?.['noSpaceSpecial']">No spaces or special characters</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Register Form Start -->
-    <form class="form" [formGroup]="folderForm" (ngSubmit)="onSubmit()">
-        <div class="modal-body">
-            <!-- Form Group Username -->
-            <div class="form-group">
-                <label for="folderName">Folder Name:</label>
-                <input formControlName="folderName" type="text" class="form-control" placeholder="" [class.invalid]="folderName.touched && folderName.invalid" [class.valid]="folderName.valid" [readOnly]="isLoading" required>
-                <div *ngIf="folderName.touched && folderName.errors" class="text-danger">
-                    <span [hidden]="!folderName.errors?.['minlength']">Minimum 1 character</span>
-                    <span [hidden]="!folderName.errors?.['maxlength']">Maximum 20 character</span>
-                    <span [hidden]="!folderName.errors?.['noMatch']">Folder Already Exist</span>
-                    <span [hidden]="!folderName.errors?.['noSpaceSpecial']">No Space or Special Character</span>
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer justify-content-center">
-            <!-- Form Group Register -->
-            <div class="form-group">
-                <button type="submit" class="btn" value="Submit" [disabled]="folderName.invalid">
-                    <div *ngIf="!isLoading">
-                        <span>Create</span>
-                    </div>
-                    <div *ngIf="isLoading" class="spinner-border" role="status">
-                        <span class="sr-only"></span>
-                    </div>
-                </button>
-            </div>
-            <button type="button" class="btn" (click)="closeModal()">Close</button>
-        </div>
-    </form> <!-- Register Form End -->
+    <div class="modal-footer">
+      <!-- Secondary -->
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="closeModal()"
+        [disabled]="isLoading"
+      >
+        Close
+      </button>
+
+      <!-- Primary -->
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="folderName.invalid || isLoading"
+      >
+        <span *ngIf="!isLoading">Create</span>
+
+        <span
+          *ngIf="isLoading"
+          class="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+      </button>
+    </div>
+  </form>
 </div>

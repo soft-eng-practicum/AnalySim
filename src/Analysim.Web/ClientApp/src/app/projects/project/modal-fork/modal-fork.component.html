@@ -1,31 +1,61 @@
-<!-- Modal -->
-<div class="modal-content fork-modal">
-    <div class="modal-header justify-content-center">
-        <h5 class="modal-title">Fork {{project.name}}</h5>
-        <button type="button" class="close" (click)="closeModal()" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <!-- Body -->
-    <div class="modal-body" *ngIf="currentUser!=null && !isExisted">
-        <p>This project will be forked into your dashboard as 
-            <strong>{{currentUser.userName}}/{{project.name}}.</strong>
-        </p>
-    </div>
+<div class="modal-header">
+  <h5 class="modal-title">Add or remove datasets</h5>
 
-    <div class="modal-body" *ngIf="isExisted && newProject == null">
-        <p>You've already forked {{project.name}}.</p>
-    </div>
+  <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
 
-    <div class="modal-body fork-modal__body fork-modal__body--success" *ngIf="newProject != null">
-        <p>Project successfully foked</p>
-        <strong><a role="button" class="link-basic" (click)="onNavigateToNewProject()">{{ newProject.route }}</a></strong>
-    </div>
+<div
+  class="modal-body"
+  *ngIf="currentUser != null && !isExisted && newProject == null"
+>
+  <p>
+    This project will be forked into your dashboard as
+    <strong>{{ currentUser.userName }}/{{ project.name }}.</strong>
+  </p>
+</div>
 
-    <!-- Footer -->
-    <div class="modal-footer">
-        <button type="button" class="btn btn-primary" *ngIf="!isExisted" (click)="forkProjectClick()">Fork Project</button>
-        <button type="button" class="btn btn-outline-primary" *ngIf="newProject == null && !isExisted" (click)="closeModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" *ngIf="newProject != null || isExisted" (click)="closeModal()">Close</button>
-    </div>
+<div class="modal-body" *ngIf="isExisted && newProject == null">
+  <p>You've already forked {{ project.name }}.</p>
+</div>
+
+<div class="modal-body" *ngIf="newProject != null">
+  <p>Project successfully forked</p>
+  <strong>
+    <a role="button" class="link-basic" (click)="onNavigateToNewProject()">
+      {{ newProject.route }}
+    </a>
+  </strong>
+</div>
+
+<div class="modal-footer">
+  <!-- Secondary -->
+  <button
+    type="button"
+    class="btn btn-outline-primary"
+    *ngIf="newProject == null && !isExisted"
+    (click)="closeModal()"
+  >
+    Cancel
+  </button>
+
+  <!-- Primary -->
+  <button
+    type="button"
+    class="btn btn-primary"
+    *ngIf="!isExisted && newProject == null"
+    (click)="forkProjectClick()"
+  >
+    Fork Project
+  </button>
+
+  <button
+    type="button"
+    class="btn btn-primary"
+    *ngIf="newProject != null || isExisted"
+    (click)="closeModal()"
+  >
+    Close
+  </button>
 </div>

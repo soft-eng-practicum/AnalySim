@@ -147,10 +147,11 @@
 >
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header modal-header--center">
         <h5 class="modal-title" id="exampleModalLongTitle">
-          NoteBook Comments
+          Notebook Comments
         </h5>
+
         <button
           type="button"
           class="close"
@@ -160,33 +161,40 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+
       <div class="modal-body">
+        <!-- Add Comment -->
         <form>
-          <div class="row form-group">
-            <span class="col-9"
-              ><input
+          <div class="form-row align-items-center">
+            <div class="col">
+              <input
                 type="text"
                 class="form-control"
-                placeholder="Add your Comment"
-            /></span>
-            <span class="col-2"><input type="submit" class="btn" /></span>
-            <span class="col-1"></span>
+                placeholder="Add your comment"
+              />
+            </div>
+
+            <div class="col-auto">
+              <input type="submit" class="btn btn-primary" value="Post" />
+            </div>
           </div>
         </form>
-        <div class="d-flex card-header flex-row align-items-center">
-          <span class="mr-2">Comments</span>
-          <div class="d-inline-flex ml-auto">
-            <!-- Private Button Group Start -->
-          </div>
+
+        <!-- Section Header -->
+        <div class="d-flex card-header flex-row align-items-center mt-3">
+          <span>Comments</span>
         </div>
+
+        <!-- Temp Comments -->
         <ul class="list-group">
           <li class="list-group-item">
-            <div class="d-flex flex-row">
-              Tammie Smith - 02/23/2023
+            <div class="d-flex flex-row align-items-center">
+              <span>Tammie Smith - 02/23/2023</span>
+
               <div class="d-inline-flex ml-auto">
                 <button
                   type="button"
-                  class="btn ml-3"
+                  class="btn btn-danger"
                   title="Delete"
                   data-toggle="modal"
                   data-target="#exampleModal"
@@ -196,13 +204,15 @@
               </div>
             </div>
           </li>
+
           <li class="list-group-item">
-            <div class="d-flex flex-row">
-              Oneal Smith - 02/23/2023
+            <div class="d-flex flex-row align-items-center">
+              <span>Oneal Smith - 02/23/2023</span>
+
               <div class="d-inline-flex ml-auto">
                 <button
                   type="button"
-                  class="btn ml-3"
+                  class="btn btn-danger"
                   title="Delete"
                   data-toggle="modal"
                   data-target="#exampleModal"
@@ -214,8 +224,11 @@
           </li>
         </ul>
       </div>
+
       <div class="modal-footer">
-        <button type="button" class="btn" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">
+          Close
+        </button>
       </div>
     </div>
   </div>
@@ -227,13 +240,16 @@
   [id]="'deleteModal' + notebook.notebookID"
   tabindex="-1"
   role="dialog"
-  aria-labelledby="exampleModalLabel"
+  aria-labelledby="'deleteModalLabel' + notebook.notebookID"
   aria-hidden="true"
 >
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Delete Window</h5>
+      <div class="modal-header modal-header--center">
+        <h5 class="modal-title" [id]="'deleteModalLabel' + notebook.notebookID">
+          Delete
+        </h5>
+
         <button
           type="button"
           class="close"
@@ -243,27 +259,37 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+
       <div class="modal-body">
-        <div>Are you sure you want to delete this item ?</div>
-        <div>
-          <span *ngIf="notebook.type == 'new'"
-            >{{ notebook.name }}{{ notebook.extension }} version v{{
-              selectedVersion
-            }}
-          </span>
-          <span *ngIf="notebook.type == 'observable'"
-            >{{ notebook.name }}{{ notebook.extension }}</span
-          >
-          <span *ngIf="notebook.type == 'folder'"
-            >{{ notebook.name }} folder</span
-          >
-        </div>
+        <p>Are you sure you want to delete this item?</p>
+
+        <p>
+          <strong>
+            <span *ngIf="notebook.type == 'new'">
+              {{ notebook.name }}{{ notebook.extension }} version v{{ selectedVersion }}
+            </span>
+
+            <span *ngIf="notebook.type == 'observable'">
+              {{ notebook.name }}{{ notebook.extension }}
+            </span>
+
+            <span *ngIf="notebook.type == 'folder'">
+              {{ notebook.name }} folder
+            </span>
+          </strong>
+        </p>
       </div>
+
       <div class="modal-footer">
-        <button type="button" class="btn" data-dismiss="modal">Close</button>
+        <!-- Secondary -->
+        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">
+          Close
+        </button>
+
+        <!-- Destructive -->
         <button
           type="button"
-          class="btn"
+          class="btn btn-danger"
           (click)="deleteNotebook()"
           data-dismiss="modal"
         >

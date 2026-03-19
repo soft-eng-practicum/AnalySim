@@ -1,97 +1,181 @@
-<div class="modal-content">
-    <div class="modal-header justify-content-center">
-        <h5 class="modal-title">Add Notebook</h5>
+<div class="modal-content add-notebook-modal surface-soft">
+  <div class="modal-header modal-header--center">
+    <h5 class="modal-title">Add Notebook</h5>
+  </div>
+
+  <form class="form" [formGroup]="uploadNotebookForm">
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="notebookName">Notebook Name</label>
+        <input
+          id="notebookName"
+          formControlName="notebookName"
+          type="text"
+          class="form-control"
+          [class.invalid]="notebookName.touched && notebookName.invalid"
+          [readOnly]="isLoading"
+          required
+        />
+
+        <div *ngIf="notebookName.touched && notebookName.errors" class="text-danger">
+          <span [hidden]="!notebookName.errors?.['minlength']">Minimum 1 character</span>
+          <span [hidden]="!notebookName.errors?.['maxlength']">Maximum 20 character</span>
+          <span [hidden]="!notebookName.errors?.['noMatch']">Folder already exists</span>
+          <span [hidden]="!notebookName.errors?.['noSpaceSpecial']">
+            No spaces or special characters
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="notebookSourceType">
+          Do you want to add a new notebook or create one from an existing URL?
+        </label>
+        <select
+          id="notebookSourceType"
+          #types
+          class="form-control"
+          (change)="onChange(types.value)"
+        >
+          <option selected value="file">Create a new one from a file</option>
+          <option value="url">Add an existing one from URL</option>
+          <option value="blank">Create a blank notebook</option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="showCreateNotebook">
+        <label for="notebookFile">Create Notebook</label>
+        <input
+          id="notebookFile"
+          type="file"
+          class="form-control p-1"
+          (change)="fileEvent($event)"
+          formControlName="notebookFile"
+          required
+        />
+
+        <div
+          *ngIf="uploadNotebookForm.get('notebookFile')?.touched && uploadNotebookForm.get('notebookFile')?.errors"
+          class="text-danger"
+        >
+          <span *ngIf="uploadNotebookForm.get('notebookFile')?.errors?.['required']">
+            File is required
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="showAddExistingNotebook">
+        <label for="notebookType">Notebook Type</label>
+        <select
+          id="notebookType"
+          #notebookTypes
+          class="form-control"
+          (change)="onChangeNotebookType(notebookTypes.value)"
+        >
+          <option selected value="colab">Google Colab</option>
+          <option value="observablehq">ObservableHQ</option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="showAddExistingNotebook">
+        <label for="notebookURL">Add Existing Notebook (URL)</label>
+        <input
+          id="notebookURL"
+          formControlName="notebookURL"
+          type="text"
+          class="form-control"
+          (change)="urlEvent($event)"
+          [readOnly]="isLoading"
+        />
+
+        <div
+          *ngIf="uploadNotebookForm.get('notebookURL')?.touched && uploadNotebookForm.get('notebookURL')?.errors"
+          class="text-danger"
+        >
+          <span *ngIf="uploadNotebookForm.get('notebookURL')?.errors?.['required']">
+            URL is required
+          </span>
+          <span *ngIf="uploadNotebookForm.get('notebookURL')?.errors?.['pattern']">
+            Enter a valid URL
+          </span>
+        </div>
+      </div>
+
+      <div
+        class="form-group"
+        *ngIf="showAddExistingNotebook && notebookType === 'observablehq'"
+      >
+        <label>Add Datasets</label>
+
+        <div
+          class="dataset-row"
+          *ngFor="let dataset of datasets; let i = index"
+        >
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Dataset Name"
+            (change)="changeDatasetName(i, $event)"
+            [readOnly]="isLoading"
+          />
+
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Dataset URL"
+            (change)="changeDatasetURL(i, $event)"
+            [readOnly]="isLoading"
+          />
+
+          <button
+            type="button"
+            class="btn btn-danger dataset-action-btn"
+            (click)="removeDataset(i)"
+            [disabled]="isLoading"
+            aria-label="Remove dataset"
+          >
+            <i class="fa fa-minus"></i>
+          </button>
+        </div>
+
+        <div class="dataset-add-row">
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            (click)="addDataset()"
+            [disabled]="isLoading"
+          >
+            <i class="fa fa-plus"></i>
+            <span>Add Dataset</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="showBlankNotebook">
+        <label>Create Blank Notebook</label>
+        <p class="mb-0">
+          A minimal Jupyter notebook (<code>.ipynb</code>) will be generated.
+        </p>
+      </div>
     </div>
 
-    <form class="form" [formGroup]="uploadNotebookForm">
-        <div class="modal-body">
-            <!-- Form Group Username -->
-            <div class="form-group">
-                <label for="notebookName">Notebook Name</label>
-                <input formControlName="notebookName" type="text" class="form-control" placeholder=""
-                    [class.invalid]="notebookName.touched && notebookName.invalid" [readOnly]="isLoading" required>
-                <div *ngIf="notebookName.touched && notebookName.errors" class="text-danger">
-                    <span [hidden]="!notebookName.errors?.['minlength']">Minimum 1 character</span>
-                    <span [hidden]="!notebookName.errors?.['maxlength']">Maximum 20 character</span>
-                    <span [hidden]="!notebookName.errors?.['noMatch']">Folder Already Exist</span>
-                    <span [hidden]="!notebookName.errors?.['noSpaceSpecial']">No Space or Special Character</span>
-                </div>
-            </div>
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="closeModal.emit()"
+      >
+        Close
+      </button>
 
-            <div class="form-group">
-                <label>Do you want to add a new notebook or create one from an existing URL?</label>
-                <select #types class="form-control" aria-label="Default select example"
-                    (change)="onChange(types.value)">
-                    <option selected value="file">Create a new one from a file</option>
-                    <option value="url">Add an existing one from URL</option>
-                    <option value="blank">Create a blank notebook</option>
-                </select>
-            </div>
-
-            <div class="form-group" *ngIf="showCreateNotebook">
-                <label>Create Notebook</label>
-                <input type="file" class="form-control p-1" placeholder="" (change)="fileEvent($event)" formControlName="notebookFile" required/>
-                <div *ngIf="uploadNotebookForm.get('notebookFile')?.touched && uploadNotebookForm.get('notebookFile')?.errors"
-                    class="text-danger">
-                    <span *ngIf="uploadNotebookForm.get('notebookFile')?.errors?.['required']">File is required</span>
-                </div>
-            </div>
-
-            <div class="form-group" *ngIf="showAddExistingNotebook">
-                <label for="notebookURL">Notebook Type</label>
-                <select #notebookTypes class="form-control" aria-label="Default select example"
-                    (change)="onChangeNotebookType(notebookTypes.value)">
-                    <option selected value="colab">Google Colab</option>
-                    <option value="observablehq">ObservableHQ</option>
-                </select>
-            </div>
-
-            <div class="form-group" *ngIf="showAddExistingNotebook">
-                <label for="notebookURL">Add Existing Notebook (URL)</label>
-                <input formControlName="notebookURL" type="text" class="form-control" placeholder=""
-                    (change)="urlEvent($event)" [readOnly]="isLoading" />
-                <div *ngIf="uploadNotebookForm.get('notebookURL')?.touched && uploadNotebookForm.get('notebookURL')?.errors"
-                    class="text-danger">
-                    <span *ngIf="uploadNotebookForm.get('notebookURL')?.errors?.['required']">URL is required</span>
-                    <span *ngIf="uploadNotebookForm.get('notebookURL')?.errors?.['pattern']">Enter a valid URL</span>
-                </div>
-            </div>
-
-            <div class="form-group" *ngIf="showAddExistingNotebook && notebookType==='observablehq'">
-                <label for="notebookURL">Add Datasets</label>
-                <div style="display: flex; margin-top: 10px;" *ngFor="let dataset of datasets;let i = index">
-                    <input type="text" class="form-control" placeholder="Dataset Name"
-                        (change)="changeDatasetName(i,$event)" [readOnly]="isLoading" style="margin-right: 10px;" />
-                    <input type="text" class="form-control" placeholder="Dataset URL"
-                        (change)="changeDatasetURL(i,$event)" [readOnly]="isLoading" style="margin-right: 10px;" />
-                    <button type="button" class="btn btn-secondary" (click)="removeDataset(i)">
-                        <i class="fa fa-minus"></i>
-                    </button>
-                </div>
-                <div style="display: flex; align-items: center; width: 100%; justify-content: center;margin-top: 10px;">
-                    <button type="button" class="btn btn-primary" (click)="addDataset()">
-                        <i class="fa fa-plus"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="form-group" *ngIf="showBlankNotebook">
-                <label>Create Blank Notebook</label>
-                <p class="text-muted mb-0">
-                    A minimal Jupyter notebook (<code>.ipynb</code>) will be generated.
-                </p>
-            </div>
-        </div>
-        <div class="modal-footer justify-content-center">
-            <!-- Form Group Register -->
-            <div class="form-group">
-                <button type="submit" class="btn" [disabled]="uploadNotebookForm.invalid" (click)="addNotebook()">
-                    <div>
-                        <span>Add Notebook</span>
-                    </div>
-                </button>
-            </div>
-            <button type="button" class="btn btn-secondary" (click)="closeModal.emit()">Close</button>
-        </div>
-    </form>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="uploadNotebookForm.invalid || isLoading"
+        (click)="addNotebook()"
+      >
+        <span>Add Notebook</span>
+      </button>
+    </div>
+  </form>
 </div>

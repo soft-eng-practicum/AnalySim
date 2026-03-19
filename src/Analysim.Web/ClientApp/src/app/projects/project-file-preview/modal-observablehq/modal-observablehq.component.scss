@@ -1,8 +1,26 @@
-.modal-content {
-  background-color: var(--background-color-tertiary);
-}
+.load-notebook-modal {
+  .modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
 
-.btn {
-  background-color: var(--button-background-color);
-  color: var(--primary-color);
+  .form-group {
+    margin-bottom: 0;
+  }
+
+  .form-group label {
+    display: inline-block;
+    margin-bottom: var(--space-2);
+    font-weight: 600;
+  }
+
+  .text-danger {
+    margin-top: var(--space-1);
+    font-size: var(--fs-14);
+  }
+
+  .text-danger span {
+    display: block;
+  }
 }

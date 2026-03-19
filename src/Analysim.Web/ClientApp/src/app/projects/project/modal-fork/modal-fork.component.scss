@@ -1,27 +1,10 @@
 .fork-modal {
-
   .modal-body {
-    padding: var(--space-4);
     text-align: center;
   }
 
-  .modal-body p {
-    margin: 0 !important;
-    font-size: var(--fs-18) !important;
-    line-height: 1.4;
-  }
-
-  .modal-body {
-    display: block;
-    margin-top: var(--space-3);
-    font-size: var(--fs-18);
-  }
-
-  .modal-footer {
-    gap: var(--space-2);
-  }
-
-  .a{
-    padding-bottom: 1em;
+  .modal-body strong {
+    display: inline-block;
+    margin-top: var(--space-2);
   }
 }
