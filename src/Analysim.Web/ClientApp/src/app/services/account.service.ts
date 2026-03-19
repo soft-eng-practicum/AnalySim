@@ -447,6 +447,16 @@ export class AccountService {
     this.router.navigate(['/login'])
   }
 
+  clearSessionAndStayGuest() {
+    this.loginStatus.next(false)
+    this.user.next(null)
+    this.userID.next(null)
+    localStorage.setItem('loginStatus', '0')
+    localStorage.removeItem('jwt')
+    localStorage.removeItem('expiration')
+    localStorage.removeItem('userID')
+  }
+
   get isLoggedIn() {
     return this.loginStatus.asObservable()
   }
@@ -462,6 +472,11 @@ export class AccountService {
               resolve(this.user.asObservable())
             }
           )
+          .catch(() => {
+            // Happens after DB reset when localStorage still points to removed user.
+            this.clearSessionAndStayGuest()
+            resolve(this.user.asObservable())
+          })
       })
       return promise
     }

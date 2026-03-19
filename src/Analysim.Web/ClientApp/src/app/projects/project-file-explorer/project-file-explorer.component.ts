@@ -55,6 +55,10 @@ export class ProjectFileExplorerComponent implements OnInit {
   csvFile: any;
   folders: string = "";
 
+  // Search/Filter properties
+  searchQuery: string = "";
+  searchDebounceTimer: any;
+
   async ngOnInit() {
     this.dataBrowserURL = 'https://observablehq.com/embed/@sfsu/untitled?cell=*&dataset=';
     const raw = this.extractDirectory(this.router.url);
@@ -107,6 +111,70 @@ export class ProjectFileExplorerComponent implements OnInit {
     let rebuilt = parts.join("/");
     if (rebuilt.length > 0) rebuilt += "/";
     return rebuilt;
+  }
+
+  /**
+   * Get filtered list of files based on search query (case-insensitive)
+   */
+  get filteredBlobFileItemList(): BlobFileItem[] {
+    if (!this.searchQuery.trim()) {
+      return this.blobFileItemList;
+    }
+
+    const query = this.searchQuery.toLowerCase();
+    return this.blobFileItemList.filter(item => 
+      item.name.toLowerCase().includes(query)
+    );
+  }
+
+  /**
+   * Handle search input with debounce to avoid excessive re-renders
+   */
+  onSearchChange(event: any): void {
+    const value = event.target.value;
+    
+    // Clear existing debounce timer
+    if (this.searchDebounceTimer) {
+      clearTimeout(this.searchDebounceTimer);
+    }
+
+    // Set new debounce timer (300ms delay for optimal UX)
+    this.searchDebounceTimer = setTimeout(() => {
+      this.searchQuery = value;
+    }, 300);
+  }
+
+  /**
+   * Clear search query and reset focus to search input
+   */
+  clearSearch(): void {
+    this.searchQuery = "";
+    
+    // Reset focus to search input for keyboard navigation
+    const searchInput = document.querySelector('.file-explorer-card__search-input') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.value = "";
+      searchInput.focus();
+    }
+  }
+
+  /**
+   * Handle keyboard shortcuts in search input
+   * Escape: clear search, Enter: focus first result, ArrowDown: focus first item
+   */
+  onSearchKeydown(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'Escape':
+        this.clearSearch();
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        const firstItem = document.querySelector('.file-item') as HTMLElement;
+        if (firstItem) {
+          firstItem.focus();
+        }
+        break;
+    }
   }
 
 

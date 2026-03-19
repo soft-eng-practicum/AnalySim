@@ -131,15 +131,62 @@
     </div>
   </div>
   <!-- File Explorer Content Start -->
+  
+  <!-- Search Bar -->
+  <div class="file-explorer-card__search-container">
+    <div class="file-explorer-card__search-wrapper">
+      <i class="fa fa-search file-explorer-card__search-icon" aria-hidden="true"></i>
+      <input
+        type="text"
+        class="file-explorer-card__search-input"
+        placeholder="Search files and folders..."
+        aria-label="Search files"
+        (input)="onSearchChange($event)"
+        (keydown)="onSearchKeydown($event)"
+        title="Type to search, press Escape to clear"
+      />
+      <button
+        *ngIf="searchQuery"
+        type="button"
+        class="file-explorer-card__search-clear"
+        aria-label="Clear search"
+        title="Clear search (Esc)"
+        (click)="clearSearch()"
+      >
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    <small class="file-explorer-card__search-hint" *ngIf="searchQuery">
+      Found <strong>{{ filteredBlobFileItemList.length }}</strong> result(s)
+    </small>
+  </div>
+
+  <!-- File List -->
   <ul class="list-group file-explorer-card__list">
+    <!-- Empty state: No files in directory -->
     <li
       class="list-group-item file-explorer-card__empty"
       *ngIf="project.blobFiles.length == 0"
     >
-      No File Found
+      <i class="fa fa-folder-open" aria-hidden="true"></i>
+      <span>No files in this folder</span>
     </li>
+
+    <!-- Empty state: No search results -->
+    <li
+      class="list-group-item file-explorer-card__empty file-explorer-card__empty--no-results"
+      *ngIf="project.blobFiles.length > 0 && searchQuery && filteredBlobFileItemList.length === 0"
+    >
+      <i class="fa fa-search" aria-hidden="true"></i>
+      <div>
+        <span>No files match "<strong>{{ searchQuery }}</strong>"</span>
+        <small>Try adjusting your search or <a href="#" (click)="clearSearch(); $event.preventDefault()">clear the search</a></small>
+      </div>
+    </li>
+
+    <!-- File list items -->
     <app-project-file-explorer-item
-      *ngFor="let blobFileItem of blobFileItemList"
+      *ngFor="let blobFileItem of filteredBlobFileItemList"
       [blobFileItem]="blobFileItem"
       [isSelected]="blobFileItem.order == selectedItem"
       [currentDirectory]="currentDirectory"

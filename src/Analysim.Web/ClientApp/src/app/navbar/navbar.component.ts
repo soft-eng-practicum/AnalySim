@@ -38,20 +38,26 @@ export class NavbarComponent implements OnInit {
   isAdmin$: Observable<boolean>;
 
   async ngOnInit() {
-    this.loginStatus$ = this.accountService.isLoggedIn;
-    this.currentUser$ = await this.accountService.currentUser;
-    this.currentUser$.subscribe(x => {
-      this.currentUser = x;
-      if (x) {
-        this.isAdmin$ = this.accountService.getIsAdmin(x.userName);
-        this.profileImage();
-      }
-    });
-
+    // Initialize search form first so template bindings are always safe.
     this.searchTerm = new FormControl();
     this.searchForm = new FormGroup({
       searchTerm: this.searchTerm
     });
+
+    this.loginStatus$ = this.accountService.isLoggedIn;
+    try {
+      this.currentUser$ = await this.accountService.currentUser;
+      this.currentUser$.subscribe(x => {
+        this.currentUser = x;
+        if (x) {
+          this.isAdmin$ = this.accountService.getIsAdmin(x.userName);
+          this.profileImage();
+        }
+      });
+    } catch (error) {
+      // Keep navbar usable even if current user lookup fails.
+      this.currentUser$ = null;
+    }
   }
 
   profileImage() {
