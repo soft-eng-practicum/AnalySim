@@ -7,7 +7,6 @@ namespace Web.ViewModels.Project
     {
         public string Directory { get; set; } = "";
 
-        [Required(ErrorMessage = "User ID is a required field.")]
         public int UserID { get; set; }
 
         [Required(ErrorMessage = "Project ID is a required field.")]
