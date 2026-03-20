@@ -1,20 +1,99 @@
-.card {
-  border: 1px solid var(--border-color);
-  
+.profile-card {
+  height: 100%;
+  overflow: hidden;
+  border: var(--border-width) var(--border-style) var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--surface-0);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  transition: transform var(--motion-fast), box-shadow var(--motion-fast);
 }
 
-.user-follow, .user-unfollow {
-  margin-right: 10px;
-  padding: 5px 10px;
-  min-width: 90px;
-  color: var(--button-font-color);
-  background-color: var(--button-background-color);
-  border: 1px solid var(--button-font-color);
+.profile-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
 
-  &:hover {
-    color: var(--button-font-color-secondary-hov);
-    background-color: var(--button-background-color-secondary-hov);
-    border: var(--button-border-width) var(--button-border-style) var(--button-border-color-secondary-hov);
-    text-decoration: none;
+.profile-card__media {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-bottom: var(--border-width) var(--border-style) var(--border-color);
+  background: var(--background-color-tertiary);
+}
+
+.profile-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+}
+
+.profile-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.profile-card__username {
+  margin: 0;
+  font-size: var(--fs-18);
+  font-weight: 700;
+  color: var(--text-on-light);
+  word-break: break-word;
+}
+
+.profile-card__bio {
+  margin: 0;
+  font-size: var(--fs-14);
+  color: var(--c-text-500);
+  text-align: center;
+  min-height: calc(1.5em * 3);
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.profile-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+
+.profile-card__actions .btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.profile-card__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  padding: 0 var(--space-1);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c-surface-0) 85%, transparent);
+  color: black;
+  font-size: var(--fs-14);
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .profile-card__body {
+    padding: var(--space-3);
   }
 }
