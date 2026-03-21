@@ -1,0 +1,5 @@
+{
+  "packageManager": "python",
+  "packageName": "analysim_jupyterlite_integration",
+  "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package analysim_jupyterlite_integration"
+}

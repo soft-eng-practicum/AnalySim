@@ -1,0 +1,16 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.5.2
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: mohab_sobhy@outlook.com
+author_name: mohab
+has_ai_rules: false
+has_binder: false
+has_settings: false
+kind: frontend
+labextension_name: analysim-jupyterlite-integration
+project_short_description: A JupyterLite frontend extension that enables seamless
+    integration between JupyterLite and Analysim.
+python_name: analysim_jupyterlite_integration
+repository: ''
+test: false
+
