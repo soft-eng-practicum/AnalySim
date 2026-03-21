@@ -1,12 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { ProjectService } from '../services/project.service';
-import { Project } from '../interfaces/project';
-import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
-import { AccountService } from '../services/account.service';
-import { User } from '../interfaces/user';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { JsonPipe } from '@angular/common';
-import { HttpParams } from '@angular/common/http';
+
+import { Project } from '../interfaces/project';
+import { User } from '../interfaces/user';
+
+import { AccountService } from '../services/account.service';
 import { ExploreService } from '../services/explore.service';
 
 @Component({
@@ -15,105 +13,157 @@ import { ExploreService } from '../services/explore.service';
   styleUrls: ['./explore.component.scss']
 })
 export class ExploreComponent implements OnInit {
-
   constructor(
-    private projectService : ProjectService,
-    private accountService : AccountService,
-    private formBuilder : FormBuilder,
-    public exploreService : ExploreService,
-    private route : ActivatedRoute,
-    private router: Router) { }
+    private accountService: AccountService,
+    public exploreService: ExploreService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
-  // Form Control - Create Project
-  searchForm : FormGroup
-  searchCategory : FormControl
-  searchTerm : FormControl
-  termParam : string[]
-  categoryParam : string
+  // Query / filter state
+  termParam: string[];
+  categoryParam: string;
+  sortOrder: 'newest' | 'oldest' = 'newest';
 
-  projects : Project[]
-  users : User[]
+  // Local data
+  projects: Project[];
+  users: User[];
+
+  // Dropdown UI state
+  isCategoryOpen = false;
+  isSortOpen = false;
+
+  @HostListener('document:click')
+  closeDropdowns() {
+    this.isCategoryOpen = false;
+    this.isSortOpen = false;
+  }
 
   ngOnInit(): void {
-    this.projects = null
-    this.users = null
+    this.route.queryParams.subscribe(params => {
+      this.projects = null;
+      this.users = null;
 
-    // get return url from route parameters or default to '/'
-    this.termParam = JSON.parse(this.route.snapshot.queryParams['term'] || '[]')
-    this.categoryParam = this.route.snapshot.queryParams['category'] || '[]'
+      this.termParam = JSON.parse(params['term'] || '[]');
+      this.categoryParam = params['category'] || 'project';
 
+      let searchTermString = '';
+      this.termParam.forEach(x => (searchTermString += x + ' '));
 
-    let searchTermString = ""
-    this.termParam.forEach(x => searchTermString += x + " ")
+      switch (this.categoryParam) {
+        case 'project':
+          this.exploreService.exploreProject(searchTermString);
+          break;
 
-    switch(this.categoryParam){
-      case "project":
-        this.exploreService.exploreProject(searchTermString)
-        break;
-      case "profile":
-        this.searchProfile(this.termParam)
-        break;
-      default:
-        this.categoryParam = "project"
-        this.router.navigate(['/explore'], { queryParams: { category : 'project', term : JSON.stringify(this.termParam)}})
-        this.exploreService.exploreProject('')
-        break;
-    }
+        case 'profile':
+          this.searchProfile(this.termParam);
+          break;
 
-    // Initialize Form Controls
-    this.searchCategory = new FormControl(this.categoryParam);
-    this.searchTerm = new FormControl(searchTermString);
-
-    // Initialize FormGroup using FormBuilder
-    this.searchForm = this.formBuilder.group({
-        searchCategory : this.searchCategory,
-        searchTerm : this.searchTerm
+        default:
+          this.router.navigate(['/explore'], {
+            queryParams: {
+              category: 'project',
+              term: JSON.stringify(this.termParam)
+            }
+          });
+          break;
+      }
     });
-
-    this.searchCategory.valueChanges.subscribe(val =>{
-      this.searchForm.value.searchCategory = val
-      this.onSubmit()
-    })
   }
 
-  searchProfile(searchTerms : string[]){
-    this.users = null
-    if(searchTerms.length == 0){
+  searchProfile(searchTerms: string[]) {
+    this.users = null;
+
+    if (searchTerms.length == 0) {
       this.accountService.getUserList().subscribe(
-        result =>{
-          this.users = result
-        }, error =>{
-          console.log(error);      
-        });
-    }
-    else{
-    this.accountService.search(searchTerms).subscribe(
-      result =>{
-        this.users = result
-      }, error =>{
-        console.log(error);      
-      });
-    }
-  }
-
-  onSubmit(){
-
-    let searchForm = this.searchForm.value
-
-    let searchTerms : string[] = Array.from(new Set(searchForm.searchTerm.split(" ").filter(x => x.length != 0)))
-
-    console.log(searchForm.searchCategory)
-
-    switch(searchForm.searchCategory)
-    {
-        case "project":
-          this.exploreService.exploreProject(searchForm.searchTerm)
-        break
-        case "profile":
-          this.searchProfile(searchTerms)
-          this.router.navigate(['/explore'], { queryParams: { category : 'profile', term : JSON.stringify(searchTerms)}})
-        break
+        result => {
+          this.users = result;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    } else {
+      this.accountService.search(searchTerms).subscribe(
+        result => {
+          this.users = result;
+        },
+        error => {
+          console.log(error);
+        }
+      );
     }
   }
 
+  changeCategory(category: string) {
+    if (this.categoryParam === category) return;
+
+    const currentTerm = this.route.snapshot.queryParams['term'] || '[]';
+
+    this.router.navigate(['/explore'], {
+      queryParams: {
+        category: category,
+        term: currentTerm
+      }
+    });
+  }
+
+  clearSearch() {
+    this.router.navigate(['/explore'], {
+      queryParams: {
+        category: this.categoryParam || 'project',
+        term: JSON.stringify([])
+      }
+    });
+  }
+
+  setSortOrder(order: 'newest' | 'oldest') {
+    if (this.sortOrder === order) return;
+
+    this.sortOrder = order;
+  }
+
+  toggleCategoryDropdown() {
+    this.isCategoryOpen = !this.isCategoryOpen;
+    this.isSortOpen = false;
+  }
+
+  toggleSortDropdown() {
+    this.isSortOpen = !this.isSortOpen;
+    this.isCategoryOpen = false;
+  }
+
+  selectCategory(category: string) {
+    this.isCategoryOpen = false;
+    this.changeCategory(category);
+  }
+
+  selectSortOrder(order: 'newest' | 'oldest') {
+    this.isSortOpen = false;
+    this.setSortOrder(order);
+  }
+
+  get sortedProjects(): Project[] {
+    const projects = this.exploreService.projects
+      ? [...this.exploreService.projects]
+      : [];
+
+    return projects.sort((a, b) => {
+      const aTime = new Date(a.dateCreated).getTime();
+      const bTime = new Date(b.dateCreated).getTime();
+
+      return this.sortOrder === 'newest' ? bTime - aTime : aTime - bTime;
+    });
+  }
+
+  get sortedUsers(): User[] {
+    const users = this.users ? [...this.users] : [];
+
+    return users.sort((a, b) => {
+      const aTime = new Date(a.dateCreated).getTime();
+      const bTime = new Date(b.dateCreated).getTime();
+
+      return this.sortOrder === 'newest' ? bTime - aTime : aTime - bTime;
+    });
+  }
 }

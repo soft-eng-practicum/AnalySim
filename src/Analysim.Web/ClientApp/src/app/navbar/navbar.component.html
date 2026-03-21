@@ -1,32 +1,49 @@
 <!-- Nav Bar Start -->
-<nav class="navbar navbar-expand-md navbar-toggleable-sm navbar-dark bg-shell">
+<nav class="navbar navbar-expand-md navbar-dark bg-shell navbar-body">
   <!-- Nav Toggle Start -->
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse"
-    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon "></span>
+  <button
+    class="navbar-toggler"
+    type="button"
+    data-toggle="collapse"
+    data-target="#mainNavbar"
+    aria-controls="mainNavbar"
+    aria-expanded="false"
+    aria-label="Toggle navigation"
+  >
+    <span class="navbar-toggler-icon"></span>
   </button> <!-- Nav Toggle End -->
-  <!-- Nav Brand -->
-  <a class="navbar-brand" (click)="navigateHome()">AnalySim</a>
 
-  <!-- Nav Collapse Start-->
-  <div class="collapse navbar-collapse">
-    <ul class="navbar-nav mr-auto justify-content-start align-items-center">
-      <!-- Nav Dashboard -->
-      <li class="nav-item mt-1" *ngIf="(loginStatus$ | async) as loginStatus">
-        <a class="nav-link nav-interactive" [routerLink]='["/dashboard"]' routerLinkActive="border-bottom">Dashboard</a>
+  <a class="navbar-brand" (click)="navigateHome()">
+    <img src="../../assets/img/AnalySim-Title.png" alt="AnalySim" />
+  </a>
+
+  <div id="mainNavbar" class="collapse navbar-collapse">
+    <ul class="navbar-nav left-nav mr-auto justify-content-start align-items-center">
+      <li class="nav-item">
+        <a class="nav-link nav-interactive" [routerLink]="['/explore']" routerLinkActive="border-bottom">
+          Explore
+        </a>
       </li>
-      <!-- Nav Explore -->
-      <li class="nav-item pt-1 mr-3">
-        <a class="nav-link nav-interactive" [routerLink]='["/explore"]' routerLinkActive="border-bottom">Explore</a>
+
+      <li class="nav-item" *ngIf="(loginStatus$ | async)">
+        <a class="nav-link nav-interactive" [routerLink]="['/dashboard']" routerLinkActive="border-bottom">
+          Dashboard
+        </a>
       </li>
-      <!-- Nav Search Bar -->
-      <li class="nav-item d-flex align-items-center">
-        <form class="form" [formGroup]="searchForm" (ngSubmit)="onSubmit()">
+
+      <!-- Search Bar -->
+      <li class="nav-item nav-search d-flex align-items-center">
+        <form class="form" (ngSubmit)="onSubmit()">
           <div class="input-group input-group-sm search-group">
-            <input type="text" class="form-control" placeholder="Test..." name="searchTerm"
-            formControlName="searchTerm" />
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search..."
+              name="searchTerm"
+              [(ngModel)]="searchText"
+            />
             <div class="input-group-append">
-              <button class="btn search-btn">
+              <button type="submit" class="btn search-btn">
                 <i class="fa fa-search"></i>
               </button>
             </div>
@@ -35,43 +52,37 @@
       </li>
     </ul>
 
-    <!-- Logged Out Nav Item Start-->
-    <ul class="navbar-nav" *ngIf="!(loginStatus$ | async) as loginStatus">
-      <!-- Nav Home -->
+    <!-- Logged out -->
+    <ul class="navbar-nav right-nav" *ngIf="!(loginStatus$ | async)">
       <li class="nav-item mr-2">
-        <a class="nav-link nav-interactive" [routerLink]='["/home"]' routerLinkActive="border-bottom">Home</a>
+        <a class="nav-link nav-interactive" [routerLink]="['/register']" routerLinkActive="border-bottom">Register</a>
       </li>
-      <!-- Nav About Us -->
-      <!-- <li class="nav-item">
-      <a class="nav-link text-white" [routerLink]='["/aboutus"]' routerLinkActive = "border-bottom">About Us</a>
-    </li> -->
-      <!-- Nav Contact Us -->
-      <!-- <li class="nav-item">
-      <a class="nav-link text-white" [routerLink]='["/contactus"]' routerLinkActive = "border-bottom">Contact Us</a>
-    </li> -->
-      <!-- Nav Register -->
       <li class="nav-item mr-2">
-        <a class="nav-link nav-interactive" [routerLink]='["/register"]' routerLinkActive="border-bottom">Register</a>
+        <a class="nav-link nav-interactive" [routerLink]="['/login']" routerLinkActive="border-bottom">Login</a>
       </li>
-      <!-- Nav Login -->
-      <li class="nav-item mr-2">
-        <a class="nav-link nav-interactive" [routerLink]='["/login"]' routerLinkActive="border-bottom">Login</a>
-      </li>
-    </ul> <!-- Logged Out Nav Item End-->
-    <!-- Logged In Nav Item Start -->
-    <ul class="navbar-nav" *ngIf="(loginStatus$ | async) as loginStatus">
-      <!-- Nav Profile Dropdown -->
-      <li class="nav-item mr-3" *ngIf="isAdmin$ | async">
+    </ul>
+
+    <!-- Logged in -->
+    <ul class="navbar-nav right-nav" *ngIf="(loginStatus$ | async)">
+      <li class="nav-item mr-3" *ngIf="(isAdmin$ | async)">
         <a class="nav-link nav-interactive" routerLink="/admin">
           <i class="fa fa-cogs mr-1"></i> Admin
         </a>
       </li>
+
       <li class="nav-item dropdown" *ngIf="(currentUser$ | async) as currentUser">
-        <a class="nav-link dropdown-toggle nav-interactive nav-profile-trigger" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
-          aria-haspopup="true" aria-expanded="false">
-          <img [src]="profileImageUrl" class="nav-avatar rounded-circle" alt="Profile">
-          {{currentUser.userName}}
+        <a
+          class="nav-link dropdown-toggle nav-interactive nav-profile-trigger"
+          href="#"
+          id="navbarDropdownMenuLink"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          <img [src]="profileImageUrl" class="nav-avatar rounded-circle" alt="Profile" />
+          {{ currentUser.userName }}
         </a>
+
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
           <a class="dropdown-item" [routerLink]='["/profile/" + currentUser.userName]'>View Profile</a>
           <a class="dropdown-item" [routerLink]='["/dashboard"]'>Dashboard</a>

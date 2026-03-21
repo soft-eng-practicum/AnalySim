@@ -1,15 +1,50 @@
-<li class="list-group-item d-flex h-100" [class.active]="isSelected" (click)="selectItem()" (dblclick)="navigate()">
-    <div class="mr-auto" style="width: 100%">
-        <i class="fa fa-file mr-1" *ngIf="blobFileItem.type == 'file'"></i>
-        <i class="fa fa-folder mr-1" *ngIf='blobFileItem.type === "folder"'></i>
+<li
+  class="list-group-item file-item"
+  [class.is-selected]="isSelected"
+  (click)="selectItem()"
+  (dblclick)="navigate()"
+>
+  <div class="file-row">
+    <div class="file-left">
+      <i
+        class="fa file-icon"
+        [ngClass]="
+          blobFileItem.type === 'folder'
+            ? 'fa-folder'
+            : blobFileItem.type === 'none'
+              ? 'fa-arrow-left'
+              : 'fa-file'
+        "
+        aria-hidden="true"
+      ></i>
 
-        <a (click)="navigate()">{{blobFileItem.name}}</a>
-        <div class="ml-auto" *ngIf="blobFileItem.type == 'file'" style="float: right">
-            <button type="button" class="btn btn-secondary" title="Get Shareable Link" (click)="displayShareableLink()">
-                <i class="fa fa-link mr-1"></i>
-            </button>
-            {{timeSince}}
-        </div>
-
+      <a
+        class="file-link"
+        (click)="navigate(); $event.stopPropagation()"
+        [attr.title]="
+          blobFileItem.type === 'none'
+            ? 'Back'
+            : blobFileItem.type === 'folder'
+              ? 'Open folder'
+              : 'Open file'
+        "
+      >
+        {{ blobFileItem.type === "none" ? "Back" : blobFileItem.name }}
+      </a>
     </div>
+
+    <div class="file-right" *ngIf="blobFileItem.type === 'file'">
+      <span class="file-meta" aria-label="Last updated">{{ timeSince }}</span>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        title="Get Shareable Link"
+        aria-label="Get Shareable Link"
+        (click)="displayShareableLink(); $event.stopPropagation()"
+      >
+        <i class="fa fa-link" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
 </li>

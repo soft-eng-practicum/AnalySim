@@ -84,39 +84,22 @@ export class RegisterComponent implements OnInit {
     // Variable for FormGroupValue
     let userReg = this.insertForm.value
 
-
-
-    let registrationSurvey = {"workPlace": userReg.workPlace,"positionTitle":userReg.positionTitle,"whereDidYouHearAboutAnalysim": userReg.whereDidYouHearAboutAnalysim,"wouldYouLikeToHearUpdatesFromUs": userReg.wouldYouLikeToHearUpdatesFromUs,"registrationCode":userReg.registrationCode};
-
-
+    // Survey
+    let registrationSurvey = {
+      "workPlace": userReg.workPlace,
+      "positionTitle":userReg.positionTitle,
+      "whereDidYouHearAboutAnalysim": userReg.whereDidYouHearAboutAnalysim,
+      "wouldYouLikeToHearUpdatesFromUs": userReg.wouldYouLikeToHearUpdatesFromUs,
+      "registrationCode":userReg.registrationCode
+    };
+    
     // Show loading icon
     this.isLoading = true;
 
     // Register the Account
-    this.accountService.register(userReg.username, userReg.password, userReg.emailAddress,JSON.stringify(registrationSurvey)).subscribe(
+    this.accountService.register(userReg.username, userReg.password, userReg.emailAddress, JSON.stringify(registrationSurvey)).subscribe(
       result => {
-        // Hide Error Message Box
         this.invalidRegister = false
-
-        /*
-        const username = userReg.username
-        const emailAddress = userReg.emailAddress
-        const subject: string = "Registration Complete"
-        const bodyHtml: string = "<p>You have been successfully registered for the AnalySim website.</p>"
-        const bodyText: string = "You have been successfully registered for the Analysim website."
-        // todo: should send email from the backend, not the frontend
-
-        this.communicationsService.sendEmail(emailAddress, username, subject, bodyText, bodyHtml).subscribe(
-          result => {
-            //console.log(result)
-          }, error => {
-            console.log(error)
-          }
-        );
-
-        */
-
-
 
         // Navigate to login page
         if (this.returnUrl == "")
@@ -125,20 +108,30 @@ export class RegisterComponent implements OnInit {
           this.router.navigate(['/login'], { queryParams: { returnUrl: this.returnUrl } })
 
         // Send registration notification
-        this.notfi.showSuccess('Your account has been registered and a verification email has been sent to your address. Before you can login, you must confirm your account by clicking the link in this email.', 'Registration');
+        this.notfi.showSuccess(
+          'Your account has been registered and a verification email has been sent to your address. Before you can login, you must confirm your account by clicking the link in this email.', 
+          'Registration'
+        );
       },
       error => {
-        // Hide Loading Icon
         this.isLoading = false;
-
-        // Show Error Message Box
         this.invalidRegister = true;
 
         //Set Error Message
-        this.errorMessage = error.error.message[0];
+        if (error.status === 500) {
+          this.errorMessage = "System error. Contact the administrator.";
+        }
+        else if (error?.error?.Message) {
+          this.errorMessage = error.error.Message;
+        }
+        else if (error?.error?.message?.length > 0) {
+          this.errorMessage = error.error.message[0];
+        }
+        else {
+          this.errorMessage = "An unexpected error occurred. Please try again.";
+        }
       }
     );
-
   }
 
   // Customer Validator

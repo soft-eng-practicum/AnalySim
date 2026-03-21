@@ -73,48 +73,89 @@
   }
 }
 
-.home-sponser {
-  > .col-md-10 > .row {
-    margin-bottom: var(--space-4);
+.sponsor-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @media (max-width: 1199.98px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  > .col-md-10 > .row:last-child {
-    margin-bottom: 0;
+  @media (max-width: 991.98px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .sponser-column {
-    align-self: center;
+  @media (max-width: 575.98px) {
+    grid-template-columns: 1fr;
+  }
+}
 
-    > .row {
-      margin-left: 0;
-      margin-right: 0;
-    }
+.sponsor-card {
+  @include card-stack;
 
-    @media (max-width: 991.98px) {
-      padding-top: var(--space-2);
-      padding-bottom: var(--space-2);
-    }
+  width: 100%;
+  min-height: 220px;
 
-    .hero-sponser {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-2) var(--space-3);
-      margin: 0;
+  text-decoration: none;
+  color: var(--text-on-light);
 
-      img {
-        @include media-square(44px);
-      }
+  /* --- Border --- */
+  border: var(--border-w-1) var(--border-style) var(--border-color);
+  border-radius: 6px;
 
-      a {
-        text-decoration: none;
-        color: inherit;
-        line-height: 1.2;
-      }
+  /* --- Shadow --- */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
-      a:hover {
-        text-decoration: underline;
-      }
-    }
+  transition: transform var(--motion-fast), box-shadow var(--motion-fast);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  &:focus-visible {
+    outline: var(--border-w-2) solid var(--link-color);
+    outline-offset: 2px;
+  }
+}
+
+.sponsor-card__logo {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  display: block;
+}
+
+.sponsor-card__name {
+  font-size: 0.95rem;
+  line-height: 1.2;
+  font-weight: 600;
+  max-width: 32ch;
+}
+
+.sponsor-content {
+  margin: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.hero-logo {
+  display: block;
+  width: clamp(220px, 30vw, 420px);
+  height: auto;
+  object-fit: contain;
+}
+
+/* phone centering */
+@media (max-width: 576px) {
+  .hero-logo {
+    display: block;
+    margin: 0 auto;
+    width: clamp(180px, 60vw, 320px);
   }
 }

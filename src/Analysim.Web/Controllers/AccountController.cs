@@ -333,11 +333,7 @@ namespace Web.Controllers
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-                var callbackUrl = Url.Action("ConfirmEmail", "Account", new
-                {
-                    userid = user.Id,
-                    token = code,
-                }, protocol: HttpContext.Request.Scheme);
+                var callbackUrl = $"{Request.Scheme}://{Request.Host}/email-confirmation?userid={Uri.EscapeDataString(user.Id.ToString())}&token={Uri.EscapeDataString(code)}";
 
                 // send verification token
                 var emailContent = "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>";
@@ -370,63 +366,113 @@ namespace Web.Controllers
         }
 
         /*
-         * Type : POST
-         * URL : /api/account/confirmEmail?
-         * Param : formdata
-         * Description: test
-         * Response Status: 200 Ok, 401 Unauthorized
+         * Type : GET
+         * URL : /api/account/confirmEmail?userID={userID}&token={token}
+         * Param :
+         *   - userID: The ID of the user being confirmed
+         *   - token: The email confirmation token
+         * Description: Redirects users to new confirmation page. 
+         *              Exists for backwards compatibility with prior email links.
+         * Response Status: 302 Redirect
          */
         [HttpGet("[action]")]
-        public async Task<IActionResult> ConfirmEmail(String userID, String token)
+        public IActionResult ConfirmEmail(string userID, string token)
         {
-            System.Diagnostics.Debug.WriteLine("Verification method called");
-            System.Diagnostics.Debug.WriteLine("Token: " + token + "\n" + "UserID: " + userID);
+            var redirectUrl =
+                $"~/email-confirmation?userid={Uri.EscapeDataString(userID)}&token={Uri.EscapeDataString(token)}";
+
+            return Redirect(redirectUrl);
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/account/ConfirmEmailPost?userID={userID}&token={token}
+         * Param :
+         *   - userID: The ID of the user being confirmed
+         *   - token: The email confirmation token
+         * Description: Confirms a user's email address using the provided confirmation token
+         * Response Status:
+         *   200 OK
+         *     - Email successfully verified
+         *     - Email already verified
+         *   400 BadRequest
+         *     - Invalid confirmation link
+         *     - Token validation failed
+         *   401 Unauthorized
+         *     - User does not exist
+         *   500 InternalServerError
+         *     - Unexpected server error during confirmation
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ConfirmEmailPost(String userID, String token)
+        {
+            if (string.IsNullOrWhiteSpace(userID) || userID.Equals("null", StringComparison.OrdinalIgnoreCase))
+                return BadRequest(new { success = false, message = "Invalid confirmation link." });
+
+            if (!int.TryParse(userID, out _))
+                return BadRequest(new { success = false, message = "Invalid confirmation link." });
+
+            if (string.IsNullOrWhiteSpace(token) || token.Equals("null", StringComparison.OrdinalIgnoreCase))
+                return BadRequest(new { success = false, message = "Invalid confirmation link." });
+
+
             var user = await _userManager.FindByIdAsync(userID);
 
             if (user == null) return Unauthorized("This email address has not been registered yet");
 
-            string encodedString ="";
-
-            // var decodedTokenString = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
-
-            if (!await _userManager.IsEmailConfirmedAsync(user))
+            // Already confirmed
+            if (await _userManager.IsEmailConfirmedAsync(user))
             {
-                System.Diagnostics.Debug.WriteLine("User is NOT verified");
-                try{
-                    var decodedTokenBytes = WebEncoders.Base64UrlDecode(token);
-                    var decodedToken = Encoding.UTF8.GetString(decodedTokenBytes);
-
-                    var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
-
-                    if(result.Succeeded)
-                    {
-                        System.Diagnostics.Debug.WriteLine("User is verified");
-                        var emailContent = "<p>You have been successfully registered for the AnalySim website.</p>";
-                        await _mailNetService.SendEmail(user.Email, user.UserName, "Registration Complete", emailContent, emailContent);
-                        encodedString = HttpUtility.UrlEncode("true"); 
-                        return Redirect("~/email-confirmation?result="+encodedString); 
-                    }
-                    else
-                    {
-                        encodedString = HttpUtility.UrlEncode(result.Errors.ToString());
-                        return Redirect("~/email-confirmation?result="+encodedString); 
-                    }
-                }
-                catch(Exception ex)
+                return Ok(new
                 {
-                    Console.Write(ex.ToString());
-                    encodedString = HttpUtility.UrlEncode("Account Confirmation Failed. Please try again later.");
-                                    return Redirect("~/email-confirmation?result="+encodedString); 
-                }
+                    success = true,
+                    message = "Account has already been verified."
+                });
             }
 
-            // TODO: redirect to error page saying user already verified
-            encodedString = HttpUtility.UrlEncode("Account Has Already Been Verified.");
-            return Redirect("~/email-confirmation?result="+encodedString);   
+            try
+            {
+                var decodedTokenBytes = WebEncoders.Base64UrlDecode(token);
+                var decodedToken = Encoding.UTF8.GetString(decodedTokenBytes);
 
-            // return
-            // return RedirectToPage("/Index");
-            // return "test verify token" + ". Token:" + token;
+                var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+
+                if (result.Succeeded)
+                {
+                    var emailContent = "<p>You have been successfully registered for the AnalySim website.</p>";
+
+                    await _mailNetService.SendEmail(
+                        user.Email,
+                        user.UserName,
+                        "Registration Complete",
+                        emailContent,
+                        emailContent
+                    );
+
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Email successfully verified."
+                    });
+                }
+
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Account confirmation failed.",
+                    errors = result.Errors
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.ToString());
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Account confirmation failed. Please try again later."
+                });
+            }
         }
 
         /* Type : POST
@@ -444,11 +490,7 @@ namespace Web.Controllers
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-            var callbackUrl = Url.Action("ConfirmEmail", "Account", new
-                {
-                    userid = user.Id,
-                    token = code,
-                }, protocol: HttpContext.Request.Scheme);
+            var callbackUrl = $"{Request.Scheme}://{Request.Host}/email-confirmation?userid={Uri.EscapeDataString(user.Id.ToString())}&token={Uri.EscapeDataString(code)}";
 
             // send verification token
             var emailContent = "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>";

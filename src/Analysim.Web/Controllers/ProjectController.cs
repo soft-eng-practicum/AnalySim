@@ -355,81 +355,184 @@ namespace Web.Controllers
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
 
-            
             // Check if the project already exists
             bool projectExists = await _dbContext.Projects
                 .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == formdata.UserID &&
+                    aup.User.Id == userId &&
                     aup.Project.Name == project.Name &&
                     aup.UserRole == "owner"));
 
-            // If the project exists, return a conflict response
-            if (projectExists)   return Conflict(new { message = "Project Already Exists" });
-            
-            // Create Project
-            var newProject = new Project
+            if (projectExists) return Conflict(new { message = "Project Already Exists" });
+
+            await using var tx = await _dbContext.Database.BeginTransactionAsync();
+
+            try
             {
-                Name = project.Name,
-                Visibility = project.Visibility,
-                Description = project.Description,
-                DateCreated = DateTimeOffset.UtcNow,
-                LastUpdated = DateTimeOffset.UtcNow,
-                Route = user.UserName + "/" + project.Name,
-                ForkedFromProjectID = project.ProjectID,
-            };
+                // 1) Create Project
+                var newProject = new Project
+                {
+                    Name = project.Name,
+                    Visibility = project.Visibility,
+                    Description = project.Description,
+                    DateCreated = DateTimeOffset.UtcNow,
+                    LastUpdated = DateTimeOffset.UtcNow,
+                    Route = user.UserName + "/" + project.Name,
+                    ForkedFromProjectID = project.ProjectID,
+                };
 
-            // Add Project And Save Change
-            await _dbContext.Projects.AddAsync(newProject);
-            await _dbContext.SaveChangesAsync();
+                await _dbContext.Projects.AddAsync(newProject);
+                await _dbContext.SaveChangesAsync();
 
-            // Add ProjectUser And Save Change
-            await _dbContext.AddAsync(
-                new ProjectUser
+                // 2) Add ProjectUser (owner)
+                await _dbContext.AddAsync(new ProjectUser
                 {
                     UserID = user.Id,
                     ProjectID = newProject.ProjectID,
                     UserRole = "owner",
                     IsFollowing = true
-                }
-            );
-            await _dbContext.SaveChangesAsync();
-
-            // Add BlobFiles 
-            for (int i = 0; i < formdata.BlobFilesID.Length; i++)
-            {
-                // Find File
-                var file = await _dbContext.BlobFiles.FindAsync(formdata.BlobFilesID[i]);
-
-                // Create new file
-                await _dbContext.BlobFiles.AddAsync(
-                 new BlobFile
-                 {
-                     Container = file.Container,
-                     Directory = file.Directory,
-                     Name = file.Name,
-                     Extension = file.Extension,
-                     Size = file.Size,
-                     Uri = file.Uri,
-                     DateCreated = DateTimeOffset.UtcNow,
-                     LastModified = DateTimeOffset.UtcNow,
-                     User = user,
-                     UserID = user.Id,
-                     Project = newProject,
-                     ProjectID = newProject.ProjectID,
-                 }
-                 );
-
-                //Save Change
+                });
                 await _dbContext.SaveChangesAsync();
+
+                // Maps old blob ids with new blob ids
+                var blobFileIdMap = new Dictionary<int, int>();
+
+                // 3) Add BlobFiles 
+                if (formdata.BlobFilesID != null && formdata.BlobFilesID.Length > 0)
+                {
+                    for (int i = 0; i < formdata.BlobFilesID.Length; i++)
+                    {
+                        var file = await _dbContext.BlobFiles.FindAsync(formdata.BlobFilesID[i]);
+                        if (file == null) continue; 
+
+                       var newBlobFile = new BlobFile
+                       {
+                           Container = file.Container,
+                           Directory = file.Directory,
+                           Name = file.Name,
+                           Extension = file.Extension,
+                           Size = file.Size,
+                           Uri = file.Uri,
+                           DateCreated = DateTimeOffset.UtcNow,
+                           LastModified = DateTimeOffset.UtcNow,
+                           User = user,
+                           UserID = user.Id,
+                           Project = newProject,
+                           ProjectID = newProject.ProjectID,
+                       };
+
+                       await _dbContext.BlobFiles.AddAsync(newBlobFile);
+                       await _dbContext.SaveChangesAsync();
+
+                       // Link blob ids
+                       blobFileIdMap[file.BlobFileID] = newBlobFile.BlobFileID;
+
+                       var oldBlobFileContent = await _dbContext.BlobFileContent.FindAsync(file.BlobFileID);
+                       if(oldBlobFileContent != null)
+                        {
+                            await _dbContext.BlobFileContent.AddAsync(new BlobFileContent
+                            {
+                                BlobFileID = newBlobFile.BlobFileID,
+                                Content = oldBlobFileContent.Content
+                            });
+
+                            await _dbContext.SaveChangesAsync();
+                        }
+                    }
+                }
+
+                // 4) Clone Notebooks + Contents + ObservableNotebookDataset 
+                var sourceNotebooks = await _dbContext.Notebook
+                    .Where(n => n.ProjectID == project.ProjectID)
+                    .Include(n => n.NotebookContents)
+                    .Include(n => n.observableNotebookDatasets)
+                    .ToListAsync();
+
+                foreach (var oldNotebook in sourceNotebooks)
+                {
+                    var newNotebook = new Notebook
+                    {
+                        ProjectID = newProject.ProjectID,
+                        Project = newProject,
+
+                        Name = oldNotebook.Name,
+                        Directory = oldNotebook.Directory,
+                        Extension = oldNotebook.Extension,
+
+                        Container = "notebook-" + newProject.Name.ToLower(),
+                        Route = user.UserName + "/" + newProject.Name,
+
+                        Uri = oldNotebook.Uri,
+                        Size = oldNotebook.Size,
+
+                        DateCreated = DateTimeOffset.UtcNow,
+                        LastModified = DateTimeOffset.UtcNow,
+
+                        type = oldNotebook.type
+                    };
+
+                    await _dbContext.Notebook.AddAsync(newNotebook);
+                    await _dbContext.SaveChangesAsync();
+
+                    // Copy versions
+                    if (oldNotebook.NotebookContents != null && oldNotebook.NotebookContents.Count > 0)
+                    {
+                        foreach (var oldContent in oldNotebook.NotebookContents)
+                        {
+                            await _dbContext.NotebookContent.AddAsync(new NotebookContent
+                            {
+                                NotebookID = newNotebook.NotebookID,
+                                Version = oldContent.Version,
+                                Content = oldContent.Content,
+                                Author = oldContent.Author,
+                                Size = oldContent.Size,
+                                DateCreated = oldContent.DateCreated
+                            });
+                        }
+                    }
+
+                    // Copy observable dataset links
+                    if (oldNotebook.observableNotebookDatasets != null && oldNotebook.observableNotebookDatasets.Count > 0)
+                    {
+                        foreach (var oldObs in oldNotebook.observableNotebookDatasets)
+                        {
+                            // Checks if map includes blob copy
+                            // if not, do not create row
+                            if(!blobFileIdMap.TryGetValue(oldObs.BlobFileID, out var newBlobFileId))
+                            {
+                                continue;
+                            }
+
+                            await _dbContext.ObservableNotebookDataset.AddAsync(new ObservableNotebookDataset
+                            {
+                                NotebookID = newNotebook.NotebookID,
+                                datasetName = oldObs.datasetName,
+                                datasetURL = oldObs.datasetURL,
+                                BlobFileID = newBlobFileId
+                            });
+                        }
+                    }
+
+                    await _dbContext.SaveChangesAsync();
+                }
+
+                await tx.CommitAsync();
+
+                return Ok(new
+                {
+                    result = newProject,
+                    message = "Project Successfully Forked"
+                });
             }
-
-            // Return Ok Request
-            return Ok(new
+            catch (Exception ex)
             {
-                result = newProject,
-                message = "Project Successfully Forked"
-            });
-
+                await tx.RollbackAsync();
+                Console.WriteLine(ex);
+                return BadRequest(new
+                {
+                    message = "Fork failed",
+                    detail = ex.Message
+                });
+            }
         }
 
         /*
@@ -459,48 +562,117 @@ namespace Web.Controllers
             // Check if the project already exists
             bool projectExists = await _dbContext.Projects
                 .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == formdata.UserID &&
+                    aup.User.Id == userId &&
                     aup.Project.Name == project.Name &&
                     aup.UserRole == "owner"));
 
             // If the project exists, return a conflict response
-            if (projectExists)   return Conflict(new { message = "Project Already Exists" });
-            
-            // Create Project
-            var newProject = new Project
+            if (projectExists) return Conflict(new { message = "Project Already Exists" });
+
+            await using var tx = await _dbContext.Database.BeginTransactionAsync();
+
+            try
             {
-                Name = project.Name,
-                Visibility = project.Visibility,
-                Description = project.Description,
-                DateCreated = DateTimeOffset.UtcNow,
-                LastUpdated = DateTimeOffset.UtcNow,
-                Route = user.UserName + "/" + project.Name,
-                ForkedFromProjectID = project.ProjectID,
-            };
+                // 1) Create forked Project
+                var newProject = new Project
+                {
+                    Name = project.Name,
+                    Visibility = project.Visibility,
+                    Description = project.Description,
+                    DateCreated = DateTimeOffset.UtcNow,
+                    LastUpdated = DateTimeOffset.UtcNow,
+                    Route = user.UserName + "/" + project.Name,
+                    ForkedFromProjectID = project.ProjectID,
+                };
 
-            // Add Project And Save Change
-            await _dbContext.Projects.AddAsync(newProject);
-            await _dbContext.SaveChangesAsync();
+                // Add Project And Save Change
+                await _dbContext.Projects.AddAsync(newProject);
+                await _dbContext.SaveChangesAsync();
 
-            // Add ProjectUser And Save Change
-            await _dbContext.AddAsync(
-                new ProjectUser
+                // 2) Add owner
+                await _dbContext.AddAsync(new ProjectUser
                 {
                     UserID = user.Id,
                     ProjectID = newProject.ProjectID,
                     UserRole = "owner",
                     IsFollowing = true
+                });
+                await _dbContext.SaveChangesAsync();
+
+                // 3) Clone Notebooks + Contents + ObservableNotebookDataset
+                var sourceNotebooks = await _dbContext.Notebook
+                    .Where(n => n.ProjectID == project.ProjectID)
+                    .Include(n => n.NotebookContents)
+                    .Include(n => n.observableNotebookDatasets)
+                    .ToListAsync();
+
+                foreach (var oldNotebook in sourceNotebooks)
+                {
+                    var newNotebook = new Notebook
+                    {
+                        ProjectID = newProject.ProjectID,
+                        Project = newProject,
+
+                        Name = oldNotebook.Name,
+                        Directory = oldNotebook.Directory,
+                        Extension = oldNotebook.Extension,
+
+                        Container = "notebook-" + newProject.Name.ToLower(),
+                        Route = user.UserName + "/" + newProject.Name,
+
+                        Uri = oldNotebook.Uri,
+                        Size = oldNotebook.Size,
+
+                        DateCreated = DateTimeOffset.UtcNow,
+                        LastModified = DateTimeOffset.UtcNow,
+
+                        type = oldNotebook.type
+                    };
+
+                    await _dbContext.Notebook.AddAsync(newNotebook);
+                    await _dbContext.SaveChangesAsync();
+
+                    // Copy versions
+                    if (oldNotebook.NotebookContents != null && oldNotebook.NotebookContents.Count > 0)
+                    {
+                        foreach (var oldContent in oldNotebook.NotebookContents)
+                        {
+                            await _dbContext.NotebookContent.AddAsync(new NotebookContent
+                            {
+                                NotebookID = newNotebook.NotebookID,
+                                Version = oldContent.Version,
+                                Content = oldContent.Content,
+                                Author = oldContent.Author,
+                                Size = oldContent.Size,
+                                DateCreated = oldContent.DateCreated
+                            });
+                        }
+                    }
+
+                    // Do not copy observable dataset links
+                    // this fork mode does not copy blob files.
+
+                    await _dbContext.SaveChangesAsync();
                 }
-            );
-            await _dbContext.SaveChangesAsync();
 
-            // Return Ok Request
-            return Ok(new
+                await tx.CommitAsync();
+
+                return Ok(new
+                {
+                    result = newProject,
+                    message = "Project Successfully Forked"
+                });
+            }
+            catch (Exception ex)
             {
-                result = newProject,
-                message = "Project Successfully Forked"
-            });
-
+                await tx.RollbackAsync();
+                Console.WriteLine(ex);
+                return BadRequest(new
+                {
+                    message = "Fork failed",
+                    detail = ex.Message
+                });
+            }
         }
 
         /*
@@ -1222,28 +1394,6 @@ namespace Web.Controllers
                     await _dbContext.Notebook.AddAsync(newNotebook);
                     await _dbContext.SaveChangesAsync();
 
-
-                }
-                else if (noteBookData.Type == "jupyter")
-                {
-                    string fileName = noteBookData.Directory + $"{noteBookData.NotebookName}.ipynb";
-                    newNotebook = new Notebook
-                    {
-                        Container = "notebook-" + project.Name.ToLower(),
-                        Directory = noteBookData.Directory,
-                        Name = Path.GetFileNameWithoutExtension(noteBookData.NotebookName),
-                        Extension = Path.GetExtension(fileName),
-                        Size = 0,
-                        Uri = notebookUrl,
-                        DateCreated = DateTimeOffset.Now.UtcDateTime,
-                        LastModified = DateTimeOffset.Now.UtcDateTime,
-                        ProjectID = noteBookData.ProjectID,
-                        type = "jupyter",
-                        Route = user.UserName + "/" + project.Name
-                    };
-
-                    await _dbContext.Notebook.AddAsync(newNotebook);
-                    await _dbContext.SaveChangesAsync();
 
                 }
                 else

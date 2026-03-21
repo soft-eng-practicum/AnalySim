@@ -1,81 +1,31 @@
 <!-- Footer Start -->
-<footer class="bg-shell pt-3">
-  <!-- Footer Links Start-->
-  <div class="container-fluid text-right text-md-left footer-inner">
-    <!-- Grid row Start-->
-    <div class="row justify-content-center footer-link-row">
-      <div class="col-md-10">
-        <div class="row justify-content-center">
-          <!-- Grid column Start-->
-          <div class="col-md-4 mb-md-0 mb-3">
-            <div class="footer-about" id="about">
-              About
-            </div>
-            <!-- Links Start-->
-            <ul class="list-unstyled">
-              <li>
-                <a class="footer-link nav-interactive text-white" [routerLink]='["/contactus"]'>Contact Us</a>
-              </li>
-              <li>
-                <a class="footer-link nav-interactive text-white" [routerLink]='["/aboutus"]'>Learn More</a>
-              </li>
-            </ul> <!-- Links End-->
-          </div>
-          <div class="col-md-4 mb-md-0 mb-3 footer-connect">
-            <div class="footer-header">
-              Connect
-            </div>
-            <!-- Links Start-->
-            <ul class="list-unstyled footer-icons">
-              <li>
-                <a
-                  class="footer-icon nav-interactive text-white"
-                  [routerLink]="['/aboutus']"
-                >
-                  <img src="../../assets/img/icon-facebook.png" alt="Facebook" />
-                </a>
-              </li>
-              <li>
-                <a
-                  class="footer-icon nav-interactive text-white"
-                  [routerLink]="['/aboutus']"
-                >
-                  <img
-                    src="../../assets/img/icon-linkedin.png"
-                    alt="LinkedIn"
-                  />
-                </a>
-              </li>
-              <li>
-                <a
-                  class="footer-icon nav-interactive text-white"
-                  [routerLink]="['/aboutus']"
-                >
-                  <img src="../../assets/img/icon-twitter.png" alt="Twitter" />
-                </a>
-              </li>
-            </ul> <!-- Links End-->
-          </div>
-          <div class="col-md-4 mb-md-0 footer-empty">
-          </div>
-        <!-- Grid column -->
-        </div>
+<footer class="bg-shell app-footer">
+  <div class="container-fluid footer-inner">
+    <div class="footer-bar">
+      <!-- Left: links -->
+      <nav class="footer-left" aria-label="Footer links">
+        <a class="footer-link nav-interactive" [routerLink]="['/contactus']">Contact</a>
+        <a class="footer-link nav-interactive" [routerLink]="['/aboutus']">About</a>
+      </nav>
+
+      <!-- Center: copyright -->
+      <div class="footer-center">
+        Powered by &copy; {{ currentYear }} AnalySim
       </div>
-      
-    </div> <!-- Grid row End-->
-    <div class="row justify-content-center footer-logo-row">
-      <div class="col-md-10 mb-md-0 mb-3">
-        <div class="footer-logo">
-          Powered by &copy; 2023 AnalySim
-        </div>
-        <!-- Links Start-->
-      </div>
+
+      <!-- Right: connect -->
+      <nav class="footer-right" aria-label="Footer social links">
+        <a class="footer-icon" [routerLink]="['/aboutus']">
+          <img src="../../assets/img/icon-facebook.png" alt="Facebook" />
+        </a>
+        <a class="footer-icon" [routerLink]="['/aboutus']">
+          <img src="../../assets/img/icon-linkedin.png" alt="LinkedIn" />
+        </a>
+        <a class="footer-icon" [routerLink]="['/aboutus']">
+          <img src="../../assets/img/icon-twitter.png" alt="Twitter" />
+        </a>
+      </nav>
     </div>
   </div>
-  <!-- Footer Links End-->
-
-  <!-- Copyright Start -->
-  <div class="footer-copyright p-2"></div>
-  <!-- Copyright End-->
 </footer>
 <!-- Footer End -->
