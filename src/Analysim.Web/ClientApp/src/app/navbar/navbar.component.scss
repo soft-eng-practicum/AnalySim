@@ -44,6 +44,13 @@
   flex: 1;
   min-width: 0;
   margin-left: .5em;
+  max-width: 220px;
+  transition: width 0.25s ease, max-width 0.25s ease;
+}
+
+.nav-search:focus-within {
+  width: 100%;
+  max-width: 50%;
 }
 
 .nav-search form {

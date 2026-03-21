@@ -3,6 +3,7 @@ import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms'
 import { AccountService } from '../services/account.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
+import { of, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -68,22 +69,39 @@ export class LoginComponent implements OnInit {
     let userLogin = this.loginForm.value;
 
     this.isLoading = true;
-    this.loginForm.reset();
-
 
     this.acct.login(userLogin.username, userLogin.password).subscribe(
       result => {
         let token = (<any>result).token;
         this.invalidLogin = false;
+        this.loginForm.reset();
         this.router.navigateByUrl(this.returnUrl);
       },
       error => {
         this.isLoading = false;
         this.invalidLogin = true;
-        this.errorMessage = error.error.loginError;
-        if ("emailConf" in error.error) {
+        
+        if (error.status === 500) {
+          this.errorMessage = "System error. Contact the administrator.";
+        }
+        else if (error?.error?.loginError) {
+          this.errorMessage = error.error.loginError;
+        }
+        else if (error?.error?.Message) {
+          this.errorMessage = error.error.Message;
+        }
+        else if (error?.error?.message?.length > 0) {
+          this.errorMessage = error.error.message[0];
+        }
+        else {
+          this.errorMessage = "An unexpected error occurred. Please try again.";
+        }
+
+        if (error?.error && "emailConf" in error.error) {
           this.emailConf = error.error.emailConf;
-        } else this.emailConf = '';
+        } else {
+          this.emailConf = '';
+        }
       },
     );
   }

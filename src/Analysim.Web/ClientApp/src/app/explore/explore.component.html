@@ -1,75 +1,200 @@
 <!-- Container Start -->
-<div class="container-fluid my-5 mx-auto">
-    <!-- Row Start -->
-    <div class="row justify-content-center mb-3">
-        <!-- Column Start -->
-        <div class="col-md-10">
-            <!-- Nav Search Bar Start-->
-            <div class="card">
-                <div class="card-body">
-                    <form class="form-control p-0 explore-search" [formGroup]="searchForm" (ngSubmit)="onSubmit()">
-                        <div class="input-group search-group">
-                            <!-- Search Category -->
-                            <div class="input-group-prepend">
-                                <select class="custom-select explore-select" formControlName="searchCategory">
-                                    <option value="project">Project</option>
-                                    <option value="profile">Profile</option>
-                                </select>
-                            </div>
-                            <!-- Search Icon -->
-                            <input type="text" class="form-control" placeholder="Search..." name="searchTerm" formControlName="searchTerm">
-                            <!-- Search Button -->
-                            <div class="input-group-append">
-                                <button class="btn search-btn">
-                                    <i class="fa fa-search"></i>
-                                </button>     
-                            </div>          
-                        </div>
-                    </form>
+<div class="container-fluid my-4 mx-auto">
+  <!-- Row Start -->
+  <div class="row justify-content-center mb-3">
+    <!-- Column Start -->
+    <div class="col-md-10">
+      <!-- Filter Section Start-->
+      <div class="card explore-header-card">
+        <div class="card-body explore-header-body">
+          <div class="explore-toolbar">
+            <div class="explore-toolbar__summary">
+              <h5 class="explore-title">Search Results</h5>
+              <p class="explore-subtitle">
+                Showing results for
+                <span class="explore-query">
+                  "{{
+                    termParam && termParam.length
+                      ? termParam.join(" ")
+                      : "all content"
+                  }}"
+                </span>
+              </p>
+            </div>
+
+            <div class="explore-toolbar__controls">
+              <div class="explore-control">
+                <label class="explore-control__label">Category</label>
+
+                <div class="explore-dropdown" [class.is-open]="isCategoryOpen">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary explore-dropdown-toggle"
+                    (click)="$event.stopPropagation(); toggleCategoryDropdown()"
+                  >
+                    <span>{{
+                      categoryParam === "project" ? "Projects" : "Profiles"
+                    }}</span>
+                    <span class="explore-dropdown-caret">▾</span>
+                  </button>
+
+                  <div
+                    class="explore-dropdown-menu"
+                    *ngIf="isCategoryOpen"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      (click)="selectCategory('project')"
+                    >
+                      Projects
+                    </button>
+
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      (click)="selectCategory('profile')"
+                    >
+                      Profiles
+                    </button>
+                  </div>
                 </div>
-            </div> <!-- Nav Search Bar End -->
-        </div> <!-- Column End -->
-    </div> <!-- Row End -->
-    <!-- Row Start -->
-    <div class="row justify-content-center">
-        <!-- Column Start -->
-        <div class="col-md-10">
-            <!-- Card Start -->
-            <div class="card">
-                <div class="card-body">
-                    <!-- Project List-->
-                    <ul class="list-group list-group-flush list-unstyled" *ngIf="searchForm.value.searchCategory == 'project'">
-                        <li *ngIf="exploreService.projects == null" class="d-flex justify-content-center">
-                            <div class="spinner-border">
-                                <span class="sr-only"></span>
-                            </div>
-                        </li>
-                        <li *ngIf="exploreService.projects != null && exploreService.projects.length == 0" class="d-flex justify-content-center">
-                            <p class="mb-0">No Result Found</p>
-                        </li>
-                        <li class="list-group-item border-0 p-0" *ngFor="let project of exploreService.projects; let lastItem = last" [class.mb-4]="!lastItem">
-                            <app-project-card [project]=project></app-project-card>
-                        </li>
-                    </ul>
-                    <!-- User List -->
-                    <ul class="list-group list-group-flush" *ngIf="searchForm.value.searchCategory == 'profile'">
-                        <li *ngIf="users != null && users.length == 0" class="d-flex justify-content-center">
-                            <p class="mb-0">No Result Found</p>
-                        </li>
-                        <li *ngIf="users == null" class="d-flex justify-content-center">
-                            <div class="spinner-border">
-                                <span class="sr-only"></span>
-                            </div>
-                        </li>
-                        <li class="list-group-item border-0 p-0" *ngFor="let user of users; let lastItem = last" [class.mb-4]="!lastItem">
+              </div>
 
-                            <app-profile-card [profile]=user></app-profile-card>
-                        </li>
-                    </ul>
+              <div class="explore-control">
+                <label class="explore-control__label">Sort</label>
+
+                <div class="explore-dropdown" [class.is-open]="isSortOpen">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary explore-dropdown-toggle"
+                    (click)="$event.stopPropagation(); toggleSortDropdown()"
+                  >
+                    <span>{{
+                      sortOrder === "newest" ? "Newest" : "Oldest"
+                    }}</span>
+                    <span class="explore-dropdown-caret">▾</span>
+                  </button>
+
+                  <div
+                    class="explore-dropdown-menu"
+                    *ngIf="isSortOpen"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      (click)="selectSortOrder('newest')"
+                    >
+                      Newest
+                    </button>
+
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      (click)="selectSortOrder('oldest')"
+                    >
+                      Oldest
+                    </button>
+                  </div>
                 </div>
-            </div> <!-- Card End -->
-        </div> <!-- Column End -->
-    </div> <!-- Row End -->
-</div> <!-- Container End -->
+              </div>
 
+              <button
+                type="button"
+                class="btn btn-outline-primary"
+                (click)="clearSearch()"
+              >
+                Clear Search
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
+      <!-- Filter Section End -->
+    </div>
+    <!-- Column End -->
+  </div>
+  <!-- Row End -->
+  <!-- Row Start -->
+  <div class="row justify-content-center">
+    <!-- Column Start -->
+    <div class="col-md-10">
+      <!-- Card Start -->
+      <div class="card explore-results-card">
+        <div class="card-body">
+          <div class="explore-results-meta">
+            <p class="explore-results-count" *ngIf="categoryParam == 'project'">
+              Showing <strong>{{ sortedProjects.length }}</strong> project
+              results
+            </p>
+
+            <p class="explore-results-count" *ngIf="categoryParam == 'profile'">
+              Showing <strong>{{ sortedUsers.length }}</strong> profile results
+            </p>
+          </div>
+          <!-- Project List-->
+          <ul
+            class="list-group list-group-flush list-unstyled"
+            *ngIf="categoryParam == 'project'"
+          >
+            <li
+              *ngIf="exploreService.projects == null"
+              class="d-flex justify-content-center"
+            >
+              <div class="spinner-border">
+                <span class="sr-only"></span>
+              </div>
+            </li>
+            <li
+              *ngIf="
+                exploreService.projects != null &&
+                exploreService.projects.length == 0
+              "
+              class="d-flex justify-content-center"
+            >
+              <p class="mb-0">No Result Found</p>
+            </li>
+            <li
+              class="list-group-item border-0 p-0"
+              *ngFor="let project of sortedProjects; let lastItem = last"
+              [class.mb-4]="!lastItem"
+            >
+              <app-project-card [project]="project"></app-project-card>
+            </li>
+          </ul>
+          <!-- User List -->
+          <div *ngIf="categoryParam == 'profile'">
+            <div *ngIf="users == null" class="d-flex justify-content-center">
+              <div class="spinner-border">
+                <span class="sr-only"></span>
+              </div>
+            </div>
+
+            <div
+              *ngIf="users != null && users.length == 0"
+              class="d-flex justify-content-center"
+            >
+              <p class="mb-0">No Result Found</p>
+            </div>
+
+            <div class="row" *ngIf="users != null && users.length > 0">
+              <div
+                class="col-12 col-sm-6 col-lg-4 col-xl-3 mb-4"
+                *ngFor="let user of sortedUsers"
+              >
+                <app-profile-card [profile]="user"></app-profile-card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Card End -->
+    </div>
+    <!-- Column End -->
+  </div>
+  <!-- Row End -->
+</div>
+<!-- Container End -->

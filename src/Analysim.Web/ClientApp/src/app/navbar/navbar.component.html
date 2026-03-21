@@ -33,14 +33,14 @@
 
       <!-- Search Bar -->
       <li class="nav-item nav-search d-flex align-items-center">
-        <form class="form" [formGroup]="searchForm" (ngSubmit)="onSubmit()">
+        <form class="form" (ngSubmit)="onSubmit()">
           <div class="input-group input-group-sm search-group">
             <input
               type="text"
               class="form-control"
               placeholder="Search..."
               name="searchTerm"
-              formControlName="searchTerm"
+              [(ngModel)]="searchText"
             />
             <div class="input-group-append">
               <button type="submit" class="btn search-btn">

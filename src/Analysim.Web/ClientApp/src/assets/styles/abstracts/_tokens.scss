@@ -6,7 +6,7 @@
 
 :root {
   /* Core colors */
-  --c-brand-700: #002B5B;
+  --c-brand-700: #003066;
   --c-brand-800: #042449;
   --c-accent-600: #256D85;
 
@@ -41,9 +41,12 @@
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
+  --space-7: 36px;
+  --space-8: 48px;
 
   /* Borders and radius */
   --border-w-1: 1px;
+  --border-w-2: 2px;
   --border-style: solid;
   --radius-1: 4px;
 
@@ -128,7 +131,7 @@
   --button-font-color-hov: var(--c-accent-600);
 
   --button-background-color-hov: var(--c-surface-0);
-  --button-border-width: var(--border-w-1);
+  --button-border-width: var(--border-w-2);
   --button-border-style: var(--border-style);
   --button-border-radius: var(--radius-1);
   --button-padding: var(--space-1);
