@@ -1,0 +1,78 @@
+name: Backend Smoke Test
+
+on:
+  pull_request:
+    branches: [develop]
+  push:
+    branches: [develop]
+
+jobs:
+  backend-smoke-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Create appsettings.json
+        run: |
+          cat <<EOF > src/Analysim.Web/appsettings.json
+          {
+            "JwtSettings": {
+              "Issuer": "AnalySim",
+              "Secret": "very_hard_secret",
+              "ExpireTime": 60,
+              "Audience": "https://www.analysim.tech/"
+            },
+            "Logging": {
+              "LogLevel": {
+                "Default": "Information",
+                "Microsoft": "Warning"
+              }
+            },
+            "AllowedHosts": "*"
+          }
+          EOF
+
+      - name: Build backend
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Start backend
+        run: |
+          cd src/Analysim.Web
+          dotnet run --no-launch-profile > ../../backend.log 2>&1 &
+          echo $! > ../../backend.pid
+
+      - name: Wait for backend to be ready
+        run: |
+          for i in {1..15}; do
+            RESPONSE=$(curl -k -s https://localhost:5001/api/health || true)
+
+            if [[ "$RESPONSE" == *Healthy* ]]; then
+              echo "Backend is healthy"
+              exit 0
+            fi
+
+            echo "Attempt $i/30: backend not ready yet"
+            sleep 6
+          done
+
+          echo "Backend failed to become ready"
+          echo "===== Backend log ====="
+          cat backend.log
+          exit 1
+
+      - name: Stop backend
+        if: always()
+        run: |
+          if [ -f backend.pid ]; then
+            kill $(cat backend.pid) || true
+          fi
