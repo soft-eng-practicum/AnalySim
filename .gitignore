@@ -247,6 +247,6 @@ src/Analysim.Web/Logs
 #
 .DS_Store
 
-dist/
+
 .jupyterlite.doit.db
 package-lock.json
