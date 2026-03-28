@@ -1463,7 +1463,7 @@ namespace Web.Controllers
                     Uri = "",
                     DateCreated = DateTimeOffset.UtcNow,
                     LastModified = DateTimeOffset.UtcNow,
-                    UserID = formdata.UserID,
+                    UserID = user.Id,
                     ProjectID = formdata.ProjectID
                 };
 

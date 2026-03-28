@@ -336,8 +336,32 @@ namespace Web.Controllers
                 var callbackUrl = $"{Request.Scheme}://{Request.Host}/email-confirmation?userid={Uri.EscapeDataString(user.Id.ToString())}&token={Uri.EscapeDataString(code)}";
 
                 // send verification token
-                var emailContent = "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>";
-                await _mailNetService.SendEmail(user.Email, user.UserName, "Confirm your account", emailContent, emailContent);
+                var emailContent = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; border-radius: 8px; overflow: hidden;'>
+                  <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; color: white;'>
+                    <h1 style='margin: 0; font-size: 28px; font-weight: bold;'>Welcome to AnalySim</h1>
+                    <p style='margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;'>Confirm your email to get started</p>
+                  </div>
+                  <div style='padding: 40px 30px;'>
+                    <p style='margin-top: 0; font-size: 16px; color: #333;'>Hi <strong>{user.UserName}</strong>,</p>
+                    <p style='font-size: 15px; color: #555; line-height: 1.6; margin: 20px 0;'>Thank you for creating a new AnalySim account! We're excited to have you join our community of data scientists and researchers.</p>
+                    <p style='font-size: 15px; color: #555; line-height: 1.6; margin: 20px 0;'>To complete your registration and secure your account, please confirm your email address by clicking the button below:</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                      <a href='{callbackUrl}' style='display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; transition: transform 0.2s;'>Confirm Email Address</a>
+                    </div>
+                    <p style='font-size: 13px; color: #999; margin: 30px 0; text-align: center;'>or copy and paste this link in your browser:</p>
+                    <p style='font-size: 12px; color: #667eea; word-break: break-all; background-color: #f0f4ff; padding: 12px; border-radius: 4px; margin: 10px 0;'>{callbackUrl}</p>
+                    <hr style='border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;' />
+                    <p style='font-size: 14px; color: #555; margin: 15px 0;'><strong>Didn't create an account?</strong> If you didn't initiate this registration, please ignore this email or <a href='#' style='color: #667eea; text-decoration: none;'>contact our support team</a>.</p>
+                    <p style='font-size: 12px; color: #999; margin-top: 30px; margin-bottom: 0;'>This link will expire in 24 hours for security reasons.</p>
+                  </div>
+                  <div style='background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;'>
+                    <p style='margin: 0; font-size: 12px; color: #999;'>© 2026 AnalySim. All rights reserved.</p>
+                    <p style='margin: 5px 0 0 0; font-size: 11px; color: #bbb;'><a href='#' style='color: #667eea; text-decoration: none;'>Privacy Policy</a> | <a href='#' style='color: #667eea; text-decoration: none;'>Terms of Service</a></p>
+                  </div>
+                </div>
+                ";
+                await _mailNetService.SendEmail(user.Email, user.UserName, "Confirm your AnalySim account", emailContent, $"Hi {user.UserName}, please confirm your email by visiting: {callbackUrl}");
 
                 // Add Role To User
                 await _userManager.AddToRoleAsync(user, "Customer");
@@ -437,19 +461,52 @@ namespace Web.Controllers
 
                 var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
 
-                if (result.Succeeded)
-                {
-                    var emailContent = "<p>You have been successfully registered for the AnalySim website.</p>";
-
-                    await _mailNetService.SendEmail(
-                        user.Email,
-                        user.UserName,
-                        "Registration Complete",
-                        emailContent,
-                        emailContent
-                    );
-
-                    return Ok(new
+                    if(result.Succeeded)
+                    {
+                        System.Diagnostics.Debug.WriteLine("User is verified");
+                        var emailContent = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; border-radius: 8px; overflow: hidden;'>
+                  <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; color: white;'>
+                    <h1 style='margin: 0; font-size: 28px; font-weight: bold;'>🎉 Welcome to AnalySim!</h1>
+                    <p style='margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;'>Your account is now active</p>
+                  </div>
+                  <div style='padding: 40px 30px;'>
+                    <p style='margin-top: 0; font-size: 16px; color: #333;'>Hi <strong>{user.UserName}</strong>,</p>
+                    <p style='font-size: 15px; color: #555; line-height: 1.6; margin: 20px 0;'>Congratulations! Your email has been verified and your AnalySim account is now fully activated.</p>
+                    <div style='background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 15px; border-radius: 4px; margin: 25px 0;'>
+                      <p style='margin: 0; font-size: 15px; color: #15803d;'><strong>✓ Account Status:</strong> Active and ready to use</p>
+                    </div>
+                    <p style='font-size: 15px; color: #555; line-height: 1.6; margin: 25px 0;'>You can now:</p>
+                    <ul style='font-size: 14px; color: #555; line-height: 1.8; margin: 0 0 25px 0; padding-left: 20px;'>
+                      <li>Create and manage your projects</li>
+                      <li>Upload and organize your datasets</li>
+                      <li>Collaborate with team members</li>
+                      <li>Analyze and visualize your data</li>
+                      <li>Share your notebooks and findings</li>
+                    </ul>
+                    <div style='text-align: center; margin: 30px 0;'>
+                      <a href='https://localhost:5001' style='display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;'>Go to AnalySim Dashboard</a>
+                    </div>
+                    <hr style='border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;' />
+                    <p style='font-size: 14px; color: #555; margin: 15px 0;'><strong>Need help?</strong> Check out our <a href='#' style='color: #667eea; text-decoration: none;'>documentation and tutorials</a> or <a href='#' style='color: #667eea; text-decoration: none;'>contact support</a>.</p>
+                    <p style='font-size: 13px; color: #999; margin-top: 20px;'>For your security, please:</p>
+                    <ul style='font-size: 13px; color: #999; margin: 10px 0 20px 0; padding-left: 20px;'>
+                      <li>Keep your password confidential</li>
+                      <li>Enable two-factor authentication on your account settings</li>
+                      <li>Never share your login credentials</li>
+                    </ul>
+                  </div>
+                  <div style='background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;'>
+                    <p style='margin: 0; font-size: 12px; color: #999;'>© 2026 AnalySim. All rights reserved.</p>
+                    <p style='margin: 5px 0 0 0; font-size: 11px; color: #bbb;'><a href='#' style='color: #667eea; text-decoration: none;'>Privacy Policy</a> | <a href='#' style='color: #667eea; text-decoration: none;'>Terms of Service</a></p>
+                  </div>
+                </div>
+                ";
+                        await _mailNetService.SendEmail(user.Email, user.UserName, "Your AnalySim account is now active", emailContent, $"Hi {user.UserName}, your account is now verified and active! You can start using AnalySim immediately.");
+                        encodedString = HttpUtility.UrlEncode("true"); 
+                        return Redirect("~/email-confirmation?result="+encodedString); 
+                    }
+                    else
                     {
                         success = true,
                         message = "Email successfully verified."
@@ -493,8 +550,29 @@ namespace Web.Controllers
             var callbackUrl = $"{Request.Scheme}://{Request.Host}/email-confirmation?userid={Uri.EscapeDataString(user.Id.ToString())}&token={Uri.EscapeDataString(code)}";
 
             // send verification token
-            var emailContent = "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>";
-            await _mailNetService.SendEmail(user.Email, user.UserName, "Confirm your account", emailContent, emailContent);   
+            var emailContent = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; border-radius: 8px; overflow: hidden;'>
+                  <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; color: white;'>
+                    <h1 style='margin: 0; font-size: 28px; font-weight: bold;'>Confirm Your Email</h1>
+                    <p style='margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;'>Complete your account verification</p>
+                  </div>
+                  <div style='padding: 40px 30px;'>
+                    <p style='margin-top: 0; font-size: 16px; color: #333;'>Hi <strong>{user.UserName}</strong>,</p>
+                    <p style='font-size: 15px; color: #555; line-height: 1.6; margin: 20px 0;'>It looks like you've requested a new confirmation email. Please verify your email address to complete the process:</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                      <a href='{callbackUrl}' style='display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;'>Verify Email Address</a>
+                    </div>
+                    <p style='font-size: 13px; color: #999; margin: 30px 0; text-align: center;'>or copy and paste this link:</p>
+                    <p style='font-size: 12px; color: #667eea; word-break: break-all; background-color: #f0f4ff; padding: 12px; border-radius: 4px; margin: 10px 0;'>{callbackUrl}</p>
+                    <hr style='border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;' />
+                    <p style='font-size: 13px; color: #999; margin: 10px 0;'>This link will expire in 24 hours.</p>
+                  </div>
+                  <div style='background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;'>
+                    <p style='margin: 0; font-size: 12px; color: #999;'>© 2026 AnalySim. All rights reserved.</p>
+                  </div>
+                </div>
+                ";
+            await _mailNetService.SendEmail(user.Email, user.UserName, "Confirm your AnalySim account", emailContent, $"Hi {user.UserName}, please verify your email: {callbackUrl}");   
 
                 // return View("ForgotPasswordConfirmation");
             //}
@@ -538,10 +616,39 @@ namespace Web.Controllers
                 code
         }, protocol: HttpContext.Request.Scheme); 
 
-            var emailContent = "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>";
+            var emailContent = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; border-radius: 8px; overflow: hidden;'>
+                  <div style='background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 40px 20px; text-align: center; color: white;'>
+                    <h1 style='margin: 0; font-size: 28px; font-weight: bold;'>Reset Your Password</h1>
+                    <p style='margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;'>Secure your AnalySim account</p>
+                  </div>
+                  <div style='padding: 40px 30px;'>
+                    <p style='margin-top: 0; font-size: 16px; color: #333;'>Hi <strong>{user.UserName}</strong>,</p>
+                    <p style='font-size: 15px; color: #555; line-height: 1.6; margin: 20px 0;'>We received a request to reset the password for your AnalySim account. If you made this request, click the button below to create a new password:</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                      <a href='{callbackUrl}' style='display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;'>Reset Password</a>
+                    </div>
+                    <p style='font-size: 13px; color: #999; margin: 30px 0; text-align: center;'>or copy and paste this link:</p>
+                    <p style='font-size: 12px; color: #ef4444; word-break: break-all; background-color: #fef2f2; padding: 12px; border-radius: 4px; margin: 10px 0;'>{callbackUrl}</p>
+                    <hr style='border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;' />
+                    <div style='background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; border-radius: 4px; margin: 20px 0;'>
+                      <p style='margin: 0; font-size: 14px; color: #991b1b;'><strong>⚠️ Security Notice:</strong> This link will expire in 1 hour. If you didn't request a password reset, please ignore this email.</p>
+                    </div>
+                    <p style='font-size: 14px; color: #555; line-height: 1.6; margin: 20px 0;'><strong>Didn't request this?</strong> Your account may be compromised. Please:</p>
+                    <ul style='font-size: 14px; color: #555; margin: 10px 0 20px 0; padding-left: 20px;'>
+                      <li>Contact our support team immediately</li>
+                      <li>Change your password from a secure device</li>
+                      <li>Enable two-factor authentication</li>
+                    </ul>
+                  </div>
+                  <div style='background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;'>
+                    <p style='margin: 0; font-size: 12px; color: #999;'>© 2026 AnalySim. All rights reserved.</p>
+                    <p style='margin: 5px 0 0 0; font-size: 11px; color: #bbb;'><a href='#' style='color: #667eea; text-decoration: none;'>Privacy Policy</a> | <a href='#' style='color: #667eea; text-decoration: none;'>Terms of Service</a></p>
+                  </div>
+                </div>
+                ";
 
-
-            await _mailNetService.SendEmail(user.Email, user.UserName, "Reset Password Link", emailContent, emailContent);
+            await _mailNetService.SendEmail(user.Email, user.UserName, "Reset your AnalySim password", emailContent, $"Hi {user.UserName}, click here to reset your password: {callbackUrl}");
 
                 // return View("ForgotPasswordConfirmation");
             //}
