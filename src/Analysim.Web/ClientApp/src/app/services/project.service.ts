@@ -14,6 +14,7 @@ import { NotificationService } from './notification.service';
 import { saveAs } from 'file-saver';
 import { Notebook, NotebookFile, NotebookURL } from '../interfaces/notebook';
 import { getItem } from 'localforage';
+import { ProjectComment } from '../interfaces/project-comment';
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +40,7 @@ export class ProjectService {
   private urlDownloadImage: string = this.baseUrl + "downloadFile/"
   private urlDownloadNotebook: string = this.baseUrl + "DownloadNotebook/"
   private urlGetNotebookVersions: string = this.baseUrl + "getnotebookversions/"
+  private urlGetProjectComments: string = this.baseUrl + "getprojectcomments/";
 
 
   // Post
@@ -90,7 +92,7 @@ export class ProjectService {
         }),
         catchError(error => {
           console.log(error)
-          return throwError(error)
+          return throwError(error) 
         })
       )
   }
@@ -799,6 +801,20 @@ export class ProjectService {
           return throwError(error)
         })
       )
+  }
+
+  getProjectComments(projectID: number): Observable<ProjectComment[]> {
+    return this.http.get<any>(this.urlGetProjectComments + projectID)
+      .pipe(
+        map(body => {
+          console.log(body.message);
+          return body.result;
+        }),
+        catchError(error => {
+          console.log(error);
+          return throwError(() => error);
+        })
+      );
   }
 
 

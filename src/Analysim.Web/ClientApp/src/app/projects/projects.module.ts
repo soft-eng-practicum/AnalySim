@@ -56,6 +56,8 @@ import { SaveConfirmationModalComponent } from './project-overview/project-overv
 import { ModalDatasetsComponent } from './project-overview/project-overview-view/project-content/modal-datasets/modal-datasets.component';
 import { DatasetFolderViewComponent } from './project-overview/project-overview-view/project-content/dataset-folder-view/dataset-folder-view.component';
 import { SaveNotebookModalComponent } from './project-overview/project-overview-view/project-content/save-notebook-modal/save-notebook-modal.component';
+import { ProjectCommentItemComponent } from './project-comments/project-comment-item/project-comment-item.component';
+import { ProjectCommentBoxComponent } from './project-comments/project-comment-box/project-comment-box.component';
 
 @NgModule({
   declarations: [
@@ -104,6 +106,8 @@ import { SaveNotebookModalComponent } from './project-overview/project-overview-
     ModalDatasetsComponent,
     DatasetFolderViewComponent,
     SaveNotebookModalComponent,
+    ProjectCommentItemComponent,
+    ProjectCommentBoxComponent,
   ],
   imports: [
     CommonModule,

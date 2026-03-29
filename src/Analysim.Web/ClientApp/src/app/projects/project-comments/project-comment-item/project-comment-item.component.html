@@ -1,0 +1,82 @@
+<div class="comment-item">
+  <!-- HEADER -->
+  <div class="comment-header">
+    <div class="comment-meta">
+      <span class="comment-author">
+        {{ comment.authorName }}
+      </span>
+
+      <span class="comment-date">
+        {{ comment.createdAt | date: "MMM d, y • h:mm a" }}
+      </span>
+    </div>
+    <div *ngIf="isOwner">
+      <button class="btn btn-ghost-primary upvote" title="Edit">
+        <i class="fa-regular fa-pen-to-square"></i>
+      </button>
+      <button class="btn btn-ghost-danger upvote" title="Delete">
+        <i class="fa-regular fa-trash-can"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="comment-body">
+    {{ comment.isDeleted ? "[deleted]" : comment.content }}
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <div class="actions-left" role="group" aria-label="Comment actions">
+      <button
+        class="btn thread-toggle"
+        (click)="onViewThread()"
+        title="View Thread"
+        [class.open]="isOpen"
+        *ngIf="comment.replies && comment.replies.length > 0"
+      >
+        <i class="fa fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <div class="comment-actions" role="group" aria-label="Comment actions">
+      <button class="btn btn-ghost-primary upvote" title="Upvote">
+        <i class="fa-regular fa-thumbs-up"></i>
+      </button>
+      
+      <button
+        type="button"
+        class="btn btn-ghost-primary"
+        (click)="onReply()"
+        title="Reply"
+        aria-label="Reply"
+      >
+        <i class="fa-regular fa-comment"></i>
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-ghost-danger"
+        (click)="onReport()"
+        title="Report"
+        aria-label="Report comment"
+      >
+        <i class="fa-regular fa-flag" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <div
+    class="comment-replies"
+    *ngIf="comment.replies && comment.replies.length > 0"
+    [class.open]="isOpen"
+  >
+    <div class="comment-replies-inner">
+      <app-project-comment-item
+        *ngFor="let reply of comment.replies"
+        [comment]="reply"
+      >
+      </app-project-comment-item>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,122 @@
+.comment-item {
+  border: var(--border-w-1) var(--border-style) var(--border-color);
+  border-radius: var(--radius-1);
+  padding: var(--space-3);
+  background: var(--surface-0);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+// Header
+.comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.comment-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: var(--fs-16);
+  color: var(--text-on-light);
+}
+
+.comment-date {
+  font-size: var(--fs-12);
+  opacity: 0.7;
+}
+
+// Body
+.comment-body {
+  font-size: var(--fs-16);
+  line-height: 1.5;
+  word-break: break-word;
+  margin-left: 0.5rem;
+}
+
+// Action Buttons
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.comment-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.comment-actions .btn {
+  padding: var(--space-2) var(--space-2) !important;
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actions-left{
+  display: inline-flex;
+  align-items: stretch;
+  gap: var(--space-4);
+}
+
+.upvote{
+  padding: var(--space-1) var(--space-2) !important;
+}
+
+.comment-actions .btn > * {
+  font-size: medium;
+}
+
+// Open Thread Button 
+.thread-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thread-toggle > * {
+  display: inline-block;
+  transition: transform 0.25s ease;
+  transform-origin: center;
+  font-size: small;
+}
+
+.thread-toggle.open > * {
+  transform: rotate(90deg) !important;
+}
+
+// Replies 
+.comment-replies {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-left: 0.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid #ddd;
+  margin-top: 0;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.25s ease,
+    margin-top 0.3s ease;
+}
+
+.comment-replies.open {
+  max-height: 1000px;
+  opacity: 1;
+  margin-top: 0.75rem;
+}
+
+.comment-replies-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}

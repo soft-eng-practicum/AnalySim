@@ -325,8 +325,57 @@ namespace Web.Controllers
             }
         }
 
+        /* 
+        * Type : GET
+        * URL : /api/projects/getprojectcomments/projectId
+        * Description: Gets all comments for a project
+        */
+        [HttpGet("[action]/{projectId}")]
+        public async Task<IActionResult> GetProjectComments([FromRoute] int projectId)
+        {
+            if (projectId <= 0)
+                return BadRequest("Invalid project id.");
 
+            var flatComments = await _dbContext.ProjectComments
+                .AsNoTracking()
+                .Where(p => p.ProjectID == projectId)
+                .OrderBy(c => c.CreatedAt)
+                .Select(c => new ProjectCommentVM
+                {
+                    CommentID = c.CommentID,
+                    UserID = c.UserID,
+                    AuthorName = c.User.UserName,
+                    ProjectID = c.ProjectID,
+                    ParentCommentID = c.ParentCommentID,
+                    Content = c.Content,
+                    IsDeleted = c.IsDeleted,
+                    CreatedAt = c.CreatedAt,
+                    UpdatedAt = c.UpdatedAt,
+                    Replies = new List<ProjectCommentVM>()
+                }).ToListAsync();
 
+            var commentLookup = flatComments.ToDictionary(c => c.CommentID);        // create lookup (O(1) lookup speed)
+            var rootComments = new List<ProjectCommentVM>();                        // top level comments
+
+            // sort comments into nest object
+            foreach (var comment in flatComments)
+            {
+                if(comment.ParentCommentID.HasValue && commentLookup.TryGetValue(comment.ParentCommentID.Value, out var parent))
+                {
+                    parent.Replies.Add(comment);
+                }
+                else
+                {
+                    rootComments.Add(comment);
+                }
+            }
+
+            return Ok(new
+            {
+                result = rootComments,
+                message = "Received Comments"
+            });
+        }
 
         #endregion
 
