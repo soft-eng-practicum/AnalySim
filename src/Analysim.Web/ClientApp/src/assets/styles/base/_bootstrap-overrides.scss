@@ -56,6 +56,7 @@
   border: var(--button-border-width) var(--button-border-style)
     var(--button-border-color) !important;
   color: var(--button-border-color) !important;
+  font-weight: 600;
 }
 
 .btn-outline-primary:hover:not(:disabled):not(.disabled),
@@ -66,12 +67,25 @@
   color: var(--button-font-color) !important;
 }
 
+.btn-ghost-primary {
+  background: #fff !important;
+  color: var(--button-border-color) !important;
+  font-weight: 600;
+}
+
+.btn-ghost-primary:hover:not(:disabled):not(.disabled),
+.btn-ghost-primary:focus:not(:disabled):not(.disabled) {
+  background: var(--button-background-color) !important;
+  color: var(--button-font-color) !important;
+}
+
 /* Quiet danger button */
 .btn-danger {
   background: transparent !important;
   border: var(--button-border-width) var(--button-border-style)
     var(--color-danger) !important;
   color: var(--color-danger) !important;
+  font-weight: 600;
 }
 
 /* Hover = full danger */
@@ -83,6 +97,17 @@
   color: var(--c-text-inverse) !important;
 }
 
+.btn-ghost-danger {
+  background: transparent !important;
+  color: var(--color-danger) !important;
+  font-weight: 600;
+}
+
+.btn-ghost-danger:hover:not(:disabled):not(.disabled),
+.btn-ghost-danger:focus:not(:disabled):not(.disabled) {
+  background: var(--color-danger) !important;
+  color: var(--c-text-inverse) !important;
+}
 
 /* Modal tokens */
 .modal-dialog {

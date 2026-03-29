@@ -1,0 +1,28 @@
+.comment-box {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+
+  textarea {
+    width: 100%;
+    resize: none;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    padding: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #4a90e2;
+      box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.15);
+    }
+  }
+}
+
+.button-area {
+    display: flex;
+    gap: 6px;
+    justify-content: end;
+}

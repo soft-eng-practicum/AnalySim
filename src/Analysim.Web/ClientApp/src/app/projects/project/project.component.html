@@ -200,7 +200,7 @@
               [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
             <app-project-publication *ngIf="activeView === 'Publications'"></app-project-publication>
             <app-project-log *ngIf="activeView === 'Log'"></app-project-log>
-            <app-project-comments *ngIf="activeView === 'Comment'"></app-project-comments>
+            <app-project-comments [projectId]="project.projectID" *ngIf="activeView === 'Comment'"></app-project-comments>
             <app-project-content *ngIf='toggleView == "Content"' [project]="project" [currentUser]="currentUser"
               [isMember]="isMember" [currentDirectory]="fileDirectory"></app-project-content>
           </div>
