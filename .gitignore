@@ -250,3 +250,5 @@ src/Analysim.Web/Logs
 
 .jupyterlite.doit.db
 package-lock.json
+
+src/Analysim.Web/ClientApp/src/assets/jupyter/dist/
