@@ -107,6 +107,36 @@ namespace Infrastructure.Data
                         .WithMany(n=>n.observableNotebookDatasets)
                         .HasForeignKey(d=>d.NotebookID)
                         .OnDelete(DeleteBehavior.Cascade);
+
+            // COMMENTS 
+
+            // One To Many Relationship (Project -> ProjectComment)
+            modelBuilder.Entity<Project>()
+                        .HasMany(p => p.ProjectComments)
+                        .WithOne(pc => pc.Project)
+                        .HasForeignKey(pc => pc.ProjectID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            // One To Many Relationship (User -> ProjectComment)
+            modelBuilder.Entity<User>()
+                        .HasMany(u => u.ProjectComments)
+                        .WithOne(pc => pc.User)
+                        .HasForeignKey(pc => pc.UserID)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+            // Self Reference Relationship (ProjectComment -> Replies)
+            modelBuilder.Entity<ProjectComment>()
+                        .HasOne(pc => pc.ParentComment)
+                        .WithMany(pc => pc.Replies)
+                        .HasForeignKey(pc => pc.ParentCommentID)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+            // Indexes for common lookups
+            modelBuilder.Entity<ProjectComment>()
+                        .HasIndex(pc => pc.ProjectID);
+
+            modelBuilder.Entity<ProjectComment>()
+                        .HasIndex(pc => pc.ParentCommentID);
         }
 
         
@@ -122,9 +152,6 @@ namespace Infrastructure.Data
         public DbSet<NotebookContent> NotebookContent { get; set; }
         public DbSet<BlobFileContent> BlobFileContent { get; set; }
 
-
-
-
-
+        public DbSet<ProjectComment> ProjectComments { get; set; }
     }
 }

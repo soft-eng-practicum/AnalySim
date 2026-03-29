@@ -39,6 +39,9 @@ namespace Core.Entities
 
         public ICollection<Notebook> Notebooks {get;set;} = new List<Notebook>();
 
+        // Comments
+        public ICollection<ProjectComment> ProjectComments { get; set; } = new List<ProjectComment>();
+
 
         public int ForkedFromProjectID { get; set; }
     }
