@@ -700,7 +700,7 @@ namespace Web.Controllers
             // Check if the project already exists
             bool projectExists = await _dbContext.Projects
                 .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == formdata.UserID &&
+                    aup.UserID == userId &&
                     aup.Project.Name == formdata.Name &&
                     aup.UserRole == "owner"));
 
