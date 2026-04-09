@@ -351,7 +351,24 @@ namespace Web.Controllers
                     IsDeleted = c.IsDeleted,
                     CreatedAt = c.CreatedAt,
                     UpdatedAt = c.UpdatedAt,
-                    Replies = new List<ProjectCommentVM>()
+
+                    Replies = new List<ProjectCommentVM>(),
+
+                    CommentLikes = c.CommentLikes
+                        .Select(l => new ProjectCommentLikeVM
+                        {
+                            CommentID = l.CommentID,
+                            UserID = l.UserID,
+                            CreatedAt = l.CreatedAt
+                        }).ToList(),
+
+                    CommentFlags = c.CommentFlags
+                        .Select(f => new ProjectCommentFlagVM
+                        {
+                            CommentID = f.CommentID,
+                            UserID = f.UserID,
+                            CreatedAt = f.CreatedAt
+                        }).ToList()
                 }).ToListAsync();
 
             var commentLookup = flatComments.ToDictionary(c => c.CommentID);        // create lookup (O(1) lookup speed)
@@ -377,9 +394,309 @@ namespace Web.Controllers
             });
         }
 
+        /* 
+        * Type : GET
+        * URL : /api/projects/GetALlFlaggedComments
+        * Description: Gets all flagged comments
+        */
+        [Authorize]
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetAllFlaggedComments()
+        {
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new {message = "Invalid user identifier."});
+            }
+            
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new {message = "User Not Found."});
+
+            // Get Admins
+            var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+
+            // Validate User is Admin
+            bool isAdmin = admins.Any(u => string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+            if (!isAdmin) return Forbid();
+
+            // Get all flags with related data
+            var flaggedComments = await _dbContext.ProjectCommentFlags
+                .Include(f => f.ProjectComment)
+                    .ThenInclude(c => c.User)
+                .Include(f => f.User)
+                .OrderBy(f => f.CommentID)
+                .ThenByDescending(f => f.CreatedAt)
+                .ToListAsync();
+
+            var result = flaggedComments
+                .GroupBy(f => new
+                {
+                    f.CommentID,
+                    CommentOwnerUsername = f.ProjectComment.User.UserName
+                })
+                .Select(g => new FlaggedCommentGroupVM
+                {
+                    CommentID = g.Key.CommentID,
+                    CommentOwnerUsername = g.Key.CommentOwnerUsername,
+                    Flags = g.Select(f => new ProjectCommentFlagRowVM
+                    {
+                        FlagID = f.FlagID,
+                        CommentContentSnapshot = f.CommentContentSnapshot,
+                        FlaggedByUsername = f.User.UserName,
+                        CreatedAt = f.CreatedAt
+                    }).ToList()
+                }).ToList();
+
+            return Ok(new
+            {
+                result,
+                message = "Received Flagged Comments"
+            });
+        }
+
         #endregion
 
         #region POST REQUEST
+
+        /*
+        * Type : POST
+        * URL : /api/project/postcomment
+        * Param : CreateProjectCommentVM
+        * Description: Post a new comment to a project
+        */
+        [Authorize]
+        [HttpPost("[action]")]
+        public async Task<IActionResult> PostComment([FromForm] CreateProjectCommentVM formdata)
+        {
+            // Validate VM
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new {message = "Invalid user identifier."});
+            }
+
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new {message = "User Not Found."});
+
+            // Validate Project
+            var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            // Validate Content
+            if (string.IsNullOrWhiteSpace(formdata.Content))
+                return BadRequest(new { message = "Content is required." });
+
+            var trimmedContent = formdata.Content.Trim();
+
+            if (trimmedContent.Length > 1000)
+                return BadRequest(new { message = "Maximum length for Content is 1000 characters." });
+
+            // Validate Parent Comment
+            ProjectComment? parentComment = null;
+
+            if (formdata.ParentCommentID.HasValue)
+            {
+                parentComment = await _dbContext.ProjectComments
+                    .SingleOrDefaultAsync(c => c.CommentID == formdata.ParentCommentID.Value);
+
+                if (parentComment == null)
+                    return NotFound(new { message = "Parent Comment Not Found." });
+
+                if (parentComment.ProjectID != formdata.ProjectID)
+                    return BadRequest(new { message = "Parent comment does not belong to this project." });
+
+                if (parentComment.IsDeleted)
+                    return BadRequest(new { message = "Cannot reply to a deleted comment." });
+            }
+
+            // Create Comment
+            var newComment = new ProjectComment
+            {
+                UserID = userId,
+                User = user,
+                ProjectID = formdata.ProjectID,
+                Project = project,
+                ParentCommentID = formdata.ParentCommentID,
+                ParentComment = parentComment,
+                Content = trimmedContent,
+                IsDeleted = false,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+            };
+
+            // Add Comment to DB
+            _dbContext.ProjectComments.Add(newComment);
+            await _dbContext.SaveChangesAsync();
+
+            // Return 
+            return Ok(new
+            {
+                message = "Comment posted successfully.",
+                commentId = newComment.CommentID
+            });
+        }
+
+        /*
+        * Type : POST
+        * URL : /api/project/likecomment/{commentID}
+        * Param : {commentID}
+        * Description: Like a comment
+        */
+        [Authorize]
+        [HttpPost("[action]/{commentID}")]
+        public async Task<IActionResult> LikeComment([FromRoute] int commentID)
+        {
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new {message = "Invalid user identifier."});
+            }
+
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new {message = "User Not Found."});
+
+            // Validate Comment
+            var commentExists = await _dbContext.ProjectComments
+                .AnyAsync(c => c.CommentID == commentID && !c.IsDeleted);
+
+            if (!commentExists)
+                return NotFound(new { message = "Comment not found." });
+
+            // Prevent duplicate likes
+            var alreadyLiked = await _dbContext.ProjectCommentLikes
+                .AnyAsync(l => l.CommentID == commentID && l.UserID == userId);
+
+            if (alreadyLiked)
+                return BadRequest(new { message = "Comment already liked." });
+
+            // Create Like
+            var newLike = new ProjectCommentLike
+            {
+                CommentID = commentID,
+                UserID = userId,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // Add Like to DB
+            _dbContext.ProjectCommentLikes.Add(newLike);
+            await _dbContext.SaveChangesAsync();
+
+            // Return 
+            return Ok(new { message = "Comment liked successfully."});
+        }
+
+        /*
+        * Type : POST
+        * URL : /api/project/reportcomment/{commentID}
+        * Param : {commentID}
+        * Description: report a comment
+        */
+        [Authorize]
+        [HttpPost("[action]/{commentID}")]
+        public async Task<IActionResult> ReportComment([FromRoute] int commentID)
+        {
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new {message = "Invalid user identifier."});
+            }
+
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new {message = "User Not Found."});
+
+            // Validate Comment
+            var comment = await _dbContext.ProjectComments
+                .SingleOrDefaultAsync(c => c.CommentID == commentID && !c.IsDeleted);
+
+            if (comment == null)
+                return NotFound(new { message = "Comment not found." });
+
+            // Prevent duplicate flags by user
+            var alreadyFlagged = await _dbContext.ProjectCommentFlags
+                .AnyAsync(f => f.CommentID == commentID && f.UserID == userId);
+
+            if (alreadyFlagged)
+                return BadRequest(new { message = "Comment already flagged by user." });
+
+            // Create Flag
+            var newReport = new ProjectCommentFlag
+            {
+                CommentID = commentID,
+                UserID = userId,
+                CommentContentSnapshot = comment.Content,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _dbContext.ProjectCommentFlags.Add(newReport);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { message = "Comment reported successfully."});
+        }
+
+        /*
+        * Type : POST
+        * URL : /api/project/deletecommentandreports/{commentID}
+        * Param : {commentID}
+        * Description: set comment IsDeleted = true and deletes reports
+        */
+        [Authorize]
+        [HttpPost("[action]/{commentID}")]
+        public async Task<IActionResult> DeleteCommentAndReports([FromRoute] int commentID)
+        {
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new {message = "Invalid user identifier."});
+            }
+            
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new {message = "User Not Found."});
+
+            // Get Admins
+            var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+
+            // Validate User is Admin
+            bool isAdmin = admins.Any(u => string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+            if (!isAdmin) return Forbid();
+
+            // Validate Comment
+            var comment = await _dbContext.ProjectComments.SingleOrDefaultAsync(c => c.CommentID == commentID);
+            if (comment == null) return NotFound(new { message = "Comment Not Found" });
+
+            if(comment.IsDeleted) return BadRequest(new {message = "Cannot delete already deleted comment."});
+
+            // Find Reports
+            var reports = await _dbContext.ProjectCommentFlags
+                .Where(f => f.CommentID == commentID)
+                .ToListAsync();
+
+            if (!reports.Any()) 
+                return NotFound(new { message = "No reports found for this comment." });
+
+            // Update Comment
+            comment.IsDeleted = true;
+            comment.UpdatedAt = DateTime.UtcNow;
+
+            // Remove Reports
+            _dbContext.ProjectCommentFlags.RemoveRange(reports);
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { message = "Comment deleted and reports removed successfully."});
+        }
+
         /*
        * Type : POST
        * URL : /api/project/forkproject
@@ -1677,6 +1994,104 @@ namespace Web.Controllers
         #endregion
 
         #region PUT REQUEST
+
+        /*
+        * Type : PUT
+        * URL : /api/project/updatecomment/{commentID}
+        * Param : {commentID}, UpdateProjectCommentVM
+        * Description: Update a comment
+        */
+        [Authorize]
+        [HttpPut("[action]/{commentID}")]
+        public async Task<IActionResult> UpdateComment([FromRoute] int commentID, [FromForm] UpdateProjectCommentVM formdata)
+        {
+            // Validate VM
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new {message = "Invalid user identifier."});
+            }
+
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new {message = "User Not Found."});
+
+            // Validate Content
+            if (string.IsNullOrWhiteSpace(formdata.Content))
+                return BadRequest(new { message = "Content is required." });
+
+            var trimmedContent = formdata.Content.Trim();
+
+            if (trimmedContent.Length > 1000)
+                return BadRequest(new { message = "Maximum length for Content is 1000 characters." });
+
+            // Validate Comment
+            var comment = await _dbContext.ProjectComments.SingleOrDefaultAsync(c => c.CommentID == commentID);
+            if (comment == null) return NotFound(new { message = "Comment Not Found" });
+
+            if(comment.IsDeleted) return BadRequest(new {message = "Cannot edit deleted comments."});
+            if(comment.UserID != user.Id) return Unauthorized(new {message = "Edited comment does not belong to current user."});
+
+            // Update comment
+            comment.Content = trimmedContent;
+            comment.UpdatedAt = DateTime.UtcNow;
+
+            // Update Comment in DB
+            await _dbContext.SaveChangesAsync();
+
+            // Return 
+            return Ok(new { message = "Comment updated successfully."});
+        }
+
+        /*
+        * Type : PUT
+        * URL : /api/project/deletecomment/{commentID}
+        * Param : {commentID}
+        * Description: set comment IsDeleted = true
+        */
+        [Authorize]
+        [HttpPut("[action]/{commentID}")]
+        public async Task<IActionResult> DeleteComment([FromRoute] int commentID)
+        {
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new {message = "Invalid user identifier."});
+            }
+
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new {message = "User Not Found."});
+
+            // Get Admins
+            var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+
+            // Validate User is Admin
+            bool isAdmin = admins.Any(u => string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+            
+            // Validate Comment
+            var comment = await _dbContext.ProjectComments.SingleOrDefaultAsync(c => c.CommentID == commentID);
+            if (comment == null) return NotFound(new { message = "Comment Not Found" });
+
+            if(comment.IsDeleted) return BadRequest(new {message = "Cannot delete already deleted comment."});
+
+            if (!isAdmin && comment.UserID != user.Id) return Unauthorized(new {message = "Comment does not belong to current user."});
+
+            // Update comment
+            comment.IsDeleted = true;
+            comment.UpdatedAt = DateTime.UtcNow;
+
+            // Update Comment in DB
+            await _dbContext.SaveChangesAsync();
+
+            // Return 
+            return Ok(new { message = "Comment deleted successfully."});
+        }
+
         /*
          * Type : PUT
          * URL : /api/project/updateproject/
@@ -1907,6 +2322,114 @@ namespace Web.Controllers
         #endregion
 
         #region DELETE REQUEST
+
+        /*
+        * Type : DELETE
+        * URL : /api/project/likecomment/{commentID}
+        * Param : {commentID}
+        * Description: unlikes a comment
+        */
+        [Authorize]
+        [HttpDelete("likecomment/{commentID}")]
+        public async Task<IActionResult> UnlikeComment([FromRoute] int commentID)
+        {
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            // Find existing like
+            var like = await _dbContext.ProjectCommentLikes
+                .FirstOrDefaultAsync(l => l.CommentID == commentID && l.UserID == userId);
+
+            if (like == null) return NotFound(new { message = "Like not found." });
+            
+
+            // Remove like
+            _dbContext.ProjectCommentLikes.Remove(like);
+            await _dbContext.SaveChangesAsync();
+
+            // Return 
+            return Ok(new { message = "Comment unliked successfully."});
+        }
+
+        /*
+        * Type : DELETE
+        * URL : /api/project/removeCommentReport/{commentID}
+        * Param : {commentID}
+        * Description: removes a comment report / flag
+        */
+        [Authorize]
+        [HttpDelete("[action]/{commentID}")]
+        public async Task<IActionResult> RemoveCommentReport([FromRoute] int commentID)
+        {
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            // Find existing report
+            var report = await _dbContext.ProjectCommentFlags
+                .FirstOrDefaultAsync(f => f.CommentID == commentID && f.UserID == userId);
+
+            if (report == null) return NotFound(new { message = "Report not found." });
+            
+
+            // Remove report
+            _dbContext.ProjectCommentFlags.Remove(report);
+            await _dbContext.SaveChangesAsync();
+
+            // Return 
+            return Ok(new { message = "Comment report removed successfully."});
+        }
+
+        /*
+        * Type : DELETE
+        * URL : /api/project/RemoveAllCommentReports/{commentID}
+        * Param : {commentID}
+        * Description: removes all reports / flags for a comment
+        */
+        [Authorize]
+        [HttpDelete("[action]/{commentID}")]
+        public async Task<IActionResult> RemoveAllCommentReports([FromRoute] int commentID)
+        {
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new {message = "Invalid user identifier."});
+            }
+            
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new {message = "User Not Found."});
+
+            // Get Admins
+            var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+
+            // Validate User is Admin
+            bool isAdmin = admins.Any(u => string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+            if (!isAdmin) return Forbid();
+
+            // Find reports
+            var reports = await _dbContext.ProjectCommentFlags
+                .Where(f => f.CommentID == commentID)
+                .ToListAsync();
+
+            if (!reports.Any()) 
+                return NotFound(new { message = "No reports found for this comment." });
+
+            // Remove reports
+            _dbContext.ProjectCommentFlags.RemoveRange(reports);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { message = "Comment reports removed successfully."});
+        }
+
         /*
          * Type : DELETE
          * URL : /api/project/deleteproject/

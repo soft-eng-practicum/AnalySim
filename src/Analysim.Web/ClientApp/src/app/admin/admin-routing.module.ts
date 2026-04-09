@@ -7,6 +7,7 @@ import { NotebooksComponent } from './components/notebooks/notebooks.component';
 import { UsersComponent } from './components/users/users.component';
 import { DatasetsComponent } from './components/datasets/datasets.component';
 import { ProjectsComponent } from './components/projects/projects.component';
+import { CommentsComponent } from './components/comments/comments.component';
 
 const routes: Routes = [
   {
@@ -19,6 +20,7 @@ const routes: Routes = [
       { path: 'users', component: UsersComponent },
       { path: 'datasets', component: DatasetsComponent },
       { path: 'projects', component: ProjectsComponent },
+      { path: 'comments', component: CommentsComponent },
       { path: '', redirectTo: 'notebooks', pathMatch: 'full' }
     ]
   }

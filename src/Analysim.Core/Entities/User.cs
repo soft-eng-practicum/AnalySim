@@ -23,6 +23,8 @@ namespace Core.Entities
         
         // Comments
         public ICollection<ProjectComment> ProjectComments { get; set; } = new List<ProjectComment>();
+        public ICollection<ProjectCommentLike> CommentLikes { get; set; } = new List<ProjectCommentLike>();
+        public ICollection<ProjectCommentFlag> CommentFlags { get; set; } = new List<ProjectCommentFlag>();
 
         public string RegistrationSurvey {get; set;}
 

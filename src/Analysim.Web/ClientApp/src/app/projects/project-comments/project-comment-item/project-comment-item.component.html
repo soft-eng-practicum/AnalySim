@@ -2,81 +2,187 @@
   <!-- HEADER -->
   <div class="comment-header">
     <div class="comment-meta">
+      <!-- AUTHOR -->
       <span class="comment-author">
         {{ comment.authorName }}
       </span>
 
+      <!-- DATE CREATED -->
       <span class="comment-date">
         {{ comment.createdAt | date: "MMM d, y • h:mm a" }}
       </span>
     </div>
-    <div *ngIf="isOwner">
-      <button class="btn btn-ghost-primary upvote" title="Edit">
+
+    <!-- ACTION BUTTONS (TOP) -->
+    <div *ngIf="!isEditing && !isDeleted">
+      <!-- EDIT COMMENT -->
+      <button
+        class="btn btn-ghost-primary"
+        title="Edit"
+        (click)="onEditMyComment()"
+        *ngIf="isOwner"
+      >
         <i class="fa-regular fa-pen-to-square"></i>
       </button>
-      <button class="btn btn-ghost-danger upvote" title="Delete">
+
+      <!-- DELETE COMMENT -->
+      <button
+        class="btn btn-ghost-danger"
+        title="Delete"
+        (click)="onDeleteMyComment()"
+        [disabled]="isDeleting"
+        *ngIf="isOwner"
+      >
         <i class="fa-regular fa-trash-can"></i>
       </button>
-    </div>
-  </div>
 
-  <!-- BODY -->
-  <div class="comment-body">
-    {{ comment.isDeleted ? "[deleted]" : comment.content }}
-  </div>
-
-  <!-- ACTIONS -->
-  <div class="actions">
-    <div class="actions-left" role="group" aria-label="Comment actions">
-      <button
-        class="btn thread-toggle"
-        (click)="onViewThread()"
-        title="View Thread"
-        [class.open]="isOpen"
-        *ngIf="comment.replies && comment.replies.length > 0"
-      >
-        <i class="fa fa-chevron-right"></i>
-      </button>
-    </div>
-
-    <div class="comment-actions" role="group" aria-label="Comment actions">
-      <button class="btn btn-ghost-primary upvote" title="Upvote">
-        <i class="fa-regular fa-thumbs-up"></i>
-      </button>
-      
+      <!-- REPORT / FLAG COMMENT -->
       <button
         type="button"
-        class="btn btn-ghost-primary"
-        (click)="onReply()"
-        title="Reply"
-        aria-label="Reply"
-      >
-        <i class="fa-regular fa-comment"></i>
-      </button>
-
-      <button
-        type="button"
-        class="btn btn-ghost-danger"
+        class="icon-btn icon-btn-ghost-danger"
         (click)="onReport()"
         title="Report"
         aria-label="Report comment"
+        [disabled]="isOwner"
+        *ngIf="!isOwner"
       >
-        <i class="fa-regular fa-flag" aria-hidden="true"></i>
+        <div *ngIf="!isFlaggedByCurrentUser">
+          <i class="fa-regular fa-flag" aria-hidden="true"></i>
+        </div>
+        <div *ngIf="isFlaggedByCurrentUser">
+          <i class="fa-solid fa-flag" aria-hidden="true"></i>
+        </div>
       </button>
     </div>
   </div>
 
+  <!-- BODY (STANDARD) -->
+  <div *ngIf="!isEditing">
+    <!-- BODY CONTENT -->
+    <div class="comment-body">
+      {{ isDeleted ? "[deleted]" : comment.content }}
+    </div>
+
+    <!-- ACTION BUTTONS (BOTTOM)-->
+    <div class="actions">
+      <!-- VIEW THREAD TOGGLE -->
+      <div class="actions-left" role="group" aria-label="Comment actions">
+        <button
+          class="btn thread-toggle"
+          (click)="onViewThread()"
+          title="View Thread"
+          [class.open]="isOpen"
+          *ngIf="(comment.replies && comment.replies.length > 0) || isReplying"
+        >
+          <i class="fa fa-chevron-right"></i>
+        </button>
+      </div>
+
+      <!-- USER ACTIONS -->
+      <div
+        class="comment-actions"
+        role="group"
+        aria-label="Comment actions"
+        *ngIf="!isDeleted"
+      >
+        <!-- UPVOTE / LIKE COMMENT -->
+        <button
+          type="button"
+          class="icon-btn icon-btn-ghost upvote"
+          (click)="onUpvote()"
+          title="Upvote"
+          aria-label="Upvote"
+          [disabled]="isLiking"
+        >
+          <div *ngIf="!isLikedByCurrentUser">
+            <i class="fa-regular fa-thumbs-up"></i>
+          </div>
+          <div *ngIf="isLikedByCurrentUser">
+            <i class="fa-solid fa-thumbs-up"></i>
+          </div>
+          <span>{{ numLikes }}</span>
+        </button>
+
+        <!-- REPLY TO COMMENT -->
+        <button
+          type="button"
+          class="icon-btn icon-btn-ghost"
+          (click)="onOpenReply()"
+          title="Reply"
+          aria-label="Reply"
+        >
+          <i class="fa-regular fa-comment"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY (EDITING) -->
+  <div *ngIf="isEditing">
+    <div class="comment-body">
+      <app-project-comment-box
+        [editingContent]="comment.content"
+        (cancelEdit)="onEditMyComment()"
+        (submitEdit)="onHandleEdit($event)"
+      >
+      </app-project-comment-box>
+    </div>
+  </div>
+
+  <!-- REPLIES THREAD -->
   <div
     class="comment-replies"
-    *ngIf="comment.replies && comment.replies.length > 0"
+    *ngIf="(comment.replies && comment.replies.length > 0) || isReplying"
     [class.open]="isOpen"
   >
+    <!-- REPLY BOX -->
     <div class="comment-replies-inner">
+      <div *ngIf="isReplying">
+        <app-project-comment-box
+          [parentId]="comment.commentID"
+          [parentName]="comment.authorName"
+          (cancelReply)="onOpenReply()"
+          (submitComment)="onHandleReply($event)"
+        >
+        </app-project-comment-box>
+      </div>
+
+      <!-- ALL REPLIES -->
       <app-project-comment-item
         *ngFor="let reply of comment.replies"
         [comment]="reply"
+        (submitReply)="onHandleReply($event)"
+        (submitEdit)="onHandleNestedEdit($event)"
       >
       </app-project-comment-item>
     </div>
   </div>
 </div>
+
+
+<!-- MODALS -->
+
+<!-- Delete Modal -->
+<ng-template #deleteModal>
+  <app-modal-delete-comment
+    [deleteModalRef]="deleteModalRef"
+    [commentID]="comment.commentID"
+    [currentUser]="currentUser"
+    (onSuccessfulDelete)="onHandleSuccessfulDelete()"
+    (onCancelDelete)="this.isDeleting = false"
+  ></app-modal-delete-comment>
+</ng-template>
+
+<!-- Report / Flag Modal -->
+<ng-template #flagModal>
+  <app-modal-report-comment
+    [flagModalRef]="flagModalRef"
+    [commentID]="comment.commentID"
+    [commentContentSnapshot]="comment.content"
+    [currentUser]="currentUser"
+    [isCurrentlyFlagged]="isFlaggedByCurrentUser"
+    (onSuccessfulFlag)="onHandleSuccessfulFlag()"
+    (onSuccessfulRemove)="onHandleSuccessfulRemove()"
+    (onCancelFlag)="this.isFlagging = false"
+  ></app-modal-report-comment>
+</ng-template>

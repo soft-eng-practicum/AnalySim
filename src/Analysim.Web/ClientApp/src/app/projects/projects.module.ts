@@ -58,6 +58,8 @@ import { DatasetFolderViewComponent } from './project-overview/project-overview-
 import { SaveNotebookModalComponent } from './project-overview/project-overview-view/project-content/save-notebook-modal/save-notebook-modal.component';
 import { ProjectCommentItemComponent } from './project-comments/project-comment-item/project-comment-item.component';
 import { ProjectCommentBoxComponent } from './project-comments/project-comment-box/project-comment-box.component';
+import { ModalReportCommentComponent } from './project-comments/modal-report-comment/modal-report-comment.component';
+import { ModalDeleteCommentComponent } from './project-comments/modal-delete-comment/modal-delete-comment.component';
 
 @NgModule({
   declarations: [
@@ -108,6 +110,8 @@ import { ProjectCommentBoxComponent } from './project-comments/project-comment-b
     SaveNotebookModalComponent,
     ProjectCommentItemComponent,
     ProjectCommentBoxComponent,
+    ModalReportCommentComponent,
+    ModalDeleteCommentComponent,
   ],
   imports: [
     CommonModule,

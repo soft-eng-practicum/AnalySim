@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260406203747_AddCommentLikesAndFlags")]
+    partial class AddCommentLikesAndFlags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -290,9 +292,6 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("FlagID"));
 
-                    b.Property<string>("CommentContentSnapshot")
-                        .HasColumnType("text");
-
                     b.Property<int>("CommentID")
                         .HasColumnType("integer");
 
@@ -516,21 +515,21 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "52b20532-0a25-4849-a146-ad8c6e7070d5",
+                            ConcurrencyStamp = "df646dd7-958b-4e8d-9516-832f7251f4b2",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "ca163c30-c210-4244-a85a-2e6aafb5e8ff",
+                            ConcurrencyStamp = "ace78628-a4c7-4edc-bef9-61dfb7bbe225",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "d8bde866-b51e-4044-996f-0d7f727145ee",
+                            ConcurrencyStamp = "1782edfd-8928-4ec8-88e5-738cdebac23d",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });

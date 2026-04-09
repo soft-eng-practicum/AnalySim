@@ -6,11 +6,11 @@ import { ProjectCommentBoxComponent } from './project-comment-box/project-commen
 @Component({
   selector: 'app-project-comments',
   templateUrl: './project-comments.component.html',
-  styleUrls: ['./project-comments.component.scss']
+  styleUrls: ['./project-comments.component.scss'],
 })
 export class ProjectCommentsComponent implements OnInit {
   @Input() projectId!: number;
-  
+
   comments: ProjectComment[] = [];
   isLoading: boolean = false;
 
@@ -33,11 +33,47 @@ export class ProjectCommentsComponent implements OnInit {
       error: (error) => {
         console.log('Failed to load comments', error);
         this.isLoading = false;
-      }
+      },
     });
   }
 
-  onAddComment(): void {
-    // Open comment box
+  onPostComment(
+    content: string | { content: string; parentCommentId: number },
+  ): void {
+    var comment: string = '';
+    var parentId: number | null = null;
+
+    if (typeof content === 'string') {
+      comment = content;
+    } else {
+      comment = content.content;
+      parentId = content.parentCommentId;
+    }
+
+    this.projectService
+      .postComment(this.projectId, comment, parentId)
+      .subscribe({
+        next: (result) => {
+          console.log('Posted new comment', result.commentId);
+          this.loadComments();
+        },
+        error: (error) => {
+          console.log('Failed to post comment', error);
+        },
+      });
+  }
+
+  onPutEdit(content: { content: string; commentId: number }): void {
+    this.projectService
+      .updateComment(content.commentId, content.content)
+      .subscribe({
+        next: (result) => {
+          console.log('Updated comment', content.commentId);
+          this.loadComments();
+        },
+        error: (error) => {
+          console.log('Failed to update comment', error);
+        },
+      });
   }
 }

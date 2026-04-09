@@ -30,7 +30,7 @@ namespace Core.Entities
         public string Content { get; set; } = string.Empty;
 
         // Soft Delete
-        public bool IsDeleted { get; set; } // ASK ABOUT THIS "Delete your own comments (but still leave the space for it)"
+        public bool IsDeleted { get; set; }
 
         // Timestamps
         public DateTime CreatedAt { get; set; }
@@ -38,5 +38,7 @@ namespace Core.Entities
 
         // Replies to this comment
         public ICollection<ProjectComment> Replies { get; set; } = new List<ProjectComment>();
+        public ICollection<ProjectCommentLike> CommentLikes { get; set; } = new List<ProjectCommentLike>();
+        public ICollection<ProjectCommentFlag> CommentFlags { get; set; } = new List<ProjectCommentFlag>();
     }
 }

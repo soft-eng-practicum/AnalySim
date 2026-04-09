@@ -15,5 +15,7 @@ namespace Analysim.Web.ViewModels.Project
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public List<ProjectCommentVM> Replies { get; set; } = new();
+        public List<ProjectCommentLikeVM>? CommentLikes { get; set; } = new();
+        public List<ProjectCommentFlagVM>? CommentFlags { get; set; } = new();
     }
 }

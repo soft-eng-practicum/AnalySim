@@ -15,6 +15,10 @@ import { ProjectsModule } from '../projects/projects.module';
 import { UserDisplayComponent } from './components/users/user-display/user-display.component';
 import { ProjectDisplayComponent } from './components/projects/project-display/project-display.component';
 import { DatasetActionsComponent } from './components/datasets/dataset-actions/dataset-actions.component';
+import { CommentsComponent } from './components/comments/comments.component';
+import { FlaggedCommentItemComponent } from './components/comments/flagged-comment-item/flagged-comment-item.component';
+import { ModalDeleteReportsComponent } from './components/comments/modal-delete-reports/modal-delete-reports.component';
+import { ModalIgnoreReportsComponent } from './components/comments/modal-ignore-reports/modal-ignore-reports.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +33,11 @@ import { DatasetActionsComponent } from './components/datasets/dataset-actions/d
     AdminNotebookItemDisplayComponent,
     UserDisplayComponent,
     ProjectDisplayComponent,
-    DatasetActionsComponent
+    DatasetActionsComponent,
+    CommentsComponent,
+    FlaggedCommentItemComponent,
+    ModalDeleteReportsComponent,
+    ModalIgnoreReportsComponent
   ],
   imports: [
     CommonModule,
