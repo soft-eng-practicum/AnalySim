@@ -45,7 +45,7 @@
 // Action Buttons
 .actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
 }
 
 .comment-actions {
@@ -69,7 +69,36 @@
 }
 
 .upvote{
-  padding: var(--space-1) var(--space-2) !important;
+  padding: 0 var(--space-2) !important;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.icon-btn {
+  border-radius: var(--button-border-radius) !important;
+  padding: var(--button-padding) !important;
+  transition: var(--motion-nav);
+  border: none;
+  align-items: center;
+
+  /* Disabled state */
+  &:disabled,
+  &.disabled {
+    cursor: not-allowed;
+    opacity: var(--opacity-disabled);
+  }
+}
+
+.icon-btn-ghost {
+  background: #fff !important;
+  color: var(--button-border-color) !important;
+  font-weight: 600;
+}
+
+.icon-btn-ghost-danger {
+  background: transparent !important;
+  color: var(--color-danger) !important;
+  font-weight: 600;
 }
 
 .comment-actions .btn > * {
@@ -88,6 +117,7 @@
   transition: transform 0.25s ease;
   transform-origin: center;
   font-size: small;
+  padding: var(--space-1) 0 !important;
 }
 
 .thread-toggle.open > * {

@@ -1,0 +1,13 @@
+
+<div class="card p-3">
+  <h4>Flagged Comments</h4>
+  <div *ngIf="isLoading" class="alert alert-info">Loading…</div>
+    <div *ngIf="!isLoading && flaggedComments.length > 0" class="pt-2 comment-items-area">
+        <app-flagged-comment-item
+            *ngFor="let comment of flaggedComments"
+            [flaggedComment]="comment"
+            (onReload)="loadComments()"
+        >
+        </app-flagged-comment-item>
+    </div>
+</div>

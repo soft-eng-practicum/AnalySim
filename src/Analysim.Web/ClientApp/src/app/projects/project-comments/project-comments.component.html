@@ -3,12 +3,8 @@
     <span class="">Comments</span>
   </div>
   <div class="m-3">
-    <div *ngIf="isLoading">
-      Loading comments...
-    </div>
-
     <div class="mb-4">
-      <app-project-comment-box></app-project-comment-box>
+      <app-project-comment-box (submitComment)="onPostComment($event)"></app-project-comment-box>
     </div>
 
     <div *ngIf="!isLoading && comments.length === 0">
@@ -18,7 +14,10 @@
     <div *ngIf="!isLoading && comments.length > 0">
       <app-project-comment-item
         *ngFor="let comment of comments"
-        [comment]="comment">
+        [comment]="comment"
+        (submitReply)="onPostComment($event)"
+        (submitEdit)="onPutEdit($event)"
+      >  
       </app-project-comment-item>
     </div>
   </div>

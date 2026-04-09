@@ -10,7 +10,7 @@ namespace Infrastructure.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-            
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -96,19 +96,19 @@ namespace Infrastructure.Data
                         .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<IdentityRole<int>>().HasData(
-                new IdentityRole<int> { Id = 1, Name = "Admin", NormalizedName = "ADMIN"},
+                new IdentityRole<int> { Id = 1, Name = "Admin", NormalizedName = "ADMIN" },
                 new IdentityRole<int> { Id = 2, Name = "Customer", NormalizedName = "CUSTOMER" },
                 new IdentityRole<int> { Id = 3, Name = "Moderator", NormalizedName = "MODERATOR" }
             );
 
             // Many To One Relationship ( ObservableNotebookDataset -> Notebook)
             modelBuilder.Entity<ObservableNotebookDataset>()
-                        .HasOne(d=>d.notebook)
-                        .WithMany(n=>n.observableNotebookDatasets)
-                        .HasForeignKey(d=>d.NotebookID)
+                        .HasOne(d => d.notebook)
+                        .WithMany(n => n.observableNotebookDatasets)
+                        .HasForeignKey(d => d.NotebookID)
                         .OnDelete(DeleteBehavior.Cascade);
 
-            // COMMENTS 
+            #region Project Comments 
 
             // One To Many Relationship (Project -> ProjectComment)
             modelBuilder.Entity<Project>()
@@ -131,15 +131,60 @@ namespace Infrastructure.Data
                         .HasForeignKey(pc => pc.ParentCommentID)
                         .OnDelete(DeleteBehavior.Restrict);
 
+            // ProjectCommentLike composite key
+            modelBuilder.Entity<ProjectCommentLike>()
+                        .HasKey(cl => new { cl.CommentID, cl.UserID });
+
+            // One To Many Relationship (ProjectComment -> ProjectCommentLike)
+            modelBuilder.Entity<ProjectCommentLike>()
+                        .HasOne(cl => cl.ProjectComment)
+                        .WithMany(pc => pc.CommentLikes)
+                        .HasForeignKey(cl => cl.CommentID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            // One To Many Relationship (User -> ProjectCommentLike)
+            modelBuilder.Entity<ProjectCommentLike>()
+                        .HasOne(cl => cl.User)
+                        .WithMany(u => u.CommentLikes)
+                        .HasForeignKey(cl => cl.UserID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            // One To Many Relationship (ProjectComment -> ProjectCommentFlag)
+            modelBuilder.Entity<ProjectCommentFlag>()
+                        .HasOne(cf => cf.ProjectComment)
+                        .WithMany(pc => pc.CommentFlags)
+                        .HasForeignKey(cf => cf.CommentID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            // One To Many Relationship (User -> ProjectCommentFlag)
+            modelBuilder.Entity<ProjectCommentFlag>()
+                        .HasOne(cf => cf.User)
+                        .WithMany(u => u.CommentFlags)
+                        .HasForeignKey(cf => cf.UserID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique flag per user per comment
+            modelBuilder.Entity<ProjectCommentFlag>()
+                        .HasIndex(cf => new { cf.CommentID, cf.UserID })
+                        .IsUnique();
+
             // Indexes for common lookups
             modelBuilder.Entity<ProjectComment>()
                         .HasIndex(pc => pc.ProjectID);
 
             modelBuilder.Entity<ProjectComment>()
                         .HasIndex(pc => pc.ParentCommentID);
+
+            modelBuilder.Entity<ProjectCommentLike>()
+                        .HasIndex(cl => cl.UserID);
+
+            modelBuilder.Entity<ProjectCommentFlag>()
+                        .HasIndex(cf => cf.UserID);
+
+            #endregion
         }
 
-        
+
         public DbSet<Tag> Tag { get; set; }
         public DbSet<BlobFile> BlobFiles { get; set; }
         public DbSet<Project> Projects { get; set; }
@@ -147,11 +192,13 @@ namespace Infrastructure.Data
         public DbSet<ProjectTag> ProjectTags { get; set; }
         public DbSet<UserUser> UserUsers { get; set; }
 
-        public DbSet<Notebook> Notebook {get;set;}
-        public DbSet<ObservableNotebookDataset> ObservableNotebookDataset { get;set;}
+        public DbSet<Notebook> Notebook { get; set; }
+        public DbSet<ObservableNotebookDataset> ObservableNotebookDataset { get; set; }
         public DbSet<NotebookContent> NotebookContent { get; set; }
         public DbSet<BlobFileContent> BlobFileContent { get; set; }
 
         public DbSet<ProjectComment> ProjectComments { get; set; }
+        public DbSet<ProjectCommentLike> ProjectCommentLikes { get; set; }
+        public DbSet<ProjectCommentFlag> ProjectCommentFlags { get; set; }
     }
 }

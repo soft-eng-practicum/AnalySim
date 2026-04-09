@@ -15,6 +15,7 @@ import { saveAs } from 'file-saver';
 import { Notebook, NotebookFile, NotebookURL } from '../interfaces/notebook';
 import { getItem } from 'localforage';
 import { ProjectComment } from '../interfaces/project-comment';
+import { FlaggedCommentGroup } from '../interfaces/project-comment-flag';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +42,7 @@ export class ProjectService {
   private urlDownloadNotebook: string = this.baseUrl + "DownloadNotebook/"
   private urlGetNotebookVersions: string = this.baseUrl + "getnotebookversions/"
   private urlGetProjectComments: string = this.baseUrl + "getprojectcomments/";
-
+  private urlGetFlaggedProjectComments: string = this.baseUrl + "GetAllFlaggedComments";
 
   // Post
   private urlCreateProject: string = this.baseUrl + "createproject"
@@ -53,6 +54,10 @@ export class ProjectService {
   private urlForkProject: string = this.baseUrl + "forkproject"
   private urlForkProjectWithoutBlob: string = this.baseUrl + "forkprojectwithoutblob"
   private urlAddDatasetToNotebook: string = this.baseUrl + "addDatasetToNotebook"
+  private urlPostComment: string = this.baseUrl + "postcomment";
+  private urlLikeComment: string = this.baseUrl + "likecomment/";
+  private urlReportComment: string = this.baseUrl + "reportcomment/";
+  private urlDeleteCommentandReports: string = this.baseUrl + "deletecommentandreports/";
 
   // Put
   private urlUpdateProject: string = this.baseUrl + "updateproject/"
@@ -60,12 +65,17 @@ export class ProjectService {
   private urlUpdateFile: string = this.baseUrl + "updateFile"
   private urlRenameNotebook: string = this.baseUrl + "RenameNotebook"
   private urlDeleteDatasetFromNotebook: string = this.baseUrl + "deleteDatasetFromNotebook/"
+  private urlUpdateComment: string = this.baseUrl + "updatecomment/";
+  private urlDeleteComment: string = this.baseUrl + "deletecomment/";
 
   // Delete
   private urlDeleteProject: string = this.baseUrl + "deleteproject/"
   private urlRemoveUser: string = this.baseUrl + "removeuser/"
   private urlRemoveTag: string = this.baseUrl + "removetag/"
   private urlDeleteFile: string = this.baseUrl + "deleteFile/"
+  private urlUnlikeComment: string = this.baseUrl + "likecomment/";
+  private urlRemoveCommentReport: string = this.baseUrl + "removecommentreport/";
+  private urlRemoveAllCommentReports: string = this.baseUrl + "removeallcommentreports/";
 
   // Extra
   private urlGetUserList: string = this.baseUrl + "getuserlist/"
@@ -817,5 +827,189 @@ export class ProjectService {
       );
   }
 
+  postComment(projectID: number, content: string, parentID: number | null): Observable<any> {
+    let body = new FormData();
+    body.append('projectID', projectID.toString());
+    body.append('content', content);
+    if(parentID != null) body.append('parentCommentID', parentID.toString());
+
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.post<any>(this.urlPostComment, body, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  updateComment(commentID: number, content: string): Observable<any> {
+    let body = new FormData();
+    body.append('content', content);
+
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.put<any>(this.urlUpdateComment + commentID, body, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  deleteComment(commentID: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.put<any>(this.urlDeleteComment + commentID, null, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+  
+  likeComment(commentID: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.post<any>(this.urlLikeComment + commentID, null, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  unlikeComment(commentID: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.delete<any>(this.urlUnlikeComment + commentID, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  reportComment(commentID: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.post<any>(this.urlReportComment + commentID, null, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  removeCommentReport(commentID: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.delete<any>(this.urlRemoveCommentReport + commentID, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  removeallCommentReports(commentID: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.delete<any>(this.urlRemoveAllCommentReports + commentID, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  getFlaggedProjectComments(): Observable<FlaggedCommentGroup[]> {
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.get<any>(this.urlGetFlaggedProjectComments, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body.result;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  deleteCommentAndReports(commentID: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.post<any>(this.urlDeleteCommentandReports + commentID, null, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
 
 }

@@ -1,0 +1,30 @@
+.modal-confirm{
+    text-align: center;
+    font-weight: 700;
+    font-size: large;
+    padding: 0;
+    padding-bottom: 1rem;
+    margin: 0;
+}
+
+.modal-comment-title{
+    font-size: medium;
+    padding: 0;
+    padding-bottom: .25rem;
+    margin: 0;
+}
+
+.modal-comment-content{
+    font-size: small;
+    padding: .5rem;
+    border: var(--border-w-1) var(--border-style) var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.modal-revoke-text{
+    text-align: center;
+    font-size: medium;
+    padding: 0;
+    padding-bottom: 1rem;
+    margin: 0;
+}

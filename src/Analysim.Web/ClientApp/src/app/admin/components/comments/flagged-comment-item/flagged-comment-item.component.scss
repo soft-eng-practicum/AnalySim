@@ -1,0 +1,100 @@
+.flagged-comment-table {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--surface-0);
+  overflow: hidden;
+  font-size: var(--font-size-large);
+}
+
+.flagged-comment-table__header {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  background: var(--background-color-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--font-size-large);
+}
+
+.flagged-comment-table__comment {
+  font-weight: 600;
+}
+
+.flagged-comment-table__owner {
+  color: var(--text-muted);
+}
+
+.flagged-comment-table__count {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.flagged-comment-table__actions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.flagged-comment-table__head,
+.flagged-comment-table__row {
+  display: grid;
+  grid-template-columns: 70px 140px 170px 1fr;
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-2) var(--space-3);
+}
+
+.flagged-comment-table__head {
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--primary-color);
+}
+
+.flagged-comment-table__row {
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--font-size-base);
+}
+
+.flagged-comment-table__row:last-child {
+  border-bottom: none;
+}
+
+.cell {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.cell--id {
+  font-weight: 600;
+}
+
+.cell--muted {
+  color: var(--text-muted);
+}
+
+.cell--content {
+  line-height: 1.35;
+}
+
+.flagged-comment-table__empty {
+  padding: var(--space-3);
+  font-size: var(--font-size-base);
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .flagged-comment-table__header {
+    grid-template-columns: 1fr;
+  }
+
+  .flagged-comment-table__head {
+    display: none;
+  }
+
+  .flagged-comment-table__row {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+}

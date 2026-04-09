@@ -1,0 +1,61 @@
+<div class="modal-content">
+  <div class="modal-header justify-content-center">
+    <h5 class="modal-title">Report Comment</h5>
+  </div>
+
+  <div class="modal-body" *ngIf="!isCurrentlyFlagged">
+    <p class="modal-confirm">Are you sure you want to report this comment?</p>
+    <p class="modal-comment-title">Comment Content:</p>
+    <p class="modal-comment-content">"{{ this.commentContentSnapshot }}"</p>
+  </div>
+
+  <div class="modal-body" *ngIf="isCurrentlyFlagged">
+    <p class="modal-confirm">Would you like to revoke your report?</p>
+    <p class="modal-revoke-text">You have already reported this comment.</p>
+
+    <p class="modal-comment-title">Comment Content:</p>
+    <p class="modal-comment-content">"{{ this.commentContentSnapshot }}"</p>
+  </div>
+
+  <div
+    id="error"
+    *ngIf="errorStatusAlert"
+    class="alert alert-danger alert-dismissible"
+  >
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">
+      &times;
+    </a>
+    <small class="error" data-dismiss=".alert">{{ this.errorResult }}</small>
+  </div>
+
+  <div class="modal-footer">
+    <div class="form-group">
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="closeModal()"
+      >
+        <span> Cancel </span>
+      </button>
+    </div>
+
+    <div class="form-group">
+      <button
+        type="button"
+        class="btn btn-danger"
+        (click)="onFlagComment()"
+        *ngIf="!isCurrentlyFlagged"
+      >
+        <span> Report </span>
+      </button>
+      <button
+        type="button"
+        class="btn btn-danger"
+        (click)="onRemoveFlagComment()"
+        *ngIf="isCurrentlyFlagged"
+      >
+        <span> Revoke </span>
+      </button>
+    </div>
+  </div>
+</div>

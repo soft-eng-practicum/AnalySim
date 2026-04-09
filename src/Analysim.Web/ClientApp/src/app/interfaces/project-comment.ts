@@ -1,3 +1,6 @@
+import { ProjectCommentFlag } from "./project-comment-flag";
+import { ProjectCommentLike } from "./project-comment-like";
+
 export interface ProjectComment {
   commentID: number;
   userID: number;
@@ -9,4 +12,6 @@ export interface ProjectComment {
   createdAt: string;
   updatedAt: string;
   replies: ProjectComment[];
+  commentLikes: ProjectCommentLike[];
+  commentFlags: ProjectCommentFlag[];
 }
