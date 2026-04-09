@@ -85,8 +85,16 @@
 
 
 /* Modal tokens */
+.modal-dialog {
+  display: flex;
+  align-items: center;
+  min-height: calc(100vh - 1rem);
+  margin: 0 auto;
+  padding-bottom: 4rem;
+}
+
 :root {
-  --modal-radius: 12px;
+  --modal-radius: 4px;
   --modal-border: var(--border-w-1) var(--border-style) var(--border-color);
   --modal-header-padding-y: var(--space-3);
   --modal-header-padding-x: var(--space-4);
