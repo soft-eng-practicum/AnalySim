@@ -16,6 +16,8 @@ namespace Analysim.Web.ViewModels.Project
     {
         public int CommentID { get; set; }
         public string CommentOwnerUsername { get; set; } = null!;
+        public string CommentProjectName { get; set; } = null!;
+        public string CommentProjectOwner { get; set; } = null!;
         public List<ProjectCommentFlagRowVM> Flags { get; set; } = new();
     }
 

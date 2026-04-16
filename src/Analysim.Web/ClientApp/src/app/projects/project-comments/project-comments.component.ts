@@ -2,6 +2,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ProjectComment } from 'src/app/interfaces/project-comment';
 import { ProjectService } from 'src/app/services/project.service';
 import { ProjectCommentBoxComponent } from './project-comment-box/project-comment-box.component';
+import { AccountService } from 'src/app/services/account.service';
+import { Observable } from 'rxjs';
+import { User } from 'src/app/interfaces/user';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-project-comments',
@@ -14,10 +18,27 @@ export class ProjectCommentsComponent implements OnInit {
   comments: ProjectComment[] = [];
   isLoading: boolean = false;
 
-  constructor(private projectService: ProjectService) {}
+  // Current User
+  currentUser$: Observable<User> = null;
+  currentUser: User = null;
 
-  ngOnInit(): void {
+  // admin 
+  currentAdminComment: string;
+
+  constructor(
+    private projectService: ProjectService,
+    private accountService: AccountService,
+    private route: ActivatedRoute,
+  ) {}
+
+  async ngOnInit(): Promise<void> {
     this.loadComments();
+
+    this.currentUser$ = await this.accountService.currentUser;
+
+    this.currentUser$.subscribe((user) => {
+      this.currentUser = user;
+    });
   }
 
   loadComments(): void {
@@ -29,6 +50,17 @@ export class ProjectCommentsComponent implements OnInit {
       next: (comments) => {
         this.comments = comments;
         this.isLoading = false;
+
+        // When routing from admin panel, wait until comments are loaded to scroll
+        setTimeout(() => {
+          const fragment = this.route.snapshot.fragment;
+          this.currentAdminComment = fragment
+          if (fragment) {
+            document
+              .getElementById(fragment)
+              ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
       },
       error: (error) => {
         console.log('Failed to load comments', error);
@@ -55,6 +87,7 @@ export class ProjectCommentsComponent implements OnInit {
       .subscribe({
         next: (result) => {
           console.log('Posted new comment', result.commentId);
+          this.currentAdminComment = result.commentId.toString();
           this.loadComments();
         },
         error: (error) => {

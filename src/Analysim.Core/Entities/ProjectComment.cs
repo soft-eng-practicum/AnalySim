@@ -32,6 +32,9 @@ namespace Core.Entities
         // Soft Delete
         public bool IsDeleted { get; set; }
 
+        // Pending Review
+        public bool IsPendingReview { get; set; }
+
         // Timestamps
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

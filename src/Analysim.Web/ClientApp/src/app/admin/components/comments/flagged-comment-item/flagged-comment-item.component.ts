@@ -7,6 +7,7 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import {
   FlaggedCommentGroup,
@@ -36,7 +37,7 @@ export class FlaggedCommentItemComponent implements OnInit {
   isDeleting: boolean;
   isIgnoring: boolean;
 
-  constructor(private modalService: BsModalService,) {}
+  constructor(private modalService: BsModalService, private router: Router,) {}
 
   ngOnInit(): void {
     this.flags = this.flaggedComment.flags;
@@ -73,5 +74,11 @@ export class FlaggedCommentItemComponent implements OnInit {
 
   toggleModalIgnore() {
     this.ignoreModalRef = this.modalService.show(this.ignoreModal)
+  }
+
+  // View
+  onView(): void {
+    const p = this.flaggedComment;
+    this.router.navigate([`/project/${p.commentProjectOwner}/${p.commentProjectName}/comment/`], { fragment: String(p.commentID), queryParams: { returnUrl: this.router.url },  });
   }
 }

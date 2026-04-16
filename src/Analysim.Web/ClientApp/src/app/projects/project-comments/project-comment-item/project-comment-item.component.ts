@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild, } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges, TemplateRef, ViewChild, } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
@@ -16,10 +16,12 @@ export class ProjectCommentItemComponent {
   // Inputs
   @Input() comment!: ProjectComment;
   @Input() refreshReply: void;
+  @Input() adminAnchor: string;
 
   // Outputs
   @Output() submitReply = new EventEmitter<{content: string, parentCommentId: number}>();
   @Output() submitEdit = new EventEmitter<{content: string, commentId: number}>();
+  @Output() openParent = new EventEmitter<void>();
 
   // Modals
   @ViewChild('flagModal') flagModal: TemplateRef<any>
@@ -51,6 +53,7 @@ export class ProjectCommentItemComponent {
   // Comment Report Handling
   isFlaggedByCurrentUser = false;
   isFlagging = false;
+  isPendingReview = false;
 
   constructor(
     private accountService: AccountService, 
@@ -75,6 +78,15 @@ export class ProjectCommentItemComponent {
 
     this.numLikes = this.comment.commentLikes.length;
     this.isDeleted = this.comment.isDeleted;
+    this.isPendingReview = this.comment.isPendingReview;
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['adminAnchor'] && this.adminAnchor) {
+      if (this.comment.commentID.toString() === this.adminAnchor) {
+        this.onOpenParent();
+      }
+    }
   }
 
   // Threads / Replies
@@ -191,18 +203,31 @@ export class ProjectCommentItemComponent {
     this.isFlagging = true;
   }
 
-  onHandleSuccessfulFlag(): void {
+  onHandleSuccessfulFlag(isPending: boolean): void {
     this.isFlaggedByCurrentUser = true;
     this.isFlagging = false;
+    if(isPending) this.isPendingReview = true; 
   }
 
-  onHandleSuccessfulRemove(): void {
+  onHandleSuccessfulRemove(isPending: boolean): void {
     this.isFlaggedByCurrentUser = false;
     this.isFlagging = false;
+    if(!isPending) this.isPendingReview = false; 
   }
 
   toggleModalFlag() {
     this.flagModalRef = this.modalService.show(this.flagModal)
+  }
+
+  // Open Parent
+
+  onOpenParent(){
+    this.openParent.emit();
+  }
+
+  onHandleOpenParent(){
+    this.onViewThread();
+    if(this.comment.parentCommentID) this.onOpenParent();
   }
 
 }

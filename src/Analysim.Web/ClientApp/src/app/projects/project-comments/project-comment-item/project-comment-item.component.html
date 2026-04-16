@@ -20,7 +20,7 @@
         class="btn btn-ghost-primary"
         title="Edit"
         (click)="onEditMyComment()"
-        *ngIf="isOwner"
+        *ngIf="isOwner && !isPendingReview"
       >
         <i class="fa-regular fa-pen-to-square"></i>
       </button>
@@ -31,7 +31,7 @@
         title="Delete"
         (click)="onDeleteMyComment()"
         [disabled]="isDeleting"
-        *ngIf="isOwner"
+        *ngIf="isOwner && !isPendingReview"
       >
         <i class="fa-regular fa-trash-can"></i>
       </button>
@@ -44,7 +44,7 @@
         title="Report"
         aria-label="Report comment"
         [disabled]="isOwner"
-        *ngIf="!isOwner"
+        *ngIf="!isOwner && (!isPendingReview || isFlaggedByCurrentUser)"  
       >
         <div *ngIf="!isFlaggedByCurrentUser">
           <i class="fa-regular fa-flag" aria-hidden="true"></i>
@@ -60,7 +60,7 @@
   <div *ngIf="!isEditing">
     <!-- BODY CONTENT -->
     <div class="comment-body">
-      {{ isDeleted ? "[deleted]" : comment.content }}
+      {{ isDeleted ? "[deleted]" : isPendingReview ? "[under review]" : comment.content }}
     </div>
 
     <!-- ACTION BUTTONS (BOTTOM)-->
@@ -83,7 +83,7 @@
         class="comment-actions"
         role="group"
         aria-label="Comment actions"
-        *ngIf="!isDeleted"
+        *ngIf="!isDeleted && !isPendingReview"
       >
         <!-- UPVOTE / LIKE COMMENT -->
         <button
@@ -150,9 +150,12 @@
       <!-- ALL REPLIES -->
       <app-project-comment-item
         *ngFor="let reply of comment.replies"
+        [id]="reply.commentID.toString()"
         [comment]="reply"
+        [adminAnchor]="adminAnchor"
         (submitReply)="onHandleReply($event)"
         (submitEdit)="onHandleNestedEdit($event)"
+        (openParent)="onHandleOpenParent()"
       >
       </app-project-comment-item>
     </div>
@@ -181,8 +184,8 @@
     [commentContentSnapshot]="comment.content"
     [currentUser]="currentUser"
     [isCurrentlyFlagged]="isFlaggedByCurrentUser"
-    (onSuccessfulFlag)="onHandleSuccessfulFlag()"
-    (onSuccessfulRemove)="onHandleSuccessfulRemove()"
+    (onSuccessfulFlag)="onHandleSuccessfulFlag($event)"
+    (onSuccessfulRemove)="onHandleSuccessfulRemove($event)"
     (onCancelFlag)="this.isFlagging = false"
   ></app-modal-report-comment>
 </ng-template>

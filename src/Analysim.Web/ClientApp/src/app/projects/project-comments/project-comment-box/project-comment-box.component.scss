@@ -21,6 +21,19 @@
   }
 }
 
+.error-box {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  border: 2px solid var(--c-danger-600);
+  border-radius: 8px;
+  padding: 4px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  color: var(--c-danger-600);
+  background-color: var(--c-danger-background);
+}
+
 .button-area {
     display: flex;
     gap: 6px;

@@ -63,10 +63,10 @@
     </ul>
 
     <!-- Logged in -->
-    <ul class="navbar-nav right-nav" *ngIf="(loginStatus$ | async)">
-      <li class="nav-item mr-3" *ngIf="(isAdmin$ | async)">
+    <ul class="navbar-nav right-nav justify-content-start align-items-center" *ngIf="(loginStatus$ | async)">
+      <li class="nav-item mr-2" *ngIf="(isAdmin$ | async)">
         <a class="nav-link nav-interactive" routerLink="/admin">
-          <i class="fa fa-cogs mr-1"></i> Admin
+          <i class="fa fa-cogs mr-2"></i> Admin
         </a>
       </li>
 

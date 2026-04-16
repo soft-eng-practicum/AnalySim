@@ -38,7 +38,9 @@ const routes: Routes = [];
       { path: '404', component: NotFoundComponent },
       { path: '**', component: NotFoundComponent }
       // todo: Add verify page routing and component
-    ])],
+    ], {
+      anchorScrolling: 'enabled'
+    })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
