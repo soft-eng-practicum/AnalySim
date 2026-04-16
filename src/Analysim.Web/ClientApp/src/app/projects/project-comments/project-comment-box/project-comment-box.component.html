@@ -6,6 +6,10 @@
     [(ngModel)]="content"
   ></textarea>
 
+  <div *ngIf="hasError != null" class="error-box">
+    {{hasError}}
+  </div>
+
   <div class="mt-2 text-end button-area">
     <button class="btn btn-outline-primary" (click)="onClear()">
       Cancel

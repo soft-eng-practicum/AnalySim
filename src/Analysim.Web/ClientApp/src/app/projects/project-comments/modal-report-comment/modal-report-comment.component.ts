@@ -16,8 +16,8 @@ export class ModalReportCommentComponent implements OnInit {
   @Input() currentUser: User;
   @Input() isCurrentlyFlagged: boolean;
 
-  @Output() onSuccessfulFlag = new EventEmitter<void>();
-  @Output() onSuccessfulRemove = new EventEmitter<void>();
+  @Output() onSuccessfulFlag = new EventEmitter<boolean>();
+  @Output() onSuccessfulRemove = new EventEmitter<boolean>();
   @Output() onCancelFlag = new EventEmitter<void>();
 
   errorResult: String;
@@ -30,8 +30,8 @@ export class ModalReportCommentComponent implements OnInit {
   onFlagComment(): void {
     this.projectService.reportComment(this.commentID).subscribe({
       next: (result) => {
-        console.log('Reported comment', this.commentID);
-        this.onSuccessfulFlag.emit();
+        console.log('Reported comment', result);
+        this.onSuccessfulFlag.emit(result.isPendingReview);
         this.flagModalRef.hide();
       },
       error: (error) => {
@@ -46,7 +46,7 @@ export class ModalReportCommentComponent implements OnInit {
     this.projectService.removeCommentReport(this.commentID).subscribe({
       next: (result) => {
         console.log('Comment Report Removed', this.commentID);
-        this.onSuccessfulRemove.emit();
+        this.onSuccessfulRemove.emit(result.isPendingReview);
         this.flagModalRef.hide();
       },
       error: (error) => {

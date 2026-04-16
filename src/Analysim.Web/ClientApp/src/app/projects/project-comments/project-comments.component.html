@@ -4,20 +4,27 @@
   </div>
   <div class="m-3">
     <div class="mb-4">
-      <app-project-comment-box (submitComment)="onPostComment($event)"></app-project-comment-box>
+      <div *ngIf="!currentUser; else loggedIn" class="login-note">
+        Login to leave a comment
+      </div>
+      <ng-template #loggedIn>
+        <app-project-comment-box
+          (submitComment)="onPostComment($event)"
+        ></app-project-comment-box>
+      </ng-template>
     </div>
 
-    <div *ngIf="!isLoading && comments.length === 0">
-      No comments yet.
-    </div>
+    <div *ngIf="!isLoading && comments.length === 0">No comments yet.</div>
 
     <div *ngIf="!isLoading && comments.length > 0">
       <app-project-comment-item
         *ngFor="let comment of comments"
+        [id]="comment.commentID.toString()"
         [comment]="comment"
+        [adminAnchor]="currentAdminComment"
         (submitReply)="onPostComment($event)"
         (submitEdit)="onPutEdit($event)"
-      >  
+      >
       </app-project-comment-item>
     </div>
   </div>

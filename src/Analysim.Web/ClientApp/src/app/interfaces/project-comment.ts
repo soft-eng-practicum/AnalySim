@@ -9,6 +9,7 @@ export interface ProjectComment {
   parentCommentID: number | null;
   content: string;
   isDeleted: boolean;
+  isPendingReview: boolean;
   createdAt: string;
   updatedAt: string;
   replies: ProjectComment[];

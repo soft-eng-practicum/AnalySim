@@ -1,5 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { EventEmitter, Output } from '@angular/core';
 
 @Component({
@@ -20,6 +19,7 @@ export class ProjectCommentBoxComponent implements OnInit {
   placeholder = "Write a comment...";
   content = "";
   isEditing = false;
+  hasError: string;
 
   constructor() { }
 
@@ -47,8 +47,13 @@ export class ProjectCommentBoxComponent implements OnInit {
   }
 
   onPost(): void {
+    this.hasError = null;
+
     const trimmed = this.content.trim();
     if (!trimmed) return;
+
+    if(trimmed.length > 1000) 
+      this.hasError = 'Maximum comment length is 1000 characters.';
 
     if(this.isEditing) {
       this.submitEdit.emit(trimmed); 

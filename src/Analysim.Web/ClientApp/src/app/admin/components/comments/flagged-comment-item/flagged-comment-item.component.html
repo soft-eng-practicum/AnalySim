@@ -1,16 +1,16 @@
 <div class="flagged-comment-table">
   <div class="flagged-comment-table__header">
-    <span class="flagged-comment-table__comment">Comment ID: {{ flaggedComment.commentID }}</span>
-    <span class="flagged-comment-table__owner">{{ flaggedComment.commentOwnerUsername }}</span>
+    <span class="flagged-comment-table__comment">{{ flaggedComment.commentOwnerUsername }}</span>
+    <span class="flagged-comment-table__owner">{{ flaggedComment.commentProjectName }} - {{flaggedComment.commentProjectOwner}}</span>
     <span class="flagged-comment-table__count">{{ flags.length }} {{ flags.length == 1 ? "flag" : "flags"}}</span>
     <div class="flagged-comment-table__actions">
-        <button class="btn btn-outline-primary" (click)="onIgnore()">Ignore</button>
-        <button class="btn btn-danger" (click)="onDelete()">Delete</button>
+      <button class="btn btn-outline-primary" (click)="onView()">View</button>
+      <button class="btn btn-outline-primary" (click)="onIgnore()">Ignore</button>
+      <button class="btn btn-danger" (click)="onDelete()">Delete</button>
     </div>
   </div>
 
   <div class="flagged-comment-table__head" *ngIf="flags.length > 0">
-    <span>Flag ID</span>
     <span>Reported By</span>
     <span>Date</span>
     <span>Comment Snapshot</span>
@@ -18,7 +18,6 @@
 
   <div class="flagged-comment-table__body" *ngIf="flags.length > 0; else noFlags">
     <div class="flagged-comment-table__row" *ngFor="let flag of flags">
-      <span class="cell cell--id">{{ flag.flagID }}</span>
       <span class="cell">{{ flag.flaggedByUsername }}</span>
       <span class="cell cell--muted">{{ flag.createdAt | date:'MMM d, y • h:mm a' }}</span>
       <span class="cell cell--content">{{ flag.commentContentSnapshot }}</span>

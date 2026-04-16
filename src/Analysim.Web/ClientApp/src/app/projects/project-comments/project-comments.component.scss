@@ -7,3 +7,12 @@
 .modal-content {
   background-color: var(--background-color-tertiary);
 }
+
+.login-note {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+}

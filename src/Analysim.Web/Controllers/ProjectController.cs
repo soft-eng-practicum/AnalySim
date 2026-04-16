@@ -349,6 +349,7 @@ namespace Web.Controllers
                     ParentCommentID = c.ParentCommentID,
                     Content = c.Content,
                     IsDeleted = c.IsDeleted,
+                    IsPendingReview = c.IsPendingReview,
                     CreatedAt = c.CreatedAt,
                     UpdatedAt = c.UpdatedAt,
 
@@ -425,6 +426,10 @@ namespace Web.Controllers
             var flaggedComments = await _dbContext.ProjectCommentFlags
                 .Include(f => f.ProjectComment)
                     .ThenInclude(c => c.User)
+                .Include(f => f.ProjectComment)
+                    .ThenInclude(c => c.Project)
+                        .ThenInclude(p => p.ProjectUsers)
+                            .ThenInclude(pu => pu.User)
                 .Include(f => f.User)
                 .OrderBy(f => f.CommentID)
                 .ThenByDescending(f => f.CreatedAt)
@@ -434,12 +439,16 @@ namespace Web.Controllers
                 .GroupBy(f => new
                 {
                     f.CommentID,
-                    CommentOwnerUsername = f.ProjectComment.User.UserName
+                    CommentOwnerUsername = f.ProjectComment.User.UserName,
+                    CommentProjectName = f.ProjectComment.Project.Name,
+                    CommentProjectOwner = f.ProjectComment.Project.ProjectUsers.FirstOrDefault(pu => pu.UserRole == "owner")?.User?.UserName
                 })
                 .Select(g => new FlaggedCommentGroupVM
                 {
                     CommentID = g.Key.CommentID,
                     CommentOwnerUsername = g.Key.CommentOwnerUsername,
+                    CommentProjectName = g.Key.CommentProjectName,
+                    CommentProjectOwner = g.Key.CommentProjectOwner,
                     Flags = g.Select(f => new ProjectCommentFlagRowVM
                     {
                         FlagID = f.FlagID,
@@ -513,6 +522,9 @@ namespace Web.Controllers
 
                 if (parentComment.IsDeleted)
                     return BadRequest(new { message = "Cannot reply to a deleted comment." });
+                    
+                if (parentComment.IsPendingReview)
+                    return BadRequest(new { message = "Cannot reply to a comment under review." });
             }
 
             // Create Comment
@@ -526,6 +538,7 @@ namespace Web.Controllers
                 ParentComment = parentComment,
                 Content = trimmedContent,
                 IsDeleted = false,
+                IsPendingReview = false,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
             };
@@ -565,7 +578,7 @@ namespace Web.Controllers
 
             // Validate Comment
             var commentExists = await _dbContext.ProjectComments
-                .AnyAsync(c => c.CommentID == commentID && !c.IsDeleted);
+                .AnyAsync(c => c.CommentID == commentID && !c.IsDeleted && !c.IsPendingReview);
 
             if (!commentExists)
                 return NotFound(new { message = "Comment not found." });
@@ -640,7 +653,18 @@ namespace Web.Controllers
             _dbContext.ProjectCommentFlags.Add(newReport);
             await _dbContext.SaveChangesAsync();
 
-            return Ok(new { message = "Comment reported successfully."});
+            // Get number of times this comment has been flagged
+            var flagCount = await _dbContext.ProjectCommentFlags.Where(f => f.CommentID == commentID).CountAsync();
+
+            if(flagCount >= 3) 
+            {
+                comment.IsPendingReview = true;
+                comment.UpdatedAt = DateTime.UtcNow;
+            }
+            
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { message = "Comment reported successfully.", isPendingReview = flagCount >= 3});
         }
 
         /*
@@ -2033,6 +2057,7 @@ namespace Web.Controllers
             if (comment == null) return NotFound(new { message = "Comment Not Found" });
 
             if(comment.IsDeleted) return BadRequest(new {message = "Cannot edit deleted comments."});
+            if(comment.IsPendingReview) return BadRequest(new {message = "Cannot edit comments under review."});
             if(comment.UserID != user.Id) return Unauthorized(new {message = "Edited comment does not belong to current user."});
 
             // Update comment
@@ -2078,6 +2103,7 @@ namespace Web.Controllers
             if (comment == null) return NotFound(new { message = "Comment Not Found" });
 
             if(comment.IsDeleted) return BadRequest(new {message = "Cannot delete already deleted comment."});
+            if(comment.IsPendingReview) return BadRequest(new {message = "Cannot delete comment while under review."});
 
             if (!isAdmin && comment.UserID != user.Id) return Unauthorized(new {message = "Comment does not belong to current user."});
 
@@ -2372,19 +2398,36 @@ namespace Web.Controllers
                 return Unauthorized(new { message = "Invalid user identifier." });
             }
 
+            // Validate Comment
+            var comment = await _dbContext.ProjectComments
+                .SingleOrDefaultAsync(c => c.CommentID == commentID && !c.IsDeleted);
+
+            if (comment == null)
+                return NotFound(new { message = "Comment not found." });
+
             // Find existing report
             var report = await _dbContext.ProjectCommentFlags
                 .FirstOrDefaultAsync(f => f.CommentID == commentID && f.UserID == userId);
 
             if (report == null) return NotFound(new { message = "Report not found." });
             
-
             // Remove report
             _dbContext.ProjectCommentFlags.Remove(report);
             await _dbContext.SaveChangesAsync();
 
+            // Get number of times this comment has been flagged
+            var flagCount = await _dbContext.ProjectCommentFlags.Where(f => f.CommentID == commentID).CountAsync();
+
+            if(flagCount < 3) 
+            {
+                comment.IsPendingReview = false;
+                comment.UpdatedAt = DateTime.UtcNow;
+            }
+            
+            await _dbContext.SaveChangesAsync();
+
             // Return 
-            return Ok(new { message = "Comment report removed successfully."});
+            return Ok(new { message = "Comment report removed successfully.", isPendingReview = flagCount >= 3});
         }
 
         /*
@@ -2415,6 +2458,13 @@ namespace Web.Controllers
             bool isAdmin = admins.Any(u => string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
             if (!isAdmin) return Forbid();
 
+            // Validate Comment
+            var comment = await _dbContext.ProjectComments
+                .SingleOrDefaultAsync(c => c.CommentID == commentID);
+
+            if (comment == null)
+                return NotFound(new { message = "Comment not found." });
+
             // Find reports
             var reports = await _dbContext.ProjectCommentFlags
                 .Where(f => f.CommentID == commentID)
@@ -2425,6 +2475,11 @@ namespace Web.Controllers
 
             // Remove reports
             _dbContext.ProjectCommentFlags.RemoveRange(reports);
+            await _dbContext.SaveChangesAsync();
+
+            // Remove pending review
+            comment.IsPendingReview = false;
+            comment.UpdatedAt = DateTime.UtcNow;
             await _dbContext.SaveChangesAsync();
 
             return Ok(new { message = "Comment reports removed successfully."});

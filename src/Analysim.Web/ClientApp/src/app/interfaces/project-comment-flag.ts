@@ -9,6 +9,8 @@ export interface ProjectCommentFlag {
 export interface FlaggedCommentGroup {
   commentID: number;
   commentOwnerUsername: string;
+  commentProjectName: string;
+  commentProjectOwner: string;
   flags: ProjectCommentFlagRow[];
 }
 

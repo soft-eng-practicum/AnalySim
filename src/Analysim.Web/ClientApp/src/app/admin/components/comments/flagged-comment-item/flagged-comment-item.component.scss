@@ -38,7 +38,7 @@
 .flagged-comment-table__head,
 .flagged-comment-table__row {
   display: grid;
-  grid-template-columns: 70px 140px 170px 1fr;
+  grid-template-columns: .25fr .5fr 3fr;
   gap: var(--space-3);
   align-items: start;
   padding: var(--space-2) var(--space-3);

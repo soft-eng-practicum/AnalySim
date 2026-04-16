@@ -12,6 +12,7 @@ namespace Analysim.Web.ViewModels.Project
         public int? ParentCommentID { get; set; }
         public string Content { get; set; } = string.Empty;
         public bool IsDeleted { get; set; }
+        public bool IsPendingReview { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public List<ProjectCommentVM> Replies { get; set; } = new();
