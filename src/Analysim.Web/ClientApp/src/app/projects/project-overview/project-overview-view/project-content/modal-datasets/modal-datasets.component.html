@@ -5,22 +5,27 @@
     <button type="button" class="btn btn-secondary" (click)="closeModal.emit()">Close</button>
 </div> -->
 
-<div class="modal-dialog" role="document">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">Add or remove datasets</h5>
-            <button type="button" class="close" (click)="closeModal.emit()" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <app-dataset-folder-view [folder]="fileTree" [notebook]="notebook"></app-dataset-folder-view>
-        </div>
-        <div class="note">
-            * you can add more datasets in the datasets section of the project.
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeModal.emit()">Close</button>
-        </div>
-    </div>
+<div class="modal-header">
+  <h5 class="modal-title">Add or remove datasets</h5>
+
+  <button type="button" class="close" (click)="closeModal.emit()" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="modal-body">
+  <app-dataset-folder-view
+    [folder]="fileTree"
+    [notebook]="notebook">
+  </app-dataset-folder-view>
+
+  <div class="dataset-modal__note">
+    * You can add more datasets in the datasets section of the project.
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-primary" (click)="closeModal.emit()">
+    Close
+  </button>
 </div>

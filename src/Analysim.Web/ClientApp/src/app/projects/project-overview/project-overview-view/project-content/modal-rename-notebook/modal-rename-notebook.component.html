@@ -1,32 +1,45 @@
-<div class="modal-content">
-    <div class="modal-header justify-content-center">
-        <h5 class="modal-title">Rename Notebook</h5>
-    </div>
+<div class="modal-header modal-header--center">
+  <h5 class="modal-title">Rename Notebook</h5>
 
-    <form class="form" [formGroup]="renameNotebookForm">
-        <div class="modal-body">
-            <!-- Form Group Username -->
-            <div class="form-group">
-                <label for="notebookName">Notebook Name</label>
-                <input formControlName="notebookName" type="text" class="form-control" placeholder="" [class.invalid]="notebookName.touched && notebookName.invalid" [readOnly]="isLoading" required>
-                <div *ngIf="notebookName.touched && notebookName.errors" class="text-danger">
-                    <span [hidden]="!notebookName.errors?.['minlength']">Minimum 1 character</span>
-                    <span [hidden]="!notebookName.errors?.['maxlength']">Maximum 20 character</span>
-                    <span [hidden]="!notebookName.errors?.['noMatch']">Folder Already Exist</span>
-                    <span [hidden]="!notebookName.errors?.['noSpaceSpecial']">No Space or Special Character</span>
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer justify-content-center">
-            <!-- Form Group Register -->
-            <div class="form-group">
-                <button type="submit" class="btn" [disabled]="notebookName.invalid" (click)="renameNotebook()">
-                    <div>
-                        <span>Rename Notebook</span>
-                    </div>
-                </button>
-            </div>
-            <button type="button" class="btn btn-secondary" (click)="closeModal.emit()">Close</button>
-        </div>
-    </form>
+  <button type="button" class="close" (click)="closeModal.emit()" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
 </div>
+
+<form [formGroup]="renameNotebookForm" (ngSubmit)="renameNotebook()">
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="notebookName">Notebook Name</label>
+
+      <input
+        id="notebookName"
+        formControlName="notebookName"
+        type="text"
+        class="form-control"
+        [class.invalid]="notebookName.touched && notebookName.invalid"
+        [class.valid]="notebookName.touched && notebookName.valid"
+        [readOnly]="isLoading"
+        required
+      />
+
+      <div *ngIf="notebookName.touched && notebookName.errors" class="text-danger">
+        <span *ngIf="notebookName.errors?.['minlength']">Minimum 1 character</span>
+        <span *ngIf="notebookName.errors?.['maxlength']">Maximum 20 characters</span>
+        <span *ngIf="notebookName.errors?.['noMatch']">Notebook name already exists</span>
+        <span *ngIf="notebookName.errors?.['noSpaceSpecial']">No spaces or special characters</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <!-- Secondary -->
+    <button type="button" class="btn btn-outline-primary" (click)="closeModal.emit()" [disabled]="isLoading">
+      Close
+    </button>
+
+    <!-- Primary -->
+    <button type="submit" class="btn btn-primary" [disabled]="notebookName.invalid || isLoading">
+      Rename Notebook
+    </button>
+  </div>
+</form>

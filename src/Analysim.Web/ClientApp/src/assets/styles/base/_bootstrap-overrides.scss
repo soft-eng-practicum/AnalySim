@@ -82,3 +82,103 @@
     var(--color-danger) !important;
   color: var(--c-text-inverse) !important;
 }
+
+
+/* Modal tokens */
+.modal-dialog {
+  display: flex;
+  align-items: center;
+  min-height: calc(100vh - 1rem);
+  margin: 0 auto;
+  padding-bottom: 4rem;
+}
+
+:root {
+  --modal-radius: 4px;
+  --modal-border: var(--border-w-1) var(--border-style) var(--border-color);
+  --modal-header-padding-y: var(--space-3);
+  --modal-header-padding-x: var(--space-4);
+  --modal-body-padding: var(--space-4);
+  --modal-footer-padding-y: var(--space-2);
+  --modal-footer-padding-x: var(--space-2);
+  --modal-gap: var(--space-2);
+
+  /* Subtle shadow */
+  --modal-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+}
+
+.modal-backdrop.show {
+  opacity: 0.6;
+}
+
+/* Container */
+.modal-content {
+  border-radius: var(--modal-radius);
+  border: var(--modal-border);
+  box-shadow: var(--modal-shadow);
+  overflow: hidden;
+  background: var(--surface-0);
+  color: var(--text-on-light);
+}
+
+/* Header */
+.modal-header {
+  padding: var(--modal-header-padding-y) var(--modal-header-padding-x);
+  border-bottom: var(--modal-border);
+  align-items: center;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: var(--fs-20);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Body */
+.modal-body {
+  padding: var(--modal-body-padding);
+}
+
+.modal-body p {
+  margin: 0;
+  font-size: var(--fs-18);
+  line-height: 1.45;
+}
+
+/* Footer */
+.modal-footer {
+  padding: var(--modal-footer-padding-y) var(--modal-footer-padding-x);
+  border-top: var(--modal-border);
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--modal-gap);
+}
+
+.modal-footer .btn {
+  min-height: 40px;
+  padding: var(--space-2) var(--space-4) !important;
+}
+
+@media (max-width: var(--bp-md)) {
+  .modal-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+}
+
+.modal-header--center {
+  position: relative;
+  justify-content: center;
+  text-align: center;
+}
+
+.modal-header--center .modal-title {
+  width: 100%;
+}

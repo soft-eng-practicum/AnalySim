@@ -1,16 +1,33 @@
 <!-- Modal -->
-<div class="modal-content">
-    <div class="modal-header justify-content-center">
-        <h5 class="modal-title">Upload Progress</h5>
+<div class="modal-content fork-modal">
+  <div class="modal-header modal-header--center">
+    <h5 class="modal-title">Upload Progress</h5>
+
+    <button type="button" class="close" (click)="uploadModalRef.hide()" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body p-0">
+    <table class="table mb-0" *ngIf="uploadFileList.length > 0">
+      <tr *ngFor="let fileItem of uploadFileList">
+        <app-modal-upload-item
+          [uploadFileItem]="fileItem"
+          (uploadedFile)="uploadedFile($event)"
+          (updatedFile)="updateFileUpload($event)"
+          (removedFile)="removeFileUpload($event)"
+        ></app-modal-upload-item>
+      </tr>
+    </table>
+
+    <div class="p-4 text-center" *ngIf="uploadFileList.length === 0">
+      <p class="mb-0">No uploads in progress.</p>
     </div>
-    <div class="modal-body p-0">
-        <table class="table mb-0" *ngIf="uploadFileList.length > 0 ? true : uploadModalRef.hide();">
-            <tr *ngFor="let fileItem of uploadFileList">
-                <app-modal-upload-item [uploadFileItem]="fileItem" (uploadedFile)="uploadedFile($event)" (updatedFile)="updateFileUpload($event)" (removedFile)="removeFileUpload($event)"></app-modal-upload-item>
-            </tr>
-        </table>
-    </div>
-    <div class="modal-footer justify-content-center">
-        <button type="button" class="btn btn-secondary" (click)="uploadModalRef.hide()">Close</button>
-    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-primary" (click)="uploadModalRef.hide()">
+      Close
+    </button>
+  </div>
 </div>
