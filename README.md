@@ -78,10 +78,23 @@ Analysim requires two databases to operate: one SQL database (PostgreSQL) for re
   "AdminUsers": [
   "ADMIN",
   "XXX"
-  ]
+  ],
+  "FileValidation": {
+    "MaxProfileImageSize": 5242880,
+    "MaxProjectFileSize": 104857600,
+    "MaxNotebookFileSize": 52428800,
+    "AllowedImageExtensions": [".jpg", ".jpeg", ".png", ".gif", ".webp"],
+    "AllowedProjectFileExtensions": [".csv", ".json", ".txt", ".xlsx", ".xls", ".pdf", ".xml", ".tsv", ".dat"],
+    "AllowedNotebookExtensions": [".ipynb"],
+    "BlockedExtensions": [".exe", ".bat", ".cmd", ".sh", ".ps1", ".app", ".dll", ".so", ".dmg", ".pkg", ".msi", ".deb", ".rpm", ".apk", ".zip", ".rar", ".7z", ".tar", ".gz", ".scr", ".vbs", ".js", ".py", ".rb", ".pl"]
+  }
 }
 
 ```
+
+#### File validation settings
+
+The `FileValidation` section controls the file upload validation rules. You can customize the maximum file sizes (in bytes) and the lists of allowed/blocked file extensions for profile images, project data files, and notebook uploads. These settings are read at startup and injected into the controllers via dependency injection.
 
 #### Adding admin users
 

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Core.Helper;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -24,6 +25,8 @@ namespace Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.Configure<FileValidationSettings>(Configuration.GetSection("FileValidation"));
 
             services.ConfigureCors();
 
