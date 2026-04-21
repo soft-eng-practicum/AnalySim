@@ -465,9 +465,99 @@ namespace Web.Controllers
             });
         }
 
+        /* 
+        * Type : GET
+        * URL : /api/projects/getPublications/projectId
+        * Description: Gets all publications for a project
+        */
+        [HttpGet("[action]/{projectId}")]
+        public async Task<IActionResult> GetPublications([FromRoute] int projectId)
+        {
+            if (projectId <= 0)
+                return BadRequest("Invalid project id.");
+
+            var publications = await _dbContext.Publications
+                .AsNoTracking()
+                .Where(pr => pr.ProjectID == projectId)
+                .OrderBy(p => p.CreatedAt)
+                .Select(p => new PublicationVM
+                {
+                    PublicationID = p.PublicationID,
+                    ProjectID = p.ProjectID,
+                    Title = p.Title,
+                    Url = p.Url,
+                    Doi = p.Doi,
+                    SourceAuthor = p.SourceAuthor,
+                    Year = p.Year,
+                    CreatedAt = p.CreatedAt,
+                }).ToListAsync();
+
+            return Ok(new
+            {
+                result = publications,
+                message = "Received Publications"
+            });
+        }
+
         #endregion
 
         #region POST REQUEST
+
+        /*
+        * Type : POST
+        * URL : /api/project/addPublication
+        * Param : CreatePublicationVM
+        * Description: Add a new publication to a project
+        */
+        [Authorize]
+        [HttpPost("[action]")]
+        public async Task<IActionResult> AddPublication([FromForm] CreatePublicationVM formdata)
+        {
+            // Validate VM
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new {message = "Invalid user identifier."});
+            }
+
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new {message = "User Not Found."});
+
+            // Validate Project
+            var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            // Validate Title
+            if (string.IsNullOrWhiteSpace(formdata.Title))
+                return BadRequest(new { message = "Title is required." });
+
+            // Create Publication
+            var newPublication = new Publication
+            {
+                ProjectID = formdata.ProjectID,
+                Project = project,
+                Title = formdata.Title,
+                Url = formdata.Url,
+                Doi = formdata.Doi,
+                SourceAuthor = formdata.SourceAuthor,
+                Year = formdata.Year,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            // Add Publication to DB
+            _dbContext.Publications.Add(newPublication);
+            await _dbContext.SaveChangesAsync();
+
+            // Return 
+            return Ok(new
+            {
+                message = "Publication Added successfully."
+            });
+        }
 
         /*
         * Type : POST
@@ -2348,6 +2438,37 @@ namespace Web.Controllers
         #endregion
 
         #region DELETE REQUEST
+
+        /*
+        * Type : DELETE
+        * URL : /api/project/DeletePublication/{publicationId}
+        * Param : {publicationId}
+        * Description: deletes a publication
+        */
+        [Authorize]
+        [HttpDelete("[action]/{publicationId}")]
+        public async Task<IActionResult> DeletePublication([FromRoute] int publicationId)
+        {
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            // Find publication
+            var publication = await _dbContext.Publications
+                .FirstOrDefaultAsync(p => p.PublicationID == publicationId);
+            if (publication == null) return NotFound(new { message = "Publication not found." });
+            
+
+            // Remove publication
+            _dbContext.Publications.Remove(publication);
+            await _dbContext.SaveChangesAsync();
+
+            // Return 
+            return Ok(new { message = "Publication deleted successfully."});
+        }
 
         /*
         * Type : DELETE

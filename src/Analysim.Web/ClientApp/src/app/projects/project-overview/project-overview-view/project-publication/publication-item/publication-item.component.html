@@ -1,0 +1,44 @@
+<div class="pub-item">
+  <div class="d-flex flex-row">
+    <p class="para">
+      <b>{{ publication.title }}</b> — {{ publication.sourceAuthor }} ({{
+        publication.year
+      }})
+    </p>
+    <div class="d-inline-flex ml-auto">
+      <button
+        class="btn btn-ghost-danger"
+        title="Delete"
+        *ngIf="isMember"
+        (click)="onDeletePublication()"
+      >
+        <i class="fa-regular fa-trash-can"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="d-flex flex-row">
+    <div *ngIf="publication.url">
+      URL:
+      <a href="{{ publication.url }}" target="_blank">{{ publication.url }}</a>
+    </div>
+    <div *ngIf="publication.url && publication.doi">&nbsp;·&nbsp;</div>
+    <div *ngIf="publication.doi">
+      DOI:
+      <a href="{{ publication.doi }}" target="_blank"
+        >https://doi.org/{{ publication.doi }}</a
+      >
+    </div>
+  </div>
+</div>
+
+
+<!-- Delete Modal -->
+<ng-template #deleteModal>
+  <app-modal-delete-publication
+    [deleteModalRef]="deleteModalRef"
+    [publication]="publication"
+    (onSuccessfulDelete)="onHandleSuccessfulDelete()"
+    (onCancelDelete)="this.isDeleting = false"
+  ></app-modal-delete-publication>
+</ng-template>

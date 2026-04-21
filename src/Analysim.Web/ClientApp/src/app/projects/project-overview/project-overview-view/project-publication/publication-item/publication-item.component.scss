@@ -1,0 +1,18 @@
+.pub-item {
+  border: var(--border-w-1) var(--border-style) var(--border-color);
+  border-radius: var(--radius-1);
+  padding: var(--space-3);
+  background: var(--surface-0);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.para {
+  padding: 0% !important;
+  margin: 0% !important;
+}
+
+.btn-width {
+  width: 2.5rem !important;
+}

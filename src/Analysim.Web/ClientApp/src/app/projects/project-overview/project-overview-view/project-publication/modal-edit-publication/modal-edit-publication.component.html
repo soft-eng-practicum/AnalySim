@@ -1,0 +1,94 @@
+<div class="modal-content">
+  <div class="modal-header justify-content-center">
+    <h5 class="modal-title">Add Publication</h5>
+  </div>
+
+  <div class="modal-body">
+    <div class="form-header">
+      <h3 class="form-title">Publication Details</h3>
+      <p class="form-subtitle">
+        Add citation information for this project publication.
+      </p>
+    </div>
+
+    <form class="form publication-form" [formGroup]="publicationForm">
+      <label class="label-title" for="title">Title</label>
+      <input
+        id="title"
+        formControlName="title"
+        type="text"
+        class="form-control"
+        placeholder="Machine Learning for Healthcare Diagnostics"
+      />
+
+      <label class="label-title" for="url">URL</label>
+      <input
+        id="url"
+        formControlName="url"
+        type="text"
+        class="form-control"
+        placeholder="https://example.com/publication"
+      />
+
+      <label class="label-title" for="doi">DOI</label>
+      <input
+        id="doi"
+        formControlName="doi"
+        type="text"
+        class="form-control"
+        placeholder="10.1000/xyz123"
+      />
+
+      <label class="label-title" for="sourceAuthor">Author</label>
+      <input
+        id="sourceAuthor"
+        formControlName="sourceAuthor"
+        type="text"
+        class="form-control"
+        placeholder="Smith, J. or John Smith"
+      />
+
+      <label class="label-title" for="year">Year</label>
+      <input
+        id="year"
+        formControlName="year"
+        type="number"
+        class="form-control"
+        placeholder="2024"
+      />
+    </form>
+  </div>
+
+  <div
+    id="error"
+    *ngIf="errorStatusAlert"
+    class="alert alert-danger alert-dismissible m-2"
+  >
+    <a href="#" class="close" data-dismiss="alert" aria-label="close"
+      >&times;</a
+    >
+    <small class="error" data-dismiss=".alert">{{ this.errorResult }}</small>
+  </div>
+
+  <div class="modal-footer">
+    <div class="form-group">
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="closeModal()"
+      >
+        <span> Cancel </span>
+      </button>
+    </div>
+
+    <div class="form-group">
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="onAddPublication()"
+      >
+        <span> Add </span>
+      </button>
+    </div>
+  </div>
+</div>
