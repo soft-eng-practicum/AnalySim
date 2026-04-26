@@ -7,6 +7,9 @@ services:
     environment:
       POSTGRES_USER: analysim_dev
       POSTGRES_PASSWORD: NeuroScience2023
+      POSTGRES_DB: analysim
+    ports:
+      - 5432:5432
 
   analysim:
     image: analysim-dev
