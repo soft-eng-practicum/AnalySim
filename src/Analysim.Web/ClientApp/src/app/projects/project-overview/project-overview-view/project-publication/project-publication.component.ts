@@ -58,4 +58,33 @@ export class ProjectPublicationComponent implements OnInit {
   onAddPublication() {
     this.editModalRef = this.modalService.show(this.editModal);
   }
+
+  // Sorting
+  sortOrder: 'newest' | 'oldest' = 'newest';
+  isSortOpen = false;
+
+  setSortOrder(order: 'newest' | 'oldest') {
+    if (this.sortOrder === order) return;
+    this.sortOrder = order;
+  }
+
+  toggleSortDropdown() {
+    this.isSortOpen = !this.isSortOpen;
+  }
+
+  selectSortOrder(order: 'newest' | 'oldest') {
+    this.isSortOpen = false;
+    this.setSortOrder(order);
+  }
+
+  get sortedPublications(): Publication[] {
+    const pubs = this.publications ? [...this.publications] : [];
+
+    return pubs.sort((a, b) => {
+      const aTime = new Date(a.year).getTime();
+      const bTime = new Date(b.year).getTime();
+
+      return this.sortOrder === 'newest' ? bTime - aTime : aTime - bTime;
+    });
+  }
 }

@@ -1,24 +1,44 @@
 <div class="modal-content">
   <div class="modal-header justify-content-center">
-    <h5 class="modal-title">Add Publication</h5>
+    <h5 class="modal-title">{{modalTitle}}</h5>
   </div>
 
   <div class="modal-body">
-    <div class="form-header">
-      <h3 class="form-title">Publication Details</h3>
-      <p class="form-subtitle">
-        Add citation information for this project publication.
-      </p>
-    </div>
-
     <form class="form publication-form" [formGroup]="publicationForm">
-      <label class="label-title" for="title">Title</label>
+      <label class="label-title" for="sourceAuthor">Author*</label>
       <input
-        id="title"
-        formControlName="title"
+        id="sourceAuthor"
+        formControlName="sourceAuthor"
         type="text"
         class="form-control"
+        placeholder="Smith, J. or John Smith"
+      />
+
+      <label class="label-title" for="year">Year*</label>
+      <input
+        id="year"
+        formControlName="year"
+        type="number"
+        class="form-control"
+        placeholder="2024"
+      />
+
+      <label class="label-title" for="title">Title</label>
+      <textarea
+        id="title"
+        formControlName="title"
+        rows="2"
+        class="form-control"
         placeholder="Machine Learning for Healthcare Diagnostics"
+      ></textarea>
+
+      <label class="label-title" for="journal">Journal*</label>
+      <input
+        id="journal"
+        formControlName="journal"
+        type="text"
+        class="form-control"
+        placeholder="Journal of Modern Computing Research"
       />
 
       <label class="label-title" for="url">URL</label>
@@ -39,35 +59,23 @@
         placeholder="10.1000/xyz123"
       />
 
-      <label class="label-title" for="sourceAuthor">Author</label>
-      <input
-        id="sourceAuthor"
-        formControlName="sourceAuthor"
-        type="text"
+      <label class="label-title" for="notes">Notes</label>
+      <textarea
+        id="notes"
+        formControlName="notes"
+        rows="2"
         class="form-control"
-        placeholder="Smith, J. or John Smith"
-      />
-
-      <label class="label-title" for="year">Year</label>
-      <input
-        id="year"
-        formControlName="year"
-        type="number"
-        class="form-control"
-        placeholder="2024"
-      />
+        placeholder=""
+      ></textarea>
     </form>
   </div>
 
   <div
     id="error"
     *ngIf="errorStatusAlert"
-    class="alert alert-danger alert-dismissible m-2"
+    class="alert alert-danger error-center"
   >
-    <a href="#" class="close" data-dismiss="alert" aria-label="close"
-      >&times;</a
-    >
-    <small class="error" data-dismiss=".alert">{{ this.errorResult }}</small>
+    <small class="error">{{ this.errorResult }}</small>
   </div>
 
   <div class="modal-footer">
@@ -81,13 +89,23 @@
       </button>
     </div>
 
-    <div class="form-group">
+    <div *ngIf="!editingPublication" class="form-group">
       <button
         type="button"
         class="btn btn-primary"
         (click)="onAddPublication()"
       >
         <span> Add </span>
+      </button>
+    </div>
+
+    <div *ngIf="editingPublication" class="form-group">
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="onEditPublication()"
+      >
+        <span> Update </span>
       </button>
     </div>
   </div>

@@ -18,9 +18,14 @@ export class ModalDeletePublicationComponent implements OnInit {
   errorResult: String;
   errorStatusAlert = false;
 
+  deleteTitle = "This Publication";
+
   constructor(private projectService: ProjectService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if(this.publication.title != null) this.deleteTitle = this.publication.title;
+    else this.deleteTitle = this.publication.journal;
+  }
 
   onDeleteComment(): void {
     this.projectService

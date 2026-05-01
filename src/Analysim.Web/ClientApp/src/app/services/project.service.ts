@@ -70,6 +70,7 @@ export class ProjectService {
   private urlDeleteDatasetFromNotebook: string = this.baseUrl + "deleteDatasetFromNotebook/"
   private urlUpdateComment: string = this.baseUrl + "updatecomment/";
   private urlDeleteComment: string = this.baseUrl + "deletecomment/";
+  private urlUpdatePublication: string = this.baseUrl + "updatePublication/";
 
   // Delete
   private urlDeleteProject: string = this.baseUrl + "deleteproject/"
@@ -1055,6 +1056,24 @@ export class ProjectService {
     );
 
     return this.http.delete<any>(this.urlDeletePublication + publicationId, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  updatePublication(formData: FormData, publicationId: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.put<any>(this.urlUpdatePublication + publicationId, formData, {headers}).pipe(
       map(body => {
         console.log(body.message);
         return body;

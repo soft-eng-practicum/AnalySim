@@ -1,7 +1,45 @@
 <div class="card">
   <div class="d-flex card-header flex-row align-items-center">
     <span class="">Publications</span>
-    <div class="d-inline-flex ml-auto">
+    <div class="d-flex align-items-end ml-auto btn-area">
+      <div class="explore-control">
+        <label class="explore-control__label">Sort</label>
+
+        <div class="explore-dropdown" [class.is-open]="isSortOpen">
+          <button
+            type="button"
+            class="btn btn-outline-primary explore-dropdown-toggle"
+            (click)="$event.stopPropagation(); toggleSortDropdown()"
+            [disabled]="isLoading"
+          >
+            <span>{{ sortOrder === "newest" ? "Newest" : "Oldest" }}</span>
+            <span class="explore-dropdown-caret">▾</span>
+          </button>
+
+          <div
+            class="explore-dropdown-menu"
+            *ngIf="isSortOpen"
+            (click)="$event.stopPropagation()"
+          >
+            <button
+              type="button"
+              class="dropdown-item"
+              (click)="selectSortOrder('newest')"
+            >
+              Newest
+            </button>
+
+            <button
+              type="button"
+              class="dropdown-item"
+              (click)="selectSortOrder('oldest')"
+            >
+              Oldest
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Private Button Group Start -->
       <div class="btn-group" role="group">
         <button
@@ -24,11 +62,12 @@
 
     <div *ngIf="!isLoading && publications.length > 0">
       <app-publication-item
-        *ngFor="let publication of publications"
+        *ngFor="let publication of sortedPublications"
         [id]="publication.publicationID.toString()"
         [publication]="publication"
         [currentUser]="currentUser"
         [isMember]="isMember"
+        [projectId]="this.project.projectID"
         (onReload)="loadPublications()"
       >
       </app-publication-item>
@@ -40,7 +79,6 @@
 <ng-template #editModal>
   <app-modal-edit-publication
     [editModalRef]="editModalRef"
-    [currentUser]="currentUser"
     [projectID]="project.projectID"
     (onSuccessfulEdit)="loadPublications()"
     (onCancelEdit)="this.isLoading = false"

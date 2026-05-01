@@ -26,7 +26,7 @@
     display: grid;
     grid-template-columns: max-content 1fr;
     gap: 1rem var(--space-3);
-    align-items: center;
+    align-items: start;
 }
 
 .label-title {
@@ -38,21 +38,13 @@
 .form-control {
     width: 100%;
     min-width: 0;
+    color: black !important;
 }
 
 .form-header {
   margin-bottom: 1.5rem;
 }
 
-.form-title {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.form-subtitle {
-  margin: 0.35rem 0 0;
-  font-size: 0.92rem;
-  color: #6b7280;
+.error-center{
+    text-align: center;
 }

@@ -20,13 +20,17 @@ export class PublicationItemComponent implements OnInit {
   @Input() publication!: Publication;
   @Input() isMember: boolean;
   @Input() currentUser: User;
+  @Input() projectId: number;
 
   @Output() onReload = new EventEmitter<void>();
 
   // Modals
   @ViewChild('deleteModal') deleteModal: TemplateRef<any>;
   deleteModalRef: BsModalRef;
-  isDeleting = false;
+  @ViewChild('editModal') editModal: TemplateRef<any>;
+  editModalRef: BsModalRef;
+
+  isHandlingAction = false;
 
   constructor(
     private modalService: BsModalService
@@ -36,15 +40,24 @@ export class PublicationItemComponent implements OnInit {
 
   onDeletePublication(): void {
     this.toggleModalDelete();
-    this.isDeleting = true;
+    this.isHandlingAction = true;
   }
 
-  onHandleSuccessfulDelete(): void {
-    this.isDeleting = false;
+  onHandleSuccessfulAction(): void {
+    this.isHandlingAction = false;
     this.onReload.emit();
   }
 
   toggleModalDelete() {
     this.deleteModalRef = this.modalService.show(this.deleteModal);
+  }
+
+  onEditPublication(): void{
+    this.toggleModalEdit();
+    this.isHandlingAction = true;
+  }
+
+  toggleModalEdit(): void{
+    this.editModalRef = this.modalService.show(this.editModal);
   }
 }

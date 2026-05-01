@@ -485,10 +485,12 @@ namespace Web.Controllers
                     PublicationID = p.PublicationID,
                     ProjectID = p.ProjectID,
                     Title = p.Title,
+                    Journal = p.Journal,
                     Url = p.Url,
                     Doi = p.Doi,
                     SourceAuthor = p.SourceAuthor,
                     Year = p.Year,
+                    Notes = p.Notes,
                     CreatedAt = p.CreatedAt,
                 }).ToListAsync();
 
@@ -531,9 +533,13 @@ namespace Web.Controllers
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
 
-            // Validate Title
-            if (string.IsNullOrWhiteSpace(formdata.Title))
-                return BadRequest(new { message = "Title is required." });
+            // Validate Fields
+            if (string.IsNullOrWhiteSpace(formdata.Journal))
+                return BadRequest(new { message = "Publication Journal is required." });
+            if (string.IsNullOrWhiteSpace(formdata.SourceAuthor))
+                return BadRequest(new { message = "Source Author is required." });
+            if (!formdata.Year.HasValue || formdata.Year <= 0)
+                return BadRequest(new { message = "Valid Publication Year is required." });
 
             // Create Publication
             var newPublication = new Publication
@@ -541,10 +547,12 @@ namespace Web.Controllers
                 ProjectID = formdata.ProjectID,
                 Project = project,
                 Title = formdata.Title,
+                Journal = formdata.Journal,
                 Url = formdata.Url,
                 Doi = formdata.Doi,
                 SourceAuthor = formdata.SourceAuthor,
                 Year = formdata.Year,
+                Notes = formdata.Notes,
                 CreatedAt = DateTime.UtcNow,
             };
 
@@ -2108,6 +2116,75 @@ namespace Web.Controllers
         #endregion
 
         #region PUT REQUEST
+
+        /*
+        * Type : PUT
+        * URL : /api/project/updatePublication/{publicationID}
+        * Param : {publicationID}, CreatePublicationVM
+        * Description: Update a publication
+        */
+        [Authorize]
+        [HttpPut("[action]/{publicationID}")]
+        public async Task<IActionResult> UpdatePublication([FromRoute] int publicationID, [FromForm] CreatePublicationVM formdata)
+        {
+            // Validate VM
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "User Not Found." });
+
+            // Validate Publication
+            var publication = await _dbContext.Publications
+                .SingleOrDefaultAsync(p => p.PublicationID == publicationID);
+
+            if (publication == null)
+                return NotFound(new { message = "Publication Not Found" });
+
+            // Validate Project
+            var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+            if (project == null)
+                return NotFound(new { message = "Project Not Found" });
+
+            if (publication.ProjectID != formdata.ProjectID)
+                return BadRequest(new { message = "Publication does not belong to this project." });
+
+            // Validate Fields
+            if (string.IsNullOrWhiteSpace(formdata.Journal))
+                return BadRequest(new { message = "Publication Journal is required." });
+
+            if (string.IsNullOrWhiteSpace(formdata.SourceAuthor))
+                return BadRequest(new { message = "Source Author is required." });
+
+            if (!formdata.Year.HasValue || formdata.Year <= 0)
+                return BadRequest(new { message = "Valid Publication Year is required." });
+
+            // Update Publication
+            publication.Title = formdata.Title;
+            publication.Journal = formdata.Journal;
+            publication.Url = formdata.Url;
+            publication.Doi = formdata.Doi;
+            publication.SourceAuthor = formdata.SourceAuthor;
+            publication.Year = formdata.Year;
+            publication.Notes = formdata.Notes;
+
+            // Update Publication in DB
+            await _dbContext.SaveChangesAsync();
+
+            // Return
+            return Ok(new
+            {
+                message = "Publication updated successfully."
+            });
+        }
+
 
         /*
         * Type : PUT
