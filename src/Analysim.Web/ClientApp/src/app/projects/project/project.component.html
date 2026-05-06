@@ -199,7 +199,8 @@
             <app-project-file-explorer *ngIf="activeView === 'File'" [project]="project" [currentUser]="currentUser"
               [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
             <app-project-publication *ngIf="activeView === 'Publications'"></app-project-publication>
-            <app-project-log *ngIf="activeView === 'Log'"></app-project-log>
+            <app-project-log *ngIf="activeView === 'Log'" [project]="project" [currentUser]="currentUser"
+              [isMember]="isMember"></app-project-log>
             <app-project-comments [projectId]="project.projectID" *ngIf="activeView === 'Comment'"></app-project-comments>
             <app-project-content *ngIf='toggleView == "Content"' [project]="project" [currentUser]="currentUser"
               [isMember]="isMember" [currentDirectory]="fileDirectory"></app-project-content>

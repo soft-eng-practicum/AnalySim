@@ -1,0 +1,211 @@
+<div class="card">
+  <div class="project-log-card" [class.is-deleted]="isDeleted">
+    <div *ngIf="!isDeleted">
+      <div
+        *ngIf="!isEditing; else editHeader"
+        class="d-flex align-items-center card-header"
+      >
+        <div class="d-flex align-items-center">
+          <img
+            class="project-log-avatar"
+            src="../../../../../assets/img/default-profile.png"
+          />
+
+          <div class="d-flex flex-column ml-3">
+            <div class="project-log-author">
+              {{ log.authorName }}
+            </div>
+
+            <div class="project-log-date">
+              {{ log.updatedAt | date: "MMM d, y • h:mm a" }}
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!isEditing && isOwner && !isDeleted" class="d-flex ml-auto">
+          <button class="btn btn-ghost-primary" title="Edit" (click)="onEdit()">
+            <i class="fa-regular fa-pen-to-square"></i>
+          </button>
+
+          <button
+            class="btn btn-ghost-danger"
+            title="Delete"
+            (click)="onDeleteLog()"
+          >
+            <i class="fa-regular fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+
+      <ng-template #editHeader>
+        <div class="d-flex align-items-center card-header">
+          <b *ngIf="!log">New Project Log</b>
+          <b *ngIf="log">Edit Project Log</b>
+        </div>
+      </ng-template>
+    </div>
+
+    <div *ngIf="!isEditing; else editMode">
+      <div class="card-content" *ngIf="!isDeleted">
+        <h1 *ngIf="log.title" class="log-title">
+          <b>{{ log.title }}</b>
+        </h1>
+
+        <hr *ngIf="log.title" />
+
+        <div *ngIf="log.image" class="img-box">
+          <img class="img" src="{{ log.image }}" />
+        </div>
+
+        <hr *ngIf="log.image" />
+
+        <div class="log-content">
+          {{ log.content }}
+        </div>
+      </div>
+
+      <div *ngIf="isDeleted">
+        <div class="empty-set card">[Removed By Owner]</div>
+      </div>
+    </div>
+
+    <ng-template #editMode>
+      <div class="card-content edit-log-content">
+        <form [formGroup]="logForm">
+          <!-- Title Area -->
+          <input
+            type="text"
+            formControlName="title"
+            class="form-control log-title-input"
+            placeholder="Add Title Here"
+          />
+
+          <hr />
+
+          <!-- Image Upload -->
+          <div class="img-box edit-img-box">
+            <input
+              #imageInput
+              [id]="imageInputId"
+              type="file"
+              class="image-upload-input"
+              accept="image/*"
+              (change)="onImageSelected($event)"
+            />
+
+            <label class="image-upload-box" [for]="imageInputId">
+              <div *ngIf="!imagePreviewUrl" class="image-upload-placeholder">
+                <i class="fa-regular fa-image image-upload-icon"></i>
+                <span class="image-upload-text">Add an image</span>
+              </div>
+
+              <div *ngIf="imagePreviewUrl" class="image-preview-wrap">
+                <img
+                  class="image-preview"
+                  [src]="imagePreviewUrl"
+                  alt="Selected project log image"
+                />
+
+                <div class="image-preview-overlay">Change image</div>
+
+                <button
+                  type="button"
+                  class="image-remove-btn"
+                  title="Remove image"
+                  aria-label="Remove image"
+                  (click)="onRemoveImage($event, imageInput)"
+                >
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
+              </div>
+            </label>
+          </div>
+
+          <hr />
+
+          <!-- Content Area -->
+          <textarea
+            formControlName="content"
+            class="form-control log-content-input"
+            rows="5"
+            placeholder="Write a project update..."
+          ></textarea>
+        </form>
+
+        <div
+          id="error"
+          *ngIf="errorStatusAlert"
+          class="alert alert-danger error-center"
+        >
+          <small class="error">{{ this.errorResult }}</small>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+  <div class="card-footer">
+    <!-- FOOTER NORMAL -->
+    <div *ngIf="!isEditing" class="footer-main-content">
+      <span class="comment-count font-meta">{{ commentCount }} comments</span>
+
+      <button
+        type="button"
+        class="btn btn-ghost-primary btn-content"
+        title="View Comments"
+        aria-label="View Comments"
+        (click)="isCommentAreaOpen = !isCommentAreaOpen"
+      >
+        <i class="fa-regular fa-comment"></i>
+        <span>{{ isCommentAreaOpen ? "Hide" : "View" }} Comments</span>
+      </button>
+    </div>
+
+    <!-- CREATE FOOTER -->
+    <div *ngIf="isEditing && !log" class="footer-content">
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="cancelCreate()"
+      >
+        Cancel
+      </button>
+
+      <button type="button" class="btn btn-primary" (click)="onCreateLog()">
+        Create
+      </button>
+    </div>
+
+    <!-- EDIT FOOTER -->
+    <div *ngIf="isEditing && log" class="footer-content">
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="cancelEdit()"
+      >
+        Cancel
+      </button>
+
+      <button type="button" class="btn btn-primary" (click)="onUpdateLog()">
+        Update
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isCommentAreaOpen && log" class="comment-area">
+    <app-project-log-comment-area
+      [projectId]="this.log.projectID"
+      [projectLogId]="this.log.logID"
+      (newReply)="increaseCommentCount()"
+    ></app-project-log-comment-area>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<ng-template #deleteModal>
+  <app-modal-delete-log
+    [deleteModalRef]="deleteModalRef"
+    [projectLogID]="this.log.logID"
+    [currentUser]="currentUser"
+    (onSuccessfulDelete)="onHandleSuccessfulDelete()"
+    (onCancelDelete)="this.isDeleting = false"
+  ></app-modal-delete-log>
+</ng-template>

@@ -1,78 +1,63 @@
-<div class="project-log-container">
+<div class="card">
   <div class="d-flex card-header flex-row align-items-center">
-    <span class="mr-2">Project Log</span>
-    <div class="d-inline-flex ml-auto">
-      <!-- Private Button Group Start -->
-      <div class="btn-group mr-3" role="group">
-        <button type="button" class="btn" title="Add Publications">
+    <span>Project Log</span>
+    <div class="d-flex align-items-end ml-auto btn-area">
+      <div class="btn-group" role="group">
+        <button
+          *ngIf="isMember"
+          type="button"
+          class="btn btn-primary btn-width"
+          title="Add Log"
+          (click)="onAddLog()"
+          [disabled]="isLoading"
+        >
           <i class="fa fa-plus"></i>
         </button>
       </div>
     </div>
   </div>
-    <ul class="project-log-list">
-        <li class="project-log">
-            <div class="project-log-heading">
-                <img class="project-author-thumbnail" src="../../../../../assets/img/default-profile.png"/>
-                <div class="project-log-profile-info">
-                    <div class="project-log-profile-name">
-                        Sadie Miller
-                    </div>
-                    <div class="project-log-profile-desc">
-                        added <div class="project-log-profile-location">project source</div>
-                    </div>
-                    
-                </div> 
-                <div class="project-log-date">
-                    10/13/2022
-                </div>
-            </div>
-            <div class="project-log-content">
-                <h4 class="project-log-content-header">
-                    A Data Chart Showing an Increase in Grades When Students Implement Critical Thinking Skills
-                </h4>
-                <img class="project-author-thumbnail" src="../../../../../assets/img/ProjectLogGraph.png"/>
-                <div class="project-log-content-description">
-                    We didn't expect such a spike in grades. In the data you can see how much. Ohio students have benefited from the 3 critical thinking methods. Read before you think, think before you write and review before you deliver. This step by application was said by students to lower their chances of running incorrect code...
-                </div>
-            </div>
-            <div class="project-log-footer">
-              <input type="button" value="Comment">
-              <input type="button" value="Share">
-              <input type="button" value="Delete">
-              <div class="project-log-comment">
-                <img class="project-log-bubble" src="../../../../../assets/img/speech-bubble.png" /> 2 Comments
-              </div>
-            </div>
-        </li>
-        <li class="project-log">
-            <div class="project-log-heading">
-                <img class="project-author-thumbnail" src="../../../../../assets/img/default-profile.png"/>
-                <div class="project-log-profile-info">
-                    <div class="project-log-profile-name">
-                        Sadie Miller
-                    </div>
-                    <div class="project-log-profile-desc">
-                        added <div class="project-log-profile-location">project thread</div> 
-                    </div>
-                </div> 
-                <div class="project-log-date">
-                    10/09/2022
-                </div>
-            </div>
-            <div class="project-log-content">
-                <div class="project-log-content-description">
-                    Who wants to join our team, we are accepting Research applications. We just got an increase in our research budget meaning we have three open positions. Survey Intern, Junior Data Analyst, and Research Assistant.
-                </div>
-            </div>
-            <div class="project-log-footer">
-              <input type="button" value="Comment">
-              <input type="button" value="Share">
-              <input type="button" value="Delete">
-              <div class="project-log-comment">
-                <img class="project-log-bubble" src="../../../../../assets/img/speech-bubble.png" /> 2 Comments
-              </div>
-            </div>
-        </li>
-    </ul>
+  <div class="m-3">
+    <div
+      class="empty-set"
+      *ngIf="!isLoading && !isCreatingLog && logs.length === 0"
+    >
+      No Project Logs yet.
+    </div>
+
+    <div *ngIf="isCreatingLog" class="new-log">
+      <div class="log-area">
+      <app-project-log-item
+        [log]="null"
+        [projectID]="project.projectID"
+        (onSuccessfulCreate)="onCreateLog()"
+        (onCancelCreate)="this.isCreatingLog = false"
+      ></app-project-log-item>
+
+      <hr />
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && logs.length > 0" class="logs-list">
+      <div *ngFor="let log of logs" class="log-area">
+        <app-project-log-item
+        [log]="log"
+        [currentUser]="currentUser"
+        (onSuccessfulEdit)="loadLogs()"
+      ></app-project-log-item>
+
+      <hr />
+      </div>
+      
+    </div>
+  </div>
 </div>
+
+<!-- Create Modal
+<ng-template #createModal>
+  <app-modal-create-log
+    [createModalRef]="createModalRef"
+    [projectID]="project.projectID"
+    (onSuccessfulCreate)="loadLogs()"
+    (onCancelCreate)="this.isLoading = false"
+  ></app-modal-create-log>
+</ng-template> -->

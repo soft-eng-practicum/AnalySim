@@ -46,6 +46,34 @@ namespace Web.Controllers
             _configuration = configuration;
         }
 
+        // Image Helpers
+        private static string? BuildImageDataUrl(byte[]? imageBytes, string? extension)
+        {
+            if (imageBytes == null || imageBytes.Length == 0)
+                return null;
+
+            var contentType = GetImageContentType(extension);
+            var base64 = Convert.ToBase64String(imageBytes);
+
+            return $"data:{contentType};base64,{base64}";
+        }
+
+        private static string GetImageContentType(string? extension)
+        {
+            var ext = extension?.Trim().ToLowerInvariant();
+
+            return ext switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".webp" => "image/webp",
+                ".bmp" => "image/bmp",
+                ".svg" => "image/svg+xml",
+                _ => "image/jpeg"
+            };
+        }
+
         #region GET REQUEST
         /*
          * Type : GET
@@ -338,7 +366,7 @@ namespace Web.Controllers
 
             var flatComments = await _dbContext.ProjectComments
                 .AsNoTracking()
-                .Where(p => p.ProjectID == projectId)
+                .Where(p => p.ProjectID == projectId && p.ProjectLogID == null)
                 .OrderBy(c => c.CreatedAt)
                 .Select(c => new ProjectCommentVM
                 {
@@ -392,6 +420,78 @@ namespace Web.Controllers
             {
                 result = rootComments,
                 message = "Received Comments"
+            });
+        }
+
+        /* 
+        * Type : GET
+        * URL : /api/projects/getprojectlogcomments/projectLogId
+        * Description: Gets all comments for a specific project log
+        */
+        [HttpGet("[action]/{projectLogId}")]
+        public async Task<IActionResult> GetProjectLogComments([FromRoute] int projectLogId)
+        {
+            if (projectLogId <= 0)
+                return BadRequest("Invalid project log id.");
+
+            var flatComments = await _dbContext.ProjectComments
+                .AsNoTracking()
+                .Where(c => c.ProjectLogID == projectLogId)
+                .OrderBy(c => c.CreatedAt)
+                .Select(c => new ProjectCommentVM
+                {
+                    CommentID = c.CommentID,
+                    UserID = c.UserID,
+                    AuthorName = c.User.UserName,
+                    ProjectID = c.ProjectID,
+                    ParentCommentID = c.ParentCommentID,
+                    ProjectLogID = c.ProjectLogID,
+                    Content = c.Content,
+                    IsDeleted = c.IsDeleted,
+                    IsPendingReview = c.IsPendingReview,
+                    CreatedAt = c.CreatedAt,
+                    UpdatedAt = c.UpdatedAt,
+
+                    Replies = new List<ProjectCommentVM>(),
+
+                    CommentLikes = c.CommentLikes
+                        .Select(l => new ProjectCommentLikeVM
+                        {
+                            CommentID = l.CommentID,
+                            UserID = l.UserID,
+                            CreatedAt = l.CreatedAt
+                        }).ToList(),
+
+                    CommentFlags = c.CommentFlags
+                        .Select(f => new ProjectCommentFlagVM
+                        {
+                            CommentID = f.CommentID,
+                            UserID = f.UserID,
+                            CreatedAt = f.CreatedAt
+                        }).ToList()
+                })
+                .ToListAsync();
+
+            var commentLookup = flatComments.ToDictionary(c => c.CommentID);
+            var rootComments = new List<ProjectCommentVM>();
+
+            foreach (var comment in flatComments)
+            {
+                if (comment.ParentCommentID.HasValue &&
+                    commentLookup.TryGetValue(comment.ParentCommentID.Value, out var parent))
+                {
+                    parent.Replies.Add(comment);
+                }
+                else
+                {
+                    rootComments.Add(comment);
+                }
+            }
+
+            return Ok(new
+            {
+                result = rootComments,
+                message = "Received Project Log Comments"
             });
         }
 
@@ -465,9 +565,219 @@ namespace Web.Controllers
             });
         }
 
+        /*
+        * Type : GET
+        * URL : /api/project/getprojectlogs/projectId
+        * Description: Gets all logs for a project
+        */
+        [HttpGet("[action]/{projectId}")]
+        public async Task<IActionResult> GetProjectLogs([FromRoute] int projectId)
+        {
+            if (projectId <= 0)
+                return BadRequest("Invalid project id.");
+
+            var rawLogs = await _dbContext.ProjectLogs
+                .AsNoTracking()
+                .Where(l => l.ProjectID == projectId)
+                .OrderByDescending(l => l.UpdatedAt)
+                .Select(l => new
+                {
+                    l.LogID,
+                    l.UserID,
+                    AuthorName = l.User.UserName,
+                    l.ProjectID,
+                    l.Title,
+                    l.Content,
+                    l.IsDeleted,
+                    l.CreatedAt,
+                    l.UpdatedAt,
+
+                    BlobExtension = l.BlobFile != null
+                        ? l.BlobFile.Extension
+                        : null,
+
+                    ImageBytes = l.BlobFile != null
+                        ? l.BlobFile.BlobFileContents
+                            .OrderByDescending(b => b.DateCreated)
+                            .Select(b => b.Content)
+                            .FirstOrDefault()
+                        : null,
+
+                    CommentCount = l.Comments.Count(c => !c.IsDeleted)
+                })
+                .ToListAsync();
+
+            var logs = rawLogs.Select(l => new ProjectLogVM
+            {
+                LogID = l.LogID,
+                UserID = l.UserID,
+                AuthorName = l.AuthorName,
+                ProjectID = l.ProjectID,
+                Title = l.Title,
+                Image = BuildImageDataUrl(l.ImageBytes, l.BlobExtension),
+                Content = l.Content,
+                IsDeleted = l.IsDeleted,
+                CreatedAt = l.CreatedAt,
+                UpdatedAt = l.UpdatedAt,
+                CommentCount = l.CommentCount
+            }).ToList();
+
+            return Ok(new
+            {
+                result = logs,
+                message = "Received Project Logs"
+            });
+        }
+
         #endregion
 
         #region POST REQUEST
+
+        /*
+        * Type : POST
+        * URL : /api/project/addprojectlog
+        * Param : CreateProjectLogVM
+        * Description: Add a new project log to a project
+        */
+        [Authorize]
+        [HttpPost("[action]")]
+        public async Task<IActionResult> AddProjectLog([FromForm] CreateProjectLogVM formdata)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            // Used in case an BlobFile / BlobFileContent works but ProjectLog fails
+            // This will stop potentially orphaned BlobFiles from filling up the DB
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Get User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+
+                // Validate User
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+                if (user == null) return NotFound(new { message = "User Not Found." });
+
+                // Validate Project
+                var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+                if (project == null) return NotFound(new { message = "Project Not Found." });
+
+                // Validate Content
+                if (string.IsNullOrWhiteSpace(formdata.Content))
+                {
+                    return BadRequest(new { message = "Project Log Content is required." });
+                }
+
+                int? blobFileId = null;
+
+                // Optional Image Handling
+                if (formdata.Image != null)
+                {
+                    if (formdata.Image.Length == 0)
+                    {
+                        return BadRequest(new { message = "Empty image file." });
+                    }
+
+                    if (!formdata.Image.ContentType.StartsWith("image/"))
+                    {
+                        return BadRequest(new { message = "Only image files are allowed." });
+                    }
+
+                    using var memoryStream = new MemoryStream();
+                    await formdata.Image.CopyToAsync(memoryStream);
+                    var fileContent = memoryStream.ToArray();
+
+                    var originalFileName = Path.GetFileNameWithoutExtension(formdata.Image.FileName);
+                    var extension = Path.GetExtension(formdata.Image.FileName);
+
+                    var safeFileName = $"{Guid.NewGuid()}_{originalFileName}";
+
+                    var newBlobFile = new BlobFile
+                    {
+                        Container = "project-log",
+                        Directory = $"projects/{project.ProjectID}/logs/",
+                        Name = safeFileName,
+                        Extension = extension,
+                        Size = (int)formdata.Image.Length,
+                        Uri = "",
+                        DateCreated = DateTimeOffset.UtcNow,
+                        LastModified = DateTimeOffset.UtcNow,
+                        UserID = user.Id,
+                        User = user,
+                        ProjectID = project.ProjectID,
+                        Project = project
+                    };
+
+                    await _dbContext.BlobFiles.AddAsync(newBlobFile);
+                    await _dbContext.SaveChangesAsync();
+
+                    var newBlobFileContent = new BlobFileContent
+                    {
+                        BlobFileID = newBlobFile.BlobFileID,
+                        BlobFile = newBlobFile,
+                        Content = fileContent,
+                        DateCreated = DateTimeOffset.UtcNow
+                    };
+
+                    await _dbContext.BlobFileContent.AddAsync(newBlobFileContent);
+                    await _dbContext.SaveChangesAsync();
+
+                    blobFileId = newBlobFile.BlobFileID;
+                }
+
+                // Create Project Log
+                var newProjectLog = new ProjectLog
+                {
+                    ProjectID = project.ProjectID,
+                    Project = project,
+                    UserID = user.Id,
+                    User = user,
+                    Title = string.IsNullOrWhiteSpace(formdata.Title)
+                        ? null
+                        : formdata.Title.Trim(),
+                    Content = formdata.Content.Trim(),
+                    BlobFileID = blobFileId,
+                    IsDeleted = false,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                await _dbContext.ProjectLogs.AddAsync(newProjectLog);
+                await _dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return Ok(new
+                {
+                    result = new
+                    {
+                        newProjectLog.LogID,
+                        newProjectLog.ProjectID,
+                        newProjectLog.UserID,
+                        newProjectLog.Title,
+                        newProjectLog.Content,
+                        newProjectLog.BlobFileID,
+                        newProjectLog.CreatedAt,
+                        newProjectLog.UpdatedAt
+                    },
+                    message = "Project Log Added successfully."
+                });
+            }
+            catch (Exception e)
+            {
+                await transaction.RollbackAsync();
+
+                return BadRequest(new
+                {
+                    message = "Unable to add project log.",
+                    error = e.Message
+                });
+            }
+        }
 
         /*
         * Type : POST
@@ -497,6 +807,20 @@ namespace Web.Controllers
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
 
+            // Validate Project Log (if present)
+            ProjectLog? projectLog = null;
+            if (formdata.ProjectLogID.HasValue)
+            {
+                projectLog = await _dbContext.ProjectLogs
+                    .SingleOrDefaultAsync(l => l.LogID == formdata.ProjectLogID.Value);
+
+                if (projectLog == null)
+                    return NotFound(new { message = "Project Log Not Found." });
+
+                if (projectLog.ProjectID != formdata.ProjectID)
+                    return BadRequest(new { message = "Project log does not belong to this project." });
+            }
+
             // Validate Content
             if (string.IsNullOrWhiteSpace(formdata.Content))
                 return BadRequest(new { message = "Content is required." });
@@ -520,6 +844,9 @@ namespace Web.Controllers
                 if (parentComment.ProjectID != formdata.ProjectID)
                     return BadRequest(new { message = "Parent comment does not belong to this project." });
 
+                if (parentComment.ProjectLogID != formdata.ProjectLogID)
+                    return BadRequest(new { message = "Reply must belong to the same comment area." });
+
                 if (parentComment.IsDeleted)
                     return BadRequest(new { message = "Cannot reply to a deleted comment." });
                     
@@ -534,8 +861,13 @@ namespace Web.Controllers
                 User = user,
                 ProjectID = formdata.ProjectID,
                 Project = project,
+
+                ProjectLogID = formdata.ProjectLogID,
+                ProjectLog = projectLog,
+
                 ParentCommentID = formdata.ParentCommentID,
                 ParentComment = parentComment,
+
                 Content = trimmedContent,
                 IsDeleted = false,
                 IsPendingReview = false,
@@ -2018,6 +2350,253 @@ namespace Web.Controllers
         #endregion
 
         #region PUT REQUEST
+
+        /*
+        * Type : PUT
+        * URL : /api/project/updateprojectlog/logId
+        * Param : UpdateProjectLogVM
+        * Description: Updates a project log and optionally adds, replaces, or removes its image
+        */
+        [Authorize]
+        [HttpPut("[action]/{logId}")]
+        public async Task<IActionResult> UpdateProjectLog([FromRoute] int logId, [FromForm] UpdateProjectLogVM formdata)
+        {
+            if (logId <= 0)
+                return BadRequest(new { message = "Invalid log id." });
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Get User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+
+                // Validate User
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+                if (user == null)
+                    return NotFound(new { message = "User Not Found." });
+
+                // Validate Log
+                var projectLog = await _dbContext.ProjectLogs
+                    .Include(l => l.BlobFile)
+                        .ThenInclude(b => b.BlobFileContents)
+                    .SingleOrDefaultAsync(l => l.LogID == logId && !l.IsDeleted);
+
+                if (projectLog == null)
+                    return NotFound(new { message = "Project Log Not Found." });
+
+                // Validate this log belongs to current user
+                if (projectLog.UserID != user.Id)
+                    return Forbid();
+
+                // Validate Content
+                if (string.IsNullOrWhiteSpace(formdata.Content))
+                {
+                    return BadRequest(new { message = "Project Log Content is required." });
+                }
+
+                // Do not allow conflicting image actions
+                if (formdata.RemoveImage && formdata.Image != null)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Cannot remove and upload an image at the same time."
+                    });
+                }
+
+                // Update Log Text
+                projectLog.Title = string.IsNullOrWhiteSpace(formdata.Title)
+                    ? null
+                    : formdata.Title.Trim();
+
+                projectLog.Content = formdata.Content.Trim();
+                projectLog.UpdatedAt = DateTime.UtcNow;
+
+                // Remove existing image
+                if (formdata.RemoveImage)
+                {
+                    if (projectLog.BlobFile != null)
+                    {
+                        if (projectLog.BlobFile.BlobFileContents != null)
+                        {
+                            _dbContext.BlobFileContent.RemoveRange(projectLog.BlobFile.BlobFileContents);
+                        }
+
+                        _dbContext.BlobFiles.Remove(projectLog.BlobFile);
+
+                        projectLog.BlobFileID = null;
+                        projectLog.BlobFile = null;
+                    }
+                }
+
+                // Add new image or replace existing image
+                if (formdata.Image != null)
+                {
+                    if (formdata.Image.Length == 0)
+                    {
+                        return BadRequest(new { message = "Empty image file." });
+                    }
+
+                    if (!formdata.Image.ContentType.StartsWith("image/"))
+                    {
+                        return BadRequest(new { message = "Only image files are allowed." });
+                    }
+
+                    using var memoryStream = new MemoryStream();
+                    await formdata.Image.CopyToAsync(memoryStream);
+                    var fileContent = memoryStream.ToArray();
+
+                    var originalFileName = Path.GetFileNameWithoutExtension(formdata.Image.FileName);
+                    var extension = Path.GetExtension(formdata.Image.FileName);
+                    var safeFileName = $"{Guid.NewGuid()}_{originalFileName}";
+
+                    // Replace existing image
+                    if (projectLog.BlobFile != null)
+                    {
+                        projectLog.BlobFile.Name = safeFileName;
+                        projectLog.BlobFile.Extension = extension;
+                        projectLog.BlobFile.Size = (int)formdata.Image.Length;
+                        projectLog.BlobFile.LastModified = DateTimeOffset.UtcNow;
+                        projectLog.BlobFile.UserID = user.Id;
+                        projectLog.BlobFile.ProjectID = projectLog.ProjectID;
+
+                        var existingContent = projectLog.BlobFile.BlobFileContents?.FirstOrDefault();
+
+                        if (existingContent != null)
+                        {
+                            existingContent.Content = fileContent;
+                            existingContent.DateCreated = DateTimeOffset.UtcNow;
+
+                            _dbContext.Entry(existingContent).State = EntityState.Modified;
+                        }
+                        else
+                        {
+                            var newBlobFileContent = new BlobFileContent
+                            {
+                                BlobFileID = projectLog.BlobFile.BlobFileID,
+                                Content = fileContent,
+                                DateCreated = DateTimeOffset.UtcNow
+                            };
+
+                            await _dbContext.BlobFileContent.AddAsync(newBlobFileContent);
+                        }
+
+                        _dbContext.Entry(projectLog.BlobFile).State = EntityState.Modified;
+                    }
+
+                    // Add image when there was no image before
+                    else
+                    {
+                        var newBlobFile = new BlobFile
+                        {
+                            Container = "project-log",
+                            Directory = $"projects/{projectLog.ProjectID}/logs/",
+                            Name = safeFileName,
+                            Extension = extension,
+                            Size = (int)formdata.Image.Length,
+                            Uri = "",
+                            DateCreated = DateTimeOffset.UtcNow,
+                            LastModified = DateTimeOffset.UtcNow,
+                            UserID = user.Id,
+                            ProjectID = projectLog.ProjectID
+                        };
+
+                        await _dbContext.BlobFiles.AddAsync(newBlobFile);
+                        await _dbContext.SaveChangesAsync();
+
+                        var newBlobFileContent = new BlobFileContent
+                        {
+                            BlobFileID = newBlobFile.BlobFileID,
+                            Content = fileContent,
+                            DateCreated = DateTimeOffset.UtcNow
+                        };
+
+                        await _dbContext.BlobFileContent.AddAsync(newBlobFileContent);
+
+                        projectLog.BlobFileID = newBlobFile.BlobFileID;
+                    }
+                }
+
+                _dbContext.Entry(projectLog).State = EntityState.Modified;
+
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok(new
+                {
+                    message = "Project Log Updated successfully."
+                });
+            }
+            catch (Exception e)
+            {
+                await transaction.RollbackAsync();
+
+                return BadRequest(new
+                {
+                    message = "Unable to update project log.",
+                    error = e.Message
+                });
+            }
+        }
+
+        /*
+        * Type : PUT
+        * URL : /api/project/deletelog/{projectLogID}
+        * Param : {projectLogID}
+        * Description: set project log IsDeleted = true
+        */
+        [Authorize]
+        [HttpPut("[action]/{projectLogID}")]
+        public async Task<IActionResult> DeleteLog([FromRoute] int projectLogID)
+        {
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "User Not Found." });
+
+            // Get Admins
+            var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+
+            // Validate User is Admin
+            bool isAdmin = admins.Any(u =>
+                string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+
+            // Validate Project Log
+            var projectLog = await _dbContext.ProjectLogs
+                .SingleOrDefaultAsync(l => l.LogID == projectLogID);
+
+            if (projectLog == null)
+                return NotFound(new { message = "Project Log Not Found." });
+
+            if (projectLog.IsDeleted)
+                return BadRequest(new { message = "Cannot delete already deleted project log." });
+
+            if (!isAdmin && projectLog.UserID != user.Id)
+                return Unauthorized(new { message = "Project log does not belong to current user." });
+
+            // Update project log
+            projectLog.IsDeleted = true;
+            projectLog.UpdatedAt = DateTime.UtcNow;
+
+            // Update Project Log in DB
+            await _dbContext.SaveChangesAsync();
+
+            // Return
+            return Ok(new { message = "Project log deleted successfully." });
+        }
 
         /*
         * Type : PUT

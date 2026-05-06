@@ -1,21 +1,24 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { ProjectComment } from 'src/app/interfaces/project-comment';
-import { ProjectService } from 'src/app/services/project.service';
-import { ProjectCommentBoxComponent } from './project-comment-box/project-comment-box.component';
-import { AccountService } from 'src/app/services/account.service';
-import { Observable } from 'rxjs';
-import { User } from 'src/app/interfaces/user';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import { ProjectComment } from 'src/app/interfaces/project-comment';
+import { User } from 'src/app/interfaces/user';
+import { AccountService } from 'src/app/services/account.service';
+import { ProjectService } from 'src/app/services/project.service';
 
 @Component({
-  selector: 'app-project-comments',
-  templateUrl: './project-comments.component.html',
-  styleUrls: ['./project-comments.component.scss'],
+  selector: 'app-project-log-comment-area',
+  templateUrl: './project-log-comment-area.component.html',
+  styleUrls: ['./project-log-comment-area.component.scss']
 })
-export class ProjectCommentsComponent implements OnInit {
-  @Input() projectId!: number;
+export class ProjectLogCommentAreaComponent implements OnInit {
+  @Input() projectId: number;
+  @Input() projectLogId: number;
+  @Output() newReply = new EventEmitter<void>(); // tells parent to increase comment count
 
   comments: ProjectComment[] = [];
+
+  isReplying: boolean;
   isLoading: boolean = false;
 
   // Current User
@@ -42,11 +45,9 @@ export class ProjectCommentsComponent implements OnInit {
   }
 
   loadComments(): void {
-    if (!this.projectId || this.projectId <= 0) return;
-
     this.isLoading = true;
 
-    this.projectService.getProjectComments(this.projectId).subscribe({
+    this.projectService.getProjectLogComments(this.projectLogId).subscribe({
       next: (comments) => {
         this.comments = comments;
         this.isLoading = false;
@@ -83,12 +84,13 @@ export class ProjectCommentsComponent implements OnInit {
     }
 
     this.projectService
-      .postComment(this.projectId, comment, parentId, null) // null project log
+      .postComment(this.projectId, comment, parentId, this.projectLogId)
       .subscribe({
         next: (result) => {
           console.log('Posted new comment', result.commentId);
           this.currentAdminComment = result.commentId.toString();
           this.loadComments();
+          this.newReply.emit();
         },
         error: (error) => {
           console.log('Failed to post comment', error);
@@ -109,4 +111,13 @@ export class ProjectCommentsComponent implements OnInit {
         },
       });
   }
+
+  onCloseReply(){
+    this.isReplying = false;
+  }
+
+  addComment() {
+    this.isReplying = true;
+  }
+
 }

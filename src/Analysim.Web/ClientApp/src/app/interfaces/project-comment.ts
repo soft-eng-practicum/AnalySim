@@ -6,6 +6,7 @@ export interface ProjectComment {
   userID: number;
   authorName: string;
   projectID: number;
+  projectLogID: number | null;
   parentCommentID: number | null;
   content: string;
   isDeleted: boolean;

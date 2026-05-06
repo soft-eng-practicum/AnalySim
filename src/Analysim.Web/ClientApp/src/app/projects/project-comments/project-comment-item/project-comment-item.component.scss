@@ -1,3 +1,8 @@
+.comment-card.is-deleted {
+  opacity: 0.55;
+  filter: grayscale(0.4);
+}
+
 .comment-item {
   border: var(--border-w-1) var(--border-style) var(--border-color);
   border-radius: var(--radius-1);
