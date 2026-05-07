@@ -38,6 +38,7 @@ namespace Core.Entities
         // Timestamps
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public DateTime? ExpiresAt { get; set; }
 
         // Replies to this Project Log
         public ICollection<ProjectComment> Comments { get; set; } = new List<ProjectComment>();

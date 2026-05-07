@@ -17,6 +17,7 @@ import { getItem } from 'localforage';
 import { ProjectComment } from '../interfaces/project-comment';
 import { FlaggedCommentGroup } from '../interfaces/project-comment-flag';
 import { ProjectLog } from '../interfaces/project-log';
+import { ExpiredProjectLog } from '../interfaces/expired-project-log';
 
 @Injectable({
   providedIn: 'root'
@@ -46,6 +47,7 @@ export class ProjectService {
   private urlGetFlaggedProjectComments: string = this.baseUrl + "GetAllFlaggedComments";
   private urlGetProjectLogs: string = this.baseUrl + "getprojectlogs/";
   private urlGetProjectLogComments: string = this.baseUrl + "getprojectlogcomments/";
+  private urlGetExpiredProjectLogs: string = this.baseUrl + "getexpiredprojectlogs/";
   
   // Post
   private urlCreateProject: string = this.baseUrl + "createproject"
@@ -73,6 +75,7 @@ export class ProjectService {
   private urlDeleteComment: string = this.baseUrl + "deletecomment/";
   private urlUpdateProjectLog: string = this.baseUrl + "updateprojectlog/";
   private urlDeleteProjectLog: string = this.baseUrl + "deletelog/";
+  private urlRepostProjectLog: string = this.baseUrl + "repostlog/";
 
   // Delete
   private urlDeleteProject: string = this.baseUrl + "deleteproject/"
@@ -82,6 +85,7 @@ export class ProjectService {
   private urlUnlikeComment: string = this.baseUrl + "likecomment/";
   private urlRemoveCommentReport: string = this.baseUrl + "removecommentreport/";
   private urlRemoveAllCommentReports: string = this.baseUrl + "removeallcommentreports/";
+  private urlDeleteExpiredProjectLog: string = this.baseUrl + "deleteexpiredprojectlog/";
 
   // Extra
   private urlGetUserList: string = this.baseUrl + "getuserlist/"
@@ -1101,4 +1105,58 @@ export class ProjectService {
     );
   }
 
+  repostProjectLog(logID: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.put<any>(this.urlRepostProjectLog + logID, null, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  getExpiredProjectLogs(): Observable<ExpiredProjectLog[]> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.get<any>(this.urlGetExpiredProjectLogs, {headers})
+      .pipe(
+        map(body => {
+          console.log(body.message);
+          return body.result;
+        }),
+        catchError(error => {
+          console.log(error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  deleteExpiredProjectLog(logID: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.delete<any>(this.urlDeleteExpiredProjectLog + logID, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
 }

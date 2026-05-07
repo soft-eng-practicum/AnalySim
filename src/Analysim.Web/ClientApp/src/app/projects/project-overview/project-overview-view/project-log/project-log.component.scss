@@ -33,3 +33,24 @@
   border: 0;
   border-top: 2px solid rgba(0, 0, 0, 0.125);
 } 
+
+.btn-group{
+  display: flex;
+  gap: var(--space-3);
+}
+
+.archive-card {
+  margin-bottom: var(--space-4);
+  background-color: var(--background-color-tertiary);
+  padding: var(--space-2);
+}
+
+.archive-title {
+  font-size: x-large;
+  font-weight: bold;
+}
+
+.archive-text {
+  color: var(--text-muted);
+  font-size: small;
+}

@@ -63,6 +63,7 @@ import { ModalDeleteCommentComponent } from './project-comments/modal-delete-com
 import { ProjectLogItemComponent } from './project-overview/project-overview-view/project-log/project-log-item/project-log-item.component';
 import { ProjectLogCommentAreaComponent } from './project-overview/project-overview-view/project-log/project-log-comment-area/project-log-comment-area.component';
 import { ModalDeleteLogComponent } from './project-overview/project-overview-view/project-log/modal-delete-log/modal-delete-log.component';
+import { ModalRepostLogComponent } from './project-overview/project-overview-view/project-log/modal-repost-log/modal-repost-log.component';
 
 @NgModule({
   declarations: [
@@ -118,6 +119,7 @@ import { ModalDeleteLogComponent } from './project-overview/project-overview-vie
     ProjectLogItemComponent,
     ProjectLogCommentAreaComponent,
     ModalDeleteLogComponent,
+    ModalRepostLogComponent,
   ],
   imports: [
     CommonModule,

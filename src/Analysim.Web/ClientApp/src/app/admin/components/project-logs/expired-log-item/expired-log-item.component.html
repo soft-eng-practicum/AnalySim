@@ -1,0 +1,41 @@
+<div class="expired-log-row">
+  <div class="log-main-col">
+    <span class="log-title">
+      {{ log.title || "-" }}
+    </span>
+
+    <span class="log-preview">
+      {{ log.content }}
+    </span>
+  </div>
+
+  <div class="project-col">
+    {{ log.projectTitle }}
+  </div>
+
+  <div class="author-col">
+    {{ log.authorName }}
+  </div>
+
+  <div class="comments-col">
+    {{ log.commentCount }}
+  </div>
+
+  <div class="date-col">
+    {{ log.updatedAt | date: "mediumDate" }}
+  </div>
+
+  <div class="date-col">
+    {{ log.expiredAt | date: "mediumDate" }}
+  </div>
+
+  <div class="actions-col">
+    <button
+      type="button"
+      class="btn btn-danger"
+      (click)="onDelete()"
+    >
+      Delete
+    </button>
+  </div>
+</div>

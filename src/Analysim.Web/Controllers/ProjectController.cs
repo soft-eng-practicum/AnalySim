@@ -576,9 +576,12 @@ namespace Web.Controllers
             if (projectId <= 0)
                 return BadRequest("Invalid project id.");
 
+            var now = DateTime.UtcNow;
+
             var rawLogs = await _dbContext.ProjectLogs
                 .AsNoTracking()
                 .Where(l => l.ProjectID == projectId)
+                .Where(l => !l.IsDeleted || (l.ExpiresAt.HasValue && l.ExpiresAt > now))
                 .OrderByDescending(l => l.UpdatedAt)
                 .Select(l => new
                 {
@@ -626,6 +629,61 @@ namespace Web.Controllers
             {
                 result = logs,
                 message = "Received Project Logs"
+            });
+        }
+
+        /*
+        * Type : GET
+        * URL : /api/project/GetExpiredProjectLogs
+        * Description: Gets all soft-deleted project logs that have expired and are ready for permanent deletion
+        */
+        [Authorize]
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetExpiredProjectLogs()
+        {
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new {message = "Invalid user identifier."});
+            }
+            
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new {message = "User Not Found."});
+
+            // Get Admins
+            var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+
+            // Validate User is Admin
+            bool isAdmin = admins.Any(u => string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+            if (!isAdmin) return Forbid();
+
+            var now = DateTime.UtcNow;
+
+            var expiredLogs = await _dbContext.ProjectLogs
+                .AsNoTracking()
+                .Where(l => l.IsDeleted)
+                .Where(l => l.ExpiresAt.HasValue && l.ExpiresAt <= now)
+                .OrderBy(l => l.ExpiresAt)
+                .Select(l => new ExpiredProjectLogVM
+                {
+                    LogID = l.LogID,
+                    AuthorName = l.User.UserName,
+                    ProjectTitle = l.Project.Name,
+                    Title = l.Title,
+                    Content = l.Content,
+                    CreatedAt = l.CreatedAt,
+                    UpdatedAt = l.UpdatedAt,
+                    ExpiredAt = l.ExpiresAt!.Value,
+                    CommentCount = l.Comments.Count()
+                })
+                .ToListAsync();
+
+            return Ok(new
+            {
+                result = expiredLogs,
+                message = "Received expired project logs"
             });
         }
 
@@ -2387,7 +2445,7 @@ namespace Web.Controllers
                 var projectLog = await _dbContext.ProjectLogs
                     .Include(l => l.BlobFile)
                         .ThenInclude(b => b.BlobFileContents)
-                    .SingleOrDefaultAsync(l => l.LogID == logId && !l.IsDeleted);
+                    .SingleOrDefaultAsync(l => l.LogID == logId);
 
                 if (projectLog == null)
                     return NotFound(new { message = "Project Log Not Found." });
@@ -2589,6 +2647,7 @@ namespace Web.Controllers
 
             // Update project log
             projectLog.IsDeleted = true;
+            projectLog.ExpiresAt = DateTime.UtcNow.AddDays(30);
             projectLog.UpdatedAt = DateTime.UtcNow;
 
             // Update Project Log in DB
@@ -2596,6 +2655,59 @@ namespace Web.Controllers
 
             // Return
             return Ok(new { message = "Project log deleted successfully." });
+        }
+
+        /*
+        * Type : PUT
+        * URL : /api/project/repostlog/{projectLogID}
+        * Param : {projectLogID}
+        * Description: set project log IsDeleted = false
+        */
+        [Authorize]
+        [HttpPut("[action]/{projectLogID}")]
+        public async Task<IActionResult> RepostLog([FromRoute] int projectLogID)
+        {
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "User Not Found." });
+
+            // Get Admins
+            var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+
+            // Validate User is Admin
+            bool isAdmin = admins.Any(u =>
+                string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+
+            // Validate Project Log
+            var projectLog = await _dbContext.ProjectLogs
+                .SingleOrDefaultAsync(l => l.LogID == projectLogID);
+
+            if (projectLog == null)
+                return NotFound(new { message = "Project Log Not Found." });
+
+            if (!projectLog.IsDeleted)
+                return BadRequest(new { message = "Cannot repost project log that is not deleted." });
+
+            if (!isAdmin && projectLog.UserID != user.Id)
+                return Unauthorized(new { message = "Project log does not belong to current user." });
+
+            // Update project log
+            projectLog.IsDeleted = false;
+            projectLog.ExpiresAt = null;
+            projectLog.UpdatedAt = DateTime.UtcNow;
+
+            // Update Project Log in DB
+            await _dbContext.SaveChangesAsync();
+
+            // Return
+            return Ok(new { message = "Project log reposted successfully." });
         }
 
         /*
@@ -2927,6 +3039,210 @@ namespace Web.Controllers
         #endregion
 
         #region DELETE REQUEST
+
+        /*
+        * Type : DELETE
+        * URL : /api/project/deleteexpiredprojectlog/{logId}
+        * Param : {logId}
+        * Description: Permanently deletes an expired project log, its image, comments, replies, likes, and flags
+        */
+        [Authorize]
+        [HttpDelete("[action]/{logId}")]
+        public async Task<IActionResult> DeleteExpiredProjectLog([FromRoute] int logId)
+        {
+            if (logId <= 0)
+                return BadRequest(new { message = "Invalid log id." });
+
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Get User
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+
+                // Validate User
+                var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+                if (user == null) return NotFound(new { message = "User Not Found." });
+
+                // Get Admins
+                var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+
+                // Validate User is Admin
+                bool isAdmin = admins.Any(u =>
+                    string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+
+                if (!isAdmin)
+                {
+                    return Forbid();
+                }
+
+                var now = DateTime.UtcNow;
+
+                // Validate Project Log
+                var projectLog = await _dbContext.ProjectLogs
+                    .SingleOrDefaultAsync(l => l.LogID == logId);
+
+                if (projectLog == null)
+                {
+                    return NotFound(new { message = "Project Log Not Found." });
+                }
+
+                // Check if log is not yet expired 
+                if (!projectLog.IsDeleted || !projectLog.ExpiresAt.HasValue || projectLog.ExpiresAt.Value > now)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Project log is not expired and cannot be permanently deleted."
+                    });
+                }
+
+                int? blobFileId = projectLog.BlobFileID;
+
+                /*
+                * Get every comment connected to this log.
+                * This includes:
+                * - Direct comments under the log
+                * - Child replies under those comments
+                * - Nested replies under those replies
+                */
+                var commentIds = new List<int>();
+
+                var currentParentIds = await _dbContext.ProjectComments
+                    .Where(c => c.ProjectLogID == logId)
+                    .Select(c => c.CommentID)
+                    .ToListAsync();
+
+                commentIds.AddRange(currentParentIds);
+
+                while (currentParentIds.Any())
+                {
+                    var childIds = await _dbContext.ProjectComments
+                        .Where(c => c.ParentCommentID.HasValue &&
+                                    currentParentIds.Contains(c.ParentCommentID.Value))
+                        .Select(c => c.CommentID)
+                        .ToListAsync();
+
+                    var newChildIds = childIds
+                        .Where(id => !commentIds.Contains(id))
+                        .ToList();
+
+                    if (!newChildIds.Any())
+                        break;
+
+                    commentIds.AddRange(newChildIds);
+                    currentParentIds = newChildIds;
+                }
+
+                int deletedCommentCount = commentIds.Count;
+
+                if (commentIds.Any())
+                {
+                    // Delete likes connected to the comments.
+                    var commentLikes = await _dbContext.ProjectCommentLikes
+                        .Where(cl => commentIds.Contains(cl.CommentID))
+                        .ToListAsync();
+
+                    _dbContext.ProjectCommentLikes.RemoveRange(commentLikes);
+
+                    // Delete flags connected to the comments.
+                    var commentFlags = await _dbContext.ProjectCommentFlags
+                        .Where(cf => commentIds.Contains(cf.CommentID))
+                        .ToListAsync();
+
+                    _dbContext.ProjectCommentFlags.RemoveRange(commentFlags);
+
+                    await _dbContext.SaveChangesAsync();
+
+                    // Delete comments (bottom up)
+                    var remainingCommentIds = commentIds.Distinct().ToList();
+
+                    while (remainingCommentIds.Any())
+                    {
+                        var parentIdsStillBeingUsed = await _dbContext.ProjectComments
+                            .Where(c => c.ParentCommentID.HasValue &&
+                                        remainingCommentIds.Contains(c.CommentID) &&
+                                        remainingCommentIds.Contains(c.ParentCommentID.Value))
+                            .Select(c => c.ParentCommentID!.Value)
+                            .Distinct()
+                            .ToListAsync();
+
+                        var leafCommentIds = remainingCommentIds
+                            .Where(id => !parentIdsStillBeingUsed.Contains(id))
+                            .ToList();
+
+                        if (!leafCommentIds.Any())
+                        {
+                            return BadRequest(new
+                            {
+                                message = "Unable to determine safe comment deletion order."
+                            });
+                        }
+
+                        var leafComments = await _dbContext.ProjectComments
+                            .Where(c => leafCommentIds.Contains(c.CommentID))
+                            .ToListAsync();
+
+                        _dbContext.ProjectComments.RemoveRange(leafComments);
+                        await _dbContext.SaveChangesAsync();
+
+                        remainingCommentIds = remainingCommentIds
+                            .Where(id => !leafCommentIds.Contains(id))
+                            .ToList();
+                    }
+                }
+
+                // Delete the project log after comments are gone.
+                _dbContext.ProjectLogs.Remove(projectLog);
+                await _dbContext.SaveChangesAsync();
+
+                // Delete image content and image record after the log is gone.
+                if (blobFileId.HasValue)
+                {
+                    var blobFileContents = await _dbContext.BlobFileContent
+                        .Where(bfc => bfc.BlobFileID == blobFileId.Value)
+                        .ToListAsync();
+
+                    _dbContext.BlobFileContent.RemoveRange(blobFileContents);
+
+                    var blobFile = await _dbContext.BlobFiles
+                        .SingleOrDefaultAsync(bf => bf.BlobFileID == blobFileId.Value);
+
+                    if (blobFile != null)
+                    {
+                        _dbContext.BlobFiles.Remove(blobFile);
+                    }
+
+                    await _dbContext.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+
+                return Ok(new
+                {
+                    result = new
+                    {
+                        LogID = logId,
+                        DeletedComments = deletedCommentCount,
+                        DeletedImage = blobFileId.HasValue
+                    },
+                    message = "Expired project log deleted."
+                });
+            }
+            catch (Exception e)
+            {
+                await transaction.RollbackAsync();
+
+                return BadRequest(new
+                {
+                    message = "Unable to delete expired project log.",
+                    error = e.Message
+                });
+            }
+        }
 
         /*
         * Type : DELETE

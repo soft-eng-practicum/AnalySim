@@ -25,7 +25,7 @@ export class ProjectLogCommentAreaComponent implements OnInit {
   currentUser$: Observable<User> = null;
   currentUser: User = null;
 
-  // admin 
+  // Admin routed comment
   currentAdminComment: string;
 
   constructor(
@@ -44,6 +44,7 @@ export class ProjectLogCommentAreaComponent implements OnInit {
     });
   }
 
+  // Get comments for this project log
   loadComments(): void {
     this.isLoading = true;
 
@@ -52,7 +53,7 @@ export class ProjectLogCommentAreaComponent implements OnInit {
         this.comments = comments;
         this.isLoading = false;
 
-        // When routing from admin panel, wait until comments are loaded to scroll
+        // Scroll to comment when routed from admin panel
         setTimeout(() => {
           const fragment = this.route.snapshot.fragment;
           this.currentAdminComment = fragment
@@ -70,6 +71,7 @@ export class ProjectLogCommentAreaComponent implements OnInit {
     });
   }
 
+  // Create a new comment or reply
   onPostComment(
     content: string | { content: string; parentCommentId: number },
   ): void {
@@ -100,6 +102,7 @@ export class ProjectLogCommentAreaComponent implements OnInit {
       });
   }
 
+  // Edit existing comment
   onPutEdit(content: { content: string; commentId: number }): void {
     this.projectService
       .updateComment(content.commentId, content.content)
@@ -121,5 +124,4 @@ export class ProjectLogCommentAreaComponent implements OnInit {
   addComment() {
     this.isReplying = true;
   }
-
 }

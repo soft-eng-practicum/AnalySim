@@ -24,9 +24,6 @@ export class ModalDeleteLogComponent implements OnInit {
   ngOnInit(): void {}
 
   onDeleteLog(): void {
-    this.onSuccessfulDelete.emit();
-    this.deleteModalRef.hide();
-
     this.projectService.deleteProjectLog(this.projectLogID).subscribe({
       next: (result) => {
         console.log('Deleted log', this.projectLogID);

@@ -1,10 +1,12 @@
 <div class="card">
+  <!-- Header -->
   <div class="d-flex card-header flex-row align-items-center">
     <span>Project Log</span>
+
     <div class="d-flex align-items-end ml-auto btn-area">
       <div class="btn-group" role="group">
         <button
-          *ngIf="isMember"
+          *ngIf="isMember && !isInArchive"
           type="button"
           class="btn btn-primary btn-width"
           title="Add Log"
@@ -13,51 +15,91 @@
         >
           <i class="fa fa-plus"></i>
         </button>
+
+        <button
+          *ngIf="isMember"
+          type="button"
+          class="btn btn-outline-primary"
+          title="Add Log"
+          (click)="onMoveTab()"
+          [disabled]="isLoading"
+        >
+          <span>{{ isInArchive ? "Back" : "Archive" }}</span>
+        </button>
       </div>
     </div>
   </div>
-  <div class="m-3">
-    <div
-      class="empty-set"
-      *ngIf="!isLoading && !isCreatingLog && logs.length === 0"
-    >
-      No Project Logs yet.
-    </div>
 
-    <div *ngIf="isCreatingLog" class="new-log">
-      <div class="log-area">
-      <app-project-log-item
-        [log]="null"
-        [projectID]="project.projectID"
-        (onSuccessfulCreate)="onCreateLog()"
-        (onCancelCreate)="this.isCreatingLog = false"
-      ></app-project-log-item>
+  <!-- Active Logs -->
+  <div *ngIf="!isInArchive">
+    <div class="m-3">
+      <div
+        class="empty-set"
+        *ngIf="!isLoading && !isCreatingLog && logs.length === 0"
+      >
+        No Project Logs yet.
+      </div>
 
-      <hr />
+      <!-- Create Log Form -->
+      <div *ngIf="isCreatingLog" class="new-log">
+        <div class="log-area">
+          <app-project-log-item
+            [log]="null"
+            [projectID]="project.projectID"
+            (onSuccessfulCreate)="onCreateLog()"
+            (onCancelCreate)="this.isCreatingLog = false"
+          ></app-project-log-item>
+
+          <hr />
+        </div>
+      </div>
+
+      <!-- Log List -->
+      <div *ngIf="!isLoading && logs.length > 0" class="logs-list">
+        <div *ngFor="let log of logs" class="log-area">
+          <app-project-log-item
+            [log]="log"
+            [currentUser]="currentUser"
+            (onSuccessfulEdit)="loadLogs()"
+          ></app-project-log-item>
+
+          <hr />
+        </div>
       </div>
     </div>
+  </div>
 
-    <div *ngIf="!isLoading && logs.length > 0" class="logs-list">
-      <div *ngFor="let log of logs" class="log-area">
-        <app-project-log-item
-        [log]="log"
-        [currentUser]="currentUser"
-        (onSuccessfulEdit)="loadLogs()"
-      ></app-project-log-item>
-
-      <hr />
+  <!-- Archived Logs -->
+  <div *ngIf="isInArchive">
+    <div class="m-3">
+      <div class="card empty-set archive-card">
+        <span class="archive-title">Archive</span>
+        <p class="archive-text">
+          Deleted logs are hidden from the public and archived here. You can
+          edit and repost these logs while still available. <br />
+          Archived logs are listed for permanent removal after 30 days.
+        </p>
       </div>
-      
+
+      <div
+        class="empty-set"
+        *ngIf="!isLoading && !isCreatingLog && archivedLogs.length === 0"
+      >
+        No Archived Logs.
+      </div>
+
+      <!-- Archived Log List -->
+      <div *ngIf="!isLoading && archivedLogs.length > 0" class="logs-list">
+        <div *ngFor="let log of archivedLogs" class="log-area">
+          <app-project-log-item
+            [log]="log"
+            [currentUser]="currentUser"
+            (onSuccessfulEdit)="loadLogs()"
+          ></app-project-log-item>
+
+          <hr />
+        </div>
+      </div>
     </div>
   </div>
 </div>
-
-<!-- Create Modal
-<ng-template #createModal>
-  <app-modal-create-log
-    [createModalRef]="createModalRef"
-    [projectID]="project.projectID"
-    (onSuccessfulCreate)="loadLogs()"
-    (onCancelCreate)="this.isLoading = false"
-  ></app-modal-create-log>
-</ng-template> -->

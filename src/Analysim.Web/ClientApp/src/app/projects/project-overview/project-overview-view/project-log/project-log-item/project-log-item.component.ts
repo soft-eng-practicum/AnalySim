@@ -17,29 +17,34 @@ import { ProjectService } from 'src/app/services/project.service';
   styleUrls: ['./project-log-item.component.scss'],
 })
 export class ProjectLogItemComponent implements OnInit {
+  // Inputs
   @Input() log: ProjectLog | null;
   @Input() projectID: number;
   @Input() currentUser: User;
 
+  // Delete modal
   @ViewChild('deleteModal') deleteModal: TemplateRef<any>
   deleteModalRef: BsModalRef;
-  // Delete Handling
   isDeleting = false;
   isDeleted = false;
 
+  // Repost modal
+  @ViewChild('repostModal') repostModal: TemplateRef<any>
+  repostModalRef: BsModalRef;
+  isReposting = false;
+
   isOwner = false;
-
   isCommentAreaOpen: boolean = false;
-
   isEditing = false;
-
   commentCount = 0;
 
+  // Image handling
   selectedImageFile: File | null = null;
   imagePreviewUrl: SafeUrl | string | null = null;
   imageInputId = 'logImageInput';
   shouldRemoveImage = false;
 
+  // Outputs
   @Output() onSuccessfulCreate = new EventEmitter<void>();
   @Output() onSuccessfulEdit = new EventEmitter<void>();
   @Output() onCancelCreate = new EventEmitter<void>();
@@ -70,7 +75,6 @@ export class ProjectLogItemComponent implements OnInit {
     if(this.log != null && this.currentUser?.id == this.log.userID) this.isOwner = true;
     this.isEditing = this.log == null;
 
-    // Image Handling
     this.imageInputId = this.log
       ? `logImageInput-${this.log.logID}`
       : 'logImageInput-new';
@@ -79,12 +83,10 @@ export class ProjectLogItemComponent implements OnInit {
       this.imagePreviewUrl = this.log.image;
     }
 
-    // FORM
     this.title = new FormControl(this.log?.title ?? '');
     this.image = new FormControl('');
     this.content = new FormControl(this.log?.content ?? '', [Validators.required]);
 
-    // Initialize FormGroup using FormBuilder
     this.logForm = this.formBuilder.group({
       title: this.title,
       image: this.image,
@@ -92,6 +94,7 @@ export class ProjectLogItemComponent implements OnInit {
     });
   }
 
+  // Select or preview uploaded image
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
 
@@ -115,6 +118,7 @@ export class ProjectLogItemComponent implements OnInit {
     this.imagePreviewUrl = this.sanitizer.bypassSecurityTrustUrl(objectUrl);
   }
 
+  // Remove current image from preview/update form
   onRemoveImage(event: MouseEvent, input: HTMLInputElement): void {
     event.preventDefault();
     event.stopPropagation();
@@ -122,7 +126,6 @@ export class ProjectLogItemComponent implements OnInit {
     this.selectedImageFile = null;
     this.imagePreviewUrl = null;
 
-    // Only tell backend to remove an image when updating an existing log
     if (this.log) {
       this.shouldRemoveImage = true;
     }
@@ -134,6 +137,7 @@ export class ProjectLogItemComponent implements OnInit {
     input.value = '';
   }
 
+  // Create log
   onCreateLog() {
     this.errorStatusAlert = false;
     this.errorResult = null;
@@ -159,6 +163,7 @@ export class ProjectLogItemComponent implements OnInit {
     });
   }
 
+  // Update log
   onUpdateLog(){
     if (!this.log) {
       return;
@@ -192,12 +197,12 @@ export class ProjectLogItemComponent implements OnInit {
     });
   }
 
+  // Build form data for create/update
   buildForm(): FormData | null {
     const log = this.logForm.value;
 
     const formData = new FormData();
 
-    // Content is required
     if (log.content && log.content.trim().length > 0) {
       formData.append('content', log.content.trim());
     } else {
@@ -205,12 +210,10 @@ export class ProjectLogItemComponent implements OnInit {
       return null;
     }
 
-    // Title is optional
     if (log.title && log.title.trim().length > 0) {
       formData.append('title', log.title.trim());
     }
 
-    // Image is optional
     if (this.selectedImageFile) {
       formData.append('image', this.selectedImageFile, this.selectedImageFile.name);
     }
@@ -227,6 +230,9 @@ export class ProjectLogItemComponent implements OnInit {
   }
 
   cancelEdit(){
+    this.errorStatusAlert = false;
+    this.errorResult = null;
+
     this.isEditing = false;
     this.selectedImageFile = null;
     this.shouldRemoveImage = false;
@@ -251,8 +257,7 @@ export class ProjectLogItemComponent implements OnInit {
     this.commentCount++;
   }
 
-  // Delete
-
+  // Delete log
   onDeleteLog(): void {
     if(this.log.isDeleted) return;
     this.toggleModalDelete();
@@ -262,10 +267,27 @@ export class ProjectLogItemComponent implements OnInit {
   onHandleSuccessfulDelete(): void {
     this.isDeleted = true;
     this.isDeleting = false;
+    this.onSuccessfulEdit.emit();
   }
 
   toggleModalDelete() {
     this.deleteModalRef = this.modalService.show(this.deleteModal)
   }
-  
+
+  // Repost log
+  onRepostLog(): void {
+    if(!this.log.isDeleted) return;
+    this.toggleModalRepost();
+    this.isReposting = true;
+  }
+
+  onHandleSuccessfulRepost(): void {
+    this.isDeleted = false;
+    this.isReposting = false;
+    this.onSuccessfulEdit.emit();
+  }
+
+  toggleModalRepost() {
+    this.repostModalRef = this.modalService.show(this.repostModal)
+  }
 }

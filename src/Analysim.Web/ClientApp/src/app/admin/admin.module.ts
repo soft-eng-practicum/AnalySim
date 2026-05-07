@@ -19,6 +19,8 @@ import { CommentsComponent } from './components/comments/comments.component';
 import { FlaggedCommentItemComponent } from './components/comments/flagged-comment-item/flagged-comment-item.component';
 import { ModalDeleteReportsComponent } from './components/comments/modal-delete-reports/modal-delete-reports.component';
 import { ModalIgnoreReportsComponent } from './components/comments/modal-ignore-reports/modal-ignore-reports.component';
+import { ProjectLogsComponent } from './components/project-logs/project-logs.component';
+import { ExpiredLogItemComponent } from './components/project-logs/expired-log-item/expired-log-item.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +39,9 @@ import { ModalIgnoreReportsComponent } from './components/comments/modal-ignore-
     CommentsComponent,
     FlaggedCommentItemComponent,
     ModalDeleteReportsComponent,
-    ModalIgnoreReportsComponent
+    ModalIgnoreReportsComponent,
+    ProjectLogsComponent,
+    ExpiredLogItemComponent
   ],
   imports: [
     CommonModule,

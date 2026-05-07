@@ -1,52 +1,66 @@
 <div class="card">
-  <div class="project-log-card" [class.is-deleted]="isDeleted">
-    <div *ngIf="!isDeleted">
-      <div
-        *ngIf="!isEditing; else editHeader"
-        class="d-flex align-items-center card-header"
-      >
-        <div class="d-flex align-items-center">
-          <img
-            class="project-log-avatar"
-            src="../../../../../assets/img/default-profile.png"
-          />
+  <div class="project-log-card">
+    <!-- Log Header -->
+    <div
+      *ngIf="!isEditing; else editHeader"
+      class="d-flex align-items-center card-header"
+    >
+      <div class="d-flex align-items-center">
+        <img
+          class="project-log-avatar"
+          src="../../../../../assets/img/default-profile.png"
+        />
 
-          <div class="d-flex flex-column ml-3">
-            <div class="project-log-author">
-              {{ log.authorName }}
-            </div>
-
-            <div class="project-log-date">
-              {{ log.updatedAt | date: "MMM d, y • h:mm a" }}
-            </div>
+        <div class="d-flex flex-column ml-3">
+          <div class="project-log-author">
+            {{ log.authorName }}
           </div>
-        </div>
 
-        <div *ngIf="!isEditing && isOwner && !isDeleted" class="d-flex ml-auto">
-          <button class="btn btn-ghost-primary" title="Edit" (click)="onEdit()">
-            <i class="fa-regular fa-pen-to-square"></i>
-          </button>
-
-          <button
-            class="btn btn-ghost-danger"
-            title="Delete"
-            (click)="onDeleteLog()"
-          >
-            <i class="fa-regular fa-trash-can"></i>
-          </button>
+          <div class="project-log-date">
+            {{ log.updatedAt | date: "MMM d, y • h:mm a" }}
+          </div>
         </div>
       </div>
 
-      <ng-template #editHeader>
-        <div class="d-flex align-items-center card-header">
-          <b *ngIf="!log">New Project Log</b>
-          <b *ngIf="log">Edit Project Log</b>
-        </div>
-      </ng-template>
+      <div *ngIf="!isEditing && isOwner" class="d-flex ml-auto">
+        <button
+          class="btn btn-ghost-primary" 
+          title="Edit" 
+          (click)="onEdit()">
+          <i class="fa-regular fa-pen-to-square"></i>
+        </button>
+
+        <button
+          *ngIf="!isDeleted"
+          class="btn btn-ghost-danger"
+          title="Delete"
+          (click)="onDeleteLog()"
+        >
+          <i class="fa-regular fa-trash-can"></i>
+        </button>
+
+        <button
+          *ngIf="isDeleted"
+          class="btn btn-ghost-primary"
+          title="Repost"
+          (click)="onRepostLog()"
+        >
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
     </div>
 
+    <!-- Edit/Create Header -->
+    <ng-template #editHeader>
+      <div class="d-flex align-items-center card-header">
+        <b *ngIf="!log">New Project Log</b>
+        <b *ngIf="log">Edit Project Log</b>
+      </div>
+    </ng-template>
+
+    <!-- View Mode -->
     <div *ngIf="!isEditing; else editMode">
-      <div class="card-content" *ngIf="!isDeleted">
+      <div class="card-content">
         <h1 *ngIf="log.title" class="log-title">
           <b>{{ log.title }}</b>
         </h1>
@@ -63,12 +77,9 @@
           {{ log.content }}
         </div>
       </div>
-
-      <div *ngIf="isDeleted">
-        <div class="empty-set card">[Removed By Owner]</div>
-      </div>
     </div>
 
+    <!-- Edit/Create Form -->
     <ng-template #editMode>
       <div class="card-content edit-log-content">
         <form [formGroup]="logForm">
@@ -132,6 +143,7 @@
           ></textarea>
         </form>
 
+        <!-- Error Message -->
         <div
           id="error"
           *ngIf="errorStatusAlert"
@@ -142,8 +154,9 @@
       </div>
     </ng-template>
   </div>
+
   <div class="card-footer">
-    <!-- FOOTER NORMAL -->
+    <!-- Normal Footer -->
     <div *ngIf="!isEditing" class="footer-main-content">
       <span class="comment-count font-meta">{{ commentCount }} comments</span>
 
@@ -159,7 +172,7 @@
       </button>
     </div>
 
-    <!-- CREATE FOOTER -->
+    <!-- Create Footer -->
     <div *ngIf="isEditing && !log" class="footer-content">
       <button
         type="button"
@@ -174,7 +187,7 @@
       </button>
     </div>
 
-    <!-- EDIT FOOTER -->
+    <!-- Edit Footer -->
     <div *ngIf="isEditing && log" class="footer-content">
       <button
         type="button"
@@ -190,6 +203,7 @@
     </div>
   </div>
 
+  <!-- Comment Area -->
   <div *ngIf="isCommentAreaOpen && log" class="comment-area">
     <app-project-log-comment-area
       [projectId]="this.log.projectID"
@@ -208,4 +222,15 @@
     (onSuccessfulDelete)="onHandleSuccessfulDelete()"
     (onCancelDelete)="this.isDeleting = false"
   ></app-modal-delete-log>
+</ng-template>
+
+<!-- Repost Modal -->
+<ng-template #repostModal>
+  <app-modal-repost-log
+    [repostModalRef]="repostModalRef"
+    [projectLogID]="this.log.logID"
+    [currentUser]="currentUser"
+    (onSuccessfulRepost)="onHandleSuccessfulRepost()"
+    (onCancelRepost)="this.isReposting = false"
+  ></app-modal-repost-log>
 </ng-template>

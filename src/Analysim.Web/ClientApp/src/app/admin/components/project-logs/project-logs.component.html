@@ -1,0 +1,47 @@
+<div class="card p-3">
+  <h4>Expired Logs</h4>
+  <p class="explaination">
+    Currently expired logs needing to be removed from the database. Deleting
+    these will permanently remove the log and any entities related to it (images
+    / comments) from the database.
+  </p>
+
+  <div *ngIf="isLoading" class="alert alert-info">Loading…</div>
+
+  <div
+    *ngIf="!isLoading && expiredLogs.length === 0"
+    class="card empty-set"
+  >
+    No expired logs found.
+  </div>
+
+  <div
+    id="error"
+    *ngIf="errorStatusAlert"
+    class="alert alert-danger alert-dismissible"
+  >
+    <a href="#" class="close" data-dismiss="alert" aria-label="close"
+      >&times;</a
+    >
+    <small class="error" data-dismiss=".alert">{{ this.errorResult }}</small>
+  </div>
+
+  <div *ngIf="!isLoading && expiredLogs.length > 0" class="expired-log-table">
+    <div class="expired-log-header">
+      <div>Log</div>
+      <div>Project</div>
+      <div>Author</div>
+      <div>Comments</div>
+      <div>Deleted</div>
+      <div>Expires</div>
+      <div class="actions-col">Actions</div>
+    </div>
+
+    <app-expired-log-item
+      *ngFor="let log of expiredLogs"
+      [log]="log"
+      (deleteLog)="deleteExpiredLog($event)"
+    >
+    </app-expired-log-item>
+  </div>
+</div>
