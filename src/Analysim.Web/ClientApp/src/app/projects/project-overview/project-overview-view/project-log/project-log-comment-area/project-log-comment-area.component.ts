@@ -73,6 +73,8 @@ export class ProjectLogCommentAreaComponent implements OnInit {
   onPostComment(
     content: string | { content: string; parentCommentId: number },
   ): void {
+    if(!this.currentUser) return;
+    
     var comment: string = '';
     var parentId: number | null = null;
 

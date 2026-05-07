@@ -67,7 +67,7 @@ export class ProjectLogItemComponent implements OnInit {
       this.isDeleted = this.log.isDeleted;
     } 
     
-    if(this.log != null && this.currentUser.id == this.log.userID) this.isOwner = true;
+    if(this.log != null && this.currentUser?.id == this.log.userID) this.isOwner = true;
     this.isEditing = this.log == null;
 
     // Image Handling

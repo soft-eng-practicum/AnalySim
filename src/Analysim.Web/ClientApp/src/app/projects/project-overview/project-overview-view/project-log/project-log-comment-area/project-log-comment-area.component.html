@@ -9,6 +9,7 @@
       aria-label="Reply"
       (click)="addComment()"
       [disabled]="isReplying"
+      *ngIf="this.currentUser"
     >
       <i class="fa fa-plus"></i>
     </button>
