@@ -7,6 +7,7 @@ export interface User {
     userName: string
     email: string
     bio: string
+    receiveCommentReplyEmails: boolean
     dateCreated: Date
     lastOnline: Date
     followers: Array<UserUser>

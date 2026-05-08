@@ -42,6 +42,7 @@ export class AccountService {
   private urlResetPassword: string = this.baseUrl + "resetPassword?"
   private urlChangePassword: string = this.baseUrl + "changePassword"
   private urlReSendVerification: string = this.baseUrl + "sendConfirmationEmail"
+  private urlUpdateNotificationPreferences: string = this.baseUrl + "updatenotificationpreferences/"
 
   // Delete
   private urlUnfollow: string = this.baseUrl + "unfollow/"
@@ -334,6 +335,29 @@ export class AccountService {
 
 
     return this.http.put<any>(this.urlUpdateUser + userID, body, {headers})
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
+  updateNotificationPreferences(receiveCommentReplyEmails: boolean, userID: number): Observable<User> {
+    const body = {
+      receiveCommentReplyEmails: receiveCommentReplyEmails
+    };
+    
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.put<any>(this.urlUpdateNotificationPreferences + userID, body, {headers})
       .pipe(
         map(body => {
           console.log(body.message)

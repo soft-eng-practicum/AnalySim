@@ -1,60 +1,290 @@
-<!-- Container Start -->
-<div class="container" *ngIf="currentUser != null">
-    <!-- Row Start -->
-    <div class="row m-2"></div>
-    <div class="row mt-5">
-        <!-- Column Start -->
-        <div class="col-md-2"></div>
-        <div class="col-md-8">
-            <!-- Card Start -->
-            <div class="card my-5">
-                <!-- Card Header -->
-                <div class="card-header text-center">
-                    Profile Setting
-                </div>
-                <!-- Content Padding Start -->
-                <div class="m-4">
-                    <!-- Row Start -->
-                    <div class="row justify-content-center">
-                        <!-- Form Update Profile -->
-                        <div class="col-md-9">
-                            <!-- Profile Form -->
-                            <form class="form" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-                                <!-- Form Bio -->
-                                <div class="form-group">
-                                    <label for="bio">
-                                        <h5>Bio</h5>
-                                    </label>
-                                    <textarea formControlName="bio" type="text" class="form-control"
-                                        placeholder="">{{currentUser.bio}}</textarea>
-                                </div>
+<!-- Profile Settings Page -->
+<div class="container profile-settings-page" *ngIf="currentUser != null">
+  <div class="row justify-content-center my-5">
+    <div class="col-md-9">
+      <!-- SETTINGS SHELL -->
+      <div class="profile-settings-shell">
+        <!-- PROFILE HEADER -->
+        <div class="settings-profile-header">
+          <div class="settings-profile-main">
+            <img
+              [src]="profileImageUrl"
+              class="settings-avatar"
+              alt="Profile image"
+            />
 
-                                <!-- Form Submit -->
-                                <div class="form-group">
-                                    <button type="submit" class="btn" value="Submit">Update Profile</button>
-                                </div>
-                            </form>
-                        </div>
-                        <!-- Update Profile Image -->
-                        <div class="col-md-3">
-                            <h5>Profile Image</h5>
-                            <img [src]="profileImageUrl" class="card-img img-thumbnail pl-1">
-                            <div class="row mt-3">
-                                <!-- Image Input -->
-                                <div class="col-md-6 pr-1">
-                                    <input id="fileInput" type="file" (change)=fileEvent($event) hidden>
-                                    <button class="btn btn-sm btn-block" (click)="useFileInput()">Upload</button>
-                                </div>
-                                <!-- Clear Current Image -->
-                                <div class="col-md-6 pl-1">
-                                    <button class="btn btn-sm btn-block" (click)="clearProfile()">Clear</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div> <!-- Row End -->
-                </div> <!-- Content Padding End -->
-            </div> <!-- Card End -->
-        </div> <!-- Column End -->
-        <div class="col-md-2"></div>
-    </div> <!-- Row End -->
-</div> <!-- Container End -->
+            <div>
+              <h2 class="settings-title">Profile Settings</h2>
+
+              <div class="settings-user-line">
+                <span>{{ currentUser.userName }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-profile-stats">
+            <div class="settings-stat-row">
+              <span>Email</span>
+              <span>{{ currentUser.email }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROFILE BIO CARD -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <span>Profile</span>
+            <span class="settings-header-action">Public Info</span>
+          </div>
+
+          <div class="settings-card-body">
+            <div class="row profile-split-row">
+              <!-- BIO UPDATE -->
+              <div class="col-md-8 profile-split-col">
+                <form
+                  class="settings-profile-form"
+                  *ngIf="profileBioForm"
+                  [formGroup]="profileBioForm"
+                  (ngSubmit)="onUpdateBio()"
+                >
+                  <div class="settings-inner-box profile-panel">
+                    <div class="settings-inner-header">Bio</div>
+
+                    <div class="profile-panel-body">
+                      <div class="form-group profile-bio-group">
+                        <label for="bio">About You</label>
+
+                        <textarea
+                          id="bio"
+                          class="form-control profile-bio-textarea"
+                          rows="6"
+                          formControlName="bio"
+                          placeholder="Tell people a little about yourself..."
+                        ></textarea>
+                      </div>
+                    </div>
+
+                    <div class="settings-card-actions profile-panel-actions">
+                      <button type="submit" class="btn btn-primary btn-sm">
+                        Update Bio
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <!-- IMAGE UPDATE -->
+              <div class="col-md-4 profile-split-col">
+                <div class="settings-inner-box profile-panel">
+                  <div class="settings-inner-header">Profile Image</div>
+
+                  <div class="profile-panel-body profile-image-panel-body">
+                    <div class="settings-image-box">
+                      <div class="settings-image-frame">
+                        <img
+                          [src]="profileImageUrl"
+                          class="settings-image-preview img-thumbnail"
+                          alt="Profile image"
+                        />
+                      </div>
+
+                      <p class="settings-image-note">
+                        Upload or clear your current profile image.
+                      </p>
+                    </div>
+
+                    <input
+                      id="fileInput"
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      (change)="fileEvent($event)"
+                    />
+                  </div>
+
+                  <div class="settings-card-actions profile-panel-actions">
+                    <button
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      (click)="useFileInput()"
+                    >
+                      Upload
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-danger btn-sm"
+                      (click)="onRemoveProfileImage()"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACCOUNT GRID -->
+        <div class="settings-card settings-content-card">
+          <div class="settings-card-header">
+            <span>Account Settings</span>
+          </div>
+
+          <div class="settings-card-body">
+            <div class="row">
+              <!-- CHANGE EMAIL -->
+              <div class="col-md-6">
+                <form 
+                    *ngIf="emailForm"
+                    [formGroup]="emailForm" 
+                    (ngSubmit)="onChangeEmail()"
+                >
+                  <div class="settings-inner-box">
+                    <div class="settings-inner-header">Change Email</div>
+
+                    <div class="form-group">
+                      <label for="currentEmail">Current Email</label>
+                      <input
+                        id="currentEmail"
+                        type="email"
+                        class="form-control"
+                        [value]="currentUser.email"
+                        disabled
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="newEmail">New Email</label>
+                      <input
+                        id="newEmail"
+                        type="email"
+                        class="form-control"
+                        formControlName="newEmail"
+                        placeholder="Enter new email"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="emailPassword">Current Password</label>
+                      <input
+                        id="emailPassword"
+                        type="password"
+                        class="form-control"
+                        formControlName="currentPassword"
+                        placeholder="Confirm password"
+                      />
+                    </div>
+
+                    <div class="settings-card-actions">
+                      <button type="submit" class="btn btn-primary btn-sm">
+                        Update Email
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <!-- CHANGE PASSWORD -->
+              <div class="col-md-6">
+                <form
+                  *ngIf="passwordForm"
+                  [formGroup]="passwordForm"
+                  (ngSubmit)="onChangePassword()"
+                >
+                  <div class="settings-inner-box">
+                    <div class="settings-inner-header">Change Password</div>
+
+                    <div class="form-group">
+                      <label for="currentPassword">Current Password</label>
+                      <input
+                        id="currentPassword"
+                        type="password"
+                        class="form-control"
+                        formControlName="currentPassword"
+                        placeholder="Enter current password"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="newPassword">New Password</label>
+                      <input
+                        id="newPassword"
+                        type="password"
+                        class="form-control"
+                        formControlName="newPassword"
+                        placeholder="Enter new password"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="confirmPassword">Confirm Password</label>
+                      <input
+                        id="confirmPassword"
+                        type="password"
+                        class="form-control"
+                        formControlName="confirmPassword"
+                        placeholder="Confirm new password"
+                      />
+                    </div>
+
+                    <div class="settings-card-actions">
+                      <button type="submit" class="btn btn-primary btn-sm">
+                        Change Password
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div class="settings-card settings-content-card">
+          <div class="settings-card-header">
+            <span>Notification Preferences</span>
+          </div>
+
+          <form
+            *ngIf="notificationForm"
+            [formGroup]="notificationForm"
+            (ngSubmit)="onSaveNotificationPreferences()"
+          >
+            <div class="settings-card-body">
+              <label class="settings-option" for="sendCommentNotifications">
+                <div>
+                  <div class="settings-option-title">Comment Notifications</div>
+
+                  <div class="settings-option-text">
+                    Notify me when someone replies to my comments.
+                  </div>
+                </div>
+
+                <input
+                  id="sendCommentNotifications"
+                  type="checkbox"
+                  formControlName="sendCommentNotifications"
+                />
+              </label>
+
+              <div class="settings-card-actions">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  Save Preferences
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <input
+    id="fileInput"
+    type="file"
+    accept="image/*"
+    hidden
+    (change)="fileEvent($event)"
+  />
+</div>
