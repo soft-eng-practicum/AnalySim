@@ -60,6 +60,9 @@ import { ProjectCommentItemComponent } from './project-comments/project-comment-
 import { ProjectCommentBoxComponent } from './project-comments/project-comment-box/project-comment-box.component';
 import { ModalReportCommentComponent } from './project-comments/modal-report-comment/modal-report-comment.component';
 import { ModalDeleteCommentComponent } from './project-comments/modal-delete-comment/modal-delete-comment.component';
+import { PublicationItemComponent } from './project-overview/project-overview-view/project-publication/publication-item/publication-item.component';
+import { ModalEditPublicationComponent } from './project-overview/project-overview-view/project-publication/modal-edit-publication/modal-edit-publication.component';
+import { ModalDeletePublicationComponent } from './project-overview/project-overview-view/project-publication/modal-delete-publication/modal-delete-publication.component';
 
 @NgModule({
   declarations: [
@@ -112,6 +115,9 @@ import { ModalDeleteCommentComponent } from './project-comments/modal-delete-com
     ProjectCommentBoxComponent,
     ModalReportCommentComponent,
     ModalDeleteCommentComponent,
+    PublicationItemComponent,
+    ModalEditPublicationComponent,
+    ModalDeletePublicationComponent,
   ],
   imports: [
     CommonModule,

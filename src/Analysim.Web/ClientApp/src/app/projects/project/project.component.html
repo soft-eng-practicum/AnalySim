@@ -196,13 +196,37 @@
         </div>
         <div class="row project-view-row">
           <div class="project-view-container">
-            <app-project-file-explorer *ngIf="activeView === 'File'" [project]="project" [currentUser]="currentUser"
-              [currentDirectory]="fileDirectory" [isMember]="isMember"></app-project-file-explorer>
-            <app-project-publication *ngIf="activeView === 'Publications'"></app-project-publication>
-            <app-project-log *ngIf="activeView === 'Log'"></app-project-log>
-            <app-project-comments [projectId]="project.projectID" *ngIf="activeView === 'Comment'"></app-project-comments>
-            <app-project-content *ngIf='toggleView == "Content"' [project]="project" [currentUser]="currentUser"
-              [isMember]="isMember" [currentDirectory]="fileDirectory"></app-project-content>
+            <app-project-file-explorer 
+              *ngIf="activeView === 'File'" 
+              [project]="project" 
+              [currentUser]="currentUser"
+              [currentDirectory]="fileDirectory" 
+              [isMember]="isMember">
+            </app-project-file-explorer>
+
+            <app-project-publication 
+              *ngIf="activeView === 'Publications'" 
+              [project]="project" 
+              [currentUser]="currentUser"
+              [isMember]="isMember">
+            </app-project-publication>
+
+            <app-project-log 
+            *ngIf="activeView === 'Log'">
+            </app-project-log>
+
+            <app-project-comments 
+              [projectId]="project.projectID" 
+              *ngIf="activeView === 'Comment'">
+            </app-project-comments>
+
+            <app-project-content 
+              *ngIf='toggleView == "Content"' 
+              [project]="project" 
+              [currentUser]="currentUser"
+              [isMember]="isMember" 
+              [currentDirectory]="fileDirectory">
+            </app-project-content>
           </div>
 
         </div>

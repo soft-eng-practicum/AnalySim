@@ -42,6 +42,7 @@ namespace Core.Entities
         // Comments
         public ICollection<ProjectComment> ProjectComments { get; set; } = new List<ProjectComment>();
 
+        public ICollection<Publication> Publications { get; set; } = new List<Publication>();
 
         public int ForkedFromProjectID { get; set; }
     }
