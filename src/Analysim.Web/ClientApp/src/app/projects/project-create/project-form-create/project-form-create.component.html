@@ -31,6 +31,10 @@
     </div>
 
     <!-- Form Create Project -->
+    <div *ngIf="submitErrorMessage" class="form-group mb-2">
+        <div class="alert alert-danger mb-0" role="alert">{{ submitErrorMessage }}</div>
+    </div>
+
     <div class="form-group mb-0">
         <button id="success-btn"  type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="projectForm.invalid">
             <div *ngIf="!isLoading">

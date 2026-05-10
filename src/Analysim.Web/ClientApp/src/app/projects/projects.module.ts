@@ -64,6 +64,9 @@ import { ProjectLogItemComponent } from './project-overview/project-overview-vie
 import { ProjectLogCommentAreaComponent } from './project-overview/project-overview-view/project-log/project-log-comment-area/project-log-comment-area.component';
 import { ModalDeleteLogComponent } from './project-overview/project-overview-view/project-log/modal-delete-log/modal-delete-log.component';
 import { ModalRepostLogComponent } from './project-overview/project-overview-view/project-log/modal-repost-log/modal-repost-log.component';
+import { PublicationItemComponent } from './project-overview/project-overview-view/project-publication/publication-item/publication-item.component';
+import { ModalEditPublicationComponent } from './project-overview/project-overview-view/project-publication/modal-edit-publication/modal-edit-publication.component';
+import { ModalDeletePublicationComponent } from './project-overview/project-overview-view/project-publication/modal-delete-publication/modal-delete-publication.component';
 
 @NgModule({
   declarations: [
@@ -120,6 +123,9 @@ import { ModalRepostLogComponent } from './project-overview/project-overview-vie
     ProjectLogCommentAreaComponent,
     ModalDeleteLogComponent,
     ModalRepostLogComponent,
+    PublicationItemComponent,
+    ModalEditPublicationComponent,
+    ModalDeletePublicationComponent,
   ],
   imports: [
     CommonModule,

@@ -223,6 +223,13 @@ namespace Infrastructure.Data
                         .HasIndex(pc => pc.ProjectLogID);
 
             #endregion
+            
+            // One To Many Relationship (Project -> Publication)
+            modelBuilder.Entity<Project>()
+                        .HasMany(p => p.Publications)
+                        .WithOne(pp => pp.Project)
+                        .HasForeignKey(pp => pp.ProjectID)
+                        .OnDelete(DeleteBehavior.Cascade);
         }
 
 
@@ -242,5 +249,7 @@ namespace Infrastructure.Data
         public DbSet<ProjectCommentLike> ProjectCommentLikes { get; set; }
         public DbSet<ProjectCommentFlag> ProjectCommentFlags { get; set; }
         public DbSet<ProjectLog> ProjectLogs { get; set; }
+
+        public DbSet<Publication> Publications { get; set; }
     }
 }

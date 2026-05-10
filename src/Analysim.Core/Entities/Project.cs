@@ -44,6 +44,7 @@ namespace Core.Entities
 
         // Logs
         public ICollection<ProjectLog> ProjectLogs { get; set; } = new List<ProjectLog>();
+        public ICollection<Publication> Publications { get; set; } = new List<Publication>();
 
         public int ForkedFromProjectID { get; set; }
     }

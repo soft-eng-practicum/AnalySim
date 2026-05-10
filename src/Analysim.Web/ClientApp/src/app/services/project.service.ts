@@ -18,6 +18,7 @@ import { ProjectComment } from '../interfaces/project-comment';
 import { FlaggedCommentGroup } from '../interfaces/project-comment-flag';
 import { ProjectLog } from '../interfaces/project-log';
 import { ExpiredProjectLog } from '../interfaces/expired-project-log';
+import { Publication } from '../interfaces/publication';
 
 @Injectable({
   providedIn: 'root'
@@ -48,7 +49,8 @@ export class ProjectService {
   private urlGetProjectLogs: string = this.baseUrl + "getprojectlogs/";
   private urlGetProjectLogComments: string = this.baseUrl + "getprojectlogcomments/";
   private urlGetExpiredProjectLogs: string = this.baseUrl + "getexpiredprojectlogs/";
-  
+  private urlGetPublications: string = this.baseUrl + "GetPublications/";
+
   // Post
   private urlCreateProject: string = this.baseUrl + "createproject"
   private urlAddUser: string = this.baseUrl + "adduser"
@@ -64,6 +66,7 @@ export class ProjectService {
   private urlReportComment: string = this.baseUrl + "reportcomment/";
   private urlDeleteCommentandReports: string = this.baseUrl + "deletecommentandreports/";
   private urlAddProjectLog: string = this.baseUrl + "addprojectlog";
+  private urlAddPublication: string = this.baseUrl + "addPublication";
 
   // Put
   private urlUpdateProject: string = this.baseUrl + "updateproject/"
@@ -76,6 +79,7 @@ export class ProjectService {
   private urlUpdateProjectLog: string = this.baseUrl + "updateprojectlog/";
   private urlDeleteProjectLog: string = this.baseUrl + "deletelog/";
   private urlRepostProjectLog: string = this.baseUrl + "repostlog/";
+  private urlUpdatePublication: string = this.baseUrl + "updatePublication/";
 
   // Delete
   private urlDeleteProject: string = this.baseUrl + "deleteproject/"
@@ -86,6 +90,7 @@ export class ProjectService {
   private urlRemoveCommentReport: string = this.baseUrl + "removecommentreport/";
   private urlRemoveAllCommentReports: string = this.baseUrl + "removeallcommentreports/";
   private urlDeleteExpiredProjectLog: string = this.baseUrl + "deleteexpiredprojectlog/";
+  private urlDeletePublication: string = this.baseUrl + "deletepublication/";
 
   // Extra
   private urlGetUserList: string = this.baseUrl + "getuserlist/"
@@ -1023,6 +1028,74 @@ export class ProjectService {
     );
   }
 
+  getPublications(projectID: number): Observable<Publication[]> {
+    return this.http.get<any>(this.urlGetPublications + projectID)
+      .pipe(
+        map(body => {
+          console.log(body.message);
+          return body.result;
+        }),
+        catchError(error => {
+          console.log(error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  addPublication(formData: FormData): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.post<any>(this.urlAddPublication, formData, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  deletePublication(publicationId: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.delete<any>(this.urlDeletePublication + publicationId, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  updatePublication(formData: FormData, publicationId: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.put<any>(this.urlUpdatePublication + publicationId, formData, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+  
   getProjectLogs(projectID: number): Observable<ProjectLog[]> {
     return this.http.get<any>(this.urlGetProjectLogs + projectID)
       .pipe(
