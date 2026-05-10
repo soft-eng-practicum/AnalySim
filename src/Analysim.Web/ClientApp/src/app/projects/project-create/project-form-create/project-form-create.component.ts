@@ -29,6 +29,7 @@ export class ProjectFormCreateComponent implements OnInit {
   currentUser$ : Observable<User>
   currentUser : User
   isLoading : boolean
+  submitErrorMessage: string
 
   @Output() setProject = new EventEmitter<Project>()
 
@@ -37,6 +38,7 @@ export class ProjectFormCreateComponent implements OnInit {
       this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
 
     this.isLoading = false;
+    this.submitErrorMessage = '';
 
     await this.accountService.currentUser.then((x) => this.currentUser$ = x)
     this.currentUser$.subscribe(x => this.currentUser = x)
@@ -80,11 +82,16 @@ export class ProjectFormCreateComponent implements OnInit {
 
   onSubmit() {
     let projectForm = this.projectForm.value;
+    this.submitErrorMessage = '';
+    this.isLoading = true;
 
     this.projectService.createProject(this.currentUser, projectForm.name, projectForm.visibility, projectForm.description).subscribe(
       result =>{
+        this.isLoading = false;
         this.setProject.emit(result)
       },error =>{
+        this.isLoading = false;
+        this.submitErrorMessage = error?.error?.message || 'Failed to create project.';
         console.log(error)
       }
     )

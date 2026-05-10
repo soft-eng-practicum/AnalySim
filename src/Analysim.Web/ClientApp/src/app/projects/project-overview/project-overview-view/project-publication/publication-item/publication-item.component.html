@@ -1,0 +1,63 @@
+<div class="pub-item">
+  <div class="d-flex flex-row para">
+    <p class="para">
+      {{ publication.sourceAuthor }} ({{publication.year}}). <b *ngIf="publication.title">{{ publication.title }}.</b> <i> {{ publication.journal }}</i>
+    </p>
+    <div class="d-inline-flex ml-auto">
+      <button
+        class="btn btn-ghost-primary"
+        title="Edit"
+        *ngIf="isMember"
+        (click)="onEditPublication()"
+      >
+        <i class="fa-regular fa-pen-to-square"></i>
+      </button>
+
+      <button
+        class="btn btn-ghost-danger"
+        title="Delete"
+        *ngIf="isMember"
+        (click)="onDeletePublication()"
+      >
+        <i class="fa-regular fa-trash-can"></i>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="publication.url || publication.doi" class="d-flex flex-row url-row">
+    <div *ngIf="publication.url">
+      URL:
+      <a href="{{ publication.url }}" target="_blank">{{ publication.url }}</a>
+    </div>
+    <div *ngIf="publication.url && publication.doi">&nbsp;·&nbsp;</div>
+    <div *ngIf="publication.doi">
+      DOI:
+      <a href="{{ publication.doi }}" target="_blank"
+        >https://doi.org/{{ publication.doi }}</a
+      >
+    </div>
+  </div>
+  <p class="para">{{ publication.notes }}</p>
+</div>
+
+
+<!-- Delete Modal -->
+<ng-template #deleteModal>
+  <app-modal-delete-publication
+    [deleteModalRef]="deleteModalRef"
+    [publication]="publication"
+    (onSuccessfulDelete)="onHandleSuccessfulAction()"
+    (onCancelDelete)="this.isHandlingAction = false"
+  ></app-modal-delete-publication>
+</ng-template>
+
+<!-- Edit Modal -->
+<ng-template #editModal>
+  <app-modal-edit-publication
+    [editModalRef]="editModalRef"
+    [editingPublication]="this.publication"
+    [projectID]="this.projectId"
+    (onSuccessfulEdit)="onHandleSuccessfulAction()"
+    (onCancelEdit)="this.isHandlingAction = false"
+  ></app-modal-edit-publication>
+</ng-template>

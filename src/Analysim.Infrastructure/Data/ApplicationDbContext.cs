@@ -182,6 +182,13 @@ namespace Infrastructure.Data
                         .HasIndex(cf => cf.UserID);
 
             #endregion
+
+            // One To Many Relationship (Project -> Publication)
+            modelBuilder.Entity<Project>()
+                        .HasMany(p => p.Publications)
+                        .WithOne(pp => pp.Project)
+                        .HasForeignKey(pp => pp.ProjectID)
+                        .OnDelete(DeleteBehavior.Cascade);
         }
 
 
@@ -200,5 +207,7 @@ namespace Infrastructure.Data
         public DbSet<ProjectComment> ProjectComments { get; set; }
         public DbSet<ProjectCommentLike> ProjectCommentLikes { get; set; }
         public DbSet<ProjectCommentFlag> ProjectCommentFlags { get; set; }
+
+        public DbSet<Publication> Publications { get; set; }
     }
 }
