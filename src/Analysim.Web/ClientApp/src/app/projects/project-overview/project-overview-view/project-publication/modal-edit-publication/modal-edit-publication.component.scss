@@ -1,0 +1,50 @@
+.modal-confirm{
+    text-align: center;
+    font-weight: 700;
+    font-size: large;
+    padding: 0;
+    padding-bottom: 1rem;
+    margin: 0;
+}
+
+.modal-warning{
+    text-align: center;
+    font-size: small;
+    padding: 0;
+    margin: 0;
+}
+
+.label-row {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: var(--space-3);
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.publication-form {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 1rem var(--space-3);
+    align-items: start;
+}
+
+.label-title {
+    margin: 0;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.form-control {
+    width: 100%;
+    min-width: 0;
+    color: black !important;
+}
+
+.form-header {
+  margin-bottom: 1.5rem;
+}
+
+.error-center{
+    text-align: center;
+}

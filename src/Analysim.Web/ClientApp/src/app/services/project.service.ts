@@ -16,6 +16,7 @@ import { Notebook, NotebookFile, NotebookURL } from '../interfaces/notebook';
 import { getItem } from 'localforage';
 import { ProjectComment } from '../interfaces/project-comment';
 import { FlaggedCommentGroup } from '../interfaces/project-comment-flag';
+import { Publication } from '../interfaces/publication';
 
 @Injectable({
   providedIn: 'root'
@@ -43,6 +44,7 @@ export class ProjectService {
   private urlGetNotebookVersions: string = this.baseUrl + "getnotebookversions/"
   private urlGetProjectComments: string = this.baseUrl + "getprojectcomments/";
   private urlGetFlaggedProjectComments: string = this.baseUrl + "GetAllFlaggedComments";
+  private urlGetPublications: string = this.baseUrl + "GetPublications/";
 
   // Post
   private urlCreateProject: string = this.baseUrl + "createproject"
@@ -58,6 +60,7 @@ export class ProjectService {
   private urlLikeComment: string = this.baseUrl + "likecomment/";
   private urlReportComment: string = this.baseUrl + "reportcomment/";
   private urlDeleteCommentandReports: string = this.baseUrl + "deletecommentandreports/";
+  private urlAddPublication: string = this.baseUrl + "addPublication";
 
   // Put
   private urlUpdateProject: string = this.baseUrl + "updateproject/"
@@ -67,6 +70,7 @@ export class ProjectService {
   private urlDeleteDatasetFromNotebook: string = this.baseUrl + "deleteDatasetFromNotebook/"
   private urlUpdateComment: string = this.baseUrl + "updatecomment/";
   private urlDeleteComment: string = this.baseUrl + "deletecomment/";
+  private urlUpdatePublication: string = this.baseUrl + "updatePublication/";
 
   // Delete
   private urlDeleteProject: string = this.baseUrl + "deleteproject/"
@@ -76,6 +80,7 @@ export class ProjectService {
   private urlUnlikeComment: string = this.baseUrl + "likecomment/";
   private urlRemoveCommentReport: string = this.baseUrl + "removecommentreport/";
   private urlRemoveAllCommentReports: string = this.baseUrl + "removeallcommentreports/";
+  private urlDeletePublication: string = this.baseUrl + "deletepublication/";
 
   // Extra
   private urlGetUserList: string = this.baseUrl + "getuserlist/"
@@ -1001,6 +1006,74 @@ export class ProjectService {
     );
 
     return this.http.post<any>(this.urlDeleteCommentandReports + commentID, null, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  getPublications(projectID: number): Observable<Publication[]> {
+    return this.http.get<any>(this.urlGetPublications + projectID)
+      .pipe(
+        map(body => {
+          console.log(body.message);
+          return body.result;
+        }),
+        catchError(error => {
+          console.log(error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  addPublication(formData: FormData): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.post<any>(this.urlAddPublication, formData, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  deletePublication(publicationId: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.delete<any>(this.urlDeletePublication + publicationId, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  updatePublication(formData: FormData, publicationId: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.put<any>(this.urlUpdatePublication + publicationId, formData, {headers}).pipe(
       map(body => {
         console.log(body.message);
         return body;

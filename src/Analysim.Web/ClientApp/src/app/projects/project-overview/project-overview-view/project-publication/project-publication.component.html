@@ -1,56 +1,86 @@
 <div class="card">
   <div class="d-flex card-header flex-row align-items-center">
-    <span class="mr-2">Publications</span>
-    <div class="d-inline-flex ml-auto">
+    <span class="">Publications</span>
+    <div class="d-flex align-items-end ml-auto btn-area">
+      <div class="explore-control">
+        <label class="explore-control__label">Sort</label>
+
+        <div class="explore-dropdown" [class.is-open]="isSortOpen">
+          <button
+            type="button"
+            class="btn btn-outline-primary explore-dropdown-toggle"
+            (click)="$event.stopPropagation(); toggleSortDropdown()"
+            [disabled]="isLoading"
+          >
+            <span>{{ sortOrder === "newest" ? "Newest" : "Oldest" }}</span>
+            <span class="explore-dropdown-caret">▾</span>
+          </button>
+
+          <div
+            class="explore-dropdown-menu"
+            *ngIf="isSortOpen"
+            (click)="$event.stopPropagation()"
+          >
+            <button
+              type="button"
+              class="dropdown-item"
+              (click)="selectSortOrder('newest')"
+            >
+              Newest
+            </button>
+
+            <button
+              type="button"
+              class="dropdown-item"
+              (click)="selectSortOrder('oldest')"
+            >
+              Oldest
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Private Button Group Start -->
-      <div class="btn-group mr-3" role="group">
-        <button type="button" class="btn" title="Add Publications">
+      <div class="btn-group" role="group">
+        <button
+          *ngIf="isMember"
+          type="button"
+          class="btn btn-primary btn-width"
+          title="Add Publication"
+          (click)="onAddPublication()"
+          [disabled]="isLoading"
+        >
           <i class="fa fa-plus"></i>
         </button>
       </div>
     </div>
   </div>
-  <ul class="list-group">
-    <li class="list-group-item">
-      <div class="d-flex flex-row">
-        Neuromorphic Computing and Engineering,2020
-        <div class="d-inline-flex ml-auto">
-          <button type="button" class="btn" title="Delete" data-toggle="modal" data-target="#exampleModal">
-            <i class="fa fa-trash"></i>
-          </button>
-        </div>
-      </div>
-    </li>
-    <li class="list-group-item">
-      <div class="d-flex flex-row">
-        Neuromorphic Computing and Engineering,2020
-        <div class="d-inline-flex ml-auto">
-          <button type="button" class="btn" title="Delete" data-toggle="modal" data-target="#exampleModal">
-            <i class="fa fa-trash"></i>
-          </button>
-        </div>
-      </div>
-    </li>
-  </ul>
-</div>
+  <div class="m-3">
+    <div *ngIf="!isLoading && publications.length === 0">
+      No publications yet.
+    </div>
 
-
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Delete Window</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to delete this publication ?!
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn" data-dismiss="modal">Close</button>
-        <button type="button" class="btn">Delete</button>
-      </div>
+    <div *ngIf="!isLoading && publications.length > 0">
+      <app-publication-item
+        *ngFor="let publication of sortedPublications"
+        [id]="publication.publicationID.toString()"
+        [publication]="publication"
+        [currentUser]="currentUser"
+        [isMember]="isMember"
+        [projectId]="this.project.projectID"
+        (onReload)="loadPublications()"
+      >
+      </app-publication-item>
     </div>
   </div>
 </div>
+
+<!-- Edit Modal -->
+<ng-template #editModal>
+  <app-modal-edit-publication
+    [editModalRef]="editModalRef"
+    [projectID]="project.projectID"
+    (onSuccessfulEdit)="loadPublications()"
+    (onCancelEdit)="this.isLoading = false"
+  ></app-modal-edit-publication>
+</ng-template>
