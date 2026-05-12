@@ -170,7 +170,7 @@ export class ProfileSettingComponent implements OnInit {
     this.accountService.updateNotificationPreferences(form.sendCommentNotifications, this.currentUser.id).subscribe(
       (result) => {
         this.currentUser = result;
-        this.notif.showSuccess(
+        this.notif.showInfo(
           'Notification Preferences successfully updated',
           'Account Update',
         );
