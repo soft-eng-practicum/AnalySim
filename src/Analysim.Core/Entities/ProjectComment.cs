@@ -21,6 +21,11 @@ namespace Core.Entities
         public int ProjectID { get; set; }
         public Project Project{ get; set; } = null!;
 
+        // Is this comment linked to a Project Log?
+        [ForeignKey("ProjectLog")]
+        public int? ProjectLogID { get; set; }
+        public ProjectLog? ProjectLog  { get; set; } 
+
         // Is this comment a reply?
         [ForeignKey("ParentComment")]
         public int? ParentCommentID { get; set; }

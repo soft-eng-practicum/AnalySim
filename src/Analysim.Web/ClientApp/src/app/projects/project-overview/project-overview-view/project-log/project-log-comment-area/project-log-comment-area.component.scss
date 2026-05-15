@@ -1,0 +1,27 @@
+.empty-set {
+  text-align: center;
+  padding: var(--space-2);
+}
+
+.header-area {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-bottom: var(--space-2);
+}
+
+.title {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: small;
+}
+
+.inline-divider {
+  flex: 1;
+  height: 1px;
+  margin: 0;
+  border: none;
+  background-color: #0000001a;
+}

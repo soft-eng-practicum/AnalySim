@@ -212,7 +212,10 @@
             </app-project-publication>
 
             <app-project-log 
-            *ngIf="activeView === 'Log'">
+              *ngIf="activeView === 'Log'" 
+              [project]="project" 
+              [currentUser]="currentUser"
+              [isMember]="isMember">
             </app-project-log>
 
             <app-project-comments 

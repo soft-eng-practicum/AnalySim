@@ -3,21 +3,22 @@ using System.Collections.Generic;
 
 namespace Analysim.Web.ViewModels.Project
 {
-    public class ProjectCommentVM
+    public class ProjectLogVM
     {
-        public int CommentID { get; set; }
+        public int LogID { get; set; }
         public int UserID { get; set; }
         public string AuthorName { get; set; } = string.Empty;
         public int ProjectID { get; set; }
-        public int? ParentCommentID { get; set; }
-        public int? ProjectLogID { get; set; }
+        public string? Title { get; set; }
+
+        // base64 data URL.
+        public string? Image { get; set; }
+
         public string Content { get; set; } = string.Empty;
         public bool IsDeleted { get; set; }
-        public bool IsPendingReview { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public List<ProjectCommentVM> Replies { get; set; } = new();
-        public List<ProjectCommentLikeVM>? CommentLikes { get; set; } = new();
-        public List<ProjectCommentFlagVM>? CommentFlags { get; set; } = new();
+
+        public int CommentCount { get; set; }
     }
 }

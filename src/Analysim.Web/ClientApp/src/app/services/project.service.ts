@@ -16,6 +16,8 @@ import { Notebook, NotebookFile, NotebookURL } from '../interfaces/notebook';
 import { getItem } from 'localforage';
 import { ProjectComment } from '../interfaces/project-comment';
 import { FlaggedCommentGroup } from '../interfaces/project-comment-flag';
+import { ProjectLog } from '../interfaces/project-log';
+import { ExpiredProjectLog } from '../interfaces/expired-project-log';
 import { Publication } from '../interfaces/publication';
 
 @Injectable({
@@ -44,6 +46,9 @@ export class ProjectService {
   private urlGetNotebookVersions: string = this.baseUrl + "getnotebookversions/"
   private urlGetProjectComments: string = this.baseUrl + "getprojectcomments/";
   private urlGetFlaggedProjectComments: string = this.baseUrl + "GetAllFlaggedComments";
+  private urlGetProjectLogs: string = this.baseUrl + "getprojectlogs/";
+  private urlGetProjectLogComments: string = this.baseUrl + "getprojectlogcomments/";
+  private urlGetExpiredProjectLogs: string = this.baseUrl + "getexpiredprojectlogs/";
   private urlGetPublications: string = this.baseUrl + "GetPublications/";
 
   // Post
@@ -60,6 +65,7 @@ export class ProjectService {
   private urlLikeComment: string = this.baseUrl + "likecomment/";
   private urlReportComment: string = this.baseUrl + "reportcomment/";
   private urlDeleteCommentandReports: string = this.baseUrl + "deletecommentandreports/";
+  private urlAddProjectLog: string = this.baseUrl + "addprojectlog";
   private urlAddPublication: string = this.baseUrl + "addPublication";
 
   // Put
@@ -70,6 +76,9 @@ export class ProjectService {
   private urlDeleteDatasetFromNotebook: string = this.baseUrl + "deleteDatasetFromNotebook/"
   private urlUpdateComment: string = this.baseUrl + "updatecomment/";
   private urlDeleteComment: string = this.baseUrl + "deletecomment/";
+  private urlUpdateProjectLog: string = this.baseUrl + "updateprojectlog/";
+  private urlDeleteProjectLog: string = this.baseUrl + "deletelog/";
+  private urlRepostProjectLog: string = this.baseUrl + "repostlog/";
   private urlUpdatePublication: string = this.baseUrl + "updatePublication/";
 
   // Delete
@@ -80,6 +89,7 @@ export class ProjectService {
   private urlUnlikeComment: string = this.baseUrl + "likecomment/";
   private urlRemoveCommentReport: string = this.baseUrl + "removecommentreport/";
   private urlRemoveAllCommentReports: string = this.baseUrl + "removeallcommentreports/";
+  private urlDeleteExpiredProjectLog: string = this.baseUrl + "deleteexpiredprojectlog/";
   private urlDeletePublication: string = this.baseUrl + "deletepublication/";
 
   // Extra
@@ -832,11 +842,12 @@ export class ProjectService {
       );
   }
 
-  postComment(projectID: number, content: string, parentID: number | null): Observable<any> {
+  postComment(projectID: number, content: string, parentID: number | null, projectLogID: number | null): Observable<any> {
     let body = new FormData();
     body.append('projectID', projectID.toString());
     body.append('content', content);
     if(parentID != null) body.append('parentCommentID', parentID.toString());
+    if(projectLogID != null) body.append('projectLogID', projectLogID.toString());
 
     const headers = new HttpHeaders().set(
       'Authorization', 
@@ -1084,5 +1095,141 @@ export class ProjectService {
       })
     );
   }
+  
+  getProjectLogs(projectID: number): Observable<ProjectLog[]> {
+    return this.http.get<any>(this.urlGetProjectLogs + projectID)
+      .pipe(
+        map(body => {
+          console.log(body.message);
+          return body.result;
+        }),
+        catchError(error => {
+          console.log(error);
+          return throwError(() => error);
+        })
+      );
+  }
 
+  addProjectLog(formData: FormData): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.post<any>(this.urlAddProjectLog, formData, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  updateProjectLog(formData: FormData, logId: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.put<any>(this.urlUpdateProjectLog + logId, formData, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  getProjectLogComments(projectLogID: number): Observable<ProjectComment[]> {
+    return this.http.get<any>(this.urlGetProjectLogComments + projectLogID)
+      .pipe(
+        map(body => {
+          console.log(body.message);
+          return body.result;
+        }),
+        catchError(error => {
+          console.log(error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  deleteProjectLog(logID: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.put<any>(this.urlDeleteProjectLog + logID, null, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  repostProjectLog(logID: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.put<any>(this.urlRepostProjectLog + logID, null, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  getExpiredProjectLogs(): Observable<ExpiredProjectLog[]> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.get<any>(this.urlGetExpiredProjectLogs, {headers})
+      .pipe(
+        map(body => {
+          console.log(body.message);
+          return body.result;
+        }),
+        catchError(error => {
+          console.log(error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  deleteExpiredProjectLog(logID: number): Observable<any> {
+    const headers = new HttpHeaders().set(
+      'Authorization', 
+      `Bearer ${localStorage.getItem('jwt')}`
+    );
+
+    return this.http.delete<any>(this.urlDeleteExpiredProjectLog + logID, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
 }

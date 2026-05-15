@@ -60,6 +60,10 @@ import { ProjectCommentItemComponent } from './project-comments/project-comment-
 import { ProjectCommentBoxComponent } from './project-comments/project-comment-box/project-comment-box.component';
 import { ModalReportCommentComponent } from './project-comments/modal-report-comment/modal-report-comment.component';
 import { ModalDeleteCommentComponent } from './project-comments/modal-delete-comment/modal-delete-comment.component';
+import { ProjectLogItemComponent } from './project-overview/project-overview-view/project-log/project-log-item/project-log-item.component';
+import { ProjectLogCommentAreaComponent } from './project-overview/project-overview-view/project-log/project-log-comment-area/project-log-comment-area.component';
+import { ModalDeleteLogComponent } from './project-overview/project-overview-view/project-log/modal-delete-log/modal-delete-log.component';
+import { ModalRepostLogComponent } from './project-overview/project-overview-view/project-log/modal-repost-log/modal-repost-log.component';
 import { PublicationItemComponent } from './project-overview/project-overview-view/project-publication/publication-item/publication-item.component';
 import { ModalEditPublicationComponent } from './project-overview/project-overview-view/project-publication/modal-edit-publication/modal-edit-publication.component';
 import { ModalDeletePublicationComponent } from './project-overview/project-overview-view/project-publication/modal-delete-publication/modal-delete-publication.component';
@@ -115,6 +119,10 @@ import { ModalDeletePublicationComponent } from './project-overview/project-over
     ProjectCommentBoxComponent,
     ModalReportCommentComponent,
     ModalDeleteCommentComponent,
+    ProjectLogItemComponent,
+    ProjectLogCommentAreaComponent,
+    ModalDeleteLogComponent,
+    ModalRepostLogComponent,
     PublicationItemComponent,
     ModalEditPublicationComponent,
     ModalDeletePublicationComponent,

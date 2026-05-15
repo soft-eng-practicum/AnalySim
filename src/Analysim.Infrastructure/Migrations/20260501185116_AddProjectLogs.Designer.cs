@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260501185116_AddProjectLogs")]
+    partial class AddProjectLogs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -356,9 +358,6 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -424,51 +423,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ProjectID");
 
                     b.ToTable("ProjectUsers");
-                });
-
-            modelBuilder.Entity("Core.Entities.Publication", b =>
-                {
-                    b.Property<int>("PublicationID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PublicationID"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Doi")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Journal")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("SourceAuthor")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Url")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("Year")
-                        .IsRequired()
-                        .HasColumnType("integer");
-
-                    b.HasKey("PublicationID");
-
-                    b.HasIndex("ProjectID");
-
-                    b.ToTable("Publications");
                 });
 
             modelBuilder.Entity("Core.Entities.Tag", b =>
@@ -616,21 +570,21 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "f1d80f82-74ad-4f0e-b39a-228c651b424a",
+                            ConcurrencyStamp = "0c915a79-dc98-430c-a82f-048743d03033",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "cfb8a477-eb7b-4e91-865d-122d17565ce0",
+                            ConcurrencyStamp = "a31a3c30-80f8-4608-84b8-6599710cfc4e",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "ecaa6f71-1595-44f7-9337-57b461da675a",
+                            ConcurrencyStamp = "5d4427c2-ffb3-4204-842c-465b37f576da",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });
@@ -935,17 +889,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Core.Entities.Publication", b =>
-                {
-                    b.HasOne("Core.Entities.Project", "Project")
-                        .WithMany("Publications")
-                        .HasForeignKey("ProjectID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("Core.Entities.UserUser", b =>
                 {
                     b.HasOne("Core.Entities.User", "Follower")
@@ -1041,8 +984,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("ProjectTags");
 
                     b.Navigation("ProjectUsers");
-
-                    b.Navigation("Publications");
                 });
 
             modelBuilder.Entity("Core.Entities.ProjectComment", b =>

@@ -183,6 +183,47 @@ namespace Infrastructure.Data
 
             #endregion
 
+            #region Project Logs
+
+            // One To Many Relationship (Project -> ProjectLog)
+            modelBuilder.Entity<Project>()
+                        .HasMany(p => p.ProjectLogs)
+                        .WithOne(pl => pl.Project)
+                        .HasForeignKey(pl => pl.ProjectID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            // One To Many Relationship (User -> ProjectLog)
+            modelBuilder.Entity<User>()
+                        .HasMany(u => u.ProjectLogs)
+                        .WithOne(pl => pl.User)
+                        .HasForeignKey(pl => pl.UserID)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+            // Optional One To Many Relationship (BlobFile -> ProjectLog)
+            modelBuilder.Entity<ProjectLog>()
+                        .HasOne(pl => pl.BlobFile)
+                        .WithMany()
+                        .HasForeignKey(pl => pl.BlobFileID)
+                        .OnDelete(DeleteBehavior.SetNull);
+
+            // One To Many Relationship (ProjectLog -> ProjectComment)
+            modelBuilder.Entity<ProjectLog>()
+                        .HasMany(pl => pl.Comments)
+                        .WithOne(pc => pc.ProjectLog)
+                        .HasForeignKey(pc => pc.ProjectLogID)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectLog>()
+                        .HasIndex(pl => pl.ProjectID);
+
+            modelBuilder.Entity<ProjectLog>()
+                        .HasIndex(pl => pl.UserID);
+
+            modelBuilder.Entity<ProjectComment>()
+                        .HasIndex(pc => pc.ProjectLogID);
+
+            #endregion
+            
             // One To Many Relationship (Project -> Publication)
             modelBuilder.Entity<Project>()
                         .HasMany(p => p.Publications)
@@ -207,6 +248,7 @@ namespace Infrastructure.Data
         public DbSet<ProjectComment> ProjectComments { get; set; }
         public DbSet<ProjectCommentLike> ProjectCommentLikes { get; set; }
         public DbSet<ProjectCommentFlag> ProjectCommentFlags { get; set; }
+        public DbSet<ProjectLog> ProjectLogs { get; set; }
 
         public DbSet<Publication> Publications { get; set; }
     }

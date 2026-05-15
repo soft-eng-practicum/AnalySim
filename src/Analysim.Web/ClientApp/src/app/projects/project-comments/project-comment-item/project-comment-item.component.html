@@ -1,118 +1,128 @@
 <div class="comment-item">
-  <!-- HEADER -->
-  <div class="comment-header">
-    <div class="comment-meta">
-      <!-- AUTHOR -->
-      <span class="comment-author">
-        {{ comment.authorName }}
-      </span>
+  <div class="comment-card" [class.is-deleted]="isDeleted">
+    <!-- HEADER -->
+    <div class="comment-header">
+      <div class="comment-meta">
+        <!-- AUTHOR -->
+        <span class="comment-author">
+          {{ comment.authorName }}
+        </span>
 
-      <!-- DATE CREATED -->
-      <span class="comment-date">
-        {{ comment.createdAt | date: "MMM d, y • h:mm a" }}
-      </span>
-    </div>
-
-    <!-- ACTION BUTTONS (TOP) -->
-    <div *ngIf="!isEditing && !isDeleted">
-      <!-- EDIT COMMENT -->
-      <button
-        class="btn btn-ghost-primary"
-        title="Edit"
-        (click)="onEditMyComment()"
-        *ngIf="isOwner && !isPendingReview"
-      >
-        <i class="fa-regular fa-pen-to-square"></i>
-      </button>
-
-      <!-- DELETE COMMENT -->
-      <button
-        class="btn btn-ghost-danger"
-        title="Delete"
-        (click)="onDeleteMyComment()"
-        [disabled]="isDeleting"
-        *ngIf="isOwner && !isPendingReview"
-      >
-        <i class="fa-regular fa-trash-can"></i>
-      </button>
-
-      <!-- REPORT / FLAG COMMENT -->
-      <button
-        type="button"
-        class="icon-btn icon-btn-ghost-danger"
-        (click)="onReport()"
-        title="Report"
-        aria-label="Report comment"
-        [disabled]="isOwner"
-        *ngIf="!isOwner && (!isPendingReview || isFlaggedByCurrentUser)"  
-      >
-        <div *ngIf="!isFlaggedByCurrentUser">
-          <i class="fa-regular fa-flag" aria-hidden="true"></i>
-        </div>
-        <div *ngIf="isFlaggedByCurrentUser">
-          <i class="fa-solid fa-flag" aria-hidden="true"></i>
-        </div>
-      </button>
-    </div>
-  </div>
-
-  <!-- BODY (STANDARD) -->
-  <div *ngIf="!isEditing">
-    <!-- BODY CONTENT -->
-    <div class="comment-body">
-      {{ isDeleted ? "[deleted]" : isPendingReview ? "[under review]" : comment.content }}
-    </div>
-
-    <!-- ACTION BUTTONS (BOTTOM)-->
-    <div class="actions">
-      <!-- VIEW THREAD TOGGLE -->
-      <div class="actions-left" role="group" aria-label="Comment actions">
-        <button
-          class="btn thread-toggle"
-          (click)="onViewThread()"
-          title="View Thread"
-          [class.open]="isOpen"
-          *ngIf="(comment.replies && comment.replies.length > 0) || isReplying"
-        >
-          <i class="fa fa-chevron-right"></i>
-        </button>
+        <!-- DATE CREATED -->
+        <span class="comment-date">
+          {{ comment.createdAt | date: "MMM d, y • h:mm a" }}
+        </span>
       </div>
 
-      <!-- USER ACTIONS -->
-      <div
-        class="comment-actions"
-        role="group"
-        aria-label="Comment actions"
-        *ngIf="!isDeleted && !isPendingReview"
-      >
-        <!-- UPVOTE / LIKE COMMENT -->
+      <!-- ACTION BUTTONS (TOP) -->
+      <div *ngIf="!isEditing && !isDeleted">
+        <!-- EDIT COMMENT -->
         <button
-          type="button"
-          class="icon-btn icon-btn-ghost upvote"
-          (click)="onUpvote()"
-          title="Upvote"
-          aria-label="Upvote"
-          [disabled]="isLiking"
+          class="btn btn-ghost-primary"
+          title="Edit"
+          (click)="onEditMyComment()"
+          *ngIf="isOwner && !isPendingReview"
         >
-          <div *ngIf="!isLikedByCurrentUser">
-            <i class="fa-regular fa-thumbs-up"></i>
-          </div>
-          <div *ngIf="isLikedByCurrentUser">
-            <i class="fa-solid fa-thumbs-up"></i>
-          </div>
-          <span>{{ numLikes }}</span>
+          <i class="fa-regular fa-pen-to-square"></i>
         </button>
 
-        <!-- REPLY TO COMMENT -->
+        <!-- DELETE COMMENT -->
+        <button
+          class="btn btn-ghost-danger"
+          title="Delete"
+          (click)="onDeleteMyComment()"
+          [disabled]="isDeleting"
+          *ngIf="isOwner && !isPendingReview"
+        >
+          <i class="fa-regular fa-trash-can"></i>
+        </button>
+
+        <!-- REPORT / FLAG COMMENT -->
         <button
           type="button"
-          class="icon-btn icon-btn-ghost"
-          (click)="onOpenReply()"
-          title="Reply"
-          aria-label="Reply"
+          class="icon-btn icon-btn-ghost-danger"
+          (click)="onReport()"
+          title="Report"
+          aria-label="Report comment"
+          [disabled]="isOwner"
+          *ngIf="!isOwner && (!isPendingReview || isFlaggedByCurrentUser)"
         >
-          <i class="fa-regular fa-comment"></i>
+          <div *ngIf="!isFlaggedByCurrentUser">
+            <i class="fa-regular fa-flag" aria-hidden="true"></i>
+          </div>
+          <div *ngIf="isFlaggedByCurrentUser">
+            <i class="fa-solid fa-flag" aria-hidden="true"></i>
+          </div>
         </button>
+      </div>
+    </div>
+
+    <!-- BODY (STANDARD) -->
+    <div *ngIf="!isEditing">
+      <!-- BODY CONTENT -->
+      <div class="comment-body">
+        {{
+          isDeleted
+            ? "[deleted]"
+            : isPendingReview
+              ? "[under review]"
+              : comment.content
+        }}
+      </div>
+
+      <!-- ACTION BUTTONS (BOTTOM)-->
+      <div class="actions">
+        <!-- VIEW THREAD TOGGLE -->
+        <div class="actions-left" role="group" aria-label="Comment actions">
+          <button
+            class="btn thread-toggle"
+            (click)="onViewThread()"
+            title="View Thread"
+            [class.open]="isOpen"
+            *ngIf="
+              (comment.replies && comment.replies.length > 0) || isReplying
+            "
+          >
+            <i class="fa fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- USER ACTIONS -->
+        <div
+          class="comment-actions"
+          role="group"
+          aria-label="Comment actions"
+          *ngIf="!isDeleted && !isPendingReview"
+        >
+          <!-- UPVOTE / LIKE COMMENT -->
+          <button
+            type="button"
+            class="icon-btn icon-btn-ghost upvote"
+            (click)="onUpvote()"
+            title="Upvote"
+            aria-label="Upvote"
+            [disabled]="isLiking"
+          >
+            <div *ngIf="!isLikedByCurrentUser">
+              <i class="fa-regular fa-thumbs-up"></i>
+            </div>
+            <div *ngIf="isLikedByCurrentUser">
+              <i class="fa-solid fa-thumbs-up"></i>
+            </div>
+            <span>{{ numLikes }}</span>
+          </button>
+
+          <!-- REPLY TO COMMENT -->
+          <button
+            type="button"
+            class="icon-btn icon-btn-ghost"
+            (click)="onOpenReply()"
+            title="Reply"
+            aria-label="Reply"
+          >
+            <i class="fa-solid fa-reply"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -161,7 +171,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- MODALS -->
 

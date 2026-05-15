@@ -1,0 +1,43 @@
+<div>
+  <div class="header-area">  
+    <span class="title">Project Log Comments</span>
+    <hr class="inline-divider" />
+    <button
+      type="button"
+      class="btn btn-primary btn-width"
+      title="Reply"
+      aria-label="Reply"
+      (click)="addComment()"
+      [disabled]="isReplying"
+      *ngIf="this.currentUser"
+    >
+      <i class="fa fa-plus"></i>
+    </button>
+  </div>
+
+  <div *ngIf="isReplying">
+    <app-project-comment-box
+      [parentId]="1"
+      (cancelReply)="onCloseReply()"
+      (submitComment)="onPostComment($event)"
+    ></app-project-comment-box>
+  </div>
+
+  <div *ngIf="!isLoading && !isReplying && comments.length == 0">
+    <div class="empty-set card">
+      It's quiet in here. Start the conversation!
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && comments.length > 0">
+    <app-project-comment-item
+      *ngFor="let comment of comments"
+      [id]="comment.commentID.toString()"
+      [comment]="comment"
+      [adminAnchor]="currentAdminComment"
+      (submitReply)="onPostComment($event)"
+      (submitEdit)="onPutEdit($event)"
+    >
+    </app-project-comment-item>
+  </div>
+</div>

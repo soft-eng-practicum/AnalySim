@@ -26,6 +26,9 @@ namespace Core.Entities
         public ICollection<ProjectCommentLike> CommentLikes { get; set; } = new List<ProjectCommentLike>();
         public ICollection<ProjectCommentFlag> CommentFlags { get; set; } = new List<ProjectCommentFlag>();
 
+        // Logs
+        public ICollection<ProjectLog> ProjectLogs { get; set; } = new List<ProjectLog>();
+
         public string RegistrationSurvey {get; set;}
 
     }

@@ -1,0 +1,100 @@
+:host {
+  display: block;
+}
+
+.expired-log-row {
+  display: grid;
+  grid-template-columns: 1.5fr .75fr .75fr .5fr .5fr .5fr .25fr;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.expired-log-row:last-child {
+  border-bottom: none;
+}
+
+.log-main-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.log-title {
+  font-weight: 600;
+  color: var(--text-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.log-preview {
+  color: var(--text-muted);
+  font-size: smaller;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.project-col,
+.author-col,
+.comments-col,
+.date-col {
+  min-width: 0;
+  font-size: var(--font-sm);
+}
+
+.project-col,
+.author-col {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comments-col,
+.date-col {
+  color: var(--text-muted);
+}
+
+.actions-col {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+  .expired-log-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .project-col::before {
+    content: "Project: ";
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .author-col::before {
+    content: "Author: ";
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .comments-col::before {
+    content: "Comments: ";
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .date-col::before {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .actions-col {
+    justify-content: flex-start;
+  }
+}
