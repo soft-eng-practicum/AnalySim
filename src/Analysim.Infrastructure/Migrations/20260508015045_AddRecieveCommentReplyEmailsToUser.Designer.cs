@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260508015045_AddRecieveCommentReplyEmailsToUser")]
+    partial class AddRecieveCommentReplyEmailsToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -268,9 +270,6 @@ namespace Infrastructure.Migrations
                     b.Property<int>("ProjectID")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ProjectLogID")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -282,8 +281,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ParentCommentID");
 
                     b.HasIndex("ProjectID");
-
-                    b.HasIndex("ProjectLogID");
 
                     b.HasIndex("UserID");
 
@@ -338,53 +335,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("ProjectCommentLikes");
                 });
 
-            modelBuilder.Entity("Core.Entities.ProjectLog", b =>
-                {
-                    b.Property<int>("LogID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("LogID"));
-
-                    b.Property<int?>("BlobFileID")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("UserID")
-                        .HasColumnType("integer");
-
-                    b.HasKey("LogID");
-
-                    b.HasIndex("BlobFileID");
-
-                    b.HasIndex("ProjectID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("ProjectLogs");
-                });
-
             modelBuilder.Entity("Core.Entities.ProjectTag", b =>
                 {
                     b.Property<int>("ProjectID")
@@ -424,51 +374,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ProjectID");
 
                     b.ToTable("ProjectUsers");
-                });
-
-            modelBuilder.Entity("Core.Entities.Publication", b =>
-                {
-                    b.Property<int>("PublicationID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PublicationID"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Doi")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Journal")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("SourceAuthor")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Url")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("Year")
-                        .IsRequired()
-                        .HasColumnType("integer");
-
-                    b.HasKey("PublicationID");
-
-                    b.HasIndex("ProjectID");
-
-                    b.ToTable("Publications");
                 });
 
             modelBuilder.Entity("Core.Entities.Tag", b =>
@@ -816,11 +721,6 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Core.Entities.ProjectLog", "ProjectLog")
-                        .WithMany("Comments")
-                        .HasForeignKey("ProjectLogID")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Core.Entities.User", "User")
                         .WithMany("ProjectComments")
                         .HasForeignKey("UserID")
@@ -830,8 +730,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("ParentComment");
 
                     b.Navigation("Project");
-
-                    b.Navigation("ProjectLog");
 
                     b.Navigation("User");
                 });
@@ -874,32 +772,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Core.Entities.ProjectLog", b =>
-                {
-                    b.HasOne("Core.Entities.BlobFile", "BlobFile")
-                        .WithMany()
-                        .HasForeignKey("BlobFileID")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Core.Entities.Project", "Project")
-                        .WithMany("ProjectLogs")
-                        .HasForeignKey("ProjectID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.User", "User")
-                        .WithMany("ProjectLogs")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("BlobFile");
-
-                    b.Navigation("Project");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Core.Entities.ProjectTag", b =>
                 {
                     b.HasOne("Core.Entities.Project", "Project")
@@ -936,17 +808,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Project");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Core.Entities.Publication", b =>
-                {
-                    b.HasOne("Core.Entities.Project", "Project")
-                        .WithMany("Publications")
-                        .HasForeignKey("ProjectID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Core.Entities.UserUser", b =>
@@ -1039,13 +900,9 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("ProjectComments");
 
-                    b.Navigation("ProjectLogs");
-
                     b.Navigation("ProjectTags");
 
                     b.Navigation("ProjectUsers");
-
-                    b.Navigation("Publications");
                 });
 
             modelBuilder.Entity("Core.Entities.ProjectComment", b =>
@@ -1055,11 +912,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("CommentLikes");
 
                     b.Navigation("Replies");
-                });
-
-            modelBuilder.Entity("Core.Entities.ProjectLog", b =>
-                {
-                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("Core.Entities.Tag", b =>
@@ -1080,8 +932,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Following");
 
                     b.Navigation("ProjectComments");
-
-                    b.Navigation("ProjectLogs");
 
                     b.Navigation("ProjectUsers");
                 });

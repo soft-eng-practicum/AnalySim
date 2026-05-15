@@ -906,6 +906,48 @@ namespace Web.Controllers
             });
 
         }
+
+        /*
+        * Type : PUT
+        * URL : /api/account/updatenotificationpreferences
+        * Param : NotificationPreferencesUpdateVM
+        * Description: Update user notification email preferences
+        * Response Status: 200 Ok, 400 Bad Request, 401 Unauthorized, 404 Not Found
+        */
+        [Authorize]
+        [HttpPut("[action]/{userID}")]
+        public async Task<IActionResult> UpdateNotificationPreferences(
+            [FromRoute] int userID,
+            [FromBody] NotificationPreferencesUpdateVM formdata
+        )
+        {
+            // Validate VM
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            // Get User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            // Validate User
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            // Update Notification Preferences
+            user.ReceiveCommentReplyEmails = formdata.ReceiveCommentReplyEmails;
+
+            // Save Changes
+            await _dbContext.SaveChangesAsync();
+
+            // Return updated user
+            return Ok(new
+            {
+                result = user,
+                message = "Notification preferences have been updated"
+            });
+        }
         #endregion
 
         #region DELETE REQUEST

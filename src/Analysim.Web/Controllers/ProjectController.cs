@@ -39,11 +39,17 @@ namespace Web.Controllers
 
         private readonly ApplicationDbContext _dbContext;
         private readonly IConfiguration _configuration;
+        private readonly IMailNetService _mailNetService;
 
-        public ProjectController(ApplicationDbContext dbContext, IConfiguration configuration)
+        public ProjectController(
+            ApplicationDbContext dbContext, 
+            IConfiguration configuration,
+            IMailNetService mailNetService
+        )
         {
             _dbContext = dbContext;
             _configuration = configuration;
+            _mailNetService = mailNetService;
         }
 
         // Image Helpers
@@ -1034,6 +1040,115 @@ namespace Web.Controllers
             // Add Comment to DB
             _dbContext.ProjectComments.Add(newComment);
             await _dbContext.SaveChangesAsync();
+
+            // Send email notification if this comment is a reply
+            if (parentComment != null && parentComment.UserID != userId)
+            {
+                try
+                {
+                    // Get the user who wrote the parent comment
+                    var parentCommentUser = await _dbContext.Users
+                        .SingleOrDefaultAsync(u => u.Id == parentComment.UserID);
+
+                    if (parentCommentUser != null 
+                        && parentCommentUser.ReceiveCommentReplyEmails 
+                        && !string.IsNullOrWhiteSpace(parentCommentUser.Email)
+                    )
+                    {
+                        // Collect comment information for email
+                        var recipientName = string.IsNullOrWhiteSpace(parentCommentUser.UserName)
+                            ? "there"
+                            : parentCommentUser.UserName;
+
+                        var replyingUserName = string.IsNullOrWhiteSpace(user.UserName)
+                            ? "Someone"
+                            : user.UserName;
+
+                        var projectName = string.IsNullOrWhiteSpace(project.Name)
+                            ? $"Project #{project.ProjectID}"
+                            : project.Name;
+
+                        var parentCommentPreview = parentComment.Content.Length > 200
+                            ? parentComment.Content.Substring(0, 200) + "..."
+                            : parentComment.Content;
+
+                        var replyPreview = trimmedContent.Length > 200
+                            ? trimmedContent.Substring(0, 200) + "..."
+                            : trimmedContent;
+
+                        var projectRoute = string.IsNullOrWhiteSpace(project.Route)
+                            ? project.ProjectID.ToString()
+                            : project.Route.Trim('/');
+
+                        // Handle link to comment
+                        var clientBaseUrl = _configuration["ClientSettings:BaseUrl"]?.TrimEnd('/');
+
+                        var projectCommentUrl = string.IsNullOrWhiteSpace(clientBaseUrl)
+                            ? null
+                            : $"{clientBaseUrl}/project/{projectRoute}/comment";
+
+                        var linkHtml = string.IsNullOrWhiteSpace(projectCommentUrl)
+                            ? ""
+                            : $@"
+                                <p>
+                                    <a href='{System.Net.WebUtility.HtmlEncode(projectCommentUrl)}'>View the conversation</a>
+                                </p>
+                            ";
+
+                        var linkText = string.IsNullOrWhiteSpace(projectCommentUrl)
+                            ? ""
+                            : $"\n\nView the conversation: {projectCommentUrl}";
+
+                        // Safety HtmlEncoding
+                        var safeRecipientName = System.Net.WebUtility.HtmlEncode(recipientName);
+                        var safeReplyingUserName = System.Net.WebUtility.HtmlEncode(replyingUserName);
+                        var safeProjectName = System.Net.WebUtility.HtmlEncode(projectName);
+                        var safeParentCommentPreview = System.Net.WebUtility.HtmlEncode(parentCommentPreview);
+                        var safeReplyPreview = System.Net.WebUtility.HtmlEncode(replyPreview);
+
+                        // Build email
+                        var subject = $"Someone replied to your comment on AnalySim";
+
+                        var bodyHtml = $@"
+                            <p>Hi {safeRecipientName},</p>
+
+                            <p>
+                                <strong>{safeReplyingUserName}</strong> replied to your comment on 
+                                <strong>{safeProjectName}</strong>.
+                            </p>
+
+                            <p><strong>Your comment:</strong></p>
+                            <blockquote style='border-left: 4px solid #ccc; padding-left: 12px; color: #555;'>
+                                {safeParentCommentPreview}
+                            </blockquote>
+
+                            <p><strong>Their reply:</strong></p>
+                            <blockquote style='border-left: 4px solid #ccc; padding-left: 12px; color: #555;'>
+                                {safeReplyPreview}
+                            </blockquote>
+
+                            {linkHtml}
+                        ";
+
+                        var bodyText =
+                            $"Hi {recipientName},\n\n" +
+                            $"{replyingUserName} replied to your comment on {projectName}.\n\n" +
+                            $"Your comment:\n\"{parentCommentPreview}\"\n\n" +
+                            $"Their reply:\n\"{replyPreview}\"" +
+                            linkText;
+
+                        
+                        await _mailNetService.SendEmail(
+                            parentCommentUser.Email,
+                            recipientName,
+                            subject,
+                            bodyHtml,
+                            bodyText
+                        );
+                    }
+                }
+                catch (Exception ex){}
+            }
 
             // Return 
             return Ok(new

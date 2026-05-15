@@ -44,7 +44,13 @@ Then copy the file `index.html` under `dist\lab\index.html`.
 
 ### Connecting to databases and other services
 
-Analysim requires two databases to operate: one SQL database (PostgreSQL) for relational data and one Azure BlobStorage database for keeping uploaded user files. In addition, an Outlook account is needed for the email functionality. All of these services are accessed via authentication information stored in the `appsettings.json` and `appsettings.Development.json` files under the `src/Analysim.Web` folder. The structure of the files are as follows (`XXX` means redacted):
+Analysim currently requires a SQL database (PostgreSQL) for both relational data and manual blob storage (Azure BlobStorage is no longer used / required). 
+
+In addition, an Outlook account is needed for email functionality. 
+
+All of these services are accessed via authentication information stored in the `appsettings.json` and `appsettings.Development.json` files which should be added under the `src/Analysim.Web` folder. 
+
+The structure of the files are as follows (`XXX` means redacted):
 
 ```json
 {
@@ -67,11 +73,14 @@ Analysim requires two databases to operate: one SQL database (PostgreSQL) for re
     "Username": "XXX",
     "Password": "XXX"
   },
+  "ClientSettings": {
+    "BaseUrl": "https://www.analysim.tech"
+  },
   "JwtSettings": {
     "Issuer": "AnalySim",
     "Secret": "XXX",
     "ExpireTime": 60,
-    "Audience": "https://www.analysim.tech/"
+    "Audience": "https://www.analysim.tech"
   },
   "UserQuota":  100000000,
   "registrationCodes": [ "123" ],
@@ -87,7 +96,13 @@ Analysim requires two databases to operate: one SQL database (PostgreSQL) for re
 
 Admin access in Analysim is controlled through the AdminUsers section of the `appsettings.json` and `appsettings.Development.json`. Each entry in the list corresponds to the username of a registered Analysim user. Admin users will see an Admin link in the navigation bar and can access the /admin section of the platform. To add or remove admin privileges, simply update this list and restart the server.
 
-⚠️ Important: The usernames must exactly match the usernames stored in the database (case-sensitive).
+⚠️ Important: The usernames must exactly match the usernames stored in the database (full uppercase eg. "ADMIN").
+
+#### Email account
+
+Outlook no longer allows simple email authentication, so you must use another service that provides password authentication (e.g. Gmail). You can either use an existing account or create a new one and then fill in the `XXX` values under the section `EmailSettings` in the above file.
+
+For email services, the correct BaseUrl is required within appsettings. For development, in `appsettings.Development.json` use: 'https://localhost:5001'. For deployment, in in `appsettings.json` the BaseUrl should match the necessary url.
 
 #### SQL database (also see Docker Compose option below)
 
@@ -100,10 +115,6 @@ dotnet ef database update
 #### Azure Blob Storage
 
 Blob storage is now replaced with the PostgreSQL database and no longer necessary. If you want to set it up regardless, follow these instructions. If you don't have an existing blob storage account, log into [Microsoft Azure](https://portal.azure.com), and create a ["Storage Account"](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview) with "Blob service" enabled. Then, select "Access Keys" on the left sidebar menu and copy one of the keys and insert both to replace the `XXX` in the `AzureStorageConnectionString` entry above. You will also need to insert your storage account name. In the same section on Azure, you can see the formatting for the correct Connection String as a guide. Blob storage falls under the [free student services](https://azure.microsoft.com/en-us/free/students/).
-
-#### Email account
-
-Outlook no longer allows simple email authentication, so you must use another service that provides password authentication (e.g. Gmail). You can either use an existing account or create a new one and then fill in the `XXX` values under the section `EmailSettings` in the above file.
 
 ### Running the project
 
