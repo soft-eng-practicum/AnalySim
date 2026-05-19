@@ -32,6 +32,14 @@
   <div class="actions-col">
     <button
       type="button"
+      class="btn btn-outline-primary"
+      (click)="onRestore()"
+    >
+      Restore
+    </button>
+
+    <button
+      type="button"
       class="btn btn-danger"
       (click)="onDelete()"
     >
@@ -39,3 +47,23 @@
     </button>
   </div>
 </div>
+
+<!-- Delete Modal -->
+<ng-template #deleteModal>
+  <app-modal-delete-log
+    [deleteModalRef]="deleteModalRef"
+    [logID]="log.logID"
+    (onSuccessfulDelete)="onHandleSuccessfulDelete()"
+    (onCancelDelete)="this.isDeleting = false"
+  ></app-modal-delete-log>
+</ng-template>
+
+<!-- Restore Modal -->
+<ng-template #restoreModal>
+  <app-modal-restore-log
+    [restoreModalRef]="restoreModalRef"
+    [logID]="log.logID"
+    (onSuccessfulRestore)="onHandleSuccessfulRestore()"
+    (onCancelRestore)="this.isRestoring = false"
+  ></app-modal-restore-log>
+</ng-template>

@@ -11,7 +11,7 @@
 
 .expired-log-header {
   display: grid;
-  grid-template-columns: 1.5fr .75fr .75fr .5fr .5fr .5fr .25fr;
+  grid-template-columns: 1.5fr .75fr .75fr .5fr .5fr .5fr .5fr;
   gap: var(--space-3);
   align-items: center;
   padding: var(--space-1) var(--space-3);
@@ -24,7 +24,6 @@
 
 .actions-col {
   display: flex;
-  justify-content: flex-end;
 }
 
 .empty-set{
