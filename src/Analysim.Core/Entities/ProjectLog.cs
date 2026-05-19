@@ -1,3 +1,5 @@
+#nullable enable // Enable nullable fields 
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -20,6 +22,13 @@ namespace Core.Entities
         [ForeignKey("Project")]
         public int ProjectID { get; set; }
         public Project Project{ get; set; } = null!;
+
+        // Referenced Notebook
+        [ForeignKey("ReferencedNotebookID")]
+        public int? ReferencedNotebookID { get; set; }
+        public Notebook? ReferencedNotebook { get; set; }
+
+        public int? ReferencedNotebookVersion { get; set; }
 
         // Project Log Title
         public string? Title { get; set; }

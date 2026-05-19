@@ -1,3 +1,5 @@
+#nullable enable
+
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
@@ -14,5 +16,9 @@ namespace Analysim.Web.ViewModels.Project
         public string Content { get; set; } = string.Empty;
 
         public IFormFile? Image { get; set; }
+
+        public int? ReferencedNotebookID { get; set; }
+
+        public int? ReferencedNotebookVersion { get; set; }
     }
 }

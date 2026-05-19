@@ -206,6 +206,13 @@ namespace Infrastructure.Data
                         .HasForeignKey(pl => pl.BlobFileID)
                         .OnDelete(DeleteBehavior.SetNull);
 
+            // Optional One To Many Relationship (Notebook -> ProjectLog)
+            modelBuilder.Entity<ProjectLog>()
+                        .HasOne(pl => pl.ReferencedNotebook)
+                        .WithMany()
+                        .HasForeignKey(pl => pl.ReferencedNotebookID)
+                        .OnDelete(DeleteBehavior.SetNull);
+
             // One To Many Relationship (ProjectLog -> ProjectComment)
             modelBuilder.Entity<ProjectLog>()
                         .HasMany(pl => pl.Comments)
@@ -221,6 +228,9 @@ namespace Infrastructure.Data
 
             modelBuilder.Entity<ProjectComment>()
                         .HasIndex(pc => pc.ProjectLogID);
+
+            modelBuilder.Entity<ProjectLog>()
+                .HasIndex(pl => pl.ReferencedNotebookID);
 
             #endregion
             

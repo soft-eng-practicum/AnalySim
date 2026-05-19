@@ -1,3 +1,5 @@
+#nullable enable
+
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
@@ -14,5 +16,9 @@ namespace Analysim.Web.ViewModels.Project
 
         // True when the user wants to remove the current image
         public bool RemoveImage { get; set; }
+
+        public int? ReferencedNotebookID { get; set; }
+
+        public int? ReferencedNotebookVersion { get; set; }
     }
 }

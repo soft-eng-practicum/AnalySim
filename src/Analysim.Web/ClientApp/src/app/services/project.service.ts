@@ -50,6 +50,7 @@ export class ProjectService {
   private urlGetProjectLogComments: string = this.baseUrl + "getprojectlogcomments/";
   private urlGetExpiredProjectLogs: string = this.baseUrl + "getexpiredprojectlogs/";
   private urlGetPublications: string = this.baseUrl + "GetPublications/";
+  private urlGetProjectNotebookRefs: string = this.baseUrl + "getprojectnotebookreferences/";
 
   // Post
   private urlCreateProject: string = this.baseUrl + "createproject"
@@ -1222,6 +1223,19 @@ export class ProjectService {
     );
 
     return this.http.delete<any>(this.urlDeleteExpiredProjectLog + logID, {headers}).pipe(
+      map(body => {
+        console.log(body.message);
+        return body;
+      }),
+      catchError(error => {
+        console.log(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  getProjectNotebookReferences(projectID: number) {
+    return this.http.get<any>(this.urlGetProjectNotebookRefs + projectID).pipe(
       map(body => {
         console.log(body.message);
         return body;
