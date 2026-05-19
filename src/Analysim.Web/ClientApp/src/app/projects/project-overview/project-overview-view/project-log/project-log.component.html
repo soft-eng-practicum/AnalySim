@@ -16,16 +16,29 @@
           <i class="fa fa-plus"></i>
         </button>
 
-        <button
-          *ngIf="isMember"
-          type="button"
-          class="btn btn-outline-primary"
-          title="Add Log"
-          (click)="onMoveTab()"
-          [disabled]="isLoading"
-        >
-          <span>{{ isInArchive ? "Back" : "Archive" }}</span>
-        </button>
+        <div class="project-log-tabs" *ngIf="isMember">
+          <button
+            type="button"
+            class="btn project-log-tab"
+            [ngClass]="isInArchive ? 'btn-outline-primary' : 'btn-primary'"
+            title="View Logs"
+            (click)="showLogs()"
+            [disabled]="isLoading"
+          >
+            <span>Public</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn project-log-tab"
+            [ngClass]="isInArchive ? 'btn-primary' : 'btn-outline-primary'"
+            title="View Archive"
+            (click)="showArchive()"
+            [disabled]="isLoading"
+          >
+            <span>Archive</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -59,6 +72,7 @@
         <div *ngFor="let log of logs" class="log-area">
           <app-project-log-item
             [log]="log"
+            [projectID]="project.projectID"
             [currentUser]="currentUser"
             (onSuccessfulEdit)="loadLogs()"
           ></app-project-log-item>
@@ -93,6 +107,7 @@
         <div *ngFor="let log of archivedLogs" class="log-area">
           <app-project-log-item
             [log]="log"
+            [projectID]="this.project.projectID"
             [currentUser]="currentUser"
             (onSuccessfulEdit)="loadLogs()"
           ></app-project-log-item>
