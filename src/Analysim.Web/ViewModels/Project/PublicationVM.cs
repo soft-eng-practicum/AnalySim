@@ -15,6 +15,9 @@ namespace Analysim.Web.ViewModels.Project
         public string? Doi { get; set; }
         public string SourceAuthor { get; set; } = string.Empty;
         public int? Year { get; set; }
+        public string? Volume { get; set; }
+        public string? Issue { get; set; }
+        public string? Pages { get; set; }
         public string? Notes { get; set; }
         public DateTime CreatedAt { get; set; }
     }

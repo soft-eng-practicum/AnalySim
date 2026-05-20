@@ -745,6 +745,9 @@ namespace Web.Controllers
                     Doi = p.Doi,
                     SourceAuthor = p.SourceAuthor,
                     Year = p.Year,
+                    Volume = p.Volume,
+                    Issue = p.Issue,
+                    Pages = p.Pages,
                     Notes = p.Notes,
                     CreatedAt = p.CreatedAt,
                 }).ToListAsync();
@@ -842,6 +845,9 @@ namespace Web.Controllers
                 Doi = formdata.Doi,
                 SourceAuthor = formdata.SourceAuthor,
                 Year = formdata.Year,
+                Volume = formdata.Volume,
+                Issue = formdata.Issue,
+                Pages = formdata.Pages,
                 Notes = formdata.Notes,
                 CreatedAt = DateTime.UtcNow,
             };
@@ -1230,7 +1236,7 @@ namespace Web.Controllers
                         );
                     }
                 }
-                catch (Exception ex){}
+                catch (Exception){}
             }
 
             // Return 
@@ -2761,6 +2767,9 @@ namespace Web.Controllers
             publication.Doi = formdata.Doi;
             publication.SourceAuthor = formdata.SourceAuthor;
             publication.Year = formdata.Year;
+            publication.Volume = formdata.Volume;
+            publication.Issue = formdata.Issue;
+            publication.Pages = formdata.Pages;
             publication.Notes = formdata.Notes;
 
             // Update Publication in DB
