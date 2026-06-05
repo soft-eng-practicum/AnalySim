@@ -54,6 +54,8 @@ export class ProjectService {
   // Post
   private urlCreateProject: string = this.baseUrl + "createproject"
   private urlAddUser: string = this.baseUrl + "adduser"
+  private urlFollowProject: string = this.baseUrl + "followproject/"
+  private urlUnfollowProject: string = this.baseUrl + "unfollowproject/"
   private urlAddTag: string = this.baseUrl + "addtag"
   private urlUploadFile: string = this.baseUrl + "uploadfile"
   private urlCreateFolder: string = this.baseUrl + "createFolder"
@@ -355,6 +357,36 @@ export class ProjectService {
           return throwError(error)
         })
       )
+  }
+
+  followProject(projectID: number): Observable<ProjectUser> {
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.post<any>(this.urlFollowProject + projectID, null, { headers }).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
+  unfollowProject(projectID: number): Observable<ProjectUser> {
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('jwt')}`);
+
+    return this.http.delete<any>(this.urlUnfollowProject + projectID, { headers }).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
   }
 
   addTag(projectID: number, tagName: string): Observable<ProjectTag> {
