@@ -6,6 +6,9 @@ export interface Publication {
   doi: string;
   sourceAuthor: string;
   year: number;
+  volume: string;
+  issue: string;
+  pages: string;
   notes: string;
   createdAt: string;
 }

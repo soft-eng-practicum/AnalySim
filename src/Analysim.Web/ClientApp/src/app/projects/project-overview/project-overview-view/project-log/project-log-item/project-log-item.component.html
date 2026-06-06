@@ -73,9 +73,17 @@
 
         <hr *ngIf="log.image" />
 
-        <div class="log-content">
-          {{ log.content }}
+        <div *ngIf="log.referencedNotebook" class="notebook-link-area">
+          <a class="link-basic notebook-link" (click)="onOpenNotebook()">
+            {{log.referencedNotebook.name + log.referencedNotebook.extension}} 
+            v{{log.referencedNotebookVersion}}
+          </a>
+          <span class="notebook-soft">View notebook for more details.</span>
         </div>
+
+        <hr *ngIf="log.referencedNotebook" />
+
+        <div class="log-content" [innerText]="log.content"></div>
       </div>
     </div>
 
@@ -130,6 +138,57 @@
                 </button>
               </div>
             </label>
+          </div>
+
+          <hr />
+
+          <!-- Notebook Reference Select -->
+          <div class="notebook-area">
+            <div class="notebook-title">
+              <span>Reference Notebook</span>
+            </div>
+
+            <div class="notebook-form">
+              <div class="form-group notebook-select">
+                <label class="notebook-label">Notebook</label>
+
+                <select
+                  class="form-control notebook-control"
+                  [(ngModel)]="selectedNotebookID"
+                  (ngModelChange)="onNotebookSelected($event)"
+                  [ngModelOptions]="{ standalone: true }"
+                >
+                  <option [ngValue]="null">None</option>
+
+                  <option
+                    *ngFor="let notebook of availableNotebooks"
+                    [ngValue]="notebook.notebookID"
+                  >
+                    {{ notebook.directory }}{{ notebook.name }}{{ notebook.extension }}
+                  </option>
+                </select>
+              </div>
+
+              <div
+                class="form-group notebook-select"
+                *ngIf="selectedNotebook && selectedNotebook.type !== 'observable'"
+              >
+                <label class="notebook-label">Version</label>
+
+                <select
+                  class="form-control notebook-control"
+                  [(ngModel)]="selectedNotebookVersion"
+                  [ngModelOptions]="{ standalone: true }"
+                >
+                  <option
+                    *ngFor="let version of selectedNotebookVersions"
+                    [ngValue]="version"
+                  >
+                    v{{ version }}
+                  </option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <hr />
@@ -233,4 +292,15 @@
     (onSuccessfulRepost)="onHandleSuccessfulRepost()"
     (onCancelRepost)="this.isReposting = false"
   ></app-modal-repost-log>
+</ng-template>
+
+<!-- Notebook Modal -->
+<ng-template #displayNotebookModal>
+  <app-project-notebook-item-display
+    *ngIf="currentNotebook"
+    [notebook]="currentNotebook"
+    [version]="currentNotebookVersion"
+    [isMember]="isOwner"
+    (closeModal)="closeDisplayNotebookModal()">
+  </app-project-notebook-item-display>
 </ng-template>

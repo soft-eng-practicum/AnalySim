@@ -1,31 +1,39 @@
 <!-- Modal -->
 <div class="modal-content">
+  <!-- Title -->
+  <div class="modal-header justify-content-center">
+    <h5 class="modal-title">Member List</h5>
+  </div>
 
-
-    <!-- Title -->
-    <div class="modal-header justify-content-center">
-        <h5 class="modal-title">Member List</h5>
-    </div>
-
-    <!-- Body -->
-    <div class="modal-body">
-        <ul class="project-authors-list">
-            <li class="project-author" *ngFor='let member of projectUsers | projectMember:"owner"' [routerLink]='["/profile/" + member.user.userName]' (click)="closeModal()">
-                <img class="project-author-thumbnail" [src]="member.user | profileImage"/>
-                <div class="project-author-name">
-                  {{member.user.userName}} - <i>{{member.userRole}}</i>
-                </div>
-            </li>
-        </ul>
-    </div>
-
-    <div class="modal-footer">
-        <div class="form-group mb-0">
-            <button type="button" class="btn btn-success" (click)="closeModal()">
-                <span>
-                    Close
-                </span>
-            </button>              
+  <!-- Body -->
+  <div class="modal-body">
+    <ul class="project-authors-list">
+      <li
+        class="project-author"
+        *ngFor="let member of projectUsers | projectMember: 'owner'"
+        [routerLink]="['/profile/' + member.user.userName]"
+        (click)="closeModal()"
+      >
+        <img
+          class="project-author-thumbnail"
+          [src]="member.user | profileImage"
+        />
+        <div class="project-author-name">
+          {{ member.user.userName }} - <i>{{ member.userRole }}</i>
         </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="modal-footer">
+    <div class="form-group mb-0">
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="closeModal()"
+      >
+        <span> Close </span>
+      </button>
     </div>
+  </div>
 </div>

@@ -2,18 +2,21 @@
   <div class="row justify-content-center">
     <div class="col-md-10 mb-3 d-flex">
       <div class="container project-overview-container">
-        <!-- Owner Actions -->
-        <div class="owner-tools surface-soft" *ngIf="isOwner">
-          <div class="owner-tools-actions">
-            <button type="button" class="btn btn-primary" (click)="editProject()">Edit Project</button>
-            <button type="button" class="btn btn-outline-primary">Post Update</button>
-          </div>
-        </div>
         <div class="row project-detail-row">
           <div class="project-description">
-            <h3 class="project-title" *ngIf="(project.route | route:'projectname') as projectname">
-              {{ projectname }}
-            </h3>
+            <div class="flex-area">
+              <h2 class="project-title" *ngIf="(project.route | route:'projectname') as projectname">
+                {{ projectname }}
+              </h2>
+              <div
+                *ngIf="isOwner"
+                type="button" 
+                (click)="editProject()"
+              >
+                <i class="fa-solid fa-pen-to-square edit-icon"></i>
+              </div>
+            </div>
+            
             <ul class="project-authors-list">
               <li class="project-author" *ngFor='let members of project.projectUsers | projectMember:"owner"'
                 [routerLink]='["/profile/" + members.user.userName]'>
@@ -37,74 +40,11 @@
               </li>
             </ul>
           </div>
-          <div class="project-statistics-group">
-            <div class="project-statistics update">
-              <div class="project-statistics-header">
-                Updates
-              </div>
-              <div class="project-statistics-divider">
-
-              </div>
-              <div class="project-statistics-pill">
-                0 new
-              </div>
-              <div class="project-statistics-current">
-                0
-              </div>
-            </div>
-            <div class="project-statistics recommendation">
-              <div class="project-statistics-header">
-                Recommendation
-              </div>
-              <div class="project-statistics-divider">
-
-              </div>
-              <div class="project-statistics-pill">
-                0 new
-              </div>
-              <div class="project-statistics-current">
-                0
-              </div>
-            </div>
-            <div class="project-statistics member">
-              <div class="project-statistics-header" (click)="toggleModalMemberList()">
-                Members
-              </div>
-              <div class="project-statistics-divider">
-
-              </div>
-              <div class="project-statistics-pill">
-                0 new
-              </div>
-              <div class="project-statistics-current">
-                {{ project | role:"member" }}
-              </div>
-            </div>
-            <div class="project-statistics followers">
-              <div class="project-statistics-header">
-                Followers
-              </div>
-              <div class="project-statistics-divider">
-
-              </div>
-              <div class="project-statistics-pill">
-                0 new
-              </div>
-              <div class="project-statistics-current">
-                {{ project | role:"follower" }}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="row project-content-row" *ngIf="activeView === 'Content'">
-          <div class="project-content-header">
-            <!-- <h3 *ngIf="(project.route | route:'projectname') as projectname">
-          {{ projectname }}
-      </h3> -->
-            <ul class="project-content-header-option">
-              <li class="header-link" role="button" tabindex="0">Share</li>
-              <li class="header-link" role="button" tabindex="0">Comment</li>
-            </ul>
+          <div class="project-stats">
+            <app-project-stat-counter
+              [project]="this.project"
+              [currentUser]="this.currentUser"
+            ></app-project-stat-counter>
           </div>
         </div>
 
@@ -266,10 +206,7 @@
     <app-modal-delete [deleteModalRef]="deleteModalRef" [projectID]="project.projectID"
       [currentUser]="currentUser"></app-modal-delete>
   </ng-template>
-  <ng-template #memberListModal>
-    <app-modal-member-list [memberListModalRef]="memberListModalRef" [projectUsers]="project.projectUsers"
-      [currentUser]="currentUser"></app-modal-member-list>
-  </ng-template>
+  
   <ng-template #displayNotebookModal>
     <app-project-notebook-item-display [notebook]="readmeNotebook" [version]="latestVersion" [isMember]="isMember"
         (closeModal)="closeDisplayNotebookModal()"></app-project-notebook-item-display>

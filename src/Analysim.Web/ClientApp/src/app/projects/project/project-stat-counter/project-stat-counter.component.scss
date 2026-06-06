@@ -1,0 +1,50 @@
+.stat-group {
+  width: 100%;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: max-content minmax(40px, 1fr) max-content 24px;
+  align-items: center;
+  column-gap: 10px;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  color: var(--link-on-light);
+  white-space: nowrap;
+}
+
+.stat-label-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stat-label-button:hover {
+  text-decoration: underline;
+}
+
+.stat-divider {
+  height: 1px;
+  min-width: 40px;
+  background-color: lightgray;
+}
+
+.stat-pill {
+  padding: 1px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--link-on-light);
+  white-space: nowrap;
+}
+
+.stat-current {
+  color: var(--link-on-light);
+  text-align: right;
+  justify-self: center;
+}

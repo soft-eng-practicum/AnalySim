@@ -34,18 +34,4 @@ export class ProjectLogsComponent implements OnInit {
       },
     });
   }
-
-  deleteExpiredLog(logID: number){
-    this.projectService.deleteExpiredProjectLog(logID).subscribe({
-      next: (result) => {
-        console.log('Deleted project log', logID);
-        this.loadLogs();
-      },
-      error: (error) => {
-        this.errorStatusAlert = true;
-        this.errorResult = "Error: unable to delete project log, please try again later";
-        console.log(error);
-      },
-    });
-  }
 }

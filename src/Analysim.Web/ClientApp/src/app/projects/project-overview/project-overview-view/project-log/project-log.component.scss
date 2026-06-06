@@ -54,3 +54,30 @@
   color: var(--text-muted);
   font-size: small;
 }
+
+.btn-width{
+  width: 2.5rem;
+}
+
+.project-log-tabs {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.project-log-tab {
+  border-radius: 0 !important;
+  // margin: 0 !important;
+  padding: var(--space-1) var(--space-2) !important;
+  // line-height: 1.4;
+}
+
+.project-log-tab:first-child {
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+}
+
+.project-log-tab:last-child {
+  border-top-right-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
+  margin-left: calc(var(--button-border-width) * -1) !important;
+}

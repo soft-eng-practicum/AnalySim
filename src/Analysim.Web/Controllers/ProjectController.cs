@@ -53,7 +53,7 @@ namespace Web.Controllers
         }
 
         // Image Helpers
-        private static string? BuildImageDataUrl(byte[]? imageBytes, string? extension)
+        private static string BuildImageDataUrl(byte[] imageBytes, string extension)
         {
             if (imageBytes == null || imageBytes.Length == 0)
                 return null;
@@ -64,7 +64,7 @@ namespace Web.Controllers
             return $"data:{contentType};base64,{base64}";
         }
 
-        private static string GetImageContentType(string? extension)
+        private static string GetImageContentType(string extension)
         {
             var ext = extension?.Trim().ToLowerInvariant();
 
@@ -601,6 +601,21 @@ namespace Web.Controllers
                     l.CreatedAt,
                     l.UpdatedAt,
 
+                    // Referenced Notebook
+                    l.ReferencedNotebookID,
+                    l.ReferencedNotebookVersion,
+
+                    ReferencedNotebook = l.ReferencedNotebook != null
+                        ? new
+                        {
+                            l.ReferencedNotebook.NotebookID,
+                            l.ReferencedNotebook.Name,
+                            l.ReferencedNotebook.Extension,
+                            l.ReferencedNotebook.Directory,
+                            Type = l.ReferencedNotebook.type
+                        }
+                        : null,
+
                     BlobExtension = l.BlobFile != null
                         ? l.BlobFile.Extension
                         : null,
@@ -623,6 +638,18 @@ namespace Web.Controllers
                 AuthorName = l.AuthorName,
                 ProjectID = l.ProjectID,
                 Title = l.Title,
+                ReferencedNotebookID = l.ReferencedNotebookID,
+                ReferencedNotebookVersion = l.ReferencedNotebookVersion,
+                ReferencedNotebook = l.ReferencedNotebook != null
+                    ? new ReferencedNotebookVM
+                    {
+                        NotebookID = l.ReferencedNotebook.NotebookID,
+                        Name = l.ReferencedNotebook.Name,
+                        Extension = l.ReferencedNotebook.Extension,
+                        Directory = l.ReferencedNotebook.Directory,
+                        Type = l.ReferencedNotebook.Type
+                    }
+                    : null,
                 Image = BuildImageDataUrl(l.ImageBytes, l.BlobExtension),
                 Content = l.Content,
                 IsDeleted = l.IsDeleted,
@@ -718,6 +745,9 @@ namespace Web.Controllers
                     Doi = p.Doi,
                     SourceAuthor = p.SourceAuthor,
                     Year = p.Year,
+                    Volume = p.Volume,
+                    Issue = p.Issue,
+                    Pages = p.Pages,
                     Notes = p.Notes,
                     CreatedAt = p.CreatedAt,
                 }).ToListAsync();
@@ -726,6 +756,41 @@ namespace Web.Controllers
             {
                 result = publications,
                 message = "Received Publications"
+            });
+        }
+
+        /* 
+        * Type : GET
+        * URL : /api/projects/GetProjectNotebookReferences/projectId
+        * Description: Gets all Notebooks for a project
+        */
+        [HttpGet("[action]/{projectId}")]
+        public async Task<IActionResult> GetProjectNotebookReferences([FromRoute] int projectId)
+        {
+            if (projectId <= 0)
+                return BadRequest("Invalid project id.");
+
+            var notebooks = await _dbContext.Notebook
+                .AsNoTracking()
+                .Where(n => n.ProjectID == projectId)
+                .Where(n => n.type != "folder")
+                .OrderBy(n => n.Directory)
+                .ThenBy(n => n.Name)
+                .Select(n => new
+                {
+                    n.NotebookID,
+                    n.Name,
+                    n.Extension,
+                    n.Directory,
+                    Type = n.type,
+                    n.ProjectID
+                })
+                .ToListAsync();
+
+            return Ok(new
+            {
+                result = notebooks,
+                message = "Project notebook references retrieved."
             });
         }
 
@@ -780,6 +845,9 @@ namespace Web.Controllers
                 Doi = formdata.Doi,
                 SourceAuthor = formdata.SourceAuthor,
                 Year = formdata.Year,
+                Volume = formdata.Volume,
+                Issue = formdata.Issue,
+                Pages = formdata.Pages,
                 Notes = formdata.Notes,
                 CreatedAt = DateTime.UtcNow,
             };
@@ -832,6 +900,25 @@ namespace Web.Controllers
                 if (string.IsNullOrWhiteSpace(formdata.Content))
                 {
                     return BadRequest(new { message = "Project Log Content is required." });
+                }
+
+                if (formdata.ReferencedNotebookID.HasValue)
+                {
+                    var notebookExists = await _dbContext.Notebook
+                        .AsNoTracking()
+                        .AnyAsync(n =>
+                            n.NotebookID == formdata.ReferencedNotebookID.Value &&
+                            n.ProjectID == project.ProjectID &&
+                            n.type != "folder");
+
+                    if (!notebookExists)
+                    {
+                        return BadRequest(new { message = "Invalid notebook reference." });
+                    }
+                }
+                else
+                {
+                    formdata.ReferencedNotebookVersion = null;
                 }
 
                 int? blobFileId = null;
@@ -903,6 +990,8 @@ namespace Web.Controllers
                         : formdata.Title.Trim(),
                     Content = formdata.Content.Trim(),
                     BlobFileID = blobFileId,
+                    ReferencedNotebookID = formdata.ReferencedNotebookID,
+                    ReferencedNotebookVersion = formdata.ReferencedNotebookVersion,
                     IsDeleted = false,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
@@ -970,7 +1059,7 @@ namespace Web.Controllers
             if (project == null) return NotFound(new { message = "Project Not Found" });
 
             // Validate Project Log (if present)
-            ProjectLog? projectLog = null;
+            ProjectLog projectLog = null;
             if (formdata.ProjectLogID.HasValue)
             {
                 projectLog = await _dbContext.ProjectLogs
@@ -993,7 +1082,7 @@ namespace Web.Controllers
                 return BadRequest(new { message = "Maximum length for Content is 1000 characters." });
 
             // Validate Parent Comment
-            ProjectComment? parentComment = null;
+            ProjectComment parentComment = null;
 
             if (formdata.ParentCommentID.HasValue)
             {
@@ -1147,7 +1236,7 @@ namespace Web.Controllers
                         );
                     }
                 }
-                catch (Exception ex){}
+                catch (Exception){}
             }
 
             // Return 
@@ -2678,6 +2767,9 @@ namespace Web.Controllers
             publication.Doi = formdata.Doi;
             publication.SourceAuthor = formdata.SourceAuthor;
             publication.Year = formdata.Year;
+            publication.Volume = formdata.Volume;
+            publication.Issue = formdata.Issue;
+            publication.Pages = formdata.Pages;
             publication.Notes = formdata.Notes;
 
             // Update Publication in DB
@@ -2750,12 +2842,33 @@ namespace Web.Controllers
                     });
                 }
 
+                if (formdata.ReferencedNotebookID.HasValue)
+                {
+                    var notebookExists  = await _dbContext.Notebook
+                        .AsNoTracking()
+                        .AnyAsync(n =>
+                            n.NotebookID == formdata.ReferencedNotebookID.Value &&
+                            n.ProjectID == projectLog.ProjectID &&
+                            n.type != "folder");
+
+                    if (!notebookExists)
+                    {
+                        return BadRequest(new { message = "Invalid notebook reference." });
+                    }
+                }
+                else
+                {
+                    formdata.ReferencedNotebookVersion = null;
+                }
+
                 // Update Log Text
                 projectLog.Title = string.IsNullOrWhiteSpace(formdata.Title)
                     ? null
                     : formdata.Title.Trim();
 
                 projectLog.Content = formdata.Content.Trim();
+                projectLog.ReferencedNotebookID = formdata.ReferencedNotebookID;
+                projectLog.ReferencedNotebookVersion = formdata.ReferencedNotebookVersion;
                 projectLog.UpdatedAt = DateTime.UtcNow;
 
                 // Remove existing image

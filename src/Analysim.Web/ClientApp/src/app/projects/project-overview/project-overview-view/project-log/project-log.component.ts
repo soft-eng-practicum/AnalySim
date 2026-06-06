@@ -60,8 +60,14 @@ export class ProjectLogComponent implements OnInit {
     this.isCreatingLog = false;
   }
 
-  // Switch between active logs and archive
-  onMoveTab(){
-    this.isInArchive = !this.isInArchive;
+  // Tab switching
+  showLogs(): void {
+    if (!this.isInArchive) return;
+    this.isInArchive = false;
+  }
+
+  showArchive(): void {
+    if (this.isInArchive) return;
+    this.isInArchive = true;
   }
 }

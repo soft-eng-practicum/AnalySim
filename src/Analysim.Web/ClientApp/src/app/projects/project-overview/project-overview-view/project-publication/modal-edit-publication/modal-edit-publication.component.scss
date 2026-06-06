@@ -19,7 +19,7 @@
     grid-template-columns: max-content 1fr;
     column-gap: var(--space-3);
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: .5rem;
 }
 
 .publication-form {
@@ -39,6 +39,7 @@
     width: 100%;
     min-width: 0;
     color: black !important;
+    padding: 0 var(--space-2);
 }
 
 .form-header {
@@ -48,3 +49,16 @@
 .error-center{
     text-align: center;
 }
+
+.details-area {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem var(--space-3);
+    margin-top: .5rem;
+    margin-bottom: .5rem;
+    align-items: center;
+}
+
+// .control-sm{
+//     width: 25px !important;
+// }
