@@ -6,7 +6,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc && jupyter labextension build .",
+    "build": "node ../../../../scripts/build-jupyterlite-extension.js",
     "copy:jupyterlite-extension": "node scripts/copy-extension.js"
   },
   "dependencies": {
