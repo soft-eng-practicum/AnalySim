@@ -6,8 +6,15 @@
     "moduleResolution": "Node",
     "outDir": "lib",
     "rootDir": "src",
+    "skipLibCheck": true,
     "strict": true,
     "target": "ES2019",
+    "lib": [
+      "ES2020",
+      "ES2020.Intl",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "types": []
   },
   "include": [

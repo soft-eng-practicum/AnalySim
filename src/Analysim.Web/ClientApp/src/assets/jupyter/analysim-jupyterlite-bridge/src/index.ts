@@ -3,6 +3,14 @@ import type { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/applica
 type ProjectId = string | number;
 type ProjectScope = string | number;
 
+type ContentsModel = {
+  path: string;
+  name?: string;
+  type?: string;
+  content?: any;
+  [key: string]: any;
+};
+
 type AnalysimJupyterRequest = {
   source: 'analysim-angular';
   type:
@@ -31,7 +39,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         log('app.restored resolved; creating bridge');
         void createBridge(app);
       })
-      .catch(error => {
+      .catch((error: unknown) => {
         log('app.restored rejected; bridge cannot start', {
           error: error instanceof Error ? error.message : String(error),
         });
@@ -220,7 +228,7 @@ async function createBridge(app: JupyterFrontEnd): Promise<void> {
         });
         await ensureDirectory(parentPath(absolutePath));
         const model = prepareModelForSave(request.payload?.model, absolutePath);
-        const saved = await withContentsRetry(`save ${absolutePath}`, () => contents.save(absolutePath, model));
+        const saved = await withContentsRetry<ContentsModel>(`save ${absolutePath}`, () => contents.save(absolutePath, model) as Promise<ContentsModel>);
         if (request.payload?.track) {
           trackedFiles.add(toRelativeProjectPath(absolutePath, projectRoot) || request.payload?.path);
           saveTrackedFiles();
@@ -237,9 +245,9 @@ async function createBridge(app: JupyterFrontEnd): Promise<void> {
           requestPath: request.payload?.path,
           absolutePath: resolveProjectPath(request.payload?.path, request.payload?.absolute),
         });
-        const model = await withContentsRetry(
+        const model = await withContentsRetry<ContentsModel>(
           `get ${resolveProjectPath(request.payload?.path, request.payload?.absolute)}`,
-          () => contents.get(resolveProjectPath(request.payload?.path, request.payload?.absolute), { content: true })
+          () => contents.get(resolveProjectPath(request.payload?.path, request.payload?.absolute), { content: true }) as Promise<ContentsModel>
         );
         return toAngularModel(model);
       }
@@ -305,7 +313,7 @@ async function createBridge(app: JupyterFrontEnd): Promise<void> {
   }
 
   async function listFiles(path: string): Promise<any[]> {
-    const model = await withContentsRetry(`list ${path}`, () => contents.get(path, { content: true }));
+    const model = await withContentsRetry<ContentsModel>(`list ${path}`, () => contents.get(path, { content: true }) as Promise<ContentsModel>);
     const children = Array.isArray(model.content) ? model.content : [];
     const files: any[] = [];
 
@@ -313,7 +321,7 @@ async function createBridge(app: JupyterFrontEnd): Promise<void> {
       if (child.type === 'directory') {
         files.push(...await listFiles(child.path));
       } else {
-        const fileModel = await withContentsRetry(`get listed file ${child.path}`, () => contents.get(child.path, { content: true }));
+        const fileModel = await withContentsRetry<ContentsModel>(`get listed file ${child.path}`, () => contents.get(child.path, { content: true }) as Promise<ContentsModel>);
         files.push({ path: toRelativeProjectPath(child.path, projectRoot), model: toAngularModel(fileModel) });
       }
     }
@@ -342,9 +350,9 @@ async function createBridge(app: JupyterFrontEnd): Promise<void> {
         log('directory exists', { path: next });
       } catch {
         log('creating directory', { path: next, parent: current });
-        const created = await withContentsRetry(
+        const created = await withContentsRetry<ContentsModel>(
           `create directory ${next}`,
-          () => contents.newUntitled({ path: current, type: 'directory' })
+          () => contents.newUntitled({ path: current, type: 'directory' }) as Promise<ContentsModel>
         );
         if (created.path !== next) {
           log('renaming created directory', { from: created.path, to: next });
