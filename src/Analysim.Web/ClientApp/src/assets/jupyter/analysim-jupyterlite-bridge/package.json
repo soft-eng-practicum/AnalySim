@@ -1,0 +1,27 @@
+{
+  "name": "@analysim/jupyterlite-bridge",
+  "version": "0.1.0",
+  "description": "AnalySim postMessage bridge for embedded JupyterLite",
+  "private": true,
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc && jupyter labextension build .",
+    "copy:jupyterlite-extension": "node scripts/copy-extension.js"
+  },
+  "dependencies": {
+    "@jupyterlab/application": "~4.5.1"
+  },
+  "devDependencies": {
+    "@jupyterlab/builder": "~4.5.1",
+    "typescript": "~5.2.2"
+  },
+  "jupyterlab": {
+    "extension": true,
+    "outputDir": "labextension",
+    "_build": {
+      "load": "static/remoteEntry.js",
+      "extension": "./extension"
+    }
+  }
+}

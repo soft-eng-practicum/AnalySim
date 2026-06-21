@@ -1,27 +1,32 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
 import { Notebook, NotebookFile } from '../../../../../../interfaces/notebook';
 import { ProjectService } from '../../../../../../services/project.service';
-import { HttpClient } from '@angular/common/http';
-import { JupyterLiteStorageService } from '../forageIndexDb';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { JupyterLiteBridgeService } from '../../../../../../services/jupyter-lite-bridge.service';
+import { firstValueFrom } from 'rxjs';
+
+type CommitResult = {
+  saved: number;
+  skipped: number;
+  tracked: number;
+};
 
 @Component({
   selector: 'app-admin-notebook-item-display',
   templateUrl: './admin-notebook-item-display.component.html',
   styleUrls: ['./admin-notebook-item-display.component.scss']
 })
-export class AdminNotebookItemDisplayComponent {
+export class AdminNotebookItemDisplayComponent implements OnInit, OnDestroy {
 
 
   @Input() notebook: Notebook;
   @Input() version: number;
+  @Input() projectName?: string;
 
   @Output() closeModal: EventEmitter<any> = new EventEmitter();
-  showSaveWarningModal = false;
-  showSaveNotebookModal = false;
 
-  constructor(private projectService: ProjectService, private _renderer2: Renderer2, private http: HttpClient
-    , private sanitizer: DomSanitizer, private jupyterLiteStorageService: JupyterLiteStorageService
+  constructor(private projectService: ProjectService, private _renderer2: Renderer2
+    , private sanitizer: DomSanitizer, private jupyterLiteBridgeService: JupyterLiteBridgeService
   ) { }
 
   @ViewChild('observablehqPanel', { read: ElementRef }) observablehqPanel;
@@ -30,22 +35,42 @@ export class AdminNotebookItemDisplayComponent {
   jupyterFrameSrc: SafeResourceUrl;
   isLoading = true;
   timeoutId: any;
-  notebookFile: NotebookFile;
   commitChangesLoading = false;
+  commitStatusMessage = '';
+  autoCommitAfterClose = true;
+  private readonly messageHandler = this.receiveMessage.bind(this);
+  private commitPromise?: Promise<CommitResult>;
+  private latestSavedFileHashes = new Map<string, string>();
 
   ngOnInit(): void {
-    window.addEventListener('message', this.receiveMessage.bind(this));
-    if (this.notebook.type === 'notebook' || this.notebook.type === 'new') {
+    window.addEventListener('message', this.messageHandler);
+    this.autoCommitAfterClose = this.loadAutoCommitAfterClosePreference();
+    if (this.isJupyterLiteNotebook()) {
       this.loadNotebook();
     }
     this.setTimeoutForLoading();
   }
 
   ngAfterViewInit(): void {
+    if (this.isJupyterLiteNotebook()) {
+      this.jupyterLiteBridgeService.connect(this.jupyterFrame, this.notebook.projectID, this.projectName);
+    }
+
     if (this.notebook.type === 'observable') {
       this.isLoading = false;
       this.generateObservableNotebook();
     }
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('message', this.messageHandler);
+    if (this.isJupyterLiteNotebook() && this.autoCommitAfterClose) {
+      void this.commitChangedTrackedFilesToBackend()
+        .catch(error => console.error('Error committing tracked JupyterLite files on destroy:', error))
+        .finally(() => this.jupyterLiteBridgeService.disconnect());
+      return;
+    }
+    this.jupyterLiteBridgeService.disconnect();
   }
 
   setTimeoutForLoading(): void {
@@ -60,7 +85,7 @@ export class AdminNotebookItemDisplayComponent {
   }
 
   loadNotebook() {
-    const url = `../../../../../../../assets/jupyter/dist/lab/index.html?path=${this.notebook.name}${this.notebook.extension}`;
+    const url = '../../../../../../../assets/jupyter/dist/lab/index.html';
     this.jupyterFrameSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
 
     this.projectService.getNotebookFile(this.notebook, this.version)
@@ -100,7 +125,7 @@ export class AdminNotebookItemDisplayComponent {
                 writable: true,
               }
 
-              this.jupyterLiteStorageService.addFile(datasetName, datasetData).then(
+              this.jupyterLiteBridgeService.addFile(datasetName, datasetData).then(
                 () => {
                 },
                 (error) => {
@@ -111,9 +136,11 @@ export class AdminNotebookItemDisplayComponent {
           });
         }
 
-        // Add the notebook
-        this.jupyterLiteStorageService.addFile(notebookName, notebookData).then(
-          () => {
+        // Angular intentionally does not open JupyterLite IndexedDB/localForage.
+        // The frontend extension owns all Jupyter contents access through the official contents API.
+        this.jupyterLiteBridgeService.addFile(notebookName, notebookData, true, true).then(
+          (savedModel) => {
+            this.rememberTrackedFileHash(notebookName, savedModel || notebookData);
             console.log('File added successfully');
           },
           (error) => {
@@ -124,7 +151,7 @@ export class AdminNotebookItemDisplayComponent {
   }
 
   receiveMessage(event: MessageEvent): void {
-    if (event.data === 'jupyterlite-load') {
+    if (event.data?.source === 'analysim-jupyterlite' && event.data?.type === 'analysim:jupyterlite-ready') {
       this.isLoading = false;
       clearTimeout(this.timeoutId);
       console.log('Notebook loaded successfully');
@@ -150,80 +177,169 @@ export class AdminNotebookItemDisplayComponent {
     });`
   }
 
-  saveNotebook() {
-    this.showSaveNotebookModal = true;
-  }
-
-  onConfirmSaveNotebook() {
-    if (this.notebook.type === 'notebook' || this.notebook.type === 'new') {
-      this.commitChangesLoading = true;
-      this.jupyterLiteStorageService.getFile(`${this.notebook.name}${this.notebook.extension}`).then(
-        (notebookJson) => {
-          const notebookBlob = new Blob([JSON.stringify(notebookJson.content)], { type: 'application/json' });
-          const file = new File([notebookBlob], `${this.notebook.name}${this.notebook.extension}`, { type: 'application/json' });
-          this.notebookFile = {
-            'file': file,
-            'name': `${this.notebook.name}`,
-            'projectID': this.notebook.projectID,
-          }
-          this.projectService.uploadNotebookNewVersion(this.notebookFile, this.notebook.directory).subscribe(result => {
-            this.commitChangesLoading = false;
-            this.showSaveNotebookModal = false;
-          });
-        },
-        (error) => {
-          console.error('Error getting file:', error);
-        }
-      );
-    }
-  }
-
-  onCancelSaveNotebook() {
-    this.showSaveNotebookModal = false;
-  }
-
-  closeNotebook() {
-    this.showSaveWarningModal = true;
-  }
-
-  onConfirmSave() {
+  async closeNotebook() {
     clearTimeout(this.timeoutId);
+    if (this.isJupyterLiteNotebook() && this.autoCommitAfterClose) {
+      try {
+        await this.commitChangedTrackedFilesToBackend();
+      } catch (error) {
+        console.error('Error committing tracked JupyterLite files on close:', error);
+      }
+    }
     this.closeModal.emit();
-    if (this.notebook.type === 'notebook' || this.notebook.type === 'new') {
-      this.jupyterLiteStorageService.getFile(`${this.notebook.name}${this.notebook.extension}`).then(
-        (file) => {
-          console.log('File:', file);
-        },
-        (error) => {
-          console.error('Error getting file:', error);
-        }
-      );
-      this.jupyterLiteStorageService.removeFile(`${this.notebook.name}${this.notebook.extension}`).then(
-        () => {
-          console.log('File removed successfully');
-        },
-        (error) => {
-          console.error('Error removing file:', error);
-        }
-      );
+  }
+
+  async commitTrackedFiles(): Promise<void> {
+    if (!this.isJupyterLiteNotebook()) {
+      return;
     }
 
-    let datasets = this.notebook.observableNotebookDatasets;
-    if (datasets) {
-      datasets.forEach(dataset => {
-        this.jupyterLiteStorageService.removeFile(dataset.datasetName).then(
-          () => {
-            console.log(`Dataset ${dataset.datasetName} removed successfully`);
-          },
-          (error) => {
-            console.error('Error removing dataset:', error);
-          }
-        );
-      });
+    this.commitChangesLoading = true;
+    this.commitStatusMessage = '';
+    try {
+      const result = await this.commitChangedTrackedFilesToBackend();
+      this.commitStatusMessage = result.saved > 0
+        ? `Committed ${result.saved} changed file${result.saved === 1 ? '' : 's'}.`
+        : 'No tracked file changes to commit.';
+    } catch (error) {
+      this.commitStatusMessage = 'Commit failed. Please try again.';
+      console.error('Error committing tracked JupyterLite files:', error);
+    } finally {
+      this.commitChangesLoading = false;
     }
   }
 
-  onCancelSave() {
-    this.showSaveWarningModal = false;
+  onAutoCommitAfterCloseChange(value: boolean): void {
+    this.autoCommitAfterClose = value;
+    localStorage.setItem(this.getAutoCommitAfterCloseKey(), JSON.stringify(value));
+  }
+
+  private async commitChangedTrackedFilesToBackend(): Promise<CommitResult> {
+    if (!this.commitPromise) {
+      this.commitPromise = this.saveChangedTrackedFilesToBackend()
+        .finally(() => {
+          this.commitPromise = undefined;
+        });
+    }
+
+    return this.commitPromise;
+  }
+
+  private async saveChangedTrackedFilesToBackend(): Promise<CommitResult> {
+    const trackedPaths = await this.jupyterLiteBridgeService.getTrackedFileNames();
+    const uniquePaths = Array.from(new Set(trackedPaths));
+    const result: CommitResult = {
+      saved: 0,
+      skipped: 0,
+      tracked: uniquePaths.length,
+    };
+
+    for (const path of uniquePaths) {
+      const model = await this.jupyterLiteBridgeService.getFile(path);
+      const currentHash = this.getContentsHash(model);
+      if (this.latestSavedFileHashes.get(path) === currentHash) {
+        result.skipped++;
+        console.log(`Tracked JupyterLite file unchanged; skipping backend save: ${path}`);
+        continue;
+      }
+
+      const file = this.createFileFromContentsModel(path, model);
+
+      if (path.toLowerCase().endsWith('.ipynb')) {
+        const notebookName = this.getBaseName(path).replace(/\.ipynb$/i, '');
+        const notebookPayload: NotebookFile = {
+          file,
+          name: notebookName,
+          projectID: this.notebook.projectID,
+        };
+
+        try {
+          await firstValueFrom(this.projectService.uploadNotebookNewVersion(notebookPayload, this.notebook.directory));
+        } catch {
+          await firstValueFrom(this.projectService.uploadNotebook(notebookPayload, this.notebook.directory));
+        }
+      } else {
+        await firstValueFrom(this.projectService.uploadFile(file, this.notebook.directory, 0, this.notebook.projectID));
+      }
+
+      this.latestSavedFileHashes.set(path, currentHash);
+      result.saved++;
+    }
+
+    return result;
+  }
+
+  private rememberTrackedFileHash(path: string, model: any): void {
+    this.latestSavedFileHashes.set(path, this.getContentsHash(model));
+  }
+
+  private getContentsHash(model: any): string {
+    return this.hashString(this.stableStringify(model?.content));
+  }
+
+  private hashString(value: string): string {
+    let hash = 0;
+    for (let index = 0; index < value.length; index++) {
+      hash = ((hash << 5) - hash) + value.charCodeAt(index);
+      hash |= 0;
+    }
+    return hash.toString(16);
+  }
+
+  private stableStringify(value: any): string {
+    if (value === null || typeof value !== 'object') {
+      return JSON.stringify(value);
+    }
+
+    if (Array.isArray(value)) {
+      return `[${value.map(item => this.stableStringify(item)).join(',')}]`;
+    }
+
+    return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${this.stableStringify(value[key])}`).join(',')}}`;
+  }
+
+  private createFileFromContentsModel(path: string, model: any): File {
+    const fileName = this.getBaseName(path);
+    const content = model?.content;
+
+    if (model?.format === 'base64') {
+      const binary = atob(content || '');
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index++) {
+        bytes[index] = binary.charCodeAt(index);
+      }
+      return new File([bytes], fileName, { type: model?.mimetype || 'application/octet-stream' });
+    }
+
+    const body = model?.format === 'json' && typeof content !== 'string'
+      ? JSON.stringify(content)
+      : (content || '');
+    return new File([body], fileName, { type: model?.mimetype || 'text/plain' });
+  }
+
+  private getBaseName(path: string): string {
+    return path.split('/').filter(Boolean).pop() || path;
+  }
+
+  private isJupyterLiteNotebook(): boolean {
+    return this.notebook?.type === 'new';
+  }
+
+  private loadAutoCommitAfterClosePreference(): boolean {
+    const raw = localStorage.getItem(this.getAutoCommitAfterCloseKey());
+    return raw === null ? true : raw === 'true';
+  }
+
+  private getAutoCommitAfterCloseKey(): string {
+    return `analysim:auto-commit-after-close:${this.getProjectScopeSlug()}`;
+  }
+
+  private getProjectScopeSlug(): string {
+    const scope = this.projectName || this.notebook?.projectID || 'default';
+    return String(scope)
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'default';
   }
 }

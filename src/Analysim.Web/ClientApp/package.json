@@ -5,6 +5,12 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "setup:jupyterlite-extension": "npm --prefix src/assets/jupyter/analysim-jupyterlite-bridge install",
+    "build:jupyterlite-extension": "npm run setup:jupyterlite-extension && npm --prefix src/assets/jupyter/analysim-jupyterlite-bridge run build",
+    "copy:jupyterlite-extension": "node scripts/copy-jupyterlite-extension.js",
+    "setup:jupyterlite-venv": "node scripts/setup-jupyterlite-venv.js",
+    "build:jupyterlite-site": "node scripts/build-jupyterlite-site.js",
+    "build:jupyterlite": "npm run build:jupyterlite-extension && npm run setup:jupyterlite-venv && npm run build:jupyterlite-site && npm run copy:jupyterlite-extension",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

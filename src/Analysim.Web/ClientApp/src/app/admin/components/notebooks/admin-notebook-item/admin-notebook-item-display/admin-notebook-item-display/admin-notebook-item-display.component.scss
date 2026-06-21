@@ -30,12 +30,45 @@
   margin: 9px;
 }
 
+.notebook-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .commit {
   width: max-content;
   background-color: rgb(81, 81, 223);
   color: white;
+  border: 0;
   border-radius: 5px;
   padding: 5px 10px;
   cursor: pointer;
   font-size: 15px;
+}
+
+.commit:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.auto-commit-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.auto-commit-toggle input {
+  cursor: pointer;
+}
+
+.commit-status {
+  font-size: 13px;
+  max-width: 260px;
+  color: #4b5563;
 }

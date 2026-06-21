@@ -21,6 +21,7 @@ export class ProjectLogItemComponent implements OnInit {
   // Inputs
   @Input() log: ProjectLog | null;
   @Input() projectID: number;
+  @Input() projectName?: string;
   @Input() currentUser: User;
 
   // Delete modal

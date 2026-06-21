@@ -52,10 +52,8 @@ import { LineChartComponent } from './project-file-explorer/csvdata-browser/visu
 import { ScatterPlotComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/scatter-plot/scatter-plot.component';
 import { ThreeDScatterPlotComponent } from './project-file-explorer/csvdata-browser/visualize-data/charts/three-dscatter-plot/three-dscatter-plot.component';
 import { CheckboxModule } from 'primeng/checkbox';
-import { SaveConfirmationModalComponent } from './project-overview/project-overview-view/project-content/save-confirmation-modal/save-confirmation-modal.component';
 import { ModalDatasetsComponent } from './project-overview/project-overview-view/project-content/modal-datasets/modal-datasets.component';
 import { DatasetFolderViewComponent } from './project-overview/project-overview-view/project-content/dataset-folder-view/dataset-folder-view.component';
-import { SaveNotebookModalComponent } from './project-overview/project-overview-view/project-content/save-notebook-modal/save-notebook-modal.component';
 import { ProjectCommentItemComponent } from './project-comments/project-comment-item/project-comment-item.component';
 import { ProjectCommentBoxComponent } from './project-comments/project-comment-box/project-comment-box.component';
 import { ModalReportCommentComponent } from './project-comments/modal-report-comment/modal-report-comment.component';
@@ -112,10 +110,8 @@ import { ProjectStatCounterComponent } from './project/project-stat-counter/proj
     LineChartComponent,
     ScatterPlotComponent,
     ThreeDScatterPlotComponent,
-    SaveConfirmationModalComponent,
     ModalDatasetsComponent,
     DatasetFolderViewComponent,
-    SaveNotebookModalComponent,
     ProjectCommentItemComponent,
     ProjectCommentBoxComponent,
     ModalReportCommentComponent,

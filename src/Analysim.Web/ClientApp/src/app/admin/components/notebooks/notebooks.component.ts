@@ -17,6 +17,7 @@ export class NotebooksComponent implements OnInit {
   notebookID = null;
   version: number = 0;
   currentNotebook: Notebook = null;
+  currentProjectName: string;
 
   constructor(private modalService: BsModalService, private projectService: ProjectService, private router: Router, private route: ActivatedRoute) { }
   
@@ -53,7 +54,20 @@ export class NotebooksComponent implements OnInit {
 
   displayNotebook(notebook: Notebook) {
     this.currentNotebook = notebook;
-    // console.log(this.currentNotebook);
+    this.currentProjectName = notebook.route;
+    this.projectService.getProjectByID(notebook.projectID).subscribe({
+      next: project => {
+        this.currentProjectName = project?.name || this.currentProjectName;
+        this.showDisplayNotebookModal();
+      },
+      error: error => {
+        console.error('Error loading project name for JupyterLite scope:', error);
+        this.showDisplayNotebookModal();
+      }
+    });
+  }
+
+  private showDisplayNotebookModal() {
     this.displayNotebookModalRef = this.modalService.show(this.displayNotebookModal, {
       backdrop: 'static',
     });

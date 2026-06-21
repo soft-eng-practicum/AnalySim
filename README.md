@@ -33,14 +33,21 @@ command.
 npm install
 ```
 
-Then navigate to `src/Analysim.Web/ClientApp/src/assets/jupyter` folder and run the following commands.
+Then navigate to `src/Analysim.Web/ClientApp` and run the JupyterLite build script.
 
 ```sh
-python -m pip install -r requirements.txt
-jupyter-lite build --output-dir dist
+npm run build:jupyterlite
 ```
 
-Then copy the file `index.html` under `dist\lab\index.html`.
+This script:
+
+- installs and builds the AnalySim JupyterLite bridge extension
+- creates `src/assets/jupyter/venv`
+- installs `src/assets/jupyter/requirements.txt` into that venv
+- runs `jupyter lite build` from the venv
+- copies the built bridge extension into `src/assets/jupyter/dist/extensions/@analysim/jupyterlite-bridge`
+
+The AnalySim bridge is a JupyterLite/JupyterLab frontend extension. Angular should communicate with JupyterLite through the bridge postMessage protocol instead of reading JupyterLite IndexedDB/localForage directly. Project files are scoped under `analysim-projects/{projectName}/` to prevent one project's tracked files from being saved as another project's files when browser storage is shared by the same JupyterLite deployment.
 
 ### Connecting to databases and other services
 
