@@ -27,19 +27,14 @@ git clone https://github.com/soft-eng-practicum/AnalySim.git
 After you have cloned the Analysim repository on your local machine,
 use the terminal to navigate to the
 `src/Analysim.Web/ClientApp` folder and run the following
-command.
+commands.
 
 ```sh
 npm install
-```
-
-Then navigate to `src/Analysim.Web/ClientApp` and run the JupyterLite build script.
-
-```sh
 npm run build:jupyterlite
 ```
 
-This script:
+`build:jupyterlite` script:
 
 - installs and builds the AnalySim JupyterLite bridge extension
 - creates `src/assets/jupyter/venv`
