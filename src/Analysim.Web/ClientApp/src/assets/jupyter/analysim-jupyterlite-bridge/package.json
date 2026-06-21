@@ -6,7 +6,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "node ../../../../scripts/build-jupyterlite-extension.js",
+    "build": "node ../../../../scripts/setup-jupyterlite-venv.js && node ../../../../scripts/build-jupyterlite-extension.js",
     "copy:jupyterlite-extension": "node scripts/copy-extension.js"
   },
   "dependencies": {
