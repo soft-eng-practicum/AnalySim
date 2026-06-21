@@ -154,10 +154,6 @@ export class ProjectComponent implements OnInit {
   }
 
   NavigateToNotebook(){
-    this.displayNotebookModalRef = this.modalService.show(this.displayNotebookModal, {
-      backdrop: 'static',
-    });
-
     this.router.navigate([this.router.url.split('/').slice(0, 4).join('/') + "/notebook/" + this.readmeNotebook.name], {
       queryParams: {
         isNotebook: true,

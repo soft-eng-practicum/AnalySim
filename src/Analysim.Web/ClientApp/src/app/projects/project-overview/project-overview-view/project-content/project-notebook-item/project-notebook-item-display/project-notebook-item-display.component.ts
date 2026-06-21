@@ -42,6 +42,7 @@ export class ProjectNotebookItemDisplayComponent implements OnInit, OnDestroy {
   private readonly messageHandler = this.receiveMessage.bind(this);
   private commitPromise?: Promise<CommitResult>;
   private latestSavedFileHashes = new Map<string, string>();
+  private bridgeConnected = false;
 
   ngOnInit(): void {
     window.addEventListener('message', this.messageHandler);
@@ -53,7 +54,8 @@ export class ProjectNotebookItemDisplayComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    if (this.isJupyterLiteNotebook()) {
+    if (this.isJupyterLiteNotebook() && !this.bridgeConnected) {
+      this.bridgeConnected = true;
       this.jupyterLiteBridgeService.connect(this.jupyterFrame, this.notebook.projectID, this.projectName);
     }
 

@@ -47,6 +47,7 @@ export class ProjectContentComponent implements OnInit {
   @ViewChild('displayNotebookModal') displayNotebookModal: TemplateRef<any>;
 
   displayNotebookModalRef: BsModalRef;
+  private displayedNotebookModalKey?: string;
 
   ngOnInit(): void {
     this.currentDirectory = this.extractDirectory(this.router.url);
@@ -95,8 +96,17 @@ export class ProjectContentComponent implements OnInit {
   }
 
   displayNotebook(notebook: Notebook) {
+    const modalKey = `${notebook?.notebookID ?? ''}:${this.version ?? ''}`;
+    if (this.displayNotebookModalRef && this.displayedNotebookModalKey === modalKey) {
+      console.warn('[AnalySim Notebook] Ignored duplicate notebook modal open request', {
+        notebookId: notebook?.notebookID,
+        version: this.version,
+      });
+      return;
+    }
+
     this.currentNotebook = notebook;
-    // console.log(this.currentNotebook);
+    this.displayedNotebookModalKey = modalKey;
     this.displayNotebookModalRef = this.modalService.show(this.displayNotebookModal, {
       backdrop: 'static',
     });
@@ -111,7 +121,9 @@ export class ProjectContentComponent implements OnInit {
   }
 
   closeDisplayNotebookModal() {
-    this.displayNotebookModalRef.hide();
+    this.displayNotebookModalRef?.hide();
+    this.displayNotebookModalRef = undefined;
+    this.displayedNotebookModalKey = undefined;
     this.navigateToPreviousComponent();
   }
 
