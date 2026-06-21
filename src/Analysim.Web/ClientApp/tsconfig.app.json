@@ -11,5 +11,10 @@
   ],
   "include": [
     "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "src/assets/jupyter/analysim-jupyterlite-bridge/**",
+    "src/assets/jupyter/dist/**",
+    "src/assets/jupyter/venv/**"
   ]
 }
