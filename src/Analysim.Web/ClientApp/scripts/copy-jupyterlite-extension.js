@@ -12,6 +12,17 @@ if (!fs.existsSync(source)) {
   throw new Error(`Bridge labextension output was not found: ${source}`);
 }
 
+const sourcePackagePath = path.join(source, 'package.json');
+if (!fs.existsSync(sourcePackagePath)) {
+  throw new Error(`Bridge labextension package metadata was not found: ${sourcePackagePath}`);
+}
+
+const sourcePackage = JSON.parse(fs.readFileSync(sourcePackagePath, 'utf8'));
+const buildMetadata = sourcePackage.jupyterlab?._build;
+if (!buildMetadata?.load || !buildMetadata?.extension) {
+  throw new Error(`Bridge labextension package metadata is missing jupyterlab._build load/extension entries: ${sourcePackagePath}`);
+}
+
 if (!fs.existsSync(path.dirname(destination))) {
   fs.mkdirSync(path.dirname(destination), { recursive: true });
 }
@@ -23,8 +34,8 @@ const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 const jupyterConfigData = config['jupyter-config-data'] || {};
 const extensions = jupyterConfigData.federated_extensions || [];
 const bridgeEntry = {
-  extension: './extension',
-  load: 'static/remoteEntry.js',
+  extension: buildMetadata.extension,
+  load: buildMetadata.load,
   name: packageName,
 };
 
