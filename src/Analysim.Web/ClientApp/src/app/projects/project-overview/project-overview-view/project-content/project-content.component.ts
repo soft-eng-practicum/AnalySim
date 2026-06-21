@@ -29,7 +29,7 @@ export class ProjectContentComponent implements OnInit {
 
   @Input() currentDirectory: string
 
-  notebooks: Notebook[];
+  notebooks: Notebook[] = [];
 
   validDirectory: boolean = true
 
