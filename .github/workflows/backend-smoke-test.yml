@@ -28,9 +28,12 @@ jobs:
           {
             "JwtSettings": {
               "Issuer": "AnalySim",
-              "Secret": "very_hard_secret",
+              "Secret": "github-actions-smoke-test-secret-with-at-least-32-chars",
               "ExpireTime": 60,
               "Audience": "https://www.analysim.tech/"
+            },
+            "ConnectionStrings": {
+              "DBConnectionString": "Host=localhost;Port=5432;Database=analysim;Username=postgres;Password=postgres"
             },
             "Logging": {
               "LogLevel": {
@@ -48,20 +51,20 @@ jobs:
       - name: Start backend
         run: |
           cd src/Analysim.Web
-          dotnet run --no-launch-profile > ../../backend.log 2>&1 &
+          ASPNETCORE_URLS=http://localhost:5000 ASPNETCORE_ENVIRONMENT=Development dotnet run --no-launch-profile --no-build --configuration Release > ../../backend.log 2>&1 &
           echo $! > ../../backend.pid
 
       - name: Wait for backend to be ready
         run: |
           for i in {1..15}; do
-            RESPONSE=$(curl -k -s https://localhost:5001/api/health || true)
+            RESPONSE=$(curl -s http://localhost:5000/api/health || true)
 
             if [[ "$RESPONSE" == *Healthy* ]]; then
               echo "Backend is healthy"
               exit 0
             fi
 
-            echo "Attempt $i/30: backend not ready yet"
+            echo "Attempt $i/15: backend not ready yet"
             sleep 6
           done
 
