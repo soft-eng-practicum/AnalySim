@@ -1,7 +1,7 @@
 # Run published project
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
-COPY src/Analysim.Web/bin/Release/net6.0/publish/ .
+COPY src/Analysim.Web/bin/Release/net10.0/publish/ .
 
 #CMD ASPNETCORE_URLS=http://*:$PORT dotnet Analysim.Web.dll
 CMD dotnet Analysim.Web.dll

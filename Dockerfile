@@ -1,6 +1,6 @@
 # Builds and runs ASPNET project Analysim
 # Requires running database
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /source
 
 # install Node.js and Python
@@ -9,7 +9,7 @@ RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -
 RUN npm install -g npm
 
 # Install .Net EF Tools
-RUN dotnet tool install --global dotnet-ef --version 6.0
+RUN dotnet tool install --global dotnet-ef --version 10.0.9
 ENV PATH="$PATH:/root/.dotnet/tools"
 
 # then copy sources so previous step is cached
@@ -25,7 +25,7 @@ WORKDIR /source/Analysim.Web
 CMD dotnet ef database update
 
 # run project in new container
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 as run
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 as run
 WORKDIR /app
 COPY --from=build /app .
 
