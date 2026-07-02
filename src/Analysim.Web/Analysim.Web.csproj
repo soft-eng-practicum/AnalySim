@@ -43,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Analysim.Infrastructure\Analysim.Infrastructure.csproj" SkipGetTargetFrameworkProperties="true" />
+    <ProjectReference Include="..\Analysim.Infrastructure\Analysim.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
