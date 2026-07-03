@@ -1,5 +1,4 @@
-<div #notebookWindow class="modal-content"
-    style="width: 100vw;height: 100vh;top: 0; left: 0;margin: 0;position: fixed; overflow: auto;">
+<div #notebookWindow class="modal-content notebook-modal-shell">
     <div class="header">
         <h5 class="modal-title">Notebook</h5>
         <div class="notebook-actions">
@@ -17,15 +16,15 @@
                 (click)="closeNotebook()">&times;</button>
         </div>
     </div>
-    <div id="jupyterlite-container" *ngIf="notebook.type === 'new'">
+    <div id="jupyterlite-container" class="notebook-frame-container" *ngIf="notebook.type === 'new'">
         <div *ngIf="isLoading" class="spinner-container">
             <div class="spinner-border" role="status">
             </div>
             <div>Loading Notebook...</div>
         </div>
-        <iframe #jupyterFrame [src]="jupyterFrameSrc" width="100%" style="height: 100vh;"></iframe>
+        <iframe #jupyterFrame class="jupyterlite-frame" [src]="jupyterFrameSrc"></iframe>
     </div>
-    <div #observablehqPanel class="m-3" *ngIf="notebook.type === 'observable'">
+    <div #observablehqPanel class="observable-panel" *ngIf="notebook.type === 'observable'">
         <div id="notebook"></div>
     </div>
 </div>

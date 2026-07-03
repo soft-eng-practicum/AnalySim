@@ -9,13 +9,28 @@
   margin: 0;
 }
 
+.notebook-modal-shell {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .spinner-container {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
   gap: 20px;
+  background: var(--surface-0, #fff);
 }
 
 .spinner-border {
@@ -24,10 +39,36 @@
 }
 
 .header {
+  flex: 0 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 9px;
+  gap: 12px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color, #dee2e6);
+}
+
+.notebook-frame-container {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+}
+
+.jupyterlite-frame {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.observable-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 1rem;
+  overflow: auto;
 }
 
 .notebook-actions {
