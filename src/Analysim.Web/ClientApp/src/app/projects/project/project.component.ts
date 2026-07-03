@@ -302,6 +302,8 @@ export class ProjectComponent implements OnInit {
   }
 
   followProject() {
+    if (this.isFollowLoading) return
+
     // Navigate To Login Page If User Not Logged In
     if (!this.accountService.checkLoginStatus()) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } })
@@ -354,6 +356,7 @@ export class ProjectComponent implements OnInit {
   }
 
   unFollowProject() {
+    if (this.isFollowLoading) return
     if(!this.projectUser) return
 
     this.isFollowLoading = true

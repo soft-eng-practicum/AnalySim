@@ -176,8 +176,30 @@
                 <a class="more-link" role="button" tabindex="0">Recommend</a>
                 <a class="more-link" role="button" tabindex="0" *ngIf="!isMember && !isOwner">Join</a>
                 <a class="more-link" role="button" tabindex="0" *ngIf="isMember && !isOwner">Leave</a>
-                <a class="more-link" role="button" tabindex="0" *ngIf="!isFollowing">Follow</a>
-                <a class="more-link" role="button" tabindex="0" *ngIf="isFollowing">Unfollow</a>
+                <a
+                  class="more-link"
+                  role="button"
+                  tabindex="0"
+                  *ngIf="!isFollowing"
+                  (click)="followProject()"
+                  (keydown.enter)="followProject()"
+                  (keydown.space)="followProject(); $event.preventDefault()"
+                  [class.is-disabled]="isFollowLoading"
+                  [attr.aria-disabled]="isFollowLoading">
+                  Follow
+                </a>
+                <a
+                  class="more-link"
+                  role="button"
+                  tabindex="0"
+                  *ngIf="isFollowing"
+                  (click)="unFollowProject()"
+                  (keydown.enter)="unFollowProject()"
+                  (keydown.space)="unFollowProject(); $event.preventDefault()"
+                  [class.is-disabled]="isFollowLoading"
+                  [attr.aria-disabled]="isFollowLoading">
+                  Unfollow
+                </a>
               </div>
 
               <button type="button"
