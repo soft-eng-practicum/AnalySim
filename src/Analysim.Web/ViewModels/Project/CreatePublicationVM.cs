@@ -1,3 +1,5 @@
+#nullable enable annotations
+
 using System.ComponentModel.DataAnnotations;
 
 namespace Analysim.Web.ViewModels.Project

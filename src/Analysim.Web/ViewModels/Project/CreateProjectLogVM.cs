@@ -1,3 +1,5 @@
+#nullable enable annotations
+
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 

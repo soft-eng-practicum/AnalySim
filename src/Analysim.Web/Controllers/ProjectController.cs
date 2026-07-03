@@ -1,4 +1,6 @@
-﻿using Internal;
+﻿#nullable enable annotations
+
+using Internal;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -1147,7 +1149,7 @@ namespace Web.Controllers
                         );
                     }
                 }
-                catch (Exception ex){}
+                catch (Exception) {}
             }
 
             // Return 
