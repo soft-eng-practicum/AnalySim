@@ -40,7 +40,7 @@
     <app-expired-log-item
       *ngFor="let log of expiredLogs"
       [log]="log"
-      (deleteLog)="deleteExpiredLog($event)"
+      (onReload)="loadLogs()"
     >
     </app-expired-log-item>
   </div>

@@ -35,6 +35,9 @@ export class ModalEditPublicationComponent implements OnInit {
   doi: FormControl;
   sourceAuthor: FormControl;
   year: FormControl;
+  volume: FormControl;
+  issue: FormControl;
+  pages: FormControl;
   journal: FormControl;
   notes: FormControl;
   isLoading: boolean = false;
@@ -57,6 +60,9 @@ export class ModalEditPublicationComponent implements OnInit {
     this.doi = new FormControl(ep ? (ep.doi ? ep.doi : '') : '');
     this.sourceAuthor = new FormControl(ep ? (ep.sourceAuthor ? ep.sourceAuthor : '') : '');
     this.year = new FormControl(ep ? (ep.year ? ep.year : '') : '');
+    this.volume = new FormControl(ep ? (ep.volume ? ep.volume : '') : '');
+    this.issue = new FormControl(ep ? (ep.issue ? ep.issue : '') : '');
+    this.pages = new FormControl(ep ? (ep.pages ? ep.pages : '') : '');
     this.journal = new FormControl(ep ? (ep.journal ? ep.journal : '') : '');
     this.notes = new FormControl(ep ? (ep.notes ? ep.notes : '') : '');
 
@@ -68,6 +74,9 @@ export class ModalEditPublicationComponent implements OnInit {
       doi: this.doi,
       sourceAuthor: this.sourceAuthor,
       year: this.year,
+      volume: this.volume,
+      issue: this.issue,
+      pages: this.pages,
       notes: this.notes,
     });
   }
@@ -156,6 +165,9 @@ export class ModalEditPublicationComponent implements OnInit {
     if (pub.title) formData.append('title', pub.title);
     if (pub.url) formData.append('url', pub.url);
     if (pub.doi) formData.append('doi', pub.doi);
+    if (pub.volume) formData.append('volume', pub.volume);
+    if (pub.issue) formData.append('issue', pub.issue);
+    if (pub.pages) formData.append('pages', pub.pages);
     if (pub.notes) formData.append('notes', pub.notes);
 
     return formData;

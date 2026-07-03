@@ -21,6 +21,8 @@ import { ModalDeleteReportsComponent } from './components/comments/modal-delete-
 import { ModalIgnoreReportsComponent } from './components/comments/modal-ignore-reports/modal-ignore-reports.component';
 import { ProjectLogsComponent } from './components/project-logs/project-logs.component';
 import { ExpiredLogItemComponent } from './components/project-logs/expired-log-item/expired-log-item.component';
+import { ModalDeleteLogComponent } from './components/project-logs/modal-delete-log/modal-delete-log.component';
+import { ModalRestoreLogComponent } from './components/project-logs/modal-restore-log/modal-restore-log.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +43,9 @@ import { ExpiredLogItemComponent } from './components/project-logs/expired-log-i
     ModalDeleteReportsComponent,
     ModalIgnoreReportsComponent,
     ProjectLogsComponent,
-    ExpiredLogItemComponent
+    ExpiredLogItemComponent,
+    ModalDeleteLogComponent,
+    ModalRestoreLogComponent
   ],
   imports: [
     CommonModule,

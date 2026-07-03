@@ -34,13 +34,11 @@ export class ProjectComponent implements OnInit {
 
   @ViewChild('forkModal') forkModal: TemplateRef<any>
   @ViewChild('deleteModal') deleteModal: TemplateRef<any>
-  @ViewChild('memberListModal') memberListModal: TemplateRef<any>
   @ViewChildren(ProjectFileExplorerComponent) fileExplorer: ProjectFileExplorerComponent
   @ViewChild('displayNotebookModal') displayNotebookModal: TemplateRef<any>;
 
   forkModalRef: BsModalRef;
   deleteModalRef: BsModalRef;
-  memberListModalRef: BsModalRef;
   displayNotebookModalRef: BsModalRef;
 
   project: Project = null
@@ -482,11 +480,6 @@ export class ProjectComponent implements OnInit {
   toggleModalDelete() {
     // Show delete Modal
     this.deleteModalRef = this.modalService.show(this.deleteModal)
-  }
-
-  toggleModalMemberList() {
-    // Show delete Modal
-    this.memberListModalRef = this.modalService.show(this.memberListModal)
   }
 
   showFile(): void {

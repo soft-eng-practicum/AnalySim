@@ -26,12 +26,23 @@
   color: var(--button-font-color) !important;
 }
 
-.btn-primary:hover:not(:disabled):not(.disabled),
-.btn-primary:focus:not(:disabled):not(.disabled) {
+/* Hover only */
+.btn-primary:hover:not(:disabled):not(.disabled) {
   background-color: var(--button-background-color-hov) !important;
   border: var(--button-border-width) var(--button-border-style)
     var(--button-border-color-hov) !important;
   color: var(--button-font-color-hov) !important;
+}
+
+/* After click / focus returns to normal */
+.btn-primary:focus:not(:disabled):not(.disabled),
+.btn-primary:active:not(:disabled):not(.disabled),
+.btn-primary:focus:active:not(:disabled):not(.disabled) {
+  background-color: var(--button-background-color) !important;
+  border: var(--button-border-width) var(--button-border-style)
+    var(--button-border-color) !important;
+  color: var(--button-font-color) !important;
+  box-shadow: none !important;
 }
 
 /* Secondary button */

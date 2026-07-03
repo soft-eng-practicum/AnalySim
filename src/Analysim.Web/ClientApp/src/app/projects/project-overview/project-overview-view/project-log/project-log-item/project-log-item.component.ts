@@ -7,6 +7,7 @@ import {
 } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { Notebook } from 'src/app/interfaces/notebook';
 import { ProjectLog } from 'src/app/interfaces/project-log';
 import { User } from 'src/app/interfaces/user';
 import { ProjectService } from 'src/app/services/project.service';
@@ -92,10 +93,15 @@ export class ProjectLogItemComponent implements OnInit {
       image: this.image,
       content: this.content,
     });
+
+    this.loadNotebookReferences();
   }
 
   // Select or preview uploaded image
   onImageSelected(event: Event): void {
+    this.resetError();
+    this.isLoading = true;
+
     const input = event.target as HTMLInputElement;
 
     if (!input.files || input.files.length === 0) {
@@ -111,11 +117,30 @@ export class ProjectLogItemComponent implements OnInit {
       return;
     }
 
+    // Validate file size
+    const maxFileSizeMb = 5;
+    const maxFileSizeBytes = maxFileSizeMb * 1024 * 1024;
+
+    if (file.size > maxFileSizeBytes) {
+      this.selectedImageFile = null;
+      this.imagePreviewUrl = null;
+      input.value = '';
+
+      this.handleError(
+        `Error: Image must be smaller than ${maxFileSizeMb} MB`,
+      );
+
+      this.isLoading = false;
+      return;
+    }
+
     this.selectedImageFile = file;
     this.shouldRemoveImage = false;
 
     const objectUrl = URL.createObjectURL(file);
     this.imagePreviewUrl = this.sanitizer.bypassSecurityTrustUrl(objectUrl);
+
+    this.isLoading = false;
   }
 
   // Remove current image from preview/update form
@@ -139,8 +164,7 @@ export class ProjectLogItemComponent implements OnInit {
 
   // Create log
   onCreateLog() {
-    this.errorStatusAlert = false;
-    this.errorResult = null;
+    this.resetError();
     this.isLoading = true;
 
     const formData = this.buildForm();
@@ -169,8 +193,7 @@ export class ProjectLogItemComponent implements OnInit {
       return;
     }
 
-    this.errorStatusAlert = false;
-    this.errorResult = null;
+    this.resetError();
     this.isLoading = true;
 
     const formData = this.buildForm();
@@ -218,6 +241,17 @@ export class ProjectLogItemComponent implements OnInit {
       formData.append('image', this.selectedImageFile, this.selectedImageFile.name);
     }
 
+    if (this.selectedNotebookID) {
+      formData.append('referencedNotebookID', String(this.selectedNotebookID));
+
+      if (this.selectedNotebookVersion) {
+        formData.append('referencedNotebookVersion', String(this.selectedNotebookVersion));
+      }
+    } else {
+      formData.append('referencedNotebookID', '');
+      formData.append('referencedNotebookVersion', '');
+    }
+
     return formData;
   }
 
@@ -245,6 +279,11 @@ export class ProjectLogItemComponent implements OnInit {
         content: this.log.content ?? '',
       });
     }
+  }
+
+  resetError(){
+    this.errorStatusAlert = false;
+    this.errorResult = null;
   }
 
   handleError(text: string) {
@@ -289,5 +328,128 @@ export class ProjectLogItemComponent implements OnInit {
 
   toggleModalRepost() {
     this.repostModalRef = this.modalService.show(this.repostModal)
+  }
+
+  // Notebook Handling
+  availableNotebooks: Notebook[] = [];
+
+  selectedNotebookID: number | null = null;
+  selectedNotebookVersion: number | null = null;
+
+  selectedNotebook: Notebook | null = null;
+  selectedNotebookVersions: number[] = [];
+
+  loadNotebookReferences(): void {
+    this.projectService.getProjectNotebookReferences(this.projectID)
+      .subscribe(response => {
+        this.availableNotebooks = response.result ?? [];
+
+        // Create mode: default to None
+        if (!this.log?.referencedNotebookID) {
+          this.selectedNotebookID = null;
+          this.selectedNotebookVersion = null;
+          this.selectedNotebook = null;
+          this.selectedNotebookVersions = [];
+          return;
+        }
+
+        // Edit mode: preselect existing notebook
+        this.selectedNotebookID = this.log.referencedNotebookID;
+
+        this.onNotebookSelected(
+          this.log.referencedNotebookID,
+          this.log.referencedNotebookVersion ?? null
+        );
+      });
+  }
+
+  onNotebookSelected(
+    notebookID: number | null,
+    preferredVersion: number | null = null
+  ): void {
+    this.selectedNotebookID = notebookID;
+    this.selectedNotebookVersion = null;
+    this.selectedNotebookVersions = [];
+
+    if (!notebookID) {
+      this.selectedNotebook = null;
+      return;
+    }
+
+    this.selectedNotebook = this.availableNotebooks.find(
+      n => n.notebookID === Number(notebookID)
+    ) ?? null;
+
+    if (!this.selectedNotebook) {
+      return;
+    }
+
+    if (this.selectedNotebook.type === 'observable') {
+      this.selectedNotebookVersion = null;
+      return;
+    }
+
+    this.loadNotebookVersions(this.selectedNotebook, preferredVersion);
+  }
+
+  loadNotebookVersions(notebook: Notebook, preferredVersion: number | null = null): void {
+    this.projectService.getNotebookVersions(notebook)
+      .subscribe({
+        next: (versions) => {
+          this.selectedNotebookVersions = versions;
+
+          if (preferredVersion && versions.includes(preferredVersion)) {
+            this.selectedNotebookVersion = preferredVersion;
+          } else if (versions.length > 0) {
+            this.selectedNotebookVersion = versions[0];
+          } else {
+            this.selectedNotebookVersion = null;
+          }
+        },
+        error: (error) => {
+          console.log(error);
+          this.handleError('Error: unable to load notebook versions.');
+        }
+      });
+  }
+
+  @ViewChild('displayNotebookModal') displayNotebookModal: TemplateRef<any>;
+
+  displayNotebookModalRef: BsModalRef;
+
+  currentNotebook: Notebook | null = null;
+  currentNotebookVersion: number = 0;
+
+  onOpenNotebook(): void {
+    if (!this.log.referencedNotebookID) {
+      return;
+    }
+
+    this.projectService.getNotebook(this.log.referencedNotebookID).subscribe({
+      next: (notebook) => {
+        this.currentNotebook = notebook;
+        this.currentNotebookVersion = this.log.referencedNotebookVersion ?? 0;
+
+        this.displayNotebookModalRef = this.modalService.show(
+          this.displayNotebookModal,
+          {
+            backdrop: 'static',
+            class: 'modal-xl'
+          }
+        );
+      },
+      error: () => {
+        alert('Unable to open the referenced notebook.');
+      }
+    });
+  }
+
+  closeDisplayNotebookModal(): void {
+    if (this.displayNotebookModalRef) {
+      this.displayNotebookModalRef.hide();
+    }
+
+    this.currentNotebook = null;
+    this.currentNotebookVersion = 0;
   }
 }

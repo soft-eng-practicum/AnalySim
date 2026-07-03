@@ -4,69 +4,106 @@
   </div>
 
   <div class="modal-body">
-    <form class="form publication-form" [formGroup]="publicationForm">
-      <label class="label-title" for="sourceAuthor">Author*</label>
-      <input
-        id="sourceAuthor"
-        formControlName="sourceAuthor"
-        type="text"
-        class="form-control"
-        placeholder="Smith, J. or John Smith"
-      />
+    <form class="form" [formGroup]="publicationForm">
+      <div class="publication-form">
+        <label class="label-title" for="sourceAuthor">Author*</label>
+        <input
+          id="sourceAuthor"
+          formControlName="sourceAuthor"
+          type="text"
+          class="form-control"
+          placeholder="Smith, J. or John Smith"
+        />
 
-      <label class="label-title" for="year">Year*</label>
-      <input
-        id="year"
-        formControlName="year"
-        type="number"
-        class="form-control"
-        placeholder="2024"
-      />
+        <label class="label-title" for="year">Year*</label>
+        <input
+          id="year"
+          formControlName="year"
+          type="number"
+          class="form-control"
+          placeholder="2024"
+        />
 
-      <label class="label-title" for="title">Title</label>
-      <textarea
-        id="title"
-        formControlName="title"
-        rows="2"
-        class="form-control"
-        placeholder="Machine Learning for Healthcare Diagnostics"
-      ></textarea>
+        <label class="label-title" for="journal">Journal*</label>
+        <input
+          id="journal"
+          formControlName="journal"
+          type="text"
+          class="form-control"
+          placeholder="Journal of Modern Computing Research"
+        />
 
-      <label class="label-title" for="journal">Journal*</label>
-      <input
-        id="journal"
-        formControlName="journal"
-        type="text"
-        class="form-control"
-        placeholder="Journal of Modern Computing Research"
-      />
+        <label class="label-title" for="title">Title</label>
+        <textarea
+          id="title"
+          formControlName="title"
+          rows="2"
+          class="form-control"
+          placeholder="Machine Learning for Healthcare Diagnostics"
+        ></textarea>
+      </div>
 
-      <label class="label-title" for="url">URL</label>
-      <input
-        id="url"
-        formControlName="url"
-        type="text"
-        class="form-control"
-        placeholder="https://example.com/publication"
-      />
+      <hr>
 
-      <label class="label-title" for="doi">DOI</label>
-      <input
-        id="doi"
-        formControlName="doi"
-        type="text"
-        class="form-control"
-        placeholder="10.1000/xyz123"
-      />
+      <div class="details-area">
+        <label class="label-title" for="volume">Volume</label>
+        <input
+          id="volume"
+          formControlName="volume"
+          type="text"
+          class="form-control"
+          placeholder="S1"
+        />
 
-      <label class="label-title" for="notes">Notes</label>
-      <textarea
-        id="notes"
-        formControlName="notes"
-        rows="2"
-        class="form-control"
-        placeholder=""
-      ></textarea>
+        <label class="label-title" for="issue">Issue</label>
+        <input
+          id="issue"
+          formControlName="issue"
+          type="text"
+          class="form-control"
+          placeholder="12"
+        />
+
+        <label class="label-title" for="pages">Pages</label>
+        <input
+          id="pages"
+          formControlName="pages"
+          type="text"
+          class="form-control"
+          placeholder="11 - 12"
+        />
+      </div>
+
+      <hr>
+
+      <div class="publication-form">
+        <label class="label-title" for="url">URL</label>
+        <input
+          id="url"
+          formControlName="url"
+          type="text"
+          class="form-control"
+          placeholder="https://example.com/publication"
+        />
+
+        <label class="label-title" for="doi">DOI</label>
+        <input
+          id="doi"
+          formControlName="doi"
+          type="text"
+          class="form-control"
+          placeholder="10.1000/xyz123"
+        />
+
+        <label class="label-title" for="notes">Notes</label>
+        <textarea
+          id="notes"
+          formControlName="notes"
+          rows="2"
+          class="form-control"
+          placeholder=""
+        ></textarea>
+      </div>
     </form>
   </div>
 

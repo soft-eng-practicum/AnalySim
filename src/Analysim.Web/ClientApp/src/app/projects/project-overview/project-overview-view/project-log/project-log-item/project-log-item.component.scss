@@ -125,6 +125,11 @@
   font-size: large;
 }
 
+.log-content{
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
 // EDIT
 .edit-log-content {
   display: flex;
@@ -135,7 +140,6 @@
   width: 100%;
   border: 0;
   border-top: 1px solid rgba(0, 0, 0, 0.125);
-  // margin: var(--space-2) 0;
 }
 
 .log-title-input {
@@ -269,4 +273,57 @@
 .empty-set {
   text-align: center;
   padding: var(--space-2);
+}
+
+.notebook-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  font-weight: bold;
+  font-size: larger;
+  text-align: center;
+  margin-bottom: var(--space-3);
+}
+
+.notebook-form {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-4);
+  align-content: center;
+}
+
+.notebook-select{
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  gap: var(--space-2);
+}
+
+.form-group{
+  margin-bottom: 0px !important;
+}
+
+.notebook-label{
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.notebook-link-area{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.notebook-soft{
+  font-size: small;
+  color: var(--text-muted);
+}
+
+.notebook-link{
+  font-weight: bold;
+  font-size: larger;
+  cursor: pointer;
 }

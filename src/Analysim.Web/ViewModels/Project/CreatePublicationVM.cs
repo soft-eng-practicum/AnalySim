@@ -1,4 +1,4 @@
-#nullable enable annotations
+#nullable enable
 
 using System.ComponentModel.DataAnnotations;
 
@@ -22,6 +22,11 @@ namespace Analysim.Web.ViewModels.Project
         [Required(ErrorMessage = "Publication Year is a required field.")]
         [Range(1, 2100, ErrorMessage = "Enter a valid publication year.")]
         public int? Year { get; set; }
+
+        public string? Volume { get; set; }
+        public string? Issue { get; set; }
+        public string? Pages { get; set; }
+        
         public string? Notes { get; set; }
     }
 }

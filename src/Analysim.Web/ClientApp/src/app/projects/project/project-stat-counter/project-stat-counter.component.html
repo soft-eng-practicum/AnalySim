@@ -1,0 +1,51 @@
+<div class="stat-group">
+  <div class="stat-row">
+    <div class="stat-label">Updates</div>
+    <div class="stat-divider"></div>
+    <div class="stat-pill">0 new</div>
+    <div class="stat-current">0</div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-label">Recommendation</div>
+    <div class="stat-divider"></div>
+    <div class="stat-pill">0 new</div>
+    <div class="stat-current">0</div>
+  </div>
+
+  <div class="stat-row">
+    <button
+      type="button"
+      class="stat-label stat-label-button"
+      (click)="toggleModalMemberList()"
+    >
+      Members
+    </button>
+
+    <div class="stat-divider"></div>
+    <div class="stat-pill">0 new</div>
+
+    <div class="stat-current">
+      {{ project | role: "member" }}
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-label">Followers</div>
+    <div class="stat-divider"></div>
+    <div class="stat-pill">0 new</div>
+
+    <div class="stat-current">
+      {{ project | role: "follower" }}
+    </div>
+  </div>
+</div>
+
+<ng-template #memberListModal>
+  <app-modal-member-list
+    [memberListModalRef]="memberListModalRef"
+    [projectUsers]="project.projectUsers"
+    [currentUser]="currentUser"
+  >
+  </app-modal-member-list>
+</ng-template>

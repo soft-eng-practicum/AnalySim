@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260519132728_AddNotebookRefToProjectLogs")]
+    partial class AddNotebookRefToProjectLogs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -251,7 +253,6 @@ namespace Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CommentID"));
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
@@ -449,17 +450,11 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Doi")
                         .HasColumnType("text");
 
-                    b.Property<string>("Issue")
-                        .HasColumnType("text");
-
                     b.Property<string>("Journal")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Pages")
                         .HasColumnType("text");
 
                     b.Property<int>("ProjectID")
@@ -473,9 +468,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Url")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Volume")
                         .HasColumnType("text");
 
                     b.Property<int?>("Year")
@@ -560,9 +552,6 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("ReceiveCommentReplyEmails")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("RegistrationSurvey")
                         .HasColumnType("text");
 
@@ -637,21 +626,21 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "d7c6278e-3f78-4db6-8832-aa41ea9fd62c",
+                            ConcurrencyStamp = "f8accda8-f6e5-43e2-acdc-ec7489690c7e",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "7383e31e-a884-4cd6-82f7-a6287b4e30a5",
+                            ConcurrencyStamp = "5acac352-55a0-4b09-bc33-6a734391391b",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "398ef1f2-6b82-45f2-9601-ed2129f197e9",
+                            ConcurrencyStamp = "67d7e55c-aee8-4fe1-8cb4-c89f670c3c24",
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         });
