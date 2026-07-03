@@ -90,7 +90,6 @@ export class ProjectNotebookItemComponent implements OnInit {
   }
 
   navigateToNotebook() {
-    this.setCurrentNotebook.emit(this.notebook);
     let datasetParams = {};
     if (this.notebook.type === "observable") {
       this.notebook.observableNotebookDatasets.forEach(observableNotebook => {
