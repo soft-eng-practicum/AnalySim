@@ -11,6 +11,13 @@ type CommitResult = {
   tracked: number;
 };
 
+type PendingCommitAction = 'manual' | 'close';
+
+type SaveTrackedFilesResult = {
+  saved: string[];
+  failed: { path: string; message: string }[];
+};
+
 @Component({
   selector: 'app-admin-notebook-item-display',
   templateUrl: './admin-notebook-item-display.component.html',
@@ -38,9 +45,13 @@ export class AdminNotebookItemDisplayComponent implements OnInit, OnDestroy {
   commitChangesLoading = false;
   commitStatusMessage = '';
   autoCommitAfterClose = true;
+  unsavedCommitWarningVisible = false;
+  unsavedCommitWarningFiles: string[] = [];
   private readonly messageHandler = this.receiveMessage.bind(this);
   private commitPromise?: Promise<CommitResult>;
   private latestSavedFileHashes = new Map<string, string>();
+  private pendingCommitAction?: PendingCommitAction;
+  private autoCommitHandledForClose = false;
 
   ngOnInit(): void {
     window.addEventListener('message', this.messageHandler);
@@ -64,9 +75,8 @@ export class AdminNotebookItemDisplayComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     window.removeEventListener('message', this.messageHandler);
-    if (this.isJupyterLiteNotebook() && this.autoCommitAfterClose) {
-      void this.commitChangedTrackedFilesToBackend()
-        .catch(error => console.error('Error committing tracked JupyterLite files on destroy:', error))
+    if (!this.autoCommitHandledForClose && this.canAutoCommitOnDestroy()) {
+      void this.saveAndCommitTrackedFilesOnDestroy()
         .finally(() => this.jupyterLiteBridgeService.disconnect());
       return;
     }
@@ -180,11 +190,12 @@ export class AdminNotebookItemDisplayComponent implements OnInit, OnDestroy {
   async closeNotebook() {
     clearTimeout(this.timeoutId);
     if (this.isJupyterLiteNotebook() && this.autoCommitAfterClose) {
-      try {
-        await this.commitChangedTrackedFilesToBackend();
-      } catch (error) {
-        console.error('Error committing tracked JupyterLite files on close:', error);
+      if (!await this.saveTrackedFilesBeforeCommit('close')) {
+        return;
       }
+
+      await this.runAutoCommitOnClose();
+      this.autoCommitHandledForClose = true;
     }
     this.closeModal.emit();
   }
@@ -194,6 +205,40 @@ export class AdminNotebookItemDisplayComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!await this.saveTrackedFilesBeforeCommit('manual')) {
+      return;
+    }
+
+    await this.runManualCommit();
+  }
+
+  async continueCommitWithUnsavedFiles(): Promise<void> {
+    const action = this.pendingCommitAction;
+    this.clearUnsavedCommitWarning();
+
+    if (action === 'manual') {
+      await this.runManualCommit();
+      return;
+    }
+
+    if (action === 'close') {
+      await this.runAutoCommitOnClose();
+      this.autoCommitHandledForClose = true;
+      this.closeModal.emit();
+    }
+  }
+
+  dismissUnsavedCommitWarning(): void {
+    this.clearUnsavedCommitWarning();
+    this.commitStatusMessage = 'Commit paused. Save the listed files in JupyterLite, then commit again.';
+  }
+
+  onAutoCommitAfterCloseChange(value: boolean): void {
+    this.autoCommitAfterClose = value;
+    localStorage.setItem(this.getAutoCommitAfterCloseKey(), JSON.stringify(value));
+  }
+
+  private async runManualCommit(): Promise<void> {
     this.commitChangesLoading = true;
     this.commitStatusMessage = '';
     try {
@@ -209,9 +254,56 @@ export class AdminNotebookItemDisplayComponent implements OnInit, OnDestroy {
     }
   }
 
-  onAutoCommitAfterCloseChange(value: boolean): void {
-    this.autoCommitAfterClose = value;
-    localStorage.setItem(this.getAutoCommitAfterCloseKey(), JSON.stringify(value));
+  private async runAutoCommitOnClose(): Promise<void> {
+    try {
+      await this.commitChangedTrackedFilesToBackend();
+    } catch (error) {
+      console.error('Error committing tracked JupyterLite files on close:', error);
+    }
+  }
+
+  private async saveAndCommitTrackedFilesOnDestroy(): Promise<void> {
+    const saved = await this.saveTrackedFilesBeforeCommit('close', false);
+    if (!saved) {
+      console.warn('Skipping tracked JupyterLite backend commit on destroy because auto-save failed.');
+      return;
+    }
+
+    try {
+      await this.commitChangedTrackedFilesToBackend();
+    } catch (error) {
+      console.error('Error committing tracked JupyterLite files on destroy:', error);
+    }
+  }
+
+  private async saveTrackedFilesBeforeCommit(action: PendingCommitAction, showWarning = true): Promise<boolean> {
+    try {
+      const result: SaveTrackedFilesResult = await this.jupyterLiteBridgeService.saveTrackedFiles();
+      if (result.saved.length > 0) {
+        console.log('Saved tracked JupyterLite files before commit:', result.saved);
+      }
+
+      if (result.failed.length === 0) {
+        return true;
+      }
+
+      if (showWarning) {
+        this.unsavedCommitWarningFiles = result.failed.map(item => item.path);
+        this.pendingCommitAction = action;
+        this.unsavedCommitWarningVisible = true;
+        this.commitStatusMessage = 'Some tracked files could not be saved automatically. Save them in JupyterLite, then commit again.';
+      }
+      return false;
+    } catch (error) {
+      console.warn('Unable to auto-save tracked JupyterLite files before commit:', error);
+      return true;
+    }
+  }
+
+  private clearUnsavedCommitWarning(): void {
+    this.unsavedCommitWarningVisible = false;
+    this.unsavedCommitWarningFiles = [];
+    this.pendingCommitAction = undefined;
   }
 
   private async commitChangedTrackedFilesToBackend(): Promise<CommitResult> {
@@ -323,6 +415,10 @@ export class AdminNotebookItemDisplayComponent implements OnInit, OnDestroy {
 
   private isJupyterLiteNotebook(): boolean {
     return this.notebook?.type === 'new';
+  }
+
+  private canAutoCommitOnDestroy(): boolean {
+    return this.isJupyterLiteNotebook() && this.autoCommitAfterClose;
   }
 
   private loadAutoCommitAfterClosePreference(): boolean {

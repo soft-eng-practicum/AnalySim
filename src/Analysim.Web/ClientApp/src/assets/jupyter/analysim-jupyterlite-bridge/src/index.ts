@@ -21,6 +21,8 @@ type AnalysimJupyterRequest = {
     | 'analysim:get-file-names'
     | 'analysim:get-checkpoints'
     | 'analysim:get-tracked-file-names'
+    | 'analysim:get-unsaved-file-names'
+    | 'analysim:save-tracked-files'
     | 'analysim:track-file'
     | 'analysim:untrack-file'
     | 'analysim:set-tracked-files';
@@ -269,6 +271,10 @@ async function createBridge(app: JupyterFrontEnd): Promise<void> {
       case 'analysim:get-tracked-file-names':
         log('returning tracked file names', { trackedCount: trackedFiles.size });
         return [...trackedFiles].sort();
+      case 'analysim:get-unsaved-file-names':
+        return getUnsavedFileNames();
+      case 'analysim:save-tracked-files':
+        return saveUnsavedTrackedFiles();
       case 'analysim:track-file':
         log('tracking file', { path: request.payload?.path });
         trackedFiles.add(normalizeRelativePath(request.payload?.path));
@@ -332,6 +338,101 @@ async function createBridge(app: JupyterFrontEnd): Promise<void> {
   async function listFileNames(path: string): Promise<string[]> {
     const files = await listFiles(path);
     return files.map(file => file.path).filter(Boolean).sort();
+  }
+
+  function getUnsavedFileNames(): string[] {
+    const dirtyTrackedContexts = getDirtyTrackedContexts();
+    const paths = dirtyTrackedContexts.map(item => item.path).sort();
+    log('returning unsaved tracked file names', { count: paths.length, paths });
+    return paths;
+  }
+
+  async function saveUnsavedTrackedFiles(): Promise<{ saved: string[]; failed: { path: string; message: string }[] }> {
+    const dirtyTrackedContexts = getDirtyTrackedContexts();
+    const saved: string[] = [];
+    const failed: { path: string; message: string }[] = [];
+
+    log('saving unsaved tracked files', { count: dirtyTrackedContexts.length });
+
+    for (const item of dirtyTrackedContexts) {
+      try {
+        if (typeof item.context?.save !== 'function') {
+          throw new Error('JupyterLite document context does not expose a save method.');
+        }
+
+        await item.context.save();
+        saved.push(item.path);
+        log('saved tracked dirty file through document context', { path: item.path });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        failed.push({ path: item.path, message });
+        log('failed to save tracked dirty file through document context', { path: item.path, error: message });
+      }
+    }
+
+    return { saved: saved.sort(), failed };
+  }
+
+  function getDirtyTrackedContexts(): { path: string; context: any }[] {
+    const dirtyTrackedContexts = new Map<string, any>();
+    const mainWidgets = getMainAreaWidgets();
+
+    log('checking unsaved tracked file names', { widgetCount: mainWidgets.length, trackedCount: trackedFiles.size });
+
+    for (const widget of mainWidgets) {
+      const context = getWidgetContext(widget);
+      const absolutePath = context?.path || context?.model?.path || widget?.context?.path;
+      const relativePath = toRelativeProjectPath(absolutePath, projectRoot);
+
+      if (!relativePath || !trackedFiles.has(relativePath) || !isContextDirty(context)) {
+        continue;
+      }
+
+      dirtyTrackedContexts.set(relativePath, context);
+    }
+
+    return [...dirtyTrackedContexts.entries()].map(([path, context]) => ({ path, context }));
+  }
+
+  function getMainAreaWidgets(): any[] {
+    const shell = app.shell as any;
+    if (typeof shell.widgets !== 'function') {
+      return [];
+    }
+
+    const widgets = shell.widgets('main');
+    if (!widgets) {
+      return [];
+    }
+
+    if (typeof widgets[Symbol.iterator] === 'function') {
+      return Array.from(widgets as Iterable<any>);
+    }
+
+    if (typeof widgets.next === 'function') {
+      const collected: any[] = [];
+      let widget = widgets.next();
+      while (widget) {
+        collected.push(widget);
+        widget = widgets.next();
+      }
+      return collected;
+    }
+
+    return [];
+  }
+
+  function getWidgetContext(widget: any): any {
+    return widget?.context || widget?.content?.context || widget?.content?.widget?.context;
+  }
+
+  function isContextDirty(context: any): boolean {
+    return Boolean(
+      context?.model?.dirty ||
+      context?.model?.isDirty ||
+      context?.model?.sharedModel?.isDirty ||
+      context?.isDirty
+    );
   }
 
   async function ensureDirectory(path: string): Promise<void> {

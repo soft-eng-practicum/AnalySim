@@ -16,6 +16,22 @@
                 (click)="closeNotebook()">&times;</button>
         </div>
     </div>
+    <div class="commit-warning-backdrop" *ngIf="unsavedCommitWarningVisible">
+        <div class="commit-warning-dialog" role="dialog" aria-modal="true"
+            aria-labelledby="unsavedCommitWarningTitle">
+            <h5 id="unsavedCommitWarningTitle">Automatic save needs attention</h5>
+            <p>AnalySim could not automatically save these tracked JupyterLite files. Save them inside JupyterLite, then commit again.</p>
+            <ul class="commit-warning-files" *ngIf="unsavedCommitWarningFiles.length">
+                <li *ngFor="let path of unsavedCommitWarningFiles">{{ path }}</li>
+            </ul>
+            <div class="commit-warning-actions">
+                <button type="button" class="btn btn-outline-primary"
+                    (click)="dismissUnsavedCommitWarning()">Back to notebook</button>
+                <button type="button" class="btn btn-primary"
+                    (click)="continueCommitWithUnsavedFiles()">Commit saved version</button>
+            </div>
+        </div>
+    </div>
     <div id="jupyterlite-container" class="notebook-frame-container" *ngIf="notebook.type === 'new'">
         <div *ngIf="isLoading" class="spinner-container">
             <div class="spinner-border" role="status">

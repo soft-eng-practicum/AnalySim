@@ -8,6 +8,8 @@ export type AnalysimJupyterRequestType =
   | 'analysim:get-file-names'
   | 'analysim:get-checkpoints'
   | 'analysim:get-tracked-file-names'
+  | 'analysim:get-unsaved-file-names'
+  | 'analysim:save-tracked-files'
   | 'analysim:track-file'
   | 'analysim:untrack-file'
   | 'analysim:set-tracked-files';
@@ -116,6 +118,14 @@ export class JupyterLiteBridgeService {
 
   getTrackedFileNames(): Promise<string[]> {
     return this.sendRequest('analysim:get-tracked-file-names');
+  }
+
+  getUnsavedFileNames(): Promise<string[]> {
+    return this.sendRequest('analysim:get-unsaved-file-names');
+  }
+
+  saveTrackedFiles(): Promise<{ saved: string[]; failed: { path: string; message: string }[] }> {
+    return this.sendRequest('analysim:save-tracked-files');
   }
 
   trackFile(path: string): Promise<string[]> {
