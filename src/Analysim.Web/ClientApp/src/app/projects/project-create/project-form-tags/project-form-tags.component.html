@@ -7,7 +7,7 @@
             <input type="text" formControlName="tagName" class="form-control border border-dark" style= "height: 100%"placeholder="Add Tag...">
             <!-- Form Submit Button -->
             <div class="input-group-append">   
-                <button class="btn btn-outline-dark" type="submit" value="Submit">
+                <button class="btn btn-outline-dark" type="submit" value="Submit" [disabled]="tagForm.invalid">
                     <span>Add Tag</span>
                 </button>     
             </div> 

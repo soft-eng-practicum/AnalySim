@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder, Validators, ValidatorFn, AbstractControl, FormArray } from '@angular/forms';
-import { ProjectService } from 'src/app/services/project.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Project } from 'src/app/interfaces/project';
 import { ProjectUser } from 'src/app/interfaces/project-user';
 import { ProjectTag } from 'src/app/interfaces/project-tag';
@@ -14,14 +12,17 @@ import { ProjectTag } from 'src/app/interfaces/project-tag';
 export class ProjectEditComponent implements OnInit {
 
   project : Project = null;
+  owner: string = null;
+  projectname: string = null;
 
-  constructor(private projectService : ProjectService,
-    private formBuilder : FormBuilder,
-    private router : Router
-    ) { }
+  constructor(private route: ActivatedRoute) { }
 
 
   ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      this.owner = params['owner'];
+      this.projectname = params['projectname'];
+    });
   }
 
   setProject(project : Project){

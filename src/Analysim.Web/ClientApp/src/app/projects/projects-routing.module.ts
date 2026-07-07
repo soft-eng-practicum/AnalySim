@@ -11,7 +11,7 @@ import { ProjectLogComponent } from './project-overview/project-overview-view/pr
 
 const routes: Routes = [
   { path: 'create', component: ProjectCreateComponent, canActivate: [AuthGuardService] },
-  { path: 'edit', component: ProjectEditComponent, canActivate: [AuthGuardService] },
+  { path: ':owner/:projectname/edit', component: ProjectEditComponent, canActivate: [AuthGuardService] },
   { path: ':owner/:projectname', component: ProjectComponent },
   {
     path: ':owner/:projectname',
