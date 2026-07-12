@@ -365,6 +365,11 @@
           color: var(--link-hover-color);
           text-decoration: underline;
         }
+
+        &.is-disabled {
+          opacity: .6;
+          pointer-events: none;
+        }
       }
 
       .more-toggle {

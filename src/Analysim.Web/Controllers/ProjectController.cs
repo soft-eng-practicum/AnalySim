@@ -1,4 +1,6 @@
-﻿using Internal;
+﻿#nullable enable annotations
+
+using Internal;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -1987,6 +1989,173 @@ namespace Web.Controllers
             {
                 result = projectUser,
                 message = "Project User Successfully Created"
+            });
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/project/followproject/{projectID}
+         * Description: Follow a project as the authenticated user.
+         *
+         * Request example:
+         * POST /api/project/followproject/42
+         *
+         * Response example:
+         * {
+         *   "result": {
+         *     "userID": 5,
+         *     "projectID": 42,
+         *     "userRole": "follower",
+         *     "isFollowing": true
+         *   },
+         *   "message": "Project followed successfully."
+         * }
+         */
+        [Authorize]
+        [HttpPost("[action]/{projectID}")]
+        public async Task<IActionResult> FollowProject([FromRoute] int projectID)
+        {
+            if (projectID <= 0)
+                return BadRequest(new { message = "Invalid project id." });
+
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "Current user not found" });
+
+            var project = await _dbContext.Projects.FindAsync(projectID);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            var projectUser = await _dbContext.ProjectUsers.FindAsync(user.Id, projectID);
+
+            if (projectUser != null)
+            {
+                if (!string.Equals(projectUser.UserRole, "follower", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Conflict(new
+                    {
+                        result = projectUser,
+                        message = "Project membership already exists and cannot be changed to a follower record."
+                    });
+                }
+
+                if (projectUser.IsFollowing)
+                {
+                    return Ok(new
+                    {
+                        result = projectUser,
+                        message = "Project is already followed."
+                    });
+                }
+
+                projectUser.IsFollowing = true;
+                _dbContext.Entry(projectUser).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    result = projectUser,
+                    message = "Project followed successfully."
+                });
+            }
+
+            projectUser = new ProjectUser
+            {
+                UserID = user.Id,
+                ProjectID = project.ProjectID,
+                UserRole = "follower",
+                IsFollowing = true
+            };
+
+            await _dbContext.ProjectUsers.AddAsync(projectUser);
+            await _dbContext.SaveChangesAsync();
+
+            _dbContext.Entry(projectUser).Reference(pu => pu.User).Load();
+            _dbContext.Entry(projectUser).Reference(pu => pu.Project).Load();
+
+            return Ok(new
+            {
+                result = projectUser,
+                message = "Project followed successfully."
+            });
+        }
+
+        /*
+         * Type : DELETE
+         * URL : /api/project/unfollowproject/{projectID}
+         * Description: Unfollow a project as the authenticated user.
+         *
+         * Request example:
+         * DELETE /api/project/unfollowproject/42
+         *
+         * Response example:
+         * {
+         *   "result": {
+         *     "userID": 5,
+         *     "projectID": 42,
+         *     "userRole": "follower",
+         *     "isFollowing": false
+         *   },
+         *   "message": "Project unfollowed successfully."
+         * }
+         */
+        [Authorize]
+        [HttpDelete("[action]/{projectID}")]
+        public async Task<IActionResult> UnfollowProject([FromRoute] int projectID)
+        {
+            if (projectID <= 0)
+                return BadRequest(new { message = "Invalid project id." });
+
+            // Find User
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "Current user not found" });
+
+            var project = await _dbContext.Projects.FindAsync(projectID);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            var projectUser = await _dbContext.ProjectUsers.FindAsync(user.Id, projectID);
+            if (projectUser == null)
+            {
+                return NotFound(new { message = "Project follow record not found." });
+            }
+
+            if (!string.Equals(projectUser.UserRole, "follower", StringComparison.OrdinalIgnoreCase))
+            {
+                return Conflict(new
+                {
+                    result = projectUser,
+                    message = "Project membership already exists and cannot be changed to an unfollow record."
+                });
+            }
+
+            if (!projectUser.IsFollowing)
+            {
+                return Ok(new
+                {
+                    result = projectUser,
+                    message = "Project is already unfollowed."
+                });
+            }
+
+            projectUser.IsFollowing = false;
+            _dbContext.Entry(projectUser).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new
+            {
+                result = projectUser,
+                message = "Project unfollowed successfully."
             });
         }
 

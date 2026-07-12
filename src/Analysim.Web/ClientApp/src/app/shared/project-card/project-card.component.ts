@@ -30,6 +30,7 @@ export class ProjectCardComponent implements OnInit {
   currentUser$ : Observable<User>
   currentUser : User = null
   projectUser : ProjectUser = null
+  isFollowLoading: boolean = false
 
   async ngOnInit() {
     // Get User And Check For Project User Match
@@ -105,59 +106,98 @@ export class ProjectCardComponent implements OnInit {
 
   followProject(){
     // Navigate To Login Page If User Not Logged In
-    if(!this.accountService.checkLoginStatus())
+    if(!this.accountService.checkLoginStatus()){
       this.router.navigate(['/login'], {queryParams: {returnUrl : this.router.url}})
+      return
+    }
+
+    this.isFollowLoading = true
+
+    const prevProjectUsers = [...this.project.projectUsers]
+    const prevProjectUser = this.projectUser
 
     if(this.projectUser == null)
     {
-      // Create Project User As Follower
-      this.projectService.addUser(this.project.projectID, this.currentUser.id, "follower", true).subscribe(
-        result =>{
-          this.project.projectUsers.push(result) 
-          this.projectUser = result;  
-        }, error =>{
-          console.log(error)
-        }
-      )
+      // optimistic placeholder
+      const placeholder: ProjectUser = {
+        projectID: this.project.projectID,
+        userID: this.currentUser.id,
+        userRole: 'follower',
+        isFollowing: true,
+        user: this.currentUser
+      } as any
+
+      this.project.projectUsers.push(placeholder)
+      this.projectUser = placeholder
+
+      this.projectService.followProject(this.project.projectID).subscribe(result =>{
+        const idx = this.project.projectUsers.findIndex(pu => pu.userID == result.userID)
+        if(idx > -1) this.project.projectUsers[idx] = result
+        this.projectUser = result
+        this.isFollowLoading = false
+      }, error =>{
+        console.log(error)
+        this.project.projectUsers = prevProjectUsers
+        this.projectUser = prevProjectUser
+        this.isFollowLoading = false
+      })
     }
     else{
-      // Modify Project User And Set Following To True
-      this.projectUser.isFollowing = true;     
-      this.projectService.updateUser(this.projectUser).subscribe(
-        result =>{
-          let index = this.project.projectUsers.findIndex(pu => pu.userID == result.userID)
-          this.project.projectUsers[index] = result
-          this.projectUser = result;          
-        }, error =>{
-          console.log(error)
-        }
-      )
+      // optimistic toggle
+      const prev = this.projectUser.isFollowing
+      this.projectUser.isFollowing = true
+
+      this.projectService.followProject(this.project.projectID).subscribe(result =>{
+        let index = this.project.projectUsers.findIndex(pu => pu.userID == result.userID)
+        if(index > -1) this.project.projectUsers[index] = result
+        this.projectUser = result
+        this.isFollowLoading = false
+      }, error =>{
+        console.log(error)
+        this.projectUser.isFollowing = prev
+        this.isFollowLoading = false
+      })
     }
   }
 
 
   unFollowProject(){
-    this.projectUser.isFollowing = false
-    if(this.projectUser.userRole == "follower")
-      this.projectService.removeUser(this.projectUser.projectID, this.projectUser.userID).subscribe(
-        result => {
-          let index = this.project.projectUsers.indexOf(result)
-          this.project.projectUsers.splice(index, 1)
-          this.projectUser = null
-        }, error =>{
-          console.log(error)
-        }
-      )
+    if(!this.projectUser) return
+
+    this.isFollowLoading = true
+
+    const prevProjectUsers = [...this.project.projectUsers]
+    const prevProjectUser = { ...this.projectUser }
+
+    if(this.projectUser.userRole == "follower"){
+      // optimistic remove
+      const idx = this.project.projectUsers.findIndex(pu => pu.userID == this.projectUser.userID)
+      if(idx > -1) this.project.projectUsers.splice(idx, 1)
+      this.projectUser = null
+
+      this.projectService.unfollowProject(prevProjectUser.projectID).subscribe(result =>{
+        // nothing to do, server handled removal or returned updated row
+        this.isFollowLoading = false
+      }, error =>{
+        console.log(error)
+        this.project.projectUsers = prevProjectUsers
+        this.projectUser = prevProjectUser
+        this.isFollowLoading = false
+      })
+    }
     else{
-      this.projectService.updateUser(this.projectUser).subscribe(
-        result => {
-          let index = this.project.projectUsers.findIndex(pu => pu.userID == result.userID)
-          this.project.projectUsers[index] = result
-          this.projectUser = result 
-        }, error =>{
-          console.log(error)
-        }
-      )
+      // user is member/owner — set isFollowing = false
+      this.projectUser.isFollowing = false
+      this.projectService.unfollowProject(this.projectUser.projectID).subscribe(result =>{
+        const i = this.project.projectUsers.findIndex(pu => pu.userID == result.userID)
+        if(i > -1) this.project.projectUsers[i] = result
+        this.projectUser = result
+        this.isFollowLoading = false
+      }, error =>{
+        console.log(error)
+        this.projectUser = prevProjectUser
+        this.isFollowLoading = false
+      })
     }
   }
 
