@@ -220,7 +220,7 @@ async function createBridge(app: JupyterFrontEnd): Promise<void> {
         return { projectId, projectName, projectRoot };
       case 'analysim:add-file': {
         const absolutePath = resolveProjectPath(request.payload?.path, request.payload?.absolute);
-        log('saving file through contents manager', {
+        log('handling add-file request', {
           requestPath: request.payload?.path,
           absolutePath,
           track: Boolean(request.payload?.track),
@@ -230,7 +230,7 @@ async function createBridge(app: JupyterFrontEnd): Promise<void> {
         });
         await ensureDirectory(parentPath(absolutePath));
         const model = prepareModelForSave(request.payload?.model, absolutePath);
-        const saved = await withContentsRetry<ContentsModel>(`save ${absolutePath}`, () => contents.save(absolutePath, model) as Promise<ContentsModel>);
+        const saved = await saveFileUnlessOpen(absolutePath, model, `save ${absolutePath}`);
         if (request.payload?.track) {
           trackedFiles.add(toRelativeProjectPath(absolutePath, projectRoot) || request.payload?.path);
           saveTrackedFiles();
@@ -298,12 +298,9 @@ async function createBridge(app: JupyterFrontEnd): Promise<void> {
   async function saveInitialFiles(files: any[]): Promise<void> {
     for (const file of files) {
       const absolutePath = resolveProjectPath(file.path, file.absolute);
-      log('saving initial file', { requestPath: file.path, absolutePath, track: Boolean(file.track), open: Boolean(file.open) });
+      log('handling initial file', { requestPath: file.path, absolutePath, track: Boolean(file.track), open: Boolean(file.open) });
       await ensureDirectory(parentPath(absolutePath));
-      await withContentsRetry(
-        `save initial file ${absolutePath}`,
-        () => contents.save(absolutePath, prepareModelForSave(file.model, absolutePath))
-      );
+      await saveFileUnlessOpen(absolutePath, prepareModelForSave(file.model, absolutePath), `save initial file ${absolutePath}`);
       if (file.track) {
         trackedFiles.add(toRelativeProjectPath(absolutePath, projectRoot) || normalizeRelativePath(file.path));
       }
@@ -381,7 +378,7 @@ async function createBridge(app: JupyterFrontEnd): Promise<void> {
 
     for (const widget of mainWidgets) {
       const context = getWidgetContext(widget);
-      const absolutePath = context?.path || context?.model?.path || widget?.context?.path;
+      const absolutePath = getWidgetPath(widget);
       const relativePath = toRelativeProjectPath(absolutePath, projectRoot);
 
       if (!relativePath || !trackedFiles.has(relativePath) || !isContextDirty(context)) {
@@ -420,6 +417,51 @@ async function createBridge(app: JupyterFrontEnd): Promise<void> {
     }
 
     return [];
+  }
+
+  async function saveFileUnlessOpen(absolutePath: string, model: any, label: string): Promise<ContentsModel> {
+    if (!isPathOpenInMainArea(absolutePath)) {
+      return withContentsRetry<ContentsModel>(label, () => contents.save(absolutePath, model) as Promise<ContentsModel>);
+    }
+
+    log('file already open in JupyterLab; skipping external contents.save to preserve document timestamp', {
+      absolutePath,
+    });
+
+    return getFileModelWithoutSaving(absolutePath, model);
+  }
+
+  async function getFileModelWithoutSaving(absolutePath: string, fallbackModel: any): Promise<ContentsModel> {
+    try {
+      return await withContentsRetry<ContentsModel>(
+        `get existing open file ${absolutePath}`,
+        () => contents.get(absolutePath, { content: true }) as Promise<ContentsModel>
+      );
+    } catch (error) {
+      log('could not read open file from contents manager; returning requested model without saving', {
+        absolutePath,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return fallbackModel as ContentsModel;
+    }
+  }
+
+  function isPathOpenInMainArea(path: string): boolean {
+    const normalizedPath = normalizeRelativePath(path);
+
+    return getMainAreaWidgets().some(widget => normalizeRelativePath(getWidgetPath(widget)) === normalizedPath);
+  }
+
+  function getWidgetPath(widget: any): string {
+    const context = getWidgetContext(widget);
+    return (
+      context?.path ||
+      context?.model?.path ||
+      context?.model?.sharedModel?.path ||
+      widget?.context?.path ||
+      widget?.path ||
+      ''
+    );
   }
 
   function getWidgetContext(widget: any): any {
