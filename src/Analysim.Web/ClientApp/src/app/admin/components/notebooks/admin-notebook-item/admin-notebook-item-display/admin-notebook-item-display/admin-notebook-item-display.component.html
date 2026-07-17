@@ -1,26 +1,46 @@
-<div #notebookWindow class="modal-content"
-    style="width: 100vw;height: 100vh;top: 0; left: 0;margin: 0;position: fixed; overflow: auto;">
+<div #notebookWindow class="modal-content notebook-modal-shell">
     <div class="header">
         <h5 class="modal-title">Notebook</h5>
-        <div style="display: flex; gap: 15px;">
-            <div class="commit" (click)="saveNotebook()" *ngIf="!isLoading">commit changes</div>
+        <div class="notebook-actions">
+            <button type="button" class="commit" *ngIf="notebook.type === 'new'"
+                [disabled]="commitChangesLoading" (click)="commitTrackedFiles()">
+                {{ commitChangesLoading ? 'Committing...' : 'Commit' }}
+            </button>
+            <label class="auto-commit-toggle" *ngIf="notebook.type === 'new'">
+                <input type="checkbox" [checked]="autoCommitAfterClose"
+                    (change)="onAutoCommitAfterCloseChange($any($event.target).checked)">
+                <span>Commit on Close</span>
+            </label>
+            <span class="commit-status" *ngIf="commitStatusMessage">{{ commitStatusMessage }}</span>
             <button type="button" #closebutton class="close" data-dismiss="modal"
                 (click)="closeNotebook()">&times;</button>
         </div>
     </div>
-    <div id="jupyterlite-container" *ngIf="notebook.type === 'new'">
+    <div class="commit-warning-backdrop" *ngIf="unsavedCommitWarningVisible">
+        <div class="commit-warning-dialog" role="dialog" aria-modal="true"
+            aria-labelledby="unsavedCommitWarningTitle">
+            <h5 id="unsavedCommitWarningTitle">Automatic save needs attention</h5>
+            <p>AnalySim could not automatically save these tracked JupyterLite files. Save them inside JupyterLite, then commit again.</p>
+            <ul class="commit-warning-files" *ngIf="unsavedCommitWarningFiles.length">
+                <li *ngFor="let path of unsavedCommitWarningFiles">{{ path }}</li>
+            </ul>
+            <div class="commit-warning-actions">
+                <button type="button" class="btn btn-outline-primary"
+                    (click)="dismissUnsavedCommitWarning()">Back to notebook</button>
+                <button type="button" class="btn btn-primary"
+                    (click)="continueCommitWithUnsavedFiles()">Commit saved version</button>
+            </div>
+        </div>
+    </div>
+    <div id="jupyterlite-container" class="notebook-frame-container" *ngIf="notebook.type === 'new'">
         <div *ngIf="isLoading" class="spinner-container">
             <div class="spinner-border" role="status">
             </div>
             <div>Loading Notebook...</div>
         </div>
-        <iframe #jupyterFrame [src]="jupyterFrameSrc" width="100%" style="height: 100vh;"></iframe>
+        <iframe #jupyterFrame class="jupyterlite-frame" [src]="jupyterFrameSrc"></iframe>
     </div>
-    <div #observablehqPanel class="m-3" *ngIf="notebook.type === 'observable'">
+    <div #observablehqPanel class="observable-panel" *ngIf="notebook.type === 'observable'">
         <div id="notebook"></div>
     </div>
-    <app-save-confirmation-modal *ngIf="showSaveWarningModal" (confirmSave)="onConfirmSave()"
-        (cancelSave)="onCancelSave()"></app-save-confirmation-modal>
-    <app-save-notebook-modal *ngIf="showSaveNotebookModal" (saveNotebook)="onConfirmSaveNotebook()"
-        (cancelSave)="onCancelSaveNotebook()" [loading]="commitChangesLoading"></app-save-notebook-modal>
 </div>

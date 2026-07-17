@@ -9,13 +9,28 @@
   margin: 0;
 }
 
+.notebook-modal-shell {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .spinner-container {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
   gap: 20px;
+  background: var(--surface-0, #fff);
 }
 
 .spinner-border {
@@ -24,18 +39,129 @@
 }
 
 .header {
+  flex: 0 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 9px;
+  gap: 12px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color, #dee2e6);
+}
+
+.notebook-frame-container {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+}
+
+.jupyterlite-frame {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.observable-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 1rem;
+  overflow: auto;
+}
+
+.notebook-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .commit {
   width: max-content;
   background-color: rgb(81, 81, 223);
   color: white;
+  border: 0;
   border-radius: 5px;
   padding: 5px 10px;
   cursor: pointer;
   font-size: 15px;
+}
+
+.commit:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.auto-commit-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.auto-commit-toggle input {
+  cursor: pointer;
+}
+
+.commit-status {
+  font-size: 13px;
+  max-width: 260px;
+  color: #4b5563;
+}
+
+.commit-warning-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(17, 24, 39, 0.45);
+}
+
+.commit-warning-dialog {
+  width: min(540px, 100%);
+  padding: 18px;
+  color: #1f2937;
+  background: var(--surface-0, #fff);
+  border: 1px solid var(--border-color, #dee2e6);
+  border-radius: 6px;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.25);
+}
+
+.commit-warning-dialog h5 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.commit-warning-dialog p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #4b5563;
+}
+
+.commit-warning-files {
+  max-height: 140px;
+  margin: 0 0 16px;
+  padding: 10px 12px 10px 28px;
+  overflow: auto;
+  font-size: 13px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.commit-warning-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
 }

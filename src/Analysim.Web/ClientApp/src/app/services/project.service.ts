@@ -13,7 +13,6 @@ import { User } from '../interfaces/user';
 import { NotificationService } from './notification.service';
 import { saveAs } from 'file-saver';
 import { Notebook, NotebookFile, NotebookURL } from '../interfaces/notebook';
-import { getItem } from 'localforage';
 import { ProjectComment } from '../interfaces/project-comment';
 import { FlaggedCommentGroup } from '../interfaces/project-comment-flag';
 import { ProjectLog } from '../interfaces/project-log';

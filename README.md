@@ -27,20 +27,22 @@ git clone https://github.com/soft-eng-practicum/AnalySim.git
 After you have cloned the Analysim repository on your local machine,
 use the terminal to navigate to the
 `src/Analysim.Web/ClientApp` folder and run the following
-command.
+commands.
 
 ```sh
 npm install
+npm run build:jupyterlite
 ```
 
-Then navigate to `src/Analysim.Web/ClientApp/src/assets/jupyter` folder and run the following commands.
+`build:jupyterlite` script:
 
-```sh
-python -m pip install -r requirements.txt
-jupyter-lite build --output-dir dist
-```
+- installs and builds the AnalySim JupyterLite bridge extension
+- creates `src/assets/jupyter/venv`
+- installs `src/assets/jupyter/requirements.txt` into that venv
+- runs `jupyter lite build` from the venv
+- copies the built bridge extension into `src/assets/jupyter/dist/extensions/@analysim/jupyterlite-bridge`
 
-Then copy the file `index.html` under `dist\lab\index.html`.
+The AnalySim bridge is a JupyterLite/JupyterLab frontend extension that enables communication between the Angular application and the embedded JupyterLite environment.
 
 ### Connecting to databases and other services
 

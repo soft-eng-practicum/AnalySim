@@ -69,35 +69,13 @@
   <Target Name="BuildJupyterLite" BeforeTargets="Build" Condition=" !Exists('$(SpaRoot)src\assets\jupyter\dist') ">
     <Message Importance="high" Text="Installing dependencies and building JupyterLite on '$(OS)'" />
 
-    <!-- Commands for Linux -->
-    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="python3 -m venv .env" Condition="'$(OS)' == 'Unix'" />
-    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command=".env/bin/python3 -m pip install -r requirements.txt" Condition="'$(OS)' == 'Unix'" />
-    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command=".env/bin/jupyter lite build --output-dir dist" Condition="'$(OS)' == 'Unix'" />
-
-    <!-- Commands for Windows -->
-    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="python -m pip install -r requirements.txt" Condition="'$(OS)' == 'Windows_NT'" />
-    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="jupyter-lite build --output-dir dist" Condition="'$(OS)' == 'Windows_NT'" />
-    <ItemGroup>
-        <JupyterIndex Include="$(SpaRoot)src\assets\jupyter\index.html"/>
-    </ItemGroup>
-    <Copy SourceFiles="@(JupyterIndex)" DestinationFolder="$(SpaRoot)src\assets\jupyter\dist\lab\" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:jupyterlite" />
   </Target>
 
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm --legacy-peer-deps install" />
-    <!-- Commands for Linux -->
-    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="python3 -m venv .env" Condition="'$(OS)' == 'Unix'" />
-    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command=".env/bin/python3 -m pip install -r requirements.txt" Condition="'$(OS)' == 'Unix'" />
-    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command=".env/bin/jupyter lite build --output-dir dist" Condition="'$(OS)' == 'Unix'" />
-
-    <!-- Commands for Windows -->
-    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="python -m pip install -r requirements.txt" Condition="'$(OS)' == 'Windows_NT'" />
-    <Exec WorkingDirectory="$(SpaRoot)src\assets\jupyter" Command="jupyter-lite build --output-dir dist" Condition="'$(OS)' == 'Windows_NT'" />
-    <ItemGroup>
-        <JupyterIndex Include="$(SpaRoot)src\assets\jupyter\index.html"/>
-    </ItemGroup>
-    <Copy SourceFiles="@(JupyterIndex)" DestinationFolder="$(SpaRoot)src\assets\jupyter\dist\lab\" />    
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:jupyterlite" />
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --configuration production" />
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:ssr -- --configuration production" Condition=" '$(BuildServerSideRenderer)' == 'true' " />
 

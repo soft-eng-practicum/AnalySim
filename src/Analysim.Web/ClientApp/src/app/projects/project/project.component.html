@@ -231,6 +231,7 @@
   
   <ng-template #displayNotebookModal>
     <app-project-notebook-item-display [notebook]="readmeNotebook" [version]="latestVersion" [isMember]="isMember"
+        [projectName]="project?.name"
         (closeModal)="closeDisplayNotebookModal()"></app-project-notebook-item-display>
   </ng-template>
 

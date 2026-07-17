@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, NavigationStart, Params, Router } from '@angular/router';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Project } from 'src/app/interfaces/project';
@@ -12,7 +12,7 @@ import { ProjectNotebookItemComponent } from './project-notebook-item/project-no
   templateUrl: './project-content.component.html',
   styleUrls: ['./project-content.component.scss']
 })
-export class ProjectContentComponent implements OnInit {
+export class ProjectContentComponent implements OnInit, AfterViewInit {
 
   constructor(private modalService: BsModalService, private projectService: ProjectService, private router: Router, private route: ActivatedRoute) {
   }
@@ -29,7 +29,7 @@ export class ProjectContentComponent implements OnInit {
 
   @Input() currentDirectory: string
 
-  notebooks: Notebook[];
+  notebooks: Notebook[] = [];
 
   validDirectory: boolean = true
 
@@ -47,6 +47,9 @@ export class ProjectContentComponent implements OnInit {
   @ViewChild('displayNotebookModal') displayNotebookModal: TemplateRef<any>;
 
   displayNotebookModalRef: BsModalRef;
+  private displayedNotebookModalKey?: string;
+  private viewInitialized = false;
+  private routeNotebookRequestKey?: string;
 
   ngOnInit(): void {
     this.currentDirectory = this.extractDirectory(this.router.url);
@@ -66,12 +69,34 @@ export class ProjectContentComponent implements OnInit {
       } = params;
       this.notebookID = notebookId;
       this.version = version;
+
+      if (isNotebook && notebookId) {
+        this.routeNotebookRequestKey = `${notebookId}:${version ?? ''}`;
+        this.openRouteNotebookWhenReady();
+      } else {
+        this.routeNotebookRequestKey = undefined;
+      }
     })
-    if (this.isCurrentDirNotebook)
-      this.getNotebook();
+  }
+
+  ngAfterViewInit(): void {
+    this.viewInitialized = true;
+    this.openRouteNotebookWhenReady();
+  }
+
+  private openRouteNotebookWhenReady(): void {
+    if (!this.viewInitialized || !this.routeNotebookRequestKey) {
+      return;
+    }
+
+    this.getNotebook();
   }
 
   getNotebook() {
+    if (!this.notebookID) {
+      return;
+    }
+
     this.projectService.getNotebook(this.notebookID).subscribe(result => {
       this.currentNotebook = result;
       this.displayNotebook(this.currentNotebook);
@@ -79,24 +104,34 @@ export class ProjectContentComponent implements OnInit {
   }
 
   extractDirectory(url) {
-    return url.split("/").slice(4).join('/') + '/';
+    const pathWithoutQuery = url.split("?")[0];
+    const query = url.includes("?") ? new URLSearchParams(url.split("?")[1]) : null;
+    const segments = pathWithoutQuery.split("/").slice(4).filter(segment => segment.length > 0);
+
+    if (query?.get('isNotebook')) {
+      segments.pop();
+    }
+
+    return segments.length > 0 ? `${segments.join('/')}/` : '';
   }
 
   fetchNotebooks() {
-    if (!this.currentDirectory.includes("?")) {
-      this.getNotebooks(this.currentDirectory);
-      this.isCurrentDirNotebook = false;
-    }
-    else {
-      this.currentDirectory = this.currentDirectory.split("?")[0];
-      this.getNotebooks(this.currentDirectory);
-      this.isCurrentDirNotebook = true;
-    }
+    this.isCurrentDirNotebook = this.router.url.includes('isNotebook=true');
+    this.getNotebooks(this.currentDirectory);
   }
 
   displayNotebook(notebook: Notebook) {
+    const modalKey = `${notebook?.notebookID ?? ''}:${this.version ?? ''}`;
+    if (this.displayNotebookModalRef && this.displayedNotebookModalKey === modalKey) {
+      console.warn('[AnalySim Notebook] Ignored duplicate notebook modal open request', {
+        notebookId: notebook?.notebookID,
+        version: this.version,
+      });
+      return;
+    }
+
     this.currentNotebook = notebook;
-    // console.log(this.currentNotebook);
+    this.displayedNotebookModalKey = modalKey;
     this.displayNotebookModalRef = this.modalService.show(this.displayNotebookModal, {
       backdrop: 'static',
     });
@@ -111,7 +146,10 @@ export class ProjectContentComponent implements OnInit {
   }
 
   closeDisplayNotebookModal() {
-    this.displayNotebookModalRef.hide();
+    this.displayNotebookModalRef?.hide();
+    this.displayNotebookModalRef = undefined;
+    this.displayedNotebookModalKey = undefined;
+    this.routeNotebookRequestKey = undefined;
     this.navigateToPreviousComponent();
   }
 

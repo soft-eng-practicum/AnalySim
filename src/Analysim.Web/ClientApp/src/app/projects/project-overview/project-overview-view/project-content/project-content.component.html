@@ -16,7 +16,7 @@
     <ul class="list-group notebooks-card__list">
         <li class="list-group-item notebooks-card__list-item notebooks-card__nav-up" *ngIf="currentDirectory.split('/').length>2"
             (click)="navigateToPreviousComponent()"> . . . </li>
-        <li class="list-group-item notebooks-card__list-item" *ngIf="notebooks.length === 0 && !isCurrentDirNotebook "> No Notebooks Found </li>
+        <li class="list-group-item notebooks-card__list-item" *ngIf="(notebooks?.length ?? 0) === 0 && !isCurrentDirNotebook "> No Notebooks Found </li>
         <app-project-notebook-item *ngFor="let notebook of notebooks" [project]="project" [notebook]="notebook"
             [currentDirectory]="currentDirectory" (navigateToNewDirectory)="navigate($event)"
             (getNotebooks)="getNotebooks($event)" (setCurrentNotebook)="displayNotebook($event)"
@@ -36,5 +36,6 @@
 
 <ng-template #displayNotebookModal>
     <app-project-notebook-item-display [notebook]="currentNotebook" [version]="version" [isMember]="isMember"
+        [projectName]="project?.name"
         (closeModal)="closeDisplayNotebookModal()"></app-project-notebook-item-display>
 </ng-template>
