@@ -388,7 +388,10 @@ export class ProjectComponent implements OnInit {
   }
 
   editProject() {
-    alert("Edited!")
+    if (!this.project) return;
+
+    const [owner, projectname] = this.project.route.split('/');
+    this.router.navigate(['/project', owner, projectname, 'edit']);
   }
 
 

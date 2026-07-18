@@ -7,7 +7,26 @@
             <div class="card bg-light">
                 <!-- Card Body Start -->
                 <div class="card-body">
-             <app-project-form-edit (setProject)="setProject($event)">Test</app-project-form-edit>
+             <app-project-form-edit
+                *ngIf="owner && projectname"
+                [owner]="owner"
+                [projectname]="projectname"
+                (setProject)="setProject($event)">
+             </app-project-form-edit>
+
+             <div *ngIf="project != null">
+                <hr>
+                <h5 class="card-title mb-2">Project Tags</h5>
+                <app-project-form-tags
+                    [projectID]="project.projectID"
+                    [projectTags]="project.projectTags"
+                    (updateProjectTags)="updateProjectTags($event)">
+                </app-project-form-tags>
+                <app-project-list-tags
+                    [projectTags]="project.projectTags"
+                    (updateProjectTags)="updateProjectTags($event)">
+                </app-project-list-tags>
+             </div>
 
                 </div> <!-- Card Body End -->
             </div> <!-- Card End -->
