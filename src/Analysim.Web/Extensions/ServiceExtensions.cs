@@ -15,7 +15,6 @@ using Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using Web.Services;
-using System.Security.Claims;
 
 namespace Web.Extensions
 {
@@ -123,33 +122,6 @@ namespace Web.Extensions
                         }
 
                         return System.Threading.Tasks.Task.CompletedTask;
-                    },
-                    OnTokenValidated = async context =>
-                    {
-                        var userIdValue = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier)
-                            ?? context.Principal?.FindFirstValue("sub");
-
-                        if (!int.TryParse(userIdValue, out var userId))
-                        {
-                            context.Fail("Invalid user identifier.");
-                            return;
-                        }
-
-                        var dbContext = context.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
-                        var user = await dbContext.Users
-                            .AsNoTracking()
-                            .SingleOrDefaultAsync(u => u.Id == userId);
-
-                        if (user == null)
-                        {
-                            context.Fail("User not found.");
-                            return;
-                        }
-
-                        if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
-                        {
-                            context.Fail("User account disabled.");
-                        }
                     }
                 };
             });

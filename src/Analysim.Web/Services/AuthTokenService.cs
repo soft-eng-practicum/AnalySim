@@ -210,7 +210,7 @@ namespace Web.Services
                 return minutes;
             }
 
-            return 15;
+            return 10;
         }
 
         private int GetRefreshTokenLifetimeDays()
