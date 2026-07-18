@@ -12,6 +12,9 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
 using Core.Interfaces;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
+using Web.Services;
 
 namespace Web.Extensions
 {
@@ -23,7 +26,12 @@ namespace Web.Extensions
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", builder =>
-                    builder.AllowAnyOrigin()
+                    builder.WithOrigins(
+                        "https://localhost:5001",
+                        "http://localhost:5000",
+                        "https://localhost:4200",
+                        "http://localhost:4200")
+                    .AllowCredentials()
                     .AllowAnyMethod()
                     .AllowAnyHeader());
             });
@@ -97,9 +105,28 @@ namespace Web.Extensions
 
                     ValidIssuer = jwtSettings.GetSection("Issuer").Value,
                     ValidAudience = jwtSettings.GetSection("Audience").Value,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+                    ClockSkew = TimeSpan.FromMinutes(1)
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var hasBearerHeader = context.Request.Headers.ContainsKey("Authorization")
+                            && context.Request.Headers["Authorization"].Any(h => h.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase));
+
+                        if (!hasBearerHeader && context.Request.Cookies.TryGetValue("analysim.access_token", out var accessToken))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return System.Threading.Tasks.Task.CompletedTask;
+                    }
                 };
             });
+
+            services.AddScoped<AuthTokenService>();
         }
 
         public static void ConfigureSpa(this IServiceCollection services)

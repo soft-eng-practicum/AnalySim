@@ -81,8 +81,9 @@ The structure of the files are as follows (`XXX` means redacted):
   "JwtSettings": {
     "Issuer": "AnalySim",
     "Secret": "XXX",
-    "ExpireTime": 60,
-    "Audience": "https://www.analysim.tech"
+    "ExpireTime": 15,
+    "Audience": "https://www.analysim.tech",
+    "RefreshTokenExpireDays": 14
   },
   "UserQuota":  100000000,
   "registrationCodes": [ "123" ],
@@ -93,6 +94,17 @@ The structure of the files are as follows (`XXX` means redacted):
 }
 
 ```
+
+#### Authentication tokens
+
+AnalySim uses short-lived JWT access tokens and rotating refresh tokens. The API sends both as `HttpOnly`, `Secure`, `SameSite=Lax` cookies, and the Angular client sends requests with credentials instead of storing JWTs in `localStorage`.
+
+- `JwtSettings:ExpireTime` controls the access-token lifetime in minutes. Keep this short, for example `15`.
+- `JwtSettings:RefreshTokenExpireDays` controls the refresh-token lifetime in days.
+- Refresh tokens are stored in the database as SHA-256 hashes in the `RefreshTokens` table. Raw refresh tokens are only sent to the browser as cookies.
+- Refresh tokens rotate on `/api/account/refresh`; reuse of a revoked rotated token revokes the remaining token family.
+- Logout, password changes, and account deletion revoke refresh tokens.
+- Unsafe authenticated API requests require the `X-XSRF-TOKEN` header matching the `XSRF-TOKEN` cookie.
 
 #### Adding admin users
 

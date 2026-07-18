@@ -16,9 +16,7 @@ export class AdminGuard implements CanActivate {
   ) {}
 
   public async canActivate(): Promise<boolean> {
-    const isLoggedIn = await firstValueFrom(
-      this.account.isLoggedIn.pipe(take(1))
-    );
+    const isLoggedIn = await firstValueFrom(this.account.ensureAuthenticated());
     if (!isLoggedIn) {
       this.router.navigate(['/login']);
       return false;

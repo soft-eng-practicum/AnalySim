@@ -72,7 +72,6 @@ export class LoginComponent implements OnInit {
 
     this.acct.login(userLogin.username, userLogin.password).subscribe(
       result => {
-        let token = (<any>result).token;
         this.invalidLogin = false;
         this.loginForm.reset();
         this.router.navigateByUrl(this.returnUrl);

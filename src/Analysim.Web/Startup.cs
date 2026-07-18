@@ -2,12 +2,15 @@ using AutoMapper;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Linq;
 using Web.Extensions;
 
 namespace Web
@@ -128,6 +131,43 @@ namespace Web
             });
 
             app.UseRouting();
+
+            app.Use(async (context, next) =>
+            {
+                var method = context.Request.Method;
+                var isUnsafeApiRequest = context.Request.Path.StartsWithSegments("/api")
+                    && !HttpMethods.IsGet(method)
+                    && !HttpMethods.IsHead(method)
+                    && !HttpMethods.IsOptions(method)
+                    && !HttpMethods.IsTrace(method);
+
+                var usesAuthCookie = context.Request.Cookies.ContainsKey("analysim.access_token")
+                    || context.Request.Cookies.ContainsKey("analysim.refresh_token");
+
+                var path = context.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
+                var isPublicAuthRequest = path == "/api/account/login"
+                    || path == "/api/account/register"
+                    || path == "/api/account/forgotpassword"
+                    || path == "/api/account/changepassword"
+                    || path == "/api/account/confirmemailpost";
+
+                if (isUnsafeApiRequest && usesAuthCookie && !isPublicAuthRequest)
+                {
+                    var csrfCookie = context.Request.Cookies["XSRF-TOKEN"];
+                    var csrfHeader = context.Request.Headers["X-XSRF-TOKEN"].FirstOrDefault();
+
+                    if (string.IsNullOrWhiteSpace(csrfCookie)
+                        || string.IsNullOrWhiteSpace(csrfHeader)
+                        || !string.Equals(csrfCookie, csrfHeader, StringComparison.Ordinal))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        await context.Response.WriteAsJsonAsync(new { message = "Invalid CSRF token." });
+                        return;
+                    }
+                }
+
+                await next();
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();

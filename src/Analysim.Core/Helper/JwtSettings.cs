@@ -11,5 +11,6 @@ namespace Core.Helper
         public string Secret { get; set; }
         public string ExpireTime { get; set; }
         public string Audience { get; set; }
+        public int RefreshTokenExpireDays { get; set; } = 14;
     }
 }
