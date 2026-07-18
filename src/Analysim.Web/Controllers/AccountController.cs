@@ -717,6 +717,64 @@ namespace Web.Controllers
         }
 
         /*
+         * Type : POST
+         * URL : /api/account/changeCurrentPassword
+         * Description: Changes the authenticated user's password after verifying the current password
+         * Response Status: 200 Ok, 400 Bad Request, 401 Unauthorized
+         */
+        [Authorize]
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ChangeCurrentPassword([FromBody] CurrentPasswordChangeVM formdata)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                return Unauthorized(new { message = "User not found." });
+            }
+
+            if (IsUserDisabled(user))
+            {
+                return Forbid();
+            }
+
+            var result = await _userManager.ChangePasswordAsync(
+                user,
+                formdata.CurrentPassword,
+                formdata.NewPassword
+            );
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(new
+                {
+                    result,
+                    message = "Password change failed",
+                    errors = result.Errors.Select(e => e.Description)
+                });
+            }
+
+            await _authTokenService.RevokeAllUserRefreshTokensAsync(user.Id, GetRequestIpAddress(), "Password changed");
+            ClearAuthenticationCookies();
+
+            return Ok(new
+            {
+                result,
+                message = "Password successfully changed. Please log in again."
+            });
+        }
+
+        /*
        * Type : Post
        * URL : /api/account/testGenerateToken?
        * Description: Return User(s) from list of id
