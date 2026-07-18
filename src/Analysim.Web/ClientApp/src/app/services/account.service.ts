@@ -47,6 +47,7 @@ export class AccountService {
   private urlChangePassword: string = this.baseUrl + "changePassword"
   private urlReSendVerification: string = this.baseUrl + "sendConfirmationEmail"
   private urlUpdateNotificationPreferences: string = this.baseUrl + "updatenotificationpreferences/"
+  private urlSetAccountStatus: string = this.baseUrl + "setAccountStatus/"
 
   // Delete
   private urlUnfollow: string = this.baseUrl + "unfollow/"
@@ -389,6 +390,19 @@ export class AccountService {
       map(body => {
         console.log(body.message)
         return body.message
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    );
+  }
+
+  setAccountStatus(userID: number, disabled: boolean): Observable<User> {
+    return this.http.put<any>(this.urlSetAccountStatus + userID, { disabled }).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
       }),
       catchError(error => {
         console.log(error)

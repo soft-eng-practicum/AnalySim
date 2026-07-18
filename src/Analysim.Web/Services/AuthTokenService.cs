@@ -69,6 +69,12 @@ namespace Web.Services
                 return null;
             }
 
+            if (storedToken.User.LockoutEnd.HasValue && storedToken.User.LockoutEnd.Value > DateTimeOffset.UtcNow)
+            {
+                await RevokeTokenFamilyAsync(storedToken.TokenFamilyID, ipAddress, "User account disabled");
+                return null;
+            }
+
             var replacementToken = GenerateRefreshToken();
             var replacementHash = HashToken(replacementToken);
             var replacementExpiresAt = DateTime.UtcNow.AddDays(GetRefreshTokenLifetimeDays());

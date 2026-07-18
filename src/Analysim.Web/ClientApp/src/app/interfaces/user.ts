@@ -8,6 +8,8 @@ export interface User {
     email: string
     bio: string
     receiveCommentReplyEmails: boolean
+    lockoutEnabled: boolean
+    lockoutEnd?: string
     dateCreated: Date
     lastOnline: Date
     followers: Array<UserUser>

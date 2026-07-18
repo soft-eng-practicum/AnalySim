@@ -11,6 +11,9 @@ export class UserDisplayComponent implements OnInit {
 
   @Input() user: User;
   @Output() userDeleted : EventEmitter<any> = new EventEmitter<any>();
+  @Output() userUpdated : EventEmitter<User> = new EventEmitter<User>();
+  statusLoading = false;
+
   constructor(private accountService: AccountService) { }
 
   ngOnInit(): void {
@@ -22,4 +25,21 @@ export class UserDisplayComponent implements OnInit {
       })
   }
 
+  isDisabled(): boolean {
+    return !!this.user.lockoutEnd && new Date(this.user.lockoutEnd).valueOf() > new Date().valueOf();
+  }
+
+  setDisabled(disabled: boolean) {
+    this.statusLoading = true;
+    this.accountService.setAccountStatus(this.user.id, disabled).subscribe({
+      next: (updatedUser) => {
+        this.user = updatedUser;
+        this.statusLoading = false;
+        this.userUpdated.emit(updatedUser);
+      },
+      error: () => {
+        this.statusLoading = false;
+      }
+    });
+  }
 }

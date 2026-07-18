@@ -32,4 +32,8 @@ export class UsersComponent implements OnInit {
       },
     });
   }
+
+  isUserDisabled(user: User): boolean {
+    return !!user.lockoutEnd && new Date(user.lockoutEnd).valueOf() > new Date().valueOf();
+  }
 }

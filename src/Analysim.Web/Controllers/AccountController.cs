@@ -146,6 +146,22 @@ namespace Web.Controllers
             await Task.CompletedTask;
         }
 
+        private bool IsUserDisabled(User user)
+        {
+            return user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow;
+        }
+
+        private bool IsCurrentUserAdmin()
+        {
+            var currentUsername = User.Identity?.Name ?? User.FindFirstValue(ClaimTypes.Name);
+
+            var admins = _configuration
+                .GetSection("AdminUsers")
+                .Get<List<string>>() ?? new List<string>();
+
+            return admins.Any(u => string.Equals(u, currentUsername, StringComparison.OrdinalIgnoreCase));
+        }
+
         #region GET REQUEST
         /*
          * Type : GET
@@ -747,6 +763,15 @@ namespace Web.Controllers
                 if (email != null){
                     user = email;
                 }
+
+                if (IsUserDisabled(user))
+                {
+                    return Unauthorized(new
+                    {
+                        LoginError = "This account has been disabled. Please contact an administrator."
+                    });
+                }
+
                 // todo: link to resend verification email.
                 if (!await _userManager.IsEmailConfirmedAsync(user))
                 {
@@ -871,6 +896,56 @@ namespace Web.Controllers
             ClearAuthenticationCookies();
 
             return Ok(new { message = "Logout successful" });
+        }
+
+        /*
+         * Type : PUT
+         * URL : /api/account/setaccountstatus/{userId}
+         * Description: Disable or enable a user account from the admin panel
+         * Response Status: 200 Ok, 400 Bad Request, 403 Forbidden, 404 Not Found
+         */
+        [Authorize]
+        [HttpPut("[action]/{userId:int}")]
+        public async Task<IActionResult> SetAccountStatus([FromRoute] int userId, [FromBody] AccountStatusUpdateVM formdata)
+        {
+            var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(currentUserIdStr, out var currentUserId))
+            {
+                return Unauthorized(new { message = "Invalid user identity." });
+            }
+
+            if (!IsCurrentUserAdmin())
+            {
+                return Forbid();
+            }
+
+            if (formdata.Disabled && currentUserId == userId)
+            {
+                return BadRequest(new { message = "Administrators cannot disable their own account." });
+            }
+
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            user.LockoutEnabled = true;
+            user.LockoutEnd = formdata.Disabled ? DateTimeOffset.MaxValue : null;
+
+            if (formdata.Disabled)
+            {
+                await _authTokenService.RevokeAllUserRefreshTokensAsync(user.Id, GetRequestIpAddress(), "User account disabled by administrator");
+            }
+
+            await _dbContext.SaveChangesAsync();
+            await LoadUserNavigationsAsync(user);
+
+            return Ok(new
+            {
+                result = user,
+                message = formdata.Disabled ? "User account disabled." : "User account enabled."
+            });
         }
 
 

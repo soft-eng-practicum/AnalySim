@@ -1,7 +1,17 @@
 <td>
   <button
     type="button"
-    class="btn btn-secondary"
+    class="btn btn-sm mr-2"
+    [ngClass]="isDisabled() ? 'btn-success' : 'btn-warning'"
+    [disabled]="statusLoading"
+    (click)="setDisabled(!isDisabled())"
+  >
+    <i class="fa mr-1" [ngClass]="isDisabled() ? 'fa-check' : 'fa-ban'"></i>
+    {{ isDisabled() ? "Enable" : "Disable" }}
+  </button>
+  <button
+    type="button"
+    class="btn btn-sm btn-secondary"
     data-toggle="modal"
     [attr.data-target]="'#deleteModal' + user.id"
   >
