@@ -95,17 +95,6 @@ The structure of the files are as follows (`XXX` means redacted):
 
 ```
 
-#### Authentication tokens
-
-AnalySim uses short-lived JWT access tokens and rotating refresh tokens. The API sends both as `HttpOnly`, `Secure`, `SameSite=Lax` cookies, and the Angular client sends requests with credentials instead of storing JWTs in `localStorage`.
-
-- `JwtSettings:ExpireTime` controls the access-token lifetime in minutes. Keep this short, for example `10`.
-- `JwtSettings:RefreshTokenExpireDays` controls the refresh-token lifetime in days.
-- Refresh tokens are stored in the database as SHA-256 hashes in the `RefreshTokens` table. Raw refresh tokens are only sent to the browser as cookies.
-- Refresh tokens rotate on `/api/account/refresh`; reuse of a revoked rotated token revokes the remaining token family.
-- Logout, password changes, account disabling, and account deletion revoke refresh tokens. Existing access-token cookies remain valid only until their short expiration time, so account-status changes take effect no later than the configured access-token lifetime.
-- Unsafe authenticated API requests require the `X-XSRF-TOKEN` header matching the `XSRF-TOKEN` cookie.
-
 #### Adding admin users
 
 Admin access in Analysim is controlled through the AdminUsers section of the `appsettings.json` and `appsettings.Development.json`. Each entry in the list corresponds to the username of a registered Analysim user. Admin users will see an Admin link in the navigation bar and can access the /admin section of the platform. To add or remove admin privileges, simply update this list and restart the server.
