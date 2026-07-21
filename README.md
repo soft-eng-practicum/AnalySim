@@ -134,75 +134,71 @@ dotnet run --environment Development
 
 ## Deploying
 
-The overall process of deployment is explained in the tutorial video on
-[deploying ASP.Net on Heroku using Docker](https://www.youtube.com/watch?v=gQMT4al2Grg:).
+The production Docker deployment is defined by the root `docker-compose.yml`.
+It runs PostgreSQL, a one-shot EF Core migration container, the ASP.NET Core
+backend, an Nginx frontend/static server, scheduled PostgreSQL backups, and a
+Certbot renewal container.
 
-### Prerequisites
-1. Download [Docker Desktop](https://www.docker.com/products/docker-desktop)
-2. Download [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
-3. Enable Docker Support
-   
-### Publish .Net project and create Docker image
+Production data and secrets must live outside the repository. On Jetstream, use
+the shared mounted data volume:
 
-*Note:* Prepend `sudo` before each `docker` and `heroku` (except `dotnet`) command on Mac/Linux.
+```text
+/media/volume/Analysim-Data/
+```
 
-### Using Docker Compose to compile and run the project by installing PostgreSQL in a container
+Create the expected external folders:
 
-You can run Analysim and the PostGreSQL in containers using Docker Compose. You have to follow a 2-step process to first apply the database migrations:
+```sh
+mkdir -p /media/volume/Analysim-Data/{config,postgres/data,postgres/certs,backups,certbot/conf,certbot/www}
+```
 
-1. Build and run the migrations container:
-    ```bash
-    docker compose -f docker-compose.yml -f docker-compose-db.yml build db-update
-    docker compose -f docker-compose.yml -f docker-compose-db.yml run db-update
-    ```
-1. Run the Analysim process with the database:
-    ```bash
-    docker compose build
-    docker compose up
-    ```
+Use these repository templates to create real external config files:
 
-### Using Docker manually to only run the project
+```text
+deploy/config/postgres.env.example -> /media/volume/Analysim-Data/config/postgres.env
+deploy/config/backend.env.example -> /media/volume/Analysim-Data/config/backend.env
+deploy/config/appsettings.Production.example.json -> /media/volume/Analysim-Data/config/appsettings.Production.json
+.env.example -> .env
+```
 
-1. Publish *Analysim.Web* to the local folder (keep default location for folder), which can also be done on the command line: 
-    ```bash
-    dotnet publish --configuration Release
-    ```
-1. Create the Docker image by running the following in the base project folder (e.g. `Analysim/`) :
-    ```bash
-    docker build -t analysim-dev -f Dockerfile-run .
-    ```
-1. Test image locally, by running it:
-   ```bash
-   docker run -it -p 127.0.0.1:80:80/tcp analysim-dev
-   ```
-   You can test by opening a browser to http://localhost:80 (not https).
+The real files must not be committed. The backend image is designed to be safe to
+push to a registry: production `appsettings`, connection strings, JWT secrets,
+email credentials, registration codes, and certificates are mounted or supplied
+at runtime.
 
-### Register and upload Docker image to Heroku
+The main stack starts in this order:
 
-### Prerequisites
-1. Docker setup (see above)
-2. Download [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
+```text
+postgres -> migration -> backend -> nginx
+```
 
-*Note:* Prepend `sudo` before each `docker` and `heroku` (except `dotnet`) command on Mac/Linux.
+Run the stack:
 
-Run the following commands in terminal to update Heroku deployment ([more info](https://devcenter.heroku.com/articles/container-registry-and-runtime)):
+```sh
+docker compose build
+docker compose up -d
+```
 
-1. Login to Heroku and container service (if using `sudo`, you may need to copy-paste into browser):
-   ```bash
-   heroku login
-   heroku container:login
-   ```
-1. Tag the image name on Heroku's container registry:
-   ```bash
-   docker tag analysim-dev registry.heroku.com/analysim-dev
-   docker push registry.heroku.com/analysim-dev
-   ```
-1. Change to the `deploy/` folder and re-build image using Heroku CLI:
-   ```bash
-   cd deploy
-   heroku container:push web -a analysim-dev --context-path=..
-   heroku container:release web -a analysim-dev
-   ```
+Nginx is the public entry point on ports 80 and 443. It serves the Angular and
+JupyterLite static files directly, proxies `/api/` to the backend, and uses
+Let's Encrypt certificates mounted from `/media/volume/Analysim-Data/certbot`.
+
+For first-time certificate issuance, start with a valid DNS record for the
+configured `ANALYSIM_DOMAIN`, ensure port 80 reaches the Nginx container, then
+run Certbot with the same mounted webroot and config paths. Renewal is handled
+by the `certbot` service.
+
+Backups are written to:
+
+```text
+/media/volume/Analysim-Data/backups/postgres
+```
+
+Restore testing instructions are in `deploy/backup/restore-test.md`.
+
+Legacy files such as `Dockerfile`, `Dockerfile.run`, `docker-compose-db.yml`,
+and the old scripts under `deploy/` are retained temporarily for reference while
+the new deployment is validated.
 
 ## Google Summer of Code application examples
 

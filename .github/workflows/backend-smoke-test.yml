@@ -9,6 +9,9 @@ on:
 jobs:
   backend-smoke-test:
     runs-on: ubuntu-latest
+    env:
+      BuildClientAppOnPublish: false
+      BuildJupyterLiteOnBuild: false
 
     steps:
       - name: Checkout repository

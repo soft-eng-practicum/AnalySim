@@ -1,27 +1,122 @@
-# Use postgres/example user/password credentials
 services:
-
-  db:
-    image: postgres
-    restart: always
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    env_file:
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/config/postgres.env
     environment:
-      POSTGRES_USER: analysim_dev
-      POSTGRES_PASSWORD: NeuroScience2023
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - hba_file=/etc/postgresql/pg_hba.conf
+    volumes:
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/postgres/data:/var/lib/postgresql/data
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/postgres/certs:/etc/postgresql/certs:ro
+      - ./deploy/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./deploy/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
 
-  analysim:
-    image: analysim-dev
+  migration:
+    image: analysim-migration:${ANALYSIM_IMAGE_TAG:-latest}
     build:
       context: .
-      dockerfile: Dockerfile
-      target: run
-    #network_mode: "service:db"
-    depends_on:
-      - db
-    restart: always
+      dockerfile: deploy/backend/Dockerfile
+      target: migration
+    restart: "no"
+    env_file:
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/config/backend.env
     environment:
-      ASPNETCORE_URLS: "http://0.0.0.0:80"
-    tty: true
+      ASPNETCORE_ENVIRONMENT: Production
+      ClientApp__ServeFromBackend: "false"
+    volumes:
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/config/appsettings.Production.json:/app/appsettings.Production.json:ro
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/postgres/certs:/app/certs/postgres:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  backend:
+    image: analysim-backend:${ANALYSIM_IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: deploy/backend/Dockerfile
+      target: runtime
+    restart: unless-stopped
+    env_file:
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/config/backend.env
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ClientApp__ServeFromBackend: "false"
+    expose:
+      - "8080"
+    volumes:
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/config/appsettings.Production.json:/app/appsettings.Production.json:ro
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/postgres/certs:/app/certs/postgres:ro
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+
+  nginx:
+    image: analysim-nginx:${ANALYSIM_IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: deploy/nginx/Dockerfile
+    restart: unless-stopped
+    environment:
+      ANALYSIM_DOMAIN: ${ANALYSIM_DOMAIN:-dev.analysim.tech}
+      TLS_CERT_PATH: ${TLS_CERT_PATH:-/etc/letsencrypt/live/dev.analysim.tech/fullchain.pem}
+      TLS_KEY_PATH: ${TLS_KEY_PATH:-/etc/letsencrypt/live/dev.analysim.tech/privkey.pem}
     ports:
-      - 80:80
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/certbot/conf:/etc/letsencrypt:ro
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/certbot/www:/var/www/certbot:ro
+    depends_on:
+      backend:
+        condition: service_started
 
+  backup:
+    image: analysim-backup:${ANALYSIM_IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: deploy/backup/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/config/postgres.env
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      BACKUP_DIR: /backups/postgres
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-30}
+    volumes:
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
 
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/certbot/conf:/etc/letsencrypt
+      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/certbot/www:/var/www/certbot
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        trap exit TERM
+        while :; do
+          certbot renew --webroot --webroot-path /var/www/certbot --quiet
+          sleep 12h & wait $${!}
+        done
