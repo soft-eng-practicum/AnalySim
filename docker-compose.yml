@@ -2,9 +2,10 @@ services:
   postgres:
     image: postgres:16
     restart: unless-stopped
-    env_file:
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/config/postgres.env
     environment:
+      POSTGRES_DB: ${POSTGRES_DB:-analysim}
+      POSTGRES_USER: ${POSTGRES_USER:-analysim}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-replace-with-a-long-random-password}
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
     command:
       - postgres
@@ -13,8 +14,8 @@ services:
       - -c
       - hba_file=/etc/postgresql/pg_hba.conf
     volumes:
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/postgres/data:/var/lib/postgresql/data
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/postgres/certs:/etc/postgresql/certs:ro
+      - ${ANALYSIM_DATA_ROOT:-./data}/postgres/data:/var/lib/postgresql/data
+      - ${ANALYSIM_DATA_ROOT:-./data}/postgres/certs:/etc/postgresql/certs:ro
       - ./deploy/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
       - ./deploy/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
     healthcheck:
@@ -31,14 +32,26 @@ services:
       dockerfile: deploy/backend/Dockerfile
       target: migration
     restart: "no"
-    env_file:
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/config/backend.env
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ClientApp__ServeFromBackend: "false"
+      AllowedHosts: ${ALLOWED_HOSTS:-*}
+      AdminUsers__0: ${ADMIN_USER:-ADMIN}
+      registrationCodes__0: ${REGISTRATION_CODE:-replace-with-registration-code}
+      ConnectionStrings__DBConnectionString: ${DB_CONNECTION_STRING:-User ID=analysim;Password=replace-with-a-long-random-password;Server=postgres;Port=5432;Database=analysim;Pooling=true;SSL Mode=Require;Trust Server Certificate=true}
+      JwtSettings__Issuer: ${JWT_ISSUER:-AnalySim}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-https://localhost}
+      JwtSettings__Secret: ${JWT_SECRET:-replace-with-a-long-random-secret}
+      ClientSettings__BaseUrl: ${CLIENT_BASE_URL:-https://localhost}
+      EmailSettings__Server: ${EMAIL_SERVER:-smtp.example.com}
+      EmailSettings__Port: ${EMAIL_PORT:-587}
+      EmailSettings__SenderName: ${EMAIL_SENDER_NAME:-no-reply-analysim}
+      EmailSettings__SenderEmail: ${EMAIL_SENDER_EMAIL:-no-reply@example.com}
+      EmailSettings__Username: ${EMAIL_USERNAME:-replace-with-email-username}
+      EmailSettings__Password: ${EMAIL_PASSWORD:-replace-with-email-password}
+      UserQuota: ${USER_QUOTA:-100000000}
     volumes:
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/config/appsettings.Production.json:/app/appsettings.Production.json:ro
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/postgres/certs:/app/certs/postgres:ro
+      - ${ANALYSIM_DATA_ROOT:-./data}/postgres/certs:/app/certs/postgres:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,17 +63,29 @@ services:
       dockerfile: deploy/backend/Dockerfile
       target: runtime
     restart: unless-stopped
-    env_file:
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/config/backend.env
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
       ClientApp__ServeFromBackend: "false"
+      AllowedHosts: ${ALLOWED_HOSTS:-*}
+      AdminUsers__0: ${ADMIN_USER:-ADMIN}
+      registrationCodes__0: ${REGISTRATION_CODE:-replace-with-registration-code}
+      ConnectionStrings__DBConnectionString: ${DB_CONNECTION_STRING:-User ID=analysim;Password=replace-with-a-long-random-password;Server=postgres;Port=5432;Database=analysim;Pooling=true;SSL Mode=Require;Trust Server Certificate=true}
+      JwtSettings__Issuer: ${JWT_ISSUER:-AnalySim}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-https://localhost}
+      JwtSettings__Secret: ${JWT_SECRET:-replace-with-a-long-random-secret}
+      ClientSettings__BaseUrl: ${CLIENT_BASE_URL:-https://localhost}
+      EmailSettings__Server: ${EMAIL_SERVER:-smtp.example.com}
+      EmailSettings__Port: ${EMAIL_PORT:-587}
+      EmailSettings__SenderName: ${EMAIL_SENDER_NAME:-no-reply-analysim}
+      EmailSettings__SenderEmail: ${EMAIL_SENDER_EMAIL:-no-reply@example.com}
+      EmailSettings__Username: ${EMAIL_USERNAME:-replace-with-email-username}
+      EmailSettings__Password: ${EMAIL_PASSWORD:-replace-with-email-password}
+      UserQuota: ${USER_QUOTA:-100000000}
     expose:
       - "8080"
     volumes:
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/config/appsettings.Production.json:/app/appsettings.Production.json:ro
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/postgres/certs:/app/certs/postgres:ro
+      - ${ANALYSIM_DATA_ROOT:-./data}/postgres/certs:/app/certs/postgres:ro
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -72,15 +97,15 @@ services:
       dockerfile: deploy/nginx/Dockerfile
     restart: unless-stopped
     environment:
-      ANALYSIM_DOMAIN: ${ANALYSIM_DOMAIN:-dev.analysim.tech}
-      TLS_CERT_PATH: ${TLS_CERT_PATH:-/etc/letsencrypt/live/dev.analysim.tech/fullchain.pem}
-      TLS_KEY_PATH: ${TLS_KEY_PATH:-/etc/letsencrypt/live/dev.analysim.tech/privkey.pem}
+      ANALYSIM_DOMAIN: ${ANALYSIM_DOMAIN:-localhost}
+      TLS_CERT_PATH: ${TLS_CERT_PATH:-/etc/letsencrypt/live/localhost/fullchain.pem}
+      TLS_KEY_PATH: ${TLS_KEY_PATH:-/etc/letsencrypt/live/localhost/privkey.pem}
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/certbot/conf:/etc/letsencrypt:ro
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/certbot/www:/var/www/certbot:ro
+      - ${ANALYSIM_DATA_ROOT:-./data}/certbot/conf:/etc/letsencrypt:ro
+      - ${ANALYSIM_DATA_ROOT:-./data}/certbot/www:/var/www/certbot:ro
     depends_on:
       backend:
         condition: service_started
@@ -91,16 +116,17 @@ services:
       context: .
       dockerfile: deploy/backup/Dockerfile
     restart: unless-stopped
-    env_file:
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/config/postgres.env
     environment:
+      POSTGRES_DB: ${POSTGRES_DB:-analysim}
+      POSTGRES_USER: ${POSTGRES_USER:-analysim}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-replace-with-a-long-random-password}
       POSTGRES_HOST: postgres
       POSTGRES_PORT: "5432"
       BACKUP_DIR: /backups/postgres
       BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
       BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-30}
     volumes:
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/backups:/backups
+      - ${ANALYSIM_DATA_ROOT:-./data}/backups:/backups
     depends_on:
       postgres:
         condition: service_healthy
@@ -109,8 +135,8 @@ services:
     image: certbot/certbot
     restart: unless-stopped
     volumes:
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/certbot/conf:/etc/letsencrypt
-      - ${ANALYSIM_DATA_ROOT:-/media/volume/Analysim-Data}/certbot/www:/var/www/certbot
+      - ${ANALYSIM_DATA_ROOT:-./data}/certbot/conf:/etc/letsencrypt
+      - ${ANALYSIM_DATA_ROOT:-./data}/certbot/www:/var/www/certbot
     entrypoint: /bin/sh
     command:
       - -c
