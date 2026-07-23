@@ -98,7 +98,7 @@ export class ProjectNotebookItemDisplayComponent implements OnInit, OnDestroy {
   }
 
   loadNotebook() {
-    const url = '../../../../../../../assets/jupyter/dist/lab/index.html';
+    const url = '/assets/jupyter/dist/lab/index.html';
     this.jupyterFrameSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
 
     this.projectService.getNotebookFile(this.notebook, this.version)

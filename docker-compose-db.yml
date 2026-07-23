@@ -1,9 +1,0 @@
-services:
-
-  db-update:
-    image: analysim-dev
-    build:
-      target: database-update
-    depends_on:
-      - db
-    tty: true

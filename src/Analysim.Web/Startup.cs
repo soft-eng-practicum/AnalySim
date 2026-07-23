@@ -90,6 +90,8 @@ namespace Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerManager logger)
         {
+            var serveClientAppFromBackend = Configuration.GetValue("ClientApp:ServeFromBackend", true);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -104,6 +106,15 @@ namespace Web
             }
 
             app.ConfigureExceptionHandler(logger);
+
+            var forwardedHeadersOptions = new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            };
+            forwardedHeadersOptions.KnownNetworks.Clear();
+            forwardedHeadersOptions.KnownProxies.Clear();
+            app.UseForwardedHeaders(forwardedHeadersOptions);
+
             app.UseHttpsRedirection();
 
             // Add MIME type for Jupyter Lite wheel files by creating a provider and add the .whl mapping
@@ -112,7 +123,7 @@ namespace Web
 
             app.UseStaticFiles();
 
-            if (!env.IsDevelopment())
+            if (!env.IsDevelopment() && serveClientAppFromBackend)
             {
                 app.UseSpaStaticFiles(new StaticFileOptions
                 {
@@ -121,11 +132,6 @@ namespace Web
             }
 
             app.UseCors("CorsPolicy");
-
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.All
-            });
 
             app.UseRouting();
 
@@ -140,19 +146,22 @@ namespace Web
                 );
             });
 
-            app.UseSpa(spa =>
+            if (serveClientAppFromBackend)
             {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
-
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
+                app.UseSpa(spa =>
                 {
-                    spa.UseAngularCliServer(npmScript: "start");
-                }
+                    // To learn more about options for serving an Angular SPA from ASP.NET Core,
+                    // see https://go.microsoft.com/fwlink/?linkid=864501
 
-            });
+                    spa.Options.SourcePath = "ClientApp";
+
+                    if (env.IsDevelopment())
+                    {
+                        spa.UseAngularCliServer(npmScript: "start");
+                    }
+
+                });
+            }
         }
     }
 }

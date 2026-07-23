@@ -20,7 +20,6 @@ git clone https://github.com/soft-eng-practicum/AnalySim.git
 - [Postman](https://www.postman.com/downloads/) for testing API calls
 - [Python](https://www.python.org/downloads/) for building project
 - [Docker](https://www.docker.com/products/docker-desktop) for testing deployment
-- [Azure Data Studio](https://docs.microsoft.com/en-us/sql/azure-data-studio/download-azure-data-studio?view=sql-server-ver15) or use online [Azure Portal](https://portal.azure.com) for browsing Azure Blob Storage 
 
 ### Installing Angular package dependencies
 
@@ -48,11 +47,13 @@ The AnalySim bridge is a JupyterLite/JupyterLab frontend extension that enables 
 
 Analysim currently requires a SQL database (PostgreSQL) for both relational data and manual blob storage (Azure BlobStorage is no longer used / required). 
 
-In addition, an Outlook account is needed for email functionality. 
+In addition, an SMTP account is needed for email functionality.
 
-All of these services are accessed via authentication information stored in the `appsettings.json` and `appsettings.Development.json` files which should be added under the `src/Analysim.Web` folder. 
+For local development, service credentials can be stored in
+`src/Analysim.Web/appsettings.Development.json`. For Docker deployment, use
+the root `.env` file created from `.env.example`.
 
-The structure of the files are as follows (`XXX` means redacted):
+The development settings file has this shape (`XXX` means redacted):
 
 ```json
 {
@@ -68,7 +69,7 @@ The structure of the files are as follows (`XXX` means redacted):
     "DBConnectionString": "User ID=XXX;Password=XXX;Server=XXX;Port=5432;Database=XXX;Integrated Security=true;Pooling=true;SSL Mode=Require;Trust Server Certificate=true",
   },
   "EmailSettings": {
-    "Server": "smtp-mail.outlook.com",
+    "Server": "smtp.example.com",
     "Port": 587,
     "SenderName": "no-reply-analysim",
     "SenderEmail": "XXX",
@@ -96,7 +97,11 @@ The structure of the files are as follows (`XXX` means redacted):
 
 #### Adding admin users
 
-Admin access in Analysim is controlled through the AdminUsers section of the `appsettings.json` and `appsettings.Development.json`. Each entry in the list corresponds to the username of a registered Analysim user. Admin users will see an Admin link in the navigation bar and can access the /admin section of the platform. To add or remove admin privileges, simply update this list and restart the server.
+Admin access in Analysim is controlled by configured usernames. In local
+development, set `AdminUsers` in `appsettings.Development.json`. In Docker
+deployment, set the first admin user with `ADMIN_USER` in `.env`. Admin users
+will see an Admin link in the navigation bar and can access the `/admin`
+section of the platform.
 
 ⚠️ Important: The usernames must exactly match the usernames stored in the database (full uppercase eg. "ADMIN").
 
@@ -104,7 +109,9 @@ Admin access in Analysim is controlled through the AdminUsers section of the `ap
 
 Outlook no longer allows simple email authentication, so you must use another service that provides password authentication (e.g. Gmail). You can either use an existing account or create a new one and then fill in the `XXX` values under the section `EmailSettings` in the above file.
 
-For email services, the correct BaseUrl is required within appsettings. For development, in `appsettings.Development.json` use: 'https://localhost:5001'. For deployment, in in `appsettings.json` the BaseUrl should match the necessary url.
+For email links, the correct base URL is required. In local development, set
+`ClientSettings:BaseUrl` in `appsettings.Development.json`. In Docker
+deployment, set `CLIENT_BASE_URL` in `.env`.
 
 #### SQL database (also see Docker Compose option below)
 
@@ -114,9 +121,9 @@ If you don't have a SQL database yet, download and install [PostgreSQL](https://
 dotnet ef database update
 ```
 
-#### Azure Blob Storage
+#### Blob storage
 
-Blob storage is now replaced with the PostgreSQL database and no longer necessary. If you want to set it up regardless, follow these instructions. If you don't have an existing blob storage account, log into [Microsoft Azure](https://portal.azure.com), and create a ["Storage Account"](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview) with "Blob service" enabled. Then, select "Access Keys" on the left sidebar menu and copy one of the keys and insert both to replace the `XXX` in the `AzureStorageConnectionString` entry above. You will also need to insert your storage account name. In the same section on Azure, you can see the formatting for the correct Connection String as a guide. Blob storage falls under the [free student services](https://azure.microsoft.com/en-us/free/students/).
+Blob storage is handled by PostgreSQL. Azure Blob Storage is no longer required.
 
 ### Running the project
 
@@ -134,75 +141,75 @@ dotnet run --environment Development
 
 ## Deploying
 
-The overall process of deployment is explained in the tutorial video on
-[deploying ASP.Net on Heroku using Docker](https://www.youtube.com/watch?v=gQMT4al2Grg:).
+The production Docker deployment is defined by the root `docker-compose.yml`.
+It runs PostgreSQL, a one-shot EF Core migration container, the ASP.NET Core
+backend, an Nginx frontend/static server, scheduled PostgreSQL backups, and a
+Certbot renewal container.
 
-### Prerequisites
-1. Download [Docker Desktop](https://www.docker.com/products/docker-desktop)
-2. Download [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
-3. Enable Docker Support
-   
-### Publish .Net project and create Docker image
+Copy `.env.example` to `.env`, then update it for your environment. The `.env`
+file is ignored by git and must not be committed.
 
-*Note:* Prepend `sudo` before each `docker` and `heroku` (except `dotnet`) command on Mac/Linux.
+```sh
+cp .env.example .env
+```
 
-### Using Docker Compose to compile and run the project by installing PostgreSQL in a container
+Set `ANALYSIM_DATA_ROOT` in `.env` to a persistent folder. This folder stores
+database data, backups, PostgreSQL certificates, and Certbot files. Create the
+expected folders:
 
-You can run Analysim and the PostGreSQL in containers using Docker Compose. You have to follow a 2-step process to first apply the database migrations:
+```sh
+export ANALYSIM_DATA_ROOT=/path/to/persistent/analysim-data
+mkdir -p "$ANALYSIM_DATA_ROOT"/{postgres/data,postgres/certs,backups,certbot/conf,certbot/www}
+```
 
-1. Build and run the migrations container:
-    ```bash
-    docker compose -f docker-compose.yml -f docker-compose-db.yml build db-update
-    docker compose -f docker-compose.yml -f docker-compose-db.yml run db-update
-    ```
-1. Run the Analysim process with the database:
-    ```bash
-    docker compose build
-    docker compose up
-    ```
+At minimum, update these `.env` values before production:
 
-### Using Docker manually to only run the project
+- `ANALYSIM_DATA_ROOT`
+- `ANALYSIM_DOMAIN`
+- `TLS_CERT_PATH` and `TLS_KEY_PATH`
+- `POSTGRES_PASSWORD`
+- `DB_CONNECTION_STRING`
+- `JWT_SECRET`
+- `CLIENT_BASE_URL`
+- `ADMIN_USER`
+- `REGISTRATION_CODE`
+- `EMAIL_*` settings
 
-1. Publish *Analysim.Web* to the local folder (keep default location for folder), which can also be done on the command line: 
-    ```bash
-    dotnet publish --configuration Release
-    ```
-1. Create the Docker image by running the following in the base project folder (e.g. `Analysim/`) :
-    ```bash
-    docker build -t analysim-dev -f Dockerfile-run .
-    ```
-1. Test image locally, by running it:
-   ```bash
-   docker run -it -p 127.0.0.1:80:80/tcp analysim-dev
-   ```
-   You can test by opening a browser to http://localhost:80 (not https).
+The backend image is designed to be safe to push to a registry because
+production settings and secrets are supplied at runtime.
 
-### Register and upload Docker image to Heroku
+The main stack starts in this order:
 
-### Prerequisites
-1. Docker setup (see above)
-2. Download [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
+```text
+postgres -> migration -> backend -> nginx
+```
 
-*Note:* Prepend `sudo` before each `docker` and `heroku` (except `dotnet`) command on Mac/Linux.
+Run the stack:
 
-Run the following commands in terminal to update Heroku deployment ([more info](https://devcenter.heroku.com/articles/container-registry-and-runtime)):
+```sh
+docker compose --env-file .env build
+docker compose --env-file .env up -d
+```
 
-1. Login to Heroku and container service (if using `sudo`, you may need to copy-paste into browser):
-   ```bash
-   heroku login
-   heroku container:login
-   ```
-1. Tag the image name on Heroku's container registry:
-   ```bash
-   docker tag analysim-dev registry.heroku.com/analysim-dev
-   docker push registry.heroku.com/analysim-dev
-   ```
-1. Change to the `deploy/` folder and re-build image using Heroku CLI:
-   ```bash
-   cd deploy
-   heroku container:push web -a analysim-dev --context-path=..
-   heroku container:release web -a analysim-dev
-   ```
+Nginx is the public entry point on ports 80 and 443. It serves the Angular and
+JupyterLite static files directly, proxies `/api/` to the backend, and uses
+Let's Encrypt certificates mounted from `$ANALYSIM_DATA_ROOT/certbot`.
+
+For first-time certificate issuance, start with a valid DNS record for the
+configured `ANALYSIM_DOMAIN`, ensure port 80 reaches the Nginx container, then
+run Certbot with the same mounted webroot and config paths. Renewal is handled
+by the `certbot` service.
+
+For local testing, self-signed certificates are enough. For production, use
+Let's Encrypt or another trusted certificate provider.
+
+Backups are written to:
+
+```text
+$ANALYSIM_DATA_ROOT/backups/postgres
+```
+
+Restore testing instructions are in `deploy/backup/restore-test.md`.
 
 ## Google Summer of Code application examples
 

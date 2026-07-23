@@ -10,6 +10,8 @@
 
     <!-- Set this to true if you enable server-side prerendering -->
     <BuildServerSideRenderer>false</BuildServerSideRenderer>
+    <BuildClientAppOnPublish Condition="'$(BuildClientAppOnPublish)' == ''">true</BuildClientAppOnPublish>
+    <BuildJupyterLiteOnBuild Condition="'$(BuildJupyterLiteOnBuild)' == ''">true</BuildJupyterLiteOnBuild>
     <AssemblyName>Analysim.Web</AssemblyName>
     <RootNamespace>Analysim.Web</RootNamespace>
     <UserSecretsId>fd3b0967-a370-46f3-9b1c-3a225fca1fa9</UserSecretsId>
@@ -66,13 +68,13 @@
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm --legacy-peer-deps install" />
   </Target>
 
-  <Target Name="BuildJupyterLite" BeforeTargets="Build" Condition=" !Exists('$(SpaRoot)src\assets\jupyter\dist') ">
+  <Target Name="BuildJupyterLite" BeforeTargets="Build" Condition=" '$(BuildJupyterLiteOnBuild)' == 'true' And !Exists('$(SpaRoot)src\assets\jupyter\dist') ">
     <Message Importance="high" Text="Installing dependencies and building JupyterLite on '$(OS)'" />
 
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:jupyterlite" />
   </Target>
 
-  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
+  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish" Condition=" '$(BuildClientAppOnPublish)' == 'true' ">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm --legacy-peer-deps install" />
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:jupyterlite" />
