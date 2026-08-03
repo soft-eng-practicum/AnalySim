@@ -114,9 +114,9 @@ namespace Infrastructure.Data
                         .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<IdentityRole<int>>().HasData(
-                new IdentityRole<int> { Id = 1, Name = "Admin", NormalizedName = "ADMIN" },
-                new IdentityRole<int> { Id = 2, Name = "Customer", NormalizedName = "CUSTOMER" },
-                new IdentityRole<int> { Id = 3, Name = "Moderator", NormalizedName = "MODERATOR" }
+                new IdentityRole<int> { Id = 1, Name = "Admin", NormalizedName = "ADMIN", ConcurrencyStamp = "d7c6278e-3f78-4db6-8832-aa41ea9fd62c" },
+                new IdentityRole<int> { Id = 2, Name = "Customer", NormalizedName = "CUSTOMER", ConcurrencyStamp = "7383e31e-a884-4cd6-82f7-a6287b4e30a5" },
+                new IdentityRole<int> { Id = 3, Name = "Moderator", NormalizedName = "MODERATOR", ConcurrencyStamp = "398ef1f2-6b82-45f2-9601-ed2129f197e9" }
             );
 
             // Many To One Relationship ( ObservableNotebookDataset -> Notebook)

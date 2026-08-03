@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ProjectService } from 'src/app/services/project.service';
-import { Project } from 'src/app/interfaces/project';
 import { ProjectTag } from 'src/app/interfaces/project-tag';
 
 @Component({
@@ -24,27 +23,33 @@ export class ProjectFormTagsComponent implements OnInit {
   tagName: FormControl
 
   ngOnInit(): void {
+    this.tagName = new FormControl('', [Validators.required]);
 
     // Initialize FormGroup using FormBuilder
     this.tagForm = this.formBuilder.group({
       tagName: this.tagName,
     });
-
-    this.tagName = new FormControl('');
   }
 
   public onSubmit(){
-    let tagForm = this.tagForm.value
+    if (this.tagForm.invalid) return;
 
-    this.projectService.addTag(this.projectID, tagForm.tagName).subscribe(
+    let tagForm = this.tagForm.value
+    let tagName = tagForm.tagName?.trim();
+    if (!tagName) return;
+
+    if (!this.projectTags) {
+      this.projectTags = [];
+    }
+
+    this.projectService.addTag(this.projectID, tagName).subscribe(
       result => {
         this.projectTags.push(result)
         this.updateProjectTags.emit(this.projectTags)
+        this.tagForm.reset()
       }, error =>{
         console.log(error)
       }
     )
-
-    this.tagForm.reset()
   }
 }

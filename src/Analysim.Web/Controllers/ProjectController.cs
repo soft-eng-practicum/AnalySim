@@ -2190,15 +2190,18 @@ namespace Web.Controllers
                 return Unauthorized(new { message = "You are not the owner of the project" });
             }
 
+            var tagName = formdata.TagName?.Trim();
+            if (string.IsNullOrWhiteSpace(tagName)) return BadRequest(new { message = "Tag Name is required" });
+
             // Find Tag In Database
-            Tag tag = _dbContext.Tag.SingleOrDefault(t => t.Name == formdata.TagName);
+            Tag tag = _dbContext.Tag.SingleOrDefault(t => t.Name == tagName);
             if (tag == null)
             {
 
                 // Create Tag
                 tag = new Tag
                 {
-                    Name = formdata.TagName,
+                    Name = tagName,
                 };
 
                 // Add Tag To Database
@@ -2221,6 +2224,10 @@ namespace Web.Controllers
             // Add Tag to Project And Save
             await _dbContext.ProjectTags.AddAsync(projectTag);
             await _dbContext.SaveChangesAsync();
+
+            projectTag = await _dbContext.ProjectTags
+                .Include(pt => pt.Tag)
+                .SingleOrDefaultAsync(pt => pt.ProjectID == formdata.ProjectID && pt.TagID == tag.TagID);
 
             // Return Ok Status
             return Ok(new
@@ -3409,21 +3416,21 @@ namespace Web.Controllers
             if (project == null) return NotFound(new { message = "Project Not Found" });
 
 
-            // Check If Project Already Exist
-            var newuser = _dbContext.Users
-                .SingleOrDefault(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == p.Id &&
-                    aup.ProjectID == projectID &&
-                    aup.Project.Name == formdata.Name &&
+            // Check if the owner already has another project with the requested name.
+            var duplicateProject = await _dbContext.Projects.AnyAsync(p =>
+                p.ProjectID != projectID &&
+                p.Name == formdata.Name &&
+                p.ProjectUsers.Any(aup =>
+                    aup.User.Id == user.Id &&
                     aup.UserRole == "owner"));
-            if (newuser == null) return NotFound(new { message = "User Not Found" });
+            if (duplicateProject) return BadRequest(new { message = "Project Already Exist" });
 
             // If the product was found
             project.Name = formdata.Name;
             project.Visibility = formdata.Visibility;
             project.Description = formdata.Description;
             project.LastUpdated = DateTime.UtcNow;
-            project.Route = newuser.UserName + "/" + formdata.Name;
+            project.Route = user.UserName + "/" + formdata.Name;
 
             // Set Entity State
             _dbContext.Entry(project).State = EntityState.Modified;

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Entities
 {
+    [Microsoft.EntityFrameworkCore.Index(nameof(Route), IsUnique = true)]
     public class Project
 
     {
@@ -30,7 +31,6 @@ namespace Core.Entities
 
 
         [Required(ErrorMessage = "Project Route is a required field.")]
-        [Index(IsUnique = true)]
         public string Route { get; set; }
 
         public List<ProjectTag> ProjectTags { get; set; }
@@ -49,5 +49,4 @@ namespace Core.Entities
         public int ForkedFromProjectID { get; set; }
     }
 }
-
 

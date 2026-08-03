@@ -1,5 +1,5 @@
 <!-- Project Form Start -->
-<form class="form" [formGroup]="projectForm" (ngSubmit)="onSubmit()" *ngIf="currentUser != null">
+<form class="form" [formGroup]="projectForm" (ngSubmit)="onSubmit()" *ngIf="currentUser != null && project != null">
 
     <h4 class="card-title text-center mb-4 mt-1">Edit Project</h4>
     <!-- Form Project Visibility -->
@@ -32,6 +32,10 @@
     </div>
 
     <!-- Form Create Project -->
+    <div class="alert alert-danger" *ngIf="submitErrorMessage">
+        {{ submitErrorMessage }}
+    </div>
+
     <div class="form-group mb-0">
         <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="projectForm.invalid">
             <div *ngIf="!isLoading">
@@ -43,5 +47,4 @@
         </button>              
     </div>
 </form> <!-- Project Form End -->
-
 

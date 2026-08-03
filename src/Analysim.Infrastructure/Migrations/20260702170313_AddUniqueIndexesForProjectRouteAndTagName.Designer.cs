@@ -3,17 +3,20 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Infrastructure.Migrations
+namespace Analysim.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260702170313_AddUniqueIndexesForProjectRouteAndTagName")]
+    partial class AddUniqueIndexesForProjectRouteAndTagName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -489,57 +492,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ProjectID");
 
                     b.ToTable("Publications");
-                });
-
-            modelBuilder.Entity("Core.Entities.RefreshToken", b =>
-                {
-                    b.Property<int>("RefreshTokenID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RefreshTokenID"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedByIp")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ReplacedByTokenHash")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("RevokedByIp")
-                        .HasColumnType("text");
-
-                    b.Property<string>("RevokedReason")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("TokenFamilyID")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserID")
-                        .HasColumnType("integer");
-
-                    b.HasKey("RefreshTokenID");
-
-                    b.HasIndex("TokenFamilyID");
-
-                    b.HasIndex("TokenHash")
-                        .IsUnique();
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Core.Entities.Tag", b =>
@@ -1030,17 +982,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("Core.Entities.RefreshToken", b =>
-                {
-                    b.HasOne("Core.Entities.User", "User")
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Core.Entities.UserUser", b =>
                 {
                     b.HasOne("Core.Entities.User", "Follower")
@@ -1176,8 +1117,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("ProjectLogs");
 
                     b.Navigation("ProjectUsers");
-
-                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

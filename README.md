@@ -15,7 +15,7 @@ git clone https://github.com/soft-eng-practicum/AnalySim.git
 
 ### Required software for development
 
-- [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [ASP.Net 6.0 command-line interface (CLI)](https://dotnet.microsoft.com/en-us/download) (Required)
+- [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [ASP.NET 10.0 command-line interface (CLI)](https://dotnet.microsoft.com/en-us/download) (Required)
 - [Visual Studio Code](https://code.visualstudio.com/download) or other editor
 - [Postman](https://www.postman.com/downloads/) for testing API calls
 - [Python](https://www.python.org/downloads/) for building project
@@ -131,7 +131,7 @@ line by first navigating into the `src\Analysim.Web` folder:
 ```sh
 dotnet run --environment Development
 ```
-(This will also automatically run Angular and a [Swagger](https://learn.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-8.0&tabs=visual-studio) UI on port 5001)
+(This will also automatically run Angular and a [Swagger](https://learn.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-10.0&tabs=visual-studio) UI on port 5001)
 
 ## Deploying
 
