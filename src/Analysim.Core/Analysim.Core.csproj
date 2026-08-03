@@ -6,6 +6,10 @@
     <RootNamespace>Analysim.Core</RootNamespace>
   </PropertyGroup>
 
+   <PropertyGroup>
+    <AllowMissingPrunePackageData>true</AllowMissingPrunePackageData>
+  </PropertyGroup>
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.29.1" />
