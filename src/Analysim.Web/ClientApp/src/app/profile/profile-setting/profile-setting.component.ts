@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
+import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 import { AccountService } from 'src/app/services/account.service';
 import { Router } from '@angular/router';
 import { User } from 'src/app/interfaces/user';
@@ -40,6 +40,7 @@ export class ProfileSettingComponent implements OnInit {
 
       this.getProfileImage();
       this.buildProfileBioForm();
+      this.buildPasswordForm();
       this.buildNotificationsPrefForm();
     });
   }
@@ -147,8 +148,75 @@ export class ProfileSettingComponent implements OnInit {
 
   // PASSWORD FORM
   passwordForm: FormGroup;
+  currentPassword: FormControl;
+  newPassword: FormControl;
+  confirmPassword: FormControl;
+  passwordUpdateLoading = false;
+  passwordErrorMessage: string = null;
+
+  buildPasswordForm() {
+    this.currentPassword = new FormControl('', [Validators.required]);
+    this.newPassword = new FormControl('', [
+      Validators.required,
+      Validators.minLength(6),
+    ]);
+    this.confirmPassword = new FormControl('', [Validators.required]);
+
+    this.passwordForm = this.formBuilder.group({
+      currentPassword: this.currentPassword,
+      newPassword: this.newPassword,
+      confirmPassword: this.confirmPassword,
+    });
+  }
+
   onChangePassword() {
-    // call to change password
+    this.passwordErrorMessage = null;
+
+    if (!this.passwordForm || this.passwordForm.invalid) {
+      this.passwordForm.markAllAsTouched();
+      return;
+    }
+
+    const form = this.passwordForm.value;
+    if (form.newPassword !== form.confirmPassword) {
+      this.passwordErrorMessage = 'New password and confirmation password do not match.';
+      return;
+    }
+
+    this.passwordUpdateLoading = true;
+    this.accountService.changeCurrentPassword(
+      form.currentPassword,
+      form.newPassword,
+      form.confirmPassword,
+    ).subscribe(
+      () => {
+        this.passwordUpdateLoading = false;
+        this.passwordForm.reset();
+        this.notif.showSuccess(
+          'Password changed successfully. Please log in again.',
+          'Password Update',
+        );
+        this.accountService.clearAuthenticationState();
+        this.router.navigate(['/login']);
+      },
+      (error) => {
+        this.passwordUpdateLoading = false;
+        this.passwordErrorMessage = this.getPasswordErrorMessage(error);
+        this.notif.showMessage(this.passwordErrorMessage, 'Password Update');
+      },
+    );
+  }
+
+  private getPasswordErrorMessage(error): string {
+    if (error?.error?.errors && Array.isArray(error.error.errors)) {
+      return error.error.errors[0];
+    }
+
+    if (error?.error?.message) {
+      return error.error.message;
+    }
+
+    return 'Password could not be changed. Please check your current password and try again.';
   }
 
   // NOTIFICATION FORM

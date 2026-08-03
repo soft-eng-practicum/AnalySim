@@ -45,6 +45,7 @@ export class AccountService {
   private urlForgotPassEmail: string = this.baseUrl + "forgotPassword/"
   private urlResetPassword: string = this.baseUrl + "resetPassword?"
   private urlChangePassword: string = this.baseUrl + "changePassword"
+  private urlChangeCurrentPassword: string = this.baseUrl + "changeCurrentPassword"
   private urlReSendVerification: string = this.baseUrl + "sendConfirmationEmail"
   private urlUpdateNotificationPreferences: string = this.baseUrl + "updatenotificationpreferences/"
   private urlSetAccountStatus: string = this.baseUrl + "setAccountStatus/"
@@ -303,6 +304,25 @@ export class AccountService {
           return throwError(error)
         })
 
+      )
+  }
+
+  changeCurrentPassword(currentPassword: string, newPassword: string, confirmPassword: string): Observable<any> {
+    const body = {
+      currentPassword,
+      newPassword,
+      confirmPassword
+    }
+
+    return this.http.post<any>(this.urlChangeCurrentPassword, body)
+      .pipe(
+        map(body => {
+          return body
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
       )
   }
 
