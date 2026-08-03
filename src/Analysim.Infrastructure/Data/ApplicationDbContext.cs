@@ -8,6 +8,8 @@ namespace Infrastructure.Data
 {
     public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
@@ -23,6 +25,16 @@ namespace Infrastructure.Data
             modelBuilder.Entity<ProjectTag>().HasKey(pt => new { pt.ProjectID, pt.TagID });
             modelBuilder.Entity<UserUser>().HasKey(uu => new { uu.UserID, uu.FollowerID });
             modelBuilder.Entity<NotebookContent>().HasKey(nc => new { nc.NotebookID, nc.Version });
+
+            modelBuilder.Entity<RefreshToken>()
+                        .HasIndex(rt => rt.TokenHash)
+                        .IsUnique();
+
+            modelBuilder.Entity<RefreshToken>()
+                        .HasIndex(rt => rt.UserID);
+
+            modelBuilder.Entity<RefreshToken>()
+                        .HasIndex(rt => rt.TokenFamilyID);
 
             // Many To Many Relationship (ProjectUser -> User)
             modelBuilder.Entity<ProjectUser>()
@@ -65,6 +77,12 @@ namespace Infrastructure.Data
                         .HasMany(u => u.BlobFiles)
                         .WithOne(u => u.User)
                         .HasForeignKey(u => u.UserID);
+
+            modelBuilder.Entity<User>()
+                        .HasMany(u => u.RefreshTokens)
+                        .WithOne(rt => rt.User)
+                        .HasForeignKey(rt => rt.UserID)
+                        .OnDelete(DeleteBehavior.Cascade);
 
             // One To Many Relationship (Project -> Blob)
             modelBuilder.Entity<Project>()

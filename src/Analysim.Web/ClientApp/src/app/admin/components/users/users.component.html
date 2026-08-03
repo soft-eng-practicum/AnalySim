@@ -9,6 +9,7 @@
           <th>Username</th>
           <th>Email</th>
           <th>Date Created</th>
+          <th>Status</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -19,7 +20,16 @@
           </td>
           <td>{{ u.email }}</td>
           <td>{{ u.dateCreated | date : "short" }}</td>
-        <app-user-display [user]="u" (userDeleted)="loadUsers()"></app-user-display>
+          <td>
+            <span class="badge" [ngClass]="isUserDisabled(u) ? 'badge-warning' : 'badge-success'">
+              {{ isUserDisabled(u) ? "Disabled" : "Enabled" }}
+            </span>
+          </td>
+          <app-user-display
+            [user]="u"
+            (userDeleted)="loadUsers()"
+            (userUpdated)="loadUsers()"
+          ></app-user-display>
         </tr>
       </tbody>
     </table>

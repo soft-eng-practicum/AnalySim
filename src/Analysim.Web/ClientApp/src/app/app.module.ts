@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule, HttpClientXsrfModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -32,6 +32,7 @@ import { EmailConfirmationComponent } from './email-confirmation/email-confirmat
 import { EmailForgotPassComponent } from './email-confirmation/email-forgot-pass/email-forgot-pass.component';
 import { ResetPasswordComponent } from './email-confirmation/reset-password/reset-password.component';
 import { EmailResendVerificationComponent } from './email-confirmation/email-resend-verification/email-resend-verification.component';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -63,6 +64,10 @@ import { EmailResendVerificationComponent } from './email-confirmation/email-res
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
+    HttpClientXsrfModule.withOptions({
+      cookieName: 'XSRF-TOKEN',
+      headerName: 'X-XSRF-TOKEN',
+    }),
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
@@ -71,6 +76,7 @@ import { EmailResendVerificationComponent } from './email-confirmation/email-res
     ModalModule.forRoot(),
   ],
   providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]
 })

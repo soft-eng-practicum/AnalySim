@@ -5,6 +5,7 @@ using Core.Helper;
 using Core.Interfaces;
 using Core.Services;
 using Infrastructure.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.Data;
 using Analysim.Core.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Web.Services;
 
 namespace Web.Controllers
 {
@@ -41,13 +43,15 @@ namespace Web.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly ILoggerManager _loggerManager;
         private readonly IMailNetService _mailNetService;
+        private readonly AuthTokenService _authTokenService;
 
         private readonly IConfiguration _configuration;
 
         public AccountController(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager,
             SignInManager<User> signManager, ApplicationDbContext dbContext,
                                  ILoggerManager loggerManager,
-                                 IMailNetService mailNetService,IConfiguration configuration)
+                                 IMailNetService mailNetService,IConfiguration configuration,
+                                 AuthTokenService authTokenService)
         {
             _jwtSettings = jwtSettings.Value;
             _userManager = userManager;
@@ -56,6 +60,106 @@ namespace Web.Controllers
             _loggerManager = loggerManager;
             _mailNetService = mailNetService;
             _configuration = configuration;
+            _authTokenService = authTokenService;
+        }
+
+        private const string AccessTokenCookieName = "analysim.access_token";
+        private const string RefreshTokenCookieName = "analysim.refresh_token";
+        private const string CsrfCookieName = "XSRF-TOKEN";
+        private const string LoggedInCookieName = "analysim.logged_in";
+
+        private string GetRequestIpAddress()
+        {
+            return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        }
+
+        private void AppendAuthenticationCookies(AuthTokenResult tokenResult)
+        {
+            Response.Cookies.Append(AccessTokenCookieName, tokenResult.AccessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/",
+                Expires = tokenResult.AccessTokenExpiresAt,
+                IsEssential = true
+            });
+
+            Response.Cookies.Append(RefreshTokenCookieName, tokenResult.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/api/account",
+                Expires = tokenResult.RefreshTokenExpiresAt,
+                IsEssential = true
+            });
+
+            Response.Cookies.Append(CsrfCookieName, Guid.NewGuid().ToString("N"), new CookieOptions
+            {
+                HttpOnly = false,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/",
+                Expires = tokenResult.RefreshTokenExpiresAt,
+                IsEssential = true
+            });
+
+            Response.Cookies.Append(LoggedInCookieName, "1", new CookieOptions
+            {
+                HttpOnly = false,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/",
+                Expires = tokenResult.RefreshTokenExpiresAt,
+                IsEssential = true
+            });
+        }
+
+        private void ClearAuthenticationCookies()
+        {
+            var rootCookieOptions = new CookieOptions
+            {
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/"
+            };
+
+            Response.Cookies.Delete(AccessTokenCookieName, rootCookieOptions);
+            Response.Cookies.Delete(CsrfCookieName, rootCookieOptions);
+            Response.Cookies.Delete(LoggedInCookieName, rootCookieOptions);
+
+            Response.Cookies.Delete(RefreshTokenCookieName, new CookieOptions
+            {
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/api/account"
+            });
+        }
+
+        private async Task LoadUserNavigationsAsync(User user)
+        {
+            _dbContext.Entry(user).Collection(u => u.ProjectUsers).Load();
+            _dbContext.Entry(user).Collection(u => u.BlobFiles).Load();
+            _dbContext.Entry(user).Collection(u => u.Followers).Load();
+            _dbContext.Entry(user).Collection(u => u.Following).Load();
+            await Task.CompletedTask;
+        }
+
+        private bool IsUserDisabled(User user)
+        {
+            return user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow;
+        }
+
+        private bool IsCurrentUserAdmin()
+        {
+            var currentUsername = User.Identity?.Name ?? User.FindFirstValue(ClaimTypes.Name);
+
+            var admins = _configuration
+                .GetSection("AdminUsers")
+                .Get<List<string>>() ?? new List<string>();
+
+            return admins.Any(u => string.Equals(u, currentUsername, StringComparison.OrdinalIgnoreCase));
         }
 
         #region GET REQUEST
@@ -295,8 +399,6 @@ namespace Web.Controllers
 
             string registrationCode = registrationSurveyJson.registrationCode;
 
-            Console.Write(registrationCode);
-
             if(registrationKeys != null && registrationKeys.Length != 0)
             {
                 bool containsRegistrationCode = registrationKeys.Contains(registrationCode);
@@ -531,7 +633,6 @@ namespace Web.Controllers
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-            System.Diagnostics.Debug.WriteLine(code);
             var callbackUrl = Url.Action("ResetPassword", "Account", 
             new { 
                 UserId = user.Id,
@@ -598,6 +699,9 @@ namespace Web.Controllers
 
             if(resetPassResult.Result.Succeeded)
             {
+                await _authTokenService.RevokeAllUserRefreshTokensAsync(user.Id, GetRequestIpAddress(), "Password changed");
+                ClearAuthenticationCookies();
+
                 return Ok(new
                 {
                     result = resetPassResult.Result,
@@ -652,15 +756,6 @@ namespace Web.Controllers
             var username = await _userManager.FindByNameAsync(formdata.Username);
             var email = await _userManager.FindByEmailAsync(formdata.Username);
 
-            // Get The User Role
-            //var roles = await _userManager.GetRolesAsync(user);
-
-            // Generate Key Token
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtSettings.Secret));
-
-            // Generate Expiration Time For Token
-            double tokenExpiryTime = Convert.ToDouble(_jwtSettings.ExpireTime);
-
             // Check Login Status
             if ((username != null && await _userManager.CheckPasswordAsync(username, formdata.Password)) || (email != null && await _userManager.CheckPasswordAsync(email, formdata.Password)))
             {
@@ -668,6 +763,15 @@ namespace Web.Controllers
                 if (email != null){
                     user = email;
                 }
+
+                if (IsUserDisabled(user))
+                {
+                    return Unauthorized(new
+                    {
+                        LoginError = "This account has been disabled. Please contact an administrator."
+                    });
+                }
+
                 // todo: link to resend verification email.
                 if (!await _userManager.IsEmailConfirmedAsync(user))
                 {
@@ -678,48 +782,22 @@ namespace Web.Controllers
                     });
                 }
 
-                // Create JWT Token Handler
-                var tokenHandler = new JwtSecurityTokenHandler();
-
-                // Create Token Descriptor
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(new Claim[]
-                    {
-                        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        //new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        //new Claim(ClaimTypes.Role, roles.FirstOrDefault()),
-                        new Claim("LoggedOn", DateTime.UtcNow.ToString()),
-                        new Claim(ClaimTypes.Name, formdata.Username)
-                    }),
-
-                    SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature),
-                    Issuer = _jwtSettings.Issuer,
-                    Audience = _jwtSettings.Audience,
-                    Expires = DateTime.UtcNow.AddMinutes(tokenExpiryTime)
-                };
-
-                // Create Token
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-
                 // Update Last Online
                 user.LastOnline = DateTime.UtcNow;
 
                 // Save Database Change
                 await _dbContext.SaveChangesAsync();
 
-                _dbContext.Entry(user).Collection(u => u.ProjectUsers).Load();
-                _dbContext.Entry(user).Collection(u => u.BlobFiles).Load();
-                _dbContext.Entry(user).Collection(u => u.Followers).Load();
-                _dbContext.Entry(user).Collection(u => u.Following).Load();
+                await LoadUserNavigationsAsync(user);
+
+                var tokenResult = await _authTokenService.CreateSessionAsync(user, GetRequestIpAddress());
+                AppendAuthenticationCookies(tokenResult);
 
                 // Return OK Request
                 return Ok(new
                 {
                     result = user,
-                    token = tokenHandler.WriteToken(token),
-                    expiration = token.ValidTo,
+                    expiration = tokenResult.AccessTokenExpiresAt,
                     message = "Login successful"
                 });
 
@@ -735,6 +813,139 @@ namespace Web.Controllers
                     LoginError = "Please check the login credentials - Invalid username/password was entered"
                 });
             }
+        }
+
+        /*
+         * Type : GET
+         * URL : /api/account/me
+         * Description: Return the authenticated user for the current access-token cookie
+         * Response Status: 200 Ok, 401 Unauthorized
+         */
+        [Authorize]
+        [HttpGet("[action]")]
+        public async Task<IActionResult> Me()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "User not found." });
+            }
+
+            await LoadUserNavigationsAsync(user);
+
+            return Ok(new
+            {
+                result = user,
+                message = "Session is active"
+            });
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/account/refresh
+         * Description: Rotate a valid refresh-token cookie and issue fresh authentication cookies
+         * Response Status: 200 Ok, 401 Unauthorized
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Refresh()
+        {
+            if (!Request.Cookies.TryGetValue(RefreshTokenCookieName, out var refreshToken))
+            {
+                ClearAuthenticationCookies();
+                return Unauthorized(new { message = "Authentication renewal failed." });
+            }
+
+            var tokenResult = await _authTokenService.RotateRefreshTokenAsync(refreshToken, GetRequestIpAddress());
+            if (tokenResult == null)
+            {
+                ClearAuthenticationCookies();
+                return Unauthorized(new { message = "Authentication renewal failed." });
+            }
+
+            await LoadUserNavigationsAsync(tokenResult.User);
+            AppendAuthenticationCookies(tokenResult);
+
+            return Ok(new
+            {
+                result = tokenResult.User,
+                expiration = tokenResult.AccessTokenExpiresAt,
+                message = "Authentication renewed"
+            });
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/account/logout
+         * Description: Revoke the current refresh token and clear authentication cookies
+         * Response Status: 200 Ok
+         */
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Logout()
+        {
+            if (Request.Cookies.TryGetValue(RefreshTokenCookieName, out var refreshToken))
+            {
+                await _authTokenService.RevokeRefreshTokenAsync(refreshToken, GetRequestIpAddress(), "User logged out");
+            }
+
+            ClearAuthenticationCookies();
+
+            return Ok(new { message = "Logout successful" });
+        }
+
+        /*
+         * Type : PUT
+         * URL : /api/account/setaccountstatus/{userId}
+         * Description: Disable or enable a user account from the admin panel
+         * Response Status: 200 Ok, 400 Bad Request, 403 Forbidden, 404 Not Found
+         */
+        [Authorize]
+        [HttpPut("[action]/{userId:int}")]
+        public async Task<IActionResult> SetAccountStatus([FromRoute] int userId, [FromBody] AccountStatusUpdateVM formdata)
+        {
+            var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(currentUserIdStr, out var currentUserId))
+            {
+                return Unauthorized(new { message = "Invalid user identity." });
+            }
+
+            if (!IsCurrentUserAdmin())
+            {
+                return Forbid();
+            }
+
+            if (formdata.Disabled && currentUserId == userId)
+            {
+                return BadRequest(new { message = "Administrators cannot disable their own account." });
+            }
+
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            user.LockoutEnabled = true;
+            user.LockoutEnd = formdata.Disabled ? DateTimeOffset.MaxValue : null;
+
+            if (formdata.Disabled)
+            {
+                await _authTokenService.RevokeAllUserRefreshTokensAsync(user.Id, GetRequestIpAddress(), "User account disabled by administrator");
+            }
+
+            await _dbContext.SaveChangesAsync();
+            await LoadUserNavigationsAsync(user);
+
+            return Ok(new
+            {
+                result = user,
+                message = formdata.Disabled ? "User account disabled." : "User account enabled."
+            });
         }
 
 
@@ -1064,6 +1275,7 @@ namespace Web.Controllers
                 await _dbContext.SaveChangesAsync();
 
                 // Remove the user
+                await _authTokenService.RevokeAllUserRefreshTokensAsync(userId, GetRequestIpAddress(), "User account deleted");
                 _dbContext.Users.Remove(user);
                 await _dbContext.SaveChangesAsync();
 

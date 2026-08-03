@@ -81,8 +81,9 @@ The structure of the files are as follows (`XXX` means redacted):
   "JwtSettings": {
     "Issuer": "AnalySim",
     "Secret": "XXX",
-    "ExpireTime": 60,
-    "Audience": "https://www.analysim.tech"
+    "ExpireTime": 10,
+    "Audience": "https://www.analysim.tech",
+    "RefreshTokenExpireDays": 14
   },
   "UserQuota":  100000000,
   "registrationCodes": [ "123" ],
