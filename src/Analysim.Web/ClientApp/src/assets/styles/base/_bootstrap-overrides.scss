@@ -18,6 +18,35 @@
   }
 }
 
+.form-control,
+.custom-select,
+.input-group-text,
+.input-group > .form-control,
+.input-group > .custom-select,
+.dropdown-menu,
+.card,
+.alert,
+.badge,
+.list-group-item,
+.modal-content,
+.nav-pills .nav-link,
+.page-link {
+  border-radius: var(--border-radius) !important;
+}
+
+.rounded,
+.rounded-sm,
+.rounded-lg,
+.rounded-circle {
+  border-radius: var(--border-radius) !important;
+}
+
+*,
+*::before,
+*::after {
+  border-radius: var(--border-radius) !important;
+}
+
 /* Primary button */
 .btn-primary {
   background-color: var(--button-background-color) !important;
@@ -130,7 +159,7 @@
 }
 
 :root {
-  --modal-radius: 4px;
+  --modal-radius: var(--border-radius);
   --modal-border: var(--border-w-1) var(--border-style) var(--border-color);
   --modal-header-padding-y: var(--space-3);
   --modal-header-padding-x: var(--space-4);

@@ -1,95 +1,207 @@
 <!-- Nav Bar Start -->
-<nav class="navbar navbar-expand-md navbar-dark bg-shell navbar-body">
-  <!-- Nav Toggle Start -->
+<nav class="navbar navbar-dark bg-shell navbar-body">
   <button
-    class="navbar-toggler"
+    class="sidebar-toggle"
+    [class.is-open]="isMenuOpen"
     type="button"
-    data-toggle="collapse"
-    data-target="#mainNavbar"
-    aria-controls="mainNavbar"
-    aria-expanded="false"
+    [attr.aria-expanded]="isMenuOpen"
+    aria-controls="navbarSectionMenu"
     aria-label="Toggle navigation"
+    (click)="toggleMenu()"
   >
-    <span class="navbar-toggler-icon"></span>
-  </button> <!-- Nav Toggle End -->
+    <i class="fa fa-bars" aria-hidden="true"></i>
+  </button>
 
-  <a class="navbar-brand" (click)="navigateHome()">
+  <a class="navbar-brand" (click)="navigateHome()" aria-label="AnalySim home">
     <img src="../../assets/img/AnalySim-Title.png" alt="AnalySim" />
   </a>
 
-  <div id="mainNavbar" class="collapse navbar-collapse">
-    <ul class="navbar-nav left-nav mr-auto justify-content-start align-items-center">
-      <li class="nav-item">
-        <a class="nav-link nav-interactive" [routerLink]="['/explore']" routerLinkActive="border-bottom">
-          Explore
-        </a>
-      </li>
+  <span class="section-divider" aria-hidden="true"></span>
+  <span class="section-title">{{ sectionTitle }}</span>
 
-      <li class="nav-item" *ngIf="(loginStatus$ | async)">
-        <a class="nav-link nav-interactive" [routerLink]="['/dashboard']" routerLinkActive="border-bottom">
-          Dashboard
-        </a>
-      </li>
+  <div class="nav-spacer"></div>
 
-      <!-- Search Bar -->
-      <li class="nav-item nav-search d-flex align-items-center">
-        <form class="form" (ngSubmit)="onSubmit()">
-          <div class="input-group input-group-sm search-group">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Search..."
-              name="searchTerm"
-              [(ngModel)]="searchText"
-            />
-            <div class="input-group-append">
-              <button type="submit" class="btn search-btn">
-                <i class="fa fa-search"></i>
-              </button>
-            </div>
-          </div>
-        </form>
-      </li>
-    </ul>
+  <div class="nav-actions">
+    <form class="nav-search" (ngSubmit)="onSubmit()" role="search">
+      <label class="search-group">
+        <span class="search-icon">
+          <i class="fa fa-search" aria-hidden="true"></i>
+        </span>
+        <input
+          type="text"
+          placeholder="Search"
+          name="searchTerm"
+          [(ngModel)]="searchText"
+          aria-label="Search projects"
+        />
+      </label>
+    </form>
 
-    <!-- Logged out -->
     <ul class="navbar-nav right-nav" *ngIf="!(loginStatus$ | async)">
-      <li class="nav-item mr-2">
-        <a class="nav-link nav-interactive" [routerLink]="['/register']" routerLinkActive="border-bottom">Register</a>
+      <li class="nav-item">
+        <a class="nav-link nav-interactive" [routerLink]="['/login']">Login</a>
       </li>
-      <li class="nav-item mr-2">
-        <a class="nav-link nav-interactive" [routerLink]="['/login']" routerLinkActive="border-bottom">Login</a>
+      <li class="nav-item">
+        <a class="nav-link nav-interactive" [routerLink]="['/register']">Register</a>
       </li>
     </ul>
 
-    <!-- Logged in -->
-    <ul class="navbar-nav right-nav justify-content-start align-items-center" *ngIf="(loginStatus$ | async)">
-      <li class="nav-item mr-2" *ngIf="(isAdmin$ | async)">
-        <a class="nav-link nav-interactive" routerLink="/admin">
-          <i class="fa fa-cogs mr-2"></i> Admin
+    <ul
+      class="navbar-nav right-nav align-items-center"
+      *ngIf="(loginStatus$ | async)"
+    >
+      <li class="nav-item compact-link" *ngIf="(isAdmin$ | async)">
+        <a
+          class="nav-link nav-interactive"
+          routerLink="/admin"
+          title="Admin"
+          (click)="closeMenus()"
+        >
+          <i class="fa fa-cogs"></i>
         </a>
       </li>
 
-      <li class="nav-item dropdown" *ngIf="(currentUser$ | async) as currentUser">
-        <a
-          class="nav-link dropdown-toggle nav-interactive nav-profile-trigger"
-          href="#"
-          id="navbarDropdownMenuLink"
-          data-toggle="dropdown"
-          aria-haspopup="true"
-          aria-expanded="false"
+      <li
+        class="nav-item profile-menu-host"
+        *ngIf="(currentUser$ | async) as currentUser"
+      >
+        <button
+          class="nav-profile-trigger"
+          type="button"
+          [class.is-open]="isProfileMenuOpen"
+          [attr.aria-expanded]="isProfileMenuOpen"
+          aria-controls="profileMenu"
+          title="Profile"
+          (click)="toggleProfileMenu()"
         >
-          <img [src]="profileImageUrl" class="nav-avatar rounded-circle" alt="Profile" />
-          {{ currentUser.userName }}
-        </a>
+          <img
+            [src]="profileImageUrl"
+            class="nav-avatar rounded-circle"
+            alt="Profile"
+          />
+        </button>
 
-        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-          <a class="dropdown-item" [routerLink]='["/profile/" + currentUser.userName]'>View Profile</a>
-          <a class="dropdown-item" [routerLink]='["/dashboard"]'>Dashboard</a>
-          <a class="dropdown-item" [routerLink]='["/setting/profile"]'>Setting</a>
-          <a class="dropdown-item" (click)="onLogout()">Log out</a>
+        <div id="profileMenu" class="profile-menu" *ngIf="isProfileMenuOpen">
+          <a
+            class="profile-menu-link"
+            [routerLink]='["/profile/" + currentUser.userName]'
+            (click)="closeMenus()"
+          >View Profile</a>
+          <a
+            class="profile-menu-link"
+            [routerLink]='["/setting/profile"]'
+            (click)="closeMenus()"
+          >Settings</a>
+          <button
+            class="profile-menu-link profile-menu-button"
+            type="button"
+            (click)="onLogout()"
+          >Log out</button>
         </div>
       </li>
-    </ul> <!-- Logged In Nav Item End -->
-  </div> <!-- Nav Collapse End-->
-</nav> <!-- Nav Bar End -->
+    </ul>
+  </div>
+
+  <button
+    class="nav-drawer-backdrop"
+    type="button"
+    aria-label="Close navigation menu"
+    *ngIf="isMenuOpen"
+    (click)="closeMenu()"
+  ></button>
+
+  <aside
+    id="navbarSectionMenu"
+    class="nav-drawer"
+    *ngIf="isMenuOpen"
+    aria-label="Navigation menu"
+  >
+    <div class="drawer-header">
+      <span>AnalySim</span>
+      <button
+        class="drawer-close"
+        type="button"
+        aria-label="Close navigation menu"
+        (click)="closeMenu()"
+      >
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="drawer-list" role="navigation" aria-label="Main links">
+      <a class="drawer-link" [routerLink]="['/home']" (click)="closeMenus()">
+        <i class="fa fa-home" aria-hidden="true"></i>
+        Home
+      </a>
+      <a class="drawer-link" [routerLink]="['/explore']" (click)="closeMenus()">
+        <i class="fa fa-compass" aria-hidden="true"></i>
+        Explore
+      </a>
+      <a
+        class="drawer-link"
+        [routerLink]="['/dashboard']"
+        *ngIf="(loginStatus$ | async)"
+        (click)="closeMenus()"
+      >
+        <i class="fa fa-chart-line" aria-hidden="true"></i>
+        Dashboard
+      </a>
+      <a
+        class="drawer-link"
+        [routerLink]="['/project/create']"
+        *ngIf="(loginStatus$ | async)"
+        (click)="closeMenus()"
+      >
+        <i class="fa fa-plus" aria-hidden="true"></i>
+        New Project
+      </a>
+      <a
+        class="drawer-link"
+        [routerLink]="['/setting/profile']"
+        *ngIf="(loginStatus$ | async)"
+        (click)="closeMenus()"
+      >
+        <i class="fa fa-cog" aria-hidden="true"></i>
+        Settings
+      </a>
+      <a
+        class="drawer-link"
+        [routerLink]="['/admin']"
+        *ngIf="(isAdmin$ | async)"
+        (click)="closeMenus()"
+      >
+        <i class="fa fa-cogs" aria-hidden="true"></i>
+        Admin
+      </a>
+      <a
+        class="drawer-link"
+        [routerLink]="['/login']"
+        *ngIf="!(loginStatus$ | async)"
+        (click)="closeMenus()"
+      >
+        <i class="fa fa-sign-in-alt" aria-hidden="true"></i>
+        Login
+      </a>
+      <a
+        class="drawer-link"
+        [routerLink]="['/register']"
+        *ngIf="!(loginStatus$ | async)"
+        (click)="closeMenus()"
+      >
+        <i class="fa fa-user-plus" aria-hidden="true"></i>
+        Register
+      </a>
+    </div>
+
+    <div class="drawer-footer" *ngIf="(currentUser$ | async) as currentUser">
+      <a
+        class="drawer-link"
+        [routerLink]='["/profile/" + currentUser.userName]'
+        (click)="closeMenus()"
+      >
+        <img [src]="profileImageUrl" class="drawer-avatar" alt="Profile" />
+        View Profile
+      </a>
+    </div>
+  </aside>
+</nav>
