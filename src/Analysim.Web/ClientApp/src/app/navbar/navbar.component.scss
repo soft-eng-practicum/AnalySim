@@ -58,13 +58,16 @@
 }
 
 .section-title {
+  display: inline-flex;
+  align-items: center;
   min-width: 0;
+  min-height: 34px;
   max-width: 34vw;
   overflow: hidden;
   color: #ffffff;
   font-size: 22px;
   font-weight: 750;
-  line-height: 1;
+  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
   letter-spacing: 0;
