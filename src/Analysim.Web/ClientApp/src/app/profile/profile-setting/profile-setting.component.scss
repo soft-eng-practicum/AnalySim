@@ -249,6 +249,38 @@
     color: var(--text-muted);
   }
 
+  .notification-preference-option {
+    cursor: default;
+  }
+
+  .settings-option-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .settings-channel-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    white-space: nowrap;
+    cursor: pointer;
+    color: var(--c-text-0);
+  }
+
+  .settings-channel-toggle span {
+    font-weight: 500;
+  }
+
+  .settings-loading {
+    padding: var(--space-3);
+    color: var(--text-muted);
+    font-size: var(--fs-14);
+  }
+
   /* FORM DEFAULTS */
   label {
     font-size: var(--fs-14);

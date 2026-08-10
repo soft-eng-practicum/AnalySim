@@ -7,6 +7,11 @@ import { from, Observable } from 'rxjs';
 import { NotificationService } from 'src/app/services/notification.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
+import { UserNotificationService } from 'src/app/services/user-notification.service';
+import {
+  UserNotificationPreference,
+  UserNotificationTypes,
+} from 'src/app/interfaces/user-notification';
 
 @Component({
   selector: 'app-profile-setting',
@@ -26,6 +31,7 @@ export class ProfileSettingComponent implements OnInit {
     private formBuilder: FormBuilder,
     private sanitizer: DomSanitizer,
     private notif: NotificationService,
+    private userNotificationService: UserNotificationService,
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -222,6 +228,8 @@ export class ProfileSettingComponent implements OnInit {
   // NOTIFICATION FORM
   notificationForm: FormGroup;
   sendCommentNotifications: FormControl;
+  notificationPreferences: UserNotificationPreference[] = [];
+  notificationPreferencesLoading = false;
 
   buildNotificationsPrefForm() {
     this.sendCommentNotifications = new FormControl(
@@ -230,6 +238,8 @@ export class ProfileSettingComponent implements OnInit {
     this.notificationForm = this.formBuilder.group({
       sendCommentNotifications: this.sendCommentNotifications,
     });
+
+    this.loadNotificationPreferences();
   }
 
   onSaveNotificationPreferences() {
@@ -251,5 +261,107 @@ export class ProfileSettingComponent implements OnInit {
         );
       },
     );
+  }
+
+  loadNotificationPreferences() {
+    this.notificationPreferencesLoading = true;
+
+    this.userNotificationService.getPreferences().subscribe(
+      (preferences) => {
+        this.notificationPreferences = preferences;
+        this.notificationPreferencesLoading = false;
+      },
+      (error) => {
+        console.log(error);
+        this.notificationPreferencesLoading = false;
+      },
+    );
+  }
+
+  onToggleNotificationPreference(
+    preference: UserNotificationPreference,
+    channel: 'inApp' | 'email',
+    event: Event,
+  ) {
+    const checked = (event.target as HTMLInputElement).checked;
+    const previousValue = channel === 'inApp'
+      ? preference.inAppEnabled
+      : preference.emailEnabled;
+
+    if (channel === 'inApp') {
+      preference.inAppEnabled = checked;
+    } else {
+      preference.emailEnabled = checked;
+    }
+
+    this.userNotificationService
+      .updatePreference(
+        preference.notificationType,
+        preference.inAppEnabled,
+        preference.emailEnabled,
+      )
+      .subscribe(
+        (updatedPreference) => {
+          preference.inAppEnabled = updatedPreference.inAppEnabled;
+          preference.emailEnabled = updatedPreference.emailEnabled;
+
+          if (preference.notificationType === UserNotificationTypes.CommentReply) {
+            this.currentUser.receiveCommentReplyEmails = updatedPreference.emailEnabled;
+            this.accountService.setCurrentUser(this.currentUser);
+          }
+        },
+        (error) => {
+          console.log(error);
+
+          if (channel === 'inApp') {
+            preference.inAppEnabled = previousValue;
+          } else {
+            preference.emailEnabled = previousValue;
+          }
+
+          this.notif.showMessage(
+            'Notification preference failed to update',
+            'Account Update',
+          );
+        },
+      );
+  }
+
+  getNotificationPreferenceTitle(type: string): string {
+    switch (type) {
+      case UserNotificationTypes.CommentReply:
+        return 'Comment replies';
+      case UserNotificationTypes.ProjectMemberAdded:
+        return 'Project member additions';
+      case UserNotificationTypes.ProjectJoined:
+        return 'Project joins';
+      case UserNotificationTypes.ProjectLogCreated:
+        return 'Followed project updates';
+      case UserNotificationTypes.ProjectLogUpdated:
+        return 'Edited project updates';
+      default:
+        return 'Notification';
+    }
+  }
+
+  getNotificationPreferenceText(type: string): string {
+    switch (type) {
+      case UserNotificationTypes.CommentReply:
+        return 'Replies to comments on projects and project updates.';
+      case UserNotificationTypes.ProjectMemberAdded:
+        return 'When you are added to a project.';
+      case UserNotificationTypes.ProjectJoined:
+        return 'When someone follows or joins a project you own.';
+      case UserNotificationTypes.ProjectLogCreated:
+        return 'New posts on projects you follow.';
+      case UserNotificationTypes.ProjectLogUpdated:
+        return 'Edited posts on projects you follow.';
+      default:
+        return 'Updates from AnalySim.';
+    }
+  }
+
+  canEmailNotification(type: string): boolean {
+    return type === UserNotificationTypes.CommentReply;
   }
 }
