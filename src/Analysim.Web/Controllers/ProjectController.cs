@@ -42,6 +42,8 @@ namespace Web.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly IConfiguration _configuration;
         private readonly IMailNetService _mailNetService;
+        private const string PublicVisibility = "public";
+        private const string FollowerRole = "follower";
 
         public ProjectController(
             ApplicationDbContext dbContext, 
@@ -52,6 +54,70 @@ namespace Web.Controllers
             _dbContext = dbContext;
             _configuration = configuration;
             _mailNetService = mailNetService;
+        }
+
+        private bool TryGetCurrentUserId(out int userId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return int.TryParse(userIdClaim, out userId);
+        }
+
+        private bool IsCurrentUserAdmin()
+        {
+            var currentUsername = User.Identity?.Name ?? User.FindFirstValue(ClaimTypes.Name);
+            if (string.IsNullOrWhiteSpace(currentUsername)) return false;
+
+            var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+            return admins.Any(u => string.Equals(u, currentUsername, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsPublicProject(Project project)
+        {
+            return string.Equals(project.Visibility, PublicVisibility, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsCollaborator(ProjectUser projectUser)
+        {
+            return !string.Equals(projectUser.UserRole, FollowerRole, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool CanCurrentUserViewProject(Project project)
+        {
+            if (IsPublicProject(project)) return true;
+            if (IsCurrentUserAdmin()) return true;
+            if (!TryGetCurrentUserId(out var userId)) return false;
+
+            return project.ProjectUsers.Any(pu => pu.UserID == userId && IsCollaborator(pu));
+        }
+
+        private IQueryable<Project> ApplyVisibleProjectScope(IQueryable<Project> projects)
+        {
+            if (IsCurrentUserAdmin()) return projects;
+
+            if (TryGetCurrentUserId(out var userId))
+            {
+                return projects.Where(p =>
+                    (p.Visibility != null && p.Visibility.ToLower() == PublicVisibility) ||
+                    p.ProjectUsers.Any(pu => pu.UserID == userId && pu.UserRole != null && pu.UserRole.ToLower() != FollowerRole));
+            }
+
+            return projects.Where(p => p.Visibility != null && p.Visibility.ToLower() == PublicVisibility);
+        }
+
+        private async Task<bool> CanCurrentUserViewProjectAsync(int projectId)
+        {
+            return await ApplyVisibleProjectScope(_dbContext.Projects)
+                .AnyAsync(p => p.ProjectID == projectId);
+        }
+
+        private async Task<bool> CanCurrentUserViewProjectResourceAsync(int? projectId)
+        {
+            return !projectId.HasValue || await CanCurrentUserViewProjectAsync(projectId.Value);
+        }
+
+        private NotFoundObjectResult ProjectNotFound()
+        {
+            return NotFound(new { message = "Project Not Found" });
         }
 
         // Image Helpers
@@ -90,17 +156,17 @@ namespace Web.Controllers
          * Description: Get Project
          */
         [HttpGet("[action]/{projectID}")]
-        public IActionResult GetProjectByID([FromRoute] int projectID)
+        public async Task<IActionResult> GetProjectByID([FromRoute] int projectID)
         {
             // Find Project
             // Include To Many List
-            var project = _dbContext.Projects
+            var project = await _dbContext.Projects
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectUsers)
                 .Include(p => p.Notebooks)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
-                .SingleOrDefault(p => p.ProjectID == projectID);
-            if (project == null) return NotFound(new { message = "Project Not Found" });
+                .SingleOrDefaultAsync(p => p.ProjectID == projectID);
+            if (project == null || !CanCurrentUserViewProject(project)) return ProjectNotFound();
 
             // Return Ok Request
             return Ok(new
@@ -117,16 +183,16 @@ namespace Web.Controllers
          * Description: Get Project
          */
         [HttpGet("[action]/{owner}/{projectname}")]
-        public IActionResult GetProjectByRoute([FromRoute] string owner, [FromRoute] string projectname)
+        public async Task<IActionResult> GetProjectByRoute([FromRoute] string owner, [FromRoute] string projectname)
         {
             // Find Project
-            var project = _dbContext.Projects
+            var project = await _dbContext.Projects
                 .Include(p => p.BlobFiles)
                 .Include(p => p.Notebooks)
                 .Include(p => p.ProjectUsers).ThenInclude(pu => pu.User)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
-                .SingleOrDefault(p => p.Route.ToLower() == owner.ToLower() + "/" + projectname.ToLower());
-            if (project == null) return NotFound(new { message = "Project Not Found" });
+                .SingleOrDefaultAsync(p => p.Route.ToLower() == owner.ToLower() + "/" + projectname.ToLower());
+            if (project == null || !CanCurrentUserViewProject(project)) return ProjectNotFound();
 
             // Return Ok Request
             return Ok(new
@@ -142,15 +208,15 @@ namespace Web.Controllers
          * Description: Get Project Range
          */
         [HttpGet("[action]")]
-        public IActionResult GetProjectRange([FromQuery(Name = "id")] List<int> idList)
+        public async Task<IActionResult> GetProjectRange([FromQuery(Name = "id")] List<int> idList)
         {
             // Find Project
-            var projects = _dbContext.Projects
+            var projects = await ApplyVisibleProjectScope(_dbContext.Projects)
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectUsers)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                 .Where(p => idList.Contains(p.ProjectID))
-                .ToList();
+                .ToListAsync();
 
             // Return Ok Request
             return Ok(new
@@ -166,15 +232,15 @@ namespace Web.Controllers
          * Description: Get Project List
          */
         [HttpGet("[action]")]
-        public IActionResult GetProjectList()
+        public async Task<IActionResult> GetProjectList()
         {
 
             // Get All Project And Include To Many List
-            var projects = _dbContext.Projects
+            var projects = await ApplyVisibleProjectScope(_dbContext.Projects)
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectUsers)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
-                .ToList();
+                .ToListAsync();
 
             // Return Ok Request
             return Ok(new
@@ -190,18 +256,21 @@ namespace Web.Controllers
          * Description: Filter Project Using Search Term
          */
         [HttpGet("[action]")]
-        public IActionResult Search([FromQuery(Name = "term")] List<string> searchTerms)
+        public async Task<IActionResult> Search([FromQuery(Name = "term")] List<string> searchTerms)
         {
-            var matchedTag = _dbContext.Tag
-                .ToList()
+            var tags = await _dbContext.Tag.ToListAsync();
+            var matchedTag = tags
                 .Where(t => searchTerms.Any(st => t.Name.ToLower().Contains(st.ToLower())));
 
-            var matchedProject = _dbContext.Projects
+            var matchedProject = await ApplyVisibleProjectScope(_dbContext.Projects)
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectUsers)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
-                .ToList()
-                .Where(p => matchedTag.Any(mt => p.ProjectTags.Any(pt => pt.Tag.Name.ToLower() == mt.Name.ToLower())));
+                .ToListAsync();
+
+            matchedProject = matchedProject
+                .Where(p => matchedTag.Any(mt => p.ProjectTags.Any(pt => pt.Tag.Name.ToLower() == mt.Name.ToLower())))
+                .ToList();
             if (matchedProject.Count() == 0) return NoContent();
 
             return Ok(new
@@ -226,6 +295,7 @@ namespace Web.Controllers
                 // Find blobfile
                 var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
                 if (blobFile == null) return NotFound();
+                if (!await CanCurrentUserViewProjectResourceAsync(blobFile.ProjectID)) return NotFound();
 
                 //find blobfile content
                 var blobFileContent = await _dbContext.BlobFileContent.FindAsync(fileID);
@@ -260,6 +330,7 @@ namespace Web.Controllers
                     .FirstOrDefaultAsync(b => b.User.UserName == username && b.Container == projectname && b.Directory + b.Name + b.Extension == filepath);
 
                 if (blobFile == null) return NotFound();
+                if (!await CanCurrentUserViewProjectResourceAsync(blobFile.ProjectID)) return NotFound();
 
                 //find blobfile content
                 var blobFileContent = await _dbContext.BlobFileContent.FindAsync(blobFile.BlobFileID);
@@ -290,6 +361,7 @@ namespace Web.Controllers
 
                 var notebook = await _dbContext.Notebook.FindAsync(notebookID);
                 if (notebook == null) return NotFound();
+                if (!await CanCurrentUserViewProjectResourceAsync(notebook.ProjectID)) return NotFound();
 
                 //BlobDownloadInfo data = await _blobService.GetNotebookAsync(notebook);
 
@@ -310,6 +382,8 @@ namespace Web.Controllers
             {
                 var notebook = await _dbContext.Notebook.Include(notebook => notebook.
                 observableNotebookDatasets).FirstOrDefaultAsync(notebook => notebook.NotebookID == notebookID);
+                if (notebook == null) return NotFound();
+                if (!await CanCurrentUserViewProjectResourceAsync(notebook.ProjectID)) return NotFound();
                 return Ok(new
                 {
                     message = "Notebook Retrieved",
@@ -326,8 +400,12 @@ namespace Web.Controllers
         [HttpGet("[action]")]
         public IActionResult GetAllNotebooks()
         {
+            var visibleProjectIds = ApplyVisibleProjectScope(_dbContext.Projects)
+                .Select(p => p.ProjectID);
+
             var notebooks = _dbContext.Notebook
                 .Include(n => n.observableNotebookDatasets)
+                .Where(n => !n.ProjectID.HasValue || visibleProjectIds.Contains(n.ProjectID.Value))
                 .ToList();
 
             return Ok(new
@@ -347,6 +425,10 @@ namespace Web.Controllers
                 .OrderByDescending(n => n.Version)
                 .Select(n => n.Version)
                 .ToListAsync();
+
+                var notebook = await _dbContext.Notebook.FindAsync(notebookID);
+                if (notebook == null) return NotFound();
+                if (!await CanCurrentUserViewProjectResourceAsync(notebook.ProjectID)) return NotFound();
 
                 return Ok(new
                 {
@@ -371,6 +453,7 @@ namespace Web.Controllers
         {
             if (projectId <= 0)
                 return BadRequest("Invalid project id.");
+            if (!await CanCurrentUserViewProjectAsync(projectId)) return ProjectNotFound();
 
             var flatComments = await _dbContext.ProjectComments
                 .AsNoTracking()
@@ -441,6 +524,13 @@ namespace Web.Controllers
         {
             if (projectLogId <= 0)
                 return BadRequest("Invalid project log id.");
+
+            var projectId = await _dbContext.ProjectLogs
+                .Where(l => l.LogID == projectLogId)
+                .Select(l => l.ProjectID)
+                .SingleOrDefaultAsync();
+            if (projectId == 0) return NotFound(new { message = "Project Log Not Found" });
+            if (!await CanCurrentUserViewProjectAsync(projectId)) return ProjectNotFound();
 
             var flatComments = await _dbContext.ProjectComments
                 .AsNoTracking()
@@ -583,6 +673,7 @@ namespace Web.Controllers
         {
             if (projectId <= 0)
                 return BadRequest("Invalid project id.");
+            if (!await CanCurrentUserViewProjectAsync(projectId)) return ProjectNotFound();
 
             var now = DateTime.UtcNow;
 
@@ -732,6 +823,7 @@ namespace Web.Controllers
         {
             if (projectId <= 0)
                 return BadRequest("Invalid project id.");
+            if (!await CanCurrentUserViewProjectAsync(projectId)) return ProjectNotFound();
 
             var publications = await _dbContext.Publications
                 .AsNoTracking()
@@ -771,6 +863,7 @@ namespace Web.Controllers
         {
             if (projectId <= 0)
                 return BadRequest("Invalid project id.");
+            if (!await CanCurrentUserViewProjectAsync(projectId)) return ProjectNotFound();
 
             var notebooks = await _dbContext.Notebook
                 .AsNoTracking()
@@ -1438,6 +1531,7 @@ namespace Web.Controllers
             // Find Project
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
+            if (!await CanCurrentUserViewProjectAsync(project.ProjectID)) return ProjectNotFound();
 
             // Check if the project already exists
             bool projectExists = await _dbContext.Projects
@@ -1642,6 +1736,7 @@ namespace Web.Controllers
             // Find Project
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
+            if (!await CanCurrentUserViewProjectAsync(project.ProjectID)) return ProjectNotFound();
 
             // Check if the project already exists
             bool projectExists = await _dbContext.Projects
@@ -2030,6 +2125,7 @@ namespace Web.Controllers
 
             var project = await _dbContext.Projects.FindAsync(projectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
+            if (!await CanCurrentUserViewProjectAsync(project.ProjectID)) return ProjectNotFound();
 
             var projectUser = await _dbContext.ProjectUsers.FindAsync(user.Id, projectID);
 
@@ -4361,8 +4457,10 @@ namespace Web.Controllers
          * Description: Get User List Of Project
          */
         [HttpGet("[action]/{projectID}")]
-        public IActionResult GetUserList([FromRoute] int projectID)
+        public async Task<IActionResult> GetUserList([FromRoute] int projectID)
         {
+            if (!await CanCurrentUserViewProjectAsync(projectID)) return ProjectNotFound();
+
             // Find Project
             var users = _dbContext.ProjectUsers
                 .Include(pu => pu.User).ThenInclude(u => u.BlobFiles)
@@ -4387,8 +4485,10 @@ namespace Web.Controllers
          * Description: Get list of file from project
          */
         [HttpGet("[action]/{projectID}")]
-        public IActionResult GetFileList([FromRoute] int projectID)
+        public async Task<IActionResult> GetFileList([FromRoute] int projectID)
         {
+            if (!await CanCurrentUserViewProjectAsync(projectID)) return ProjectNotFound();
+
             var files = _dbContext.BlobFiles
                 .ToList()
                 .Where(p => p.ProjectID == projectID);
@@ -4404,8 +4504,12 @@ namespace Web.Controllers
         [HttpGet("[action]")]
         public IActionResult GetAllDatasets()
         {
+            var visibleProjectIds = ApplyVisibleProjectScope(_dbContext.Projects)
+                .Select(p => p.ProjectID);
+
             var files = _dbContext.BlobFiles
                 .Where(b => b.Extension == ".csv")
+                .Where(b => !b.ProjectID.HasValue || visibleProjectIds.Contains(b.ProjectID.Value))
                 .ToList();
 
             // Return Ok Status
@@ -4417,8 +4521,10 @@ namespace Web.Controllers
         }
 
         [HttpGet("[action]/{projectID}/{directory}")]
-        public IActionResult GetNotebooks([FromRoute] int projectID, [FromRoute] string directory)
+        public async Task<IActionResult> GetNotebooks([FromRoute] int projectID, [FromRoute] string directory)
         {
+            if (!await CanCurrentUserViewProjectAsync(projectID)) return ProjectNotFound();
+
             string decodedDirectory = HttpUtility.UrlDecode(directory);
             var notebooks = _dbContext.Notebook
                 .Include(n => n.observableNotebookDatasets)
@@ -4443,14 +4549,16 @@ namespace Web.Controllers
          * Description: Get list of tag from project
          */
         [HttpGet("[action]/{projectID}")]
-        public IActionResult GetTagList([FromRoute] int projectID)
+        public async Task<IActionResult> GetTagList([FromRoute] int projectID)
         {
+            if (!await CanCurrentUserViewProjectAsync(projectID)) return ProjectNotFound();
+
             // Find Project
             var project = _dbContext.Projects.Where(p => p.ProjectID == projectID);
             if (!project.Any()) return NotFound(new { message = "Project Not Found" });
 
             var query = project
-                .SelectMany(p => _dbContext.ProjectTags)
+                .SelectMany(p => p.ProjectTags)
                 .Select(pt => pt.Tag);
 
             // Return Ok Status
