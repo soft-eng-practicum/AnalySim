@@ -18,27 +18,88 @@
   align-items: stretch;
 }
 
+// .service-card {
+//   @include card-stack;
+//   min-height: 200px;
+
+//   p {
+//     margin-bottom: 1rem;
+//   }
+
+//   a {
+//     @include card-stack-cta;
+//   }
+// }
+
+// .service-card hr,
+// .notebook-container hr {
+//   width: 100%;
+//   border: 0;
+//   border-top: var(--border-w-1) var(--border-style) var(--border-color);
+//   margin: var(--space-2) 0;
+// }
+
 .service-card {
   @include card-stack;
-  min-height: 200px;
+  min-height: 250px;
+  padding: var(--space-4);
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: var(--border-w-1) var(--border-style) var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+  transition: transform var(--motion-fast), box-shadow var(--motion-fast), border-color var(--motion-fast);
 
-  p {
-    margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  &:hover {
+    transform: translateY(-8px); 
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    border-color: var(--link-color);
   }
 
-  a {
+  .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-2);
+  }
+
+  h3 {
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .card-divider {
+    width: 50px !important;
+    border-top: 3px solid var(--link-color) !important;
+    margin: var(--space-2) auto !important;
+    opacity: 1;
+  }
+
+  p.lead {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: var(--space-4);
+    flex-grow: 1;
+  }
+
+  a.link-basic {
     @include card-stack-cta;
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: auto;
   }
 }
 
-.service-card hr,
+// Sirf notebook container ke divider ke liye alag se
 .notebook-container hr {
   width: 100%;
   border: 0;
   border-top: var(--border-w-1) var(--border-style) var(--border-color);
   margin: var(--space-2) 0;
 }
-
 .notebook-row {
   @include stack-md;
 
@@ -46,7 +107,7 @@
     @include card-stack;
     min-height: 420px;
 
-    @media (max-width: var(--bp-md)) {
+    @media (max-width: 768px) { // ya var(--bp-md)
       width: 100%;
       min-height: 380px;
     }
@@ -72,6 +133,40 @@
     padding: 30px;
   }
 }
+
+// .notebook-row {
+//   @include stack-md;
+
+//   .notebook-container {
+//     @include card-stack;
+//     min-height: 420px;
+
+//     @media (max-width: var(--bp-md)) {
+//       width: 100%;
+//       min-height: 380px;
+//     }
+
+//     .note-img {
+//       width: 200px;
+//       height: 200px;
+//       margin: auto 0;
+//       display: block;
+//       object-fit: contain;
+//     }
+
+//     .note-btn {
+//       @include card-stack-cta;
+//       padding-top: var(--link-cta-padding-top);
+//     }
+//   }
+
+//   .note-desc {
+//     display: flex;
+//     align-items: center;
+//     font-size: 1.25rem;
+//     padding: 30px;
+//   }
+// }
 
 .sponsor-grid {
   display: grid;
