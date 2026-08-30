@@ -414,6 +414,57 @@ namespace Infrastructure.Migrations
                     b.ToTable("ProjectTags");
                 });
 
+            modelBuilder.Entity("Core.Entities.ProjectMembershipRequest", b =>
+                {
+                    b.Property<int>("ProjectMembershipRequestID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ProjectMembershipRequestID"));
+
+                    b.Property<int>("CreatedByUserID")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("ProjectID")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("RespondedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RequesterUserID")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TargetUserID")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("ProjectMembershipRequestID");
+
+                    b.HasIndex("CreatedByUserID");
+
+                    b.HasIndex("RequesterUserID");
+
+                    b.HasIndex("TargetUserID");
+
+                    b.HasIndex("ProjectID", "TargetUserID", "Type", "Status");
+
+                    b.ToTable("ProjectMembershipRequests");
+                });
+
             modelBuilder.Entity("Core.Entities.ProjectUser", b =>
                 {
                     b.Property<int>("UserID")
@@ -1019,6 +1070,41 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Core.Entities.ProjectMembershipRequest", b =>
+                {
+                    b.HasOne("Core.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.Project", "Project")
+                        .WithMany("ProjectMembershipRequests")
+                        .HasForeignKey("ProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.User", "RequesterUser")
+                        .WithMany()
+                        .HasForeignKey("RequesterUserID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.User", "TargetUser")
+                        .WithMany()
+                        .HasForeignKey("TargetUserID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Project");
+
+                    b.Navigation("RequesterUser");
+
+                    b.Navigation("TargetUser");
+                });
+
             modelBuilder.Entity("Core.Entities.Publication", b =>
                 {
                     b.HasOne("Core.Entities.Project", "Project")
@@ -1132,6 +1218,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("ProjectComments");
 
                     b.Navigation("ProjectLogs");
+
+                    b.Navigation("ProjectMembershipRequests");
 
                     b.Navigation("ProjectTags");
 
