@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Project } from 'src/app/interfaces/project';
-import { ProjectUser } from 'src/app/interfaces/project-user';
 import { ProjectTag } from 'src/app/interfaces/project-tag';
 
 @Component({
@@ -31,10 +30,6 @@ export class ProjectEditComponent implements OnInit {
 
   updateProjectTags(projectTags : ProjectTag[]){
     this.project.projectTags = projectTags
-  }
-
-  updateProjectUsers(projectUsers : ProjectUser[]){
-    this.project.projectUsers = projectUsers
   }
 
 }

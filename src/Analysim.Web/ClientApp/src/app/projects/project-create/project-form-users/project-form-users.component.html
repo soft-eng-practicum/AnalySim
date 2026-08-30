@@ -11,7 +11,7 @@
                     <li class="dropdown-item" *ngIf="filteredUsers.length == 0">
                         No Result Found
                     </li>
-                    <li class="dropdown-item" *ngFor="let user of filteredUsers" (click)=addUser(user) type="submit" value="Submit">
+                    <li class="dropdown-item" *ngFor="let user of filteredUsers" (click)=inviteUser(user) type="submit" value="Submit">
                         <img [src]="user | profileImage" class="mr-2" style="max-width: 20px;"> {{user.userName}}
                     </li>
                 </ul>

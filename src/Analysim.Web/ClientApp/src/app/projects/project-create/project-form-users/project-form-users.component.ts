@@ -76,11 +76,10 @@ export class ProjectFormUsersComponent implements OnInit {
     
   }
 
-  public addUser(user : User){
-    this.projectService.addUser(this.project.projectID, user.id, "member", false).subscribe(
+  public inviteUser(user : User){
+    this.projectService.inviteProjectMember(this.project.projectID, user.id).subscribe(
       result => {
-        this.project.projectUsers.push(result)
-        this.updateProject.emit(this.project)
+        console.log(result)
       }, error =>{
         console.log(error)
       }

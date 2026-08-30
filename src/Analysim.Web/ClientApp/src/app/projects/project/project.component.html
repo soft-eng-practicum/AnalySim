@@ -114,8 +114,26 @@
               <div class="more-actions" [class.is-open]="toggleMoreOption">
                 <a class="more-link" role="button" tabindex="0">Share</a>
                 <a class="more-link" role="button" tabindex="0">Recommend</a>
-                <a class="more-link" role="button" tabindex="0" *ngIf="!isMember && !isOwner">Join</a>
-                <a class="more-link" role="button" tabindex="0" *ngIf="isMember && !isOwner">Leave</a>
+                <a
+                  class="more-link"
+                  role="button"
+                  tabindex="0"
+                  *ngIf="!isMember && !isOwner"
+                  (click)="joinProject()"
+                  (keydown.enter)="joinProject()"
+                  (keydown.space)="joinProject(); $event.preventDefault()">
+                  Join
+                </a>
+                <a
+                  class="more-link"
+                  role="button"
+                  tabindex="0"
+                  *ngIf="isMember && !isOwner"
+                  (click)="leaveProject()"
+                  (keydown.enter)="leaveProject()"
+                  (keydown.space)="leaveProject(); $event.preventDefault()">
+                  Leave
+                </a>
                 <a
                   class="more-link"
                   role="button"

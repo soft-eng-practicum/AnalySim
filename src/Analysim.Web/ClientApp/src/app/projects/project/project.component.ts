@@ -401,56 +401,37 @@ export class ProjectComponent implements OnInit {
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } })
     }
     else {
-      if (this.projectUser == null) {
-        // Create Project User
-        this.projectService.addUser(this.project.projectID, this.currentUser.id, "member", false).subscribe(
-          result => {
-            this.project.projectUsers.push(result)
-            this.projectUser = result;
-          }, error => {
-            console.log(error)
-          }
-        )
-      }
-      else {
-        // Modify Project User
-        this.projectUser.userRole = "member"
-        this.projectService.updateUser(this.projectUser).subscribe(
-          result => {
-            let index = this.project.projectUsers.findIndex(pu => pu.userID == result.userID)
-            this.project.projectUsers[index] = result
-            this.projectUser = result;
-          }, error => {
-            console.log(error)
-          }
-        )
-      }
+      this.projectService.requestJoinProject(this.project.projectID).subscribe(
+        result => {
+          console.log(result)
+        }, error => {
+          console.log(error)
+        }
+      )
     }
   }
 
   leaveProject() {
-    if (this.projectUser.isFollowing == false)
-      this.projectService.removeUser(this.projectUser.projectID, this.projectUser.userID).subscribe(
-        result => {
-          let index = this.project.projectUsers.indexOf(result)
-          this.project.projectUsers.splice(index, 1)
-          this.projectUser = null
-        }, error => {
-          console.log(error)
-        }
-      )
-    else {
-      this.projectUser.userRole = "follower"
-      this.projectService.updateUser(this.projectUser).subscribe(
-        result => {
-          let index = this.project.projectUsers.findIndex(pu => pu.userID == result.userID)
-          this.project.projectUsers[index] = result
+    if(!this.projectUser) return
+
+    const wasFollowing = this.projectUser.isFollowing
+
+    this.projectService.leaveProject(this.projectUser.projectID).subscribe(
+      result => {
+        let index = this.project.projectUsers.findIndex(pu => pu.userID == result.userID)
+
+        if (wasFollowing) {
+          if (index > -1) this.project.projectUsers[index] = result
           this.projectUser = result
-        }, error => {
-          console.log(error)
         }
-      )
-    }
+        else {
+          if (index > -1) this.project.projectUsers.splice(index, 1)
+          this.projectUser = null
+        }
+      }, error => {
+        console.log(error)
+      }
+    )
   }
 
   forkProject() {
