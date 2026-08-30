@@ -13,6 +13,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { marked, Marked } from 'marked';
 import hljs from 'highlight.js';
 import { Notebook } from 'src/app/interfaces/notebook';
+import { ProjectMembershipRequest } from 'src/app/interfaces/project-membership-request';
 
 
 @Component({
@@ -45,7 +46,9 @@ export class ProjectComponent implements OnInit {
   currentUser$: Observable<User> = null
   currentUser: User = null
   projectUser: ProjectUser = null
+  membershipRequests: ProjectMembershipRequest[] = []
   isFollowLoading: boolean = false
+  isMembershipActionLoading: boolean = false
   fileDirectory: string
   forkedFrom: Project = null
   profileImageUrls: { [key: string]: SafeUrl } = {};
@@ -66,7 +69,13 @@ export class ProjectComponent implements OnInit {
   async ngOnInit() {
     if (this.accountService.checkLoginStatus()) {
       await this.accountService.currentUser.then((x) => this.currentUser$ = x)
-      this.currentUser$.subscribe(x => this.currentUser = x)
+      this.currentUser$.subscribe(x => {
+        this.currentUser = x
+        if (this.project != null) {
+          this.projectUser = this.project.projectUsers.find(pu => pu.userID == this.currentUser.id)
+          this.loadMembershipRequests()
+        }
+      })
     }
 
     this.route.params.subscribe(params => {
@@ -91,9 +100,11 @@ export class ProjectComponent implements OnInit {
             )
           }
           // console.log(this.project.forkedFromProjectID)
+          this.projectUser = null
           if (this.currentUser != null && this.project.projectUsers.find(x => x.userID == this.currentUser.id) != undefined) {
             this.projectUser = this.project.projectUsers.find(x => x.userID == this.currentUser.id)
           }
+          this.loadMembershipRequests()
           // console.log("Result : ", result);
           this.readmeNotebook = result.notebooks.filter((notebook) => notebook.name.toLowerCase() === "readme")[0];
           // console.log("readme : " ,this.readmeNotebook);
@@ -290,6 +301,40 @@ export class ProjectComponent implements OnInit {
     return false;
   }
 
+  get pendingJoinRequest(): ProjectMembershipRequest {
+    if (this.project == null || this.currentUser == null) return null
+    return this.membershipRequests.find(request =>
+      request.projectID == this.project.projectID &&
+      request.targetUserID == this.currentUser.id &&
+      request.type == "join_request" &&
+      request.status == "pending")
+  }
+
+  get pendingInvitation(): ProjectMembershipRequest {
+    if (this.project == null || this.currentUser == null) return null
+    return this.membershipRequests.find(request =>
+      request.projectID == this.project.projectID &&
+      request.targetUserID == this.currentUser.id &&
+      request.type == "invitation" &&
+      request.status == "pending")
+  }
+
+  loadMembershipRequests(): void {
+    if (this.currentUser == null || this.project == null) return
+
+    this.projectService.getMyMembershipRequests().subscribe(
+      result => {
+        this.membershipRequests = result.filter(request => request.projectID == this.project.projectID)
+      }, error => {
+        console.log(error)
+      }
+    )
+  }
+
+  private removeMembershipRequest(requestID: number): void {
+    this.membershipRequests = this.membershipRequests.filter(request => request.projectMembershipRequestID != requestID)
+  }
+
   getProjectUsers({ user }) {
     var userreturn = this.accountService.getUserByID(user)
     return userreturn
@@ -396,24 +441,88 @@ export class ProjectComponent implements OnInit {
 
 
   joinProject() {
+    if (this.isMembershipActionLoading) return
+
     // Navigate To Login Page If User Not Logged In
     if (!this.accountService.checkLoginStatus()) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } })
     }
     else {
+      this.isMembershipActionLoading = true
       this.projectService.requestJoinProject(this.project.projectID).subscribe(
         result => {
-          console.log(result)
+          this.membershipRequests = this.membershipRequests
+            .filter(request => request.projectMembershipRequestID != result.projectMembershipRequestID)
+          this.membershipRequests.push(result)
+          this.isMembershipActionLoading = false
         }, error => {
           console.log(error)
+          this.isMembershipActionLoading = false
         }
       )
     }
   }
 
+  cancelJoinRequest() {
+    if (this.isMembershipActionLoading || this.pendingJoinRequest == null) return
+
+    this.isMembershipActionLoading = true
+    const requestID = this.pendingJoinRequest.projectMembershipRequestID
+
+    this.projectService.cancelProjectMembershipRequest(requestID).subscribe(
+      result => {
+        this.removeMembershipRequest(result.projectMembershipRequestID)
+        this.isMembershipActionLoading = false
+      }, error => {
+        console.log(error)
+        this.isMembershipActionLoading = false
+      }
+    )
+  }
+
+  acceptInvitation() {
+    if (this.isMembershipActionLoading || this.pendingInvitation == null) return
+
+    this.isMembershipActionLoading = true
+    const requestID = this.pendingInvitation.projectMembershipRequestID
+
+    this.projectService.acceptProjectMembershipRequest(requestID).subscribe(
+      result => {
+        let index = this.project.projectUsers.findIndex(pu => pu.userID == result.userID)
+        if (index > -1) this.project.projectUsers[index] = result
+        else this.project.projectUsers.push(result)
+
+        this.projectUser = result
+        this.removeMembershipRequest(requestID)
+        this.isMembershipActionLoading = false
+      }, error => {
+        console.log(error)
+        this.isMembershipActionLoading = false
+      }
+    )
+  }
+
+  rejectInvitation() {
+    if (this.isMembershipActionLoading || this.pendingInvitation == null) return
+
+    this.isMembershipActionLoading = true
+
+    this.projectService.rejectProjectMembershipRequest(this.pendingInvitation.projectMembershipRequestID).subscribe(
+      result => {
+        this.removeMembershipRequest(result.projectMembershipRequestID)
+        this.isMembershipActionLoading = false
+      }, error => {
+        console.log(error)
+        this.isMembershipActionLoading = false
+      }
+    )
+  }
+
   leaveProject() {
+    if (this.isMembershipActionLoading) return
     if(!this.projectUser) return
 
+    this.isMembershipActionLoading = true
     const wasFollowing = this.projectUser.isFollowing
 
     this.projectService.leaveProject(this.projectUser.projectID).subscribe(
@@ -428,8 +537,10 @@ export class ProjectComponent implements OnInit {
           if (index > -1) this.project.projectUsers.splice(index, 1)
           this.projectUser = null
         }
+        this.isMembershipActionLoading = false
       }, error => {
         console.log(error)
+        this.isMembershipActionLoading = false
       }
     )
   }

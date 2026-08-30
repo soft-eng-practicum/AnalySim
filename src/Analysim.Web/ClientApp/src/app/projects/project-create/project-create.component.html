@@ -20,7 +20,11 @@
                         <app-project-list-tags [projectTags]="project.projectTags" (updateProjectTags)="updateProjectTags($event)"></app-project-list-tags>
 
                         <!-- User Form -->
-                        <app-project-form-users [project]="project" (updateProject)="setProject($event)"></app-project-form-users>
+                        <app-project-form-users
+                            [project]="project"
+                            [membershipRequests]="membershipRequests"
+                            (invitationCreated)="addMembershipRequest($event)">
+                        </app-project-form-users>
                         <app-project-list-users [projectUsers]='project.projectUsers | projectMember:""' (removeProjectUsers)="updateProjectUsers($event)"></app-project-list-users>
                         <button class="btn btn-block mt-3" [routerLink]='["/project/" + project.route]'>
                             Finish Project Creation

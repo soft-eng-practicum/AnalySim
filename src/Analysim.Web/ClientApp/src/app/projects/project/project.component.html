@@ -111,17 +111,63 @@
           <div class="project-view-interaction">
             <button type="button" class="btn btn-primary" (click)="forkProject()">Fork Project</button>
             <div class="more-block" [class.is-open]="toggleMoreOption">
-              <div class="more-actions" [class.is-open]="toggleMoreOption">
+              <div class="more-actions" role="menu" [class.is-open]="toggleMoreOption">
                 <a class="more-link" role="button" tabindex="0">Share</a>
                 <a class="more-link" role="button" tabindex="0">Recommend</a>
                 <a
                   class="more-link"
                   role="button"
                   tabindex="0"
-                  *ngIf="!isMember && !isOwner"
+                  *ngIf="!isMember && !isOwner && pendingInvitation"
+                  (click)="acceptInvitation()"
+                  (keydown.enter)="acceptInvitation()"
+                  (keydown.space)="acceptInvitation(); $event.preventDefault()"
+                  [class.is-disabled]="isMembershipActionLoading"
+                  [attr.aria-disabled]="isMembershipActionLoading">
+                  Accept Invite
+                </a>
+                <a
+                  class="more-link"
+                  role="button"
+                  tabindex="0"
+                  *ngIf="!isMember && !isOwner && pendingInvitation"
+                  (click)="rejectInvitation()"
+                  (keydown.enter)="rejectInvitation()"
+                  (keydown.space)="rejectInvitation(); $event.preventDefault()"
+                  [class.is-disabled]="isMembershipActionLoading"
+                  [attr.aria-disabled]="isMembershipActionLoading">
+                  Reject
+                </a>
+                <a
+                  class="more-link is-disabled"
+                  role="button"
+                  tabindex="0"
+                  *ngIf="!isMember && !isOwner && !pendingInvitation && pendingJoinRequest"
+                  aria-disabled="true">
+                  Request Sent
+                </a>
+                <a
+                  class="more-link"
+                  role="button"
+                  tabindex="0"
+                  *ngIf="!isMember && !isOwner && !pendingInvitation && pendingJoinRequest"
+                  (click)="cancelJoinRequest()"
+                  (keydown.enter)="cancelJoinRequest()"
+                  (keydown.space)="cancelJoinRequest(); $event.preventDefault()"
+                  [class.is-disabled]="isMembershipActionLoading"
+                  [attr.aria-disabled]="isMembershipActionLoading">
+                  Cancel Request
+                </a>
+                <a
+                  class="more-link"
+                  role="button"
+                  tabindex="0"
+                  *ngIf="!isMember && !isOwner && !pendingInvitation && !pendingJoinRequest"
                   (click)="joinProject()"
                   (keydown.enter)="joinProject()"
-                  (keydown.space)="joinProject(); $event.preventDefault()">
+                  (keydown.space)="joinProject(); $event.preventDefault()"
+                  [class.is-disabled]="isMembershipActionLoading"
+                  [attr.aria-disabled]="isMembershipActionLoading">
                   Join
                 </a>
                 <a
@@ -131,7 +177,9 @@
                   *ngIf="isMember && !isOwner"
                   (click)="leaveProject()"
                   (keydown.enter)="leaveProject()"
-                  (keydown.space)="leaveProject(); $event.preventDefault()">
+                  (keydown.space)="leaveProject(); $event.preventDefault()"
+                  [class.is-disabled]="isMembershipActionLoading"
+                  [attr.aria-disabled]="isMembershipActionLoading">
                   Leave
                 </a>
                 <a
@@ -163,6 +211,7 @@
               <button type="button"
                       class="more-toggle"
                       (click)="toggleMoreOption = !toggleMoreOption"
+                      aria-haspopup="menu"
                       [attr.aria-expanded]="toggleMoreOption">
                 <span class="more-toggle__label" [class.is-hidden]="toggleMoreOption">
                   More <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>

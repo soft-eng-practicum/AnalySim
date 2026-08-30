@@ -1,4 +1,6 @@
 ﻿using System;
+using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -6,6 +8,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Infrastructure.Migrations
 {
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration("20260830040500_AddProjectMembershipRequests")]
     public partial class AddProjectMembershipRequests : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
