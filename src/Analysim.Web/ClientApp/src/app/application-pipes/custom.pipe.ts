@@ -113,6 +113,10 @@ export class ProjectMemberPipe implements PipeTransform {
                 return projectUsers.filter(x => {
                     return x.userRole == "member"
                 })
+            case "allMembers":
+                return projectUsers.filter(x => {
+                    return x.userRole == "owner" || x.userRole == "admin" || x.userRole == "member"
+                })
             default:
                 return projectUsers.filter(x => {
                     return x.userRole == "member" || x.userRole == "admin"

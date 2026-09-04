@@ -10,7 +10,7 @@
     <ul class="project-authors-list">
       <li
         class="project-author"
-        *ngFor="let member of projectUsers | projectMember: 'owner'"
+        *ngFor="let member of projectUsers | projectMember: 'allMembers'"
         [routerLink]="['/profile/' + member.user.userName]"
         (click)="closeModal()"
       >
