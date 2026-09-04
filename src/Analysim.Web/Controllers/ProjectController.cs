@@ -2258,13 +2258,16 @@ namespace Web.Controllers
                 var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                bool isOwner = await _dbContext.Projects
+                bool hasUploadAccess = await _dbContext.Projects
                      .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                         aup.User.Id == user.Id &&
-                         aup.Project.ProjectID == formdata.ProjectID &&
-                         aup.UserRole == "owner"));
+                         aup.UserID == user.Id &&
+                         aup.ProjectID == formdata.ProjectID &&
+                         (aup.UserRole == "owner" || aup.UserRole == "member")));
 
-                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!hasUploadAccess)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new { message = "You must be an owner or member of the project" });
+                }
                 
 
                 if (formdata.Directory == null) { formdata.Directory = ""; }
