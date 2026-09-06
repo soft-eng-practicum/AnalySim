@@ -898,6 +898,17 @@ namespace Web.Controllers
                 var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
                 if (project == null) return NotFound(new { message = "Project Not Found." });
 
+                bool hasProjectLogAccess = await _dbContext.ProjectUsers
+                    .AnyAsync(aup =>
+                        aup.UserID == user.Id &&
+                        aup.ProjectID == project.ProjectID &&
+                        (aup.UserRole == "owner" || aup.UserRole == "member"));
+
+                if (!hasProjectLogAccess)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new { message = "You must be an owner or member of the project" });
+                }
+
                 // Validate Content
                 if (string.IsNullOrWhiteSpace(formdata.Content))
                 {
