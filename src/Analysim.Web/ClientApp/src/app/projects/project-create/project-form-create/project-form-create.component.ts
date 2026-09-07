@@ -46,7 +46,7 @@ export class ProjectFormCreateComponent implements OnInit {
     // Initialize Form Controls
     this.name = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20), this.noSpaceSpecial()])
     this.description = new FormControl('')
-    this.visibility = new FormControl('')
+    this.visibility = new FormControl('public', [Validators.required])
 
     // Initialize FormGroup using FormBuilder
     this.projectForm = this.formBuilder.group({
