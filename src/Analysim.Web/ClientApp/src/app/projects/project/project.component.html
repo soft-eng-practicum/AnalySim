@@ -113,7 +113,16 @@
             <div class="more-block" [class.is-open]="toggleMoreOption">
               <div class="more-actions" [class.is-open]="toggleMoreOption">
                 <a class="more-link" role="button" tabindex="0">Share</a>
-                <a class="more-link" role="button" tabindex="0">Recommend</a>
+                <a
+                  class="more-link"
+                  role="button"
+                  tabindex="0"
+                  *ngIf="!isOwner"
+                  (click)="recommendProject()"
+                  (keydown.enter)="recommendProject()"
+                  (keydown.space)="recommendProject(); $event.preventDefault()">
+                  {{ isRecommended ? "Edit Recommendation" : "Recommend" }}
+                </a>
                 <a class="more-link" role="button" tabindex="0" *ngIf="!isMember && !isOwner">Join</a>
                 <a class="more-link" role="button" tabindex="0" *ngIf="isMember && !isOwner">Leave</a>
                 <a
@@ -227,6 +236,19 @@
   <ng-template #deleteModal>
     <app-modal-delete [deleteModalRef]="deleteModalRef" [projectID]="project.projectID"
       [currentUser]="currentUser"></app-modal-delete>
+  </ng-template>
+
+  <ng-template #recommendModal>
+    <app-modal-recommend
+      [recommendModalRef]="recommendModalRef"
+      [project]="project"
+      [currentUser]="currentUser"
+      [recommendation]="currentRecommendation"
+      [isOwner]="isOwner"
+      [allowAction]="true"
+      (recommendationSaved)="onRecommendationSaved($event)"
+      (recommendationRemoved)="onRecommendationRemoved($event)">
+    </app-modal-recommend>
   </ng-template>
   
   <ng-template #displayNotebookModal>

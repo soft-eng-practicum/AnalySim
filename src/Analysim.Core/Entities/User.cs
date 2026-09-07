@@ -29,6 +29,7 @@ namespace Core.Entities
 
         // Logs
         public ICollection<ProjectLog> ProjectLogs { get; set; } = new List<ProjectLog>();
+        public ICollection<ProjectRecommendation> ProjectRecommendations { get; set; } = new List<ProjectRecommendation>();
 
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 

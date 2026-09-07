@@ -7,10 +7,17 @@
   </div>
 
   <div class="stat-row">
-    <div class="stat-label">Recommendation</div>
+    <button
+      type="button"
+      class="stat-label stat-label-button"
+      (click)="toggleModalRecommendationList()"
+    >
+      Recommendation
+    </button>
+
     <div class="stat-divider"></div>
     <div class="stat-pill">0 new</div>
-    <div class="stat-current">0</div>
+    <div class="stat-current">{{ project.projectRecommendations?.length || 0 }}</div>
   </div>
 
   <div class="stat-row">
@@ -48,4 +55,15 @@
     [currentUser]="currentUser"
   >
   </app-modal-member-list>
+</ng-template>
+
+<ng-template #recommendationListModal>
+  <app-modal-recommend
+    [recommendModalRef]="recommendationListModalRef"
+    [project]="project"
+    [currentUser]="currentUser"
+    [recommendation]="currentRecommendation"
+    [isOwner]="isOwner"
+    [allowAction]="false">
+  </app-modal-recommend>
 </ng-template>

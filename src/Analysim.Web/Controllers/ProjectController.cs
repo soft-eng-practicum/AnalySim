@@ -97,6 +97,7 @@ namespace Web.Controllers
             var project = _dbContext.Projects
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectUsers)
+                .Include(p => p.ProjectRecommendations)
                 .Include(p => p.Notebooks)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                 .SingleOrDefault(p => p.ProjectID == projectID);
@@ -124,6 +125,7 @@ namespace Web.Controllers
                 .Include(p => p.BlobFiles)
                 .Include(p => p.Notebooks)
                 .Include(p => p.ProjectUsers).ThenInclude(pu => pu.User)
+                .Include(p => p.ProjectRecommendations)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                 .SingleOrDefault(p => p.Route.ToLower() == owner.ToLower() + "/" + projectname.ToLower());
             if (project == null) return NotFound(new { message = "Project Not Found" });
@@ -148,6 +150,7 @@ namespace Web.Controllers
             var projects = _dbContext.Projects
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectUsers)
+                .Include(p => p.ProjectRecommendations)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                 .Where(p => idList.Contains(p.ProjectID))
                 .ToList();
@@ -173,6 +176,7 @@ namespace Web.Controllers
             var projects = _dbContext.Projects
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectUsers)
+                .Include(p => p.ProjectRecommendations)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                 .ToList();
 
@@ -199,6 +203,7 @@ namespace Web.Controllers
             var matchedProject = _dbContext.Projects
                 .Include(p => p.BlobFiles)
                 .Include(p => p.ProjectUsers)
+                .Include(p => p.ProjectRecommendations)
                 .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                 .ToList()
                 .Where(p => matchedTag.Any(mt => p.ProjectTags.Any(pt => pt.Tag.Name.ToLower() == mt.Name.ToLower())));
@@ -761,10 +766,49 @@ namespace Web.Controllers
             });
         }
 
-        /* 
+        /*
         * Type : GET
-        * URL : /api/projects/GetProjectNotebookReferences/projectId
-        * Description: Gets all Notebooks for a project
+        * URL : /api/project/getprojectrecommendations/projectId
+        * Description: Gets all recommendations for a project
+        */
+        [HttpGet("[action]/{projectId}")]
+        public async Task<IActionResult> GetProjectRecommendations([FromRoute] int projectId)
+        {
+            if (projectId <= 0)
+                return BadRequest(new { message = "Invalid project id." });
+
+            var projectExists = await _dbContext.Projects
+                .AsNoTracking()
+                .AnyAsync(p => p.ProjectID == projectId);
+            if (!projectExists) return NotFound(new { message = "Project Not Found" });
+
+            var recommendations = await _dbContext.ProjectRecommendations
+                .AsNoTracking()
+                .Where(pr => pr.ProjectID == projectId)
+                .OrderByDescending(pr => pr.UpdatedAt)
+                .Select(pr => new ProjectRecommendationVM
+                {
+                    ProjectRecommendationID = pr.ProjectRecommendationID,
+                    UserID = pr.UserID,
+                    AuthorName = pr.User.UserName,
+                    ProjectID = pr.ProjectID,
+                    Comment = pr.Comment,
+                    CreatedAt = pr.CreatedAt,
+                    UpdatedAt = pr.UpdatedAt
+                })
+                .ToListAsync();
+
+            return Ok(new
+            {
+                result = recommendations,
+                message = "Received Project Recommendations"
+            });
+        }
+
+        /*
+         * Type : GET
+         * URL : /api/projects/GetProjectNotebookReferences/projectId
+         * Description: Gets all Notebooks for a project
         */
         [HttpGet("[action]/{projectId}")]
         public async Task<IActionResult> GetProjectNotebookReferences([FromRoute] int projectId)
@@ -1030,6 +1074,79 @@ namespace Web.Controllers
                     error = e.Message
                 });
             }
+        }
+
+        /*
+        * Type : POST
+        * URL : /api/project/recommendproject/projectId
+        * Param : CreateProjectRecommendationVM
+        * Description: Recommend a project as the authenticated user
+        */
+        [Authorize]
+        [HttpPost("[action]/{projectId}")]
+        public async Task<IActionResult> RecommendProject([FromRoute] int projectId, [FromForm] CreateProjectRecommendationVM formdata)
+        {
+            if (projectId <= 0)
+                return BadRequest(new { message = "Invalid project id." });
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (string.IsNullOrWhiteSpace(formdata.Comment))
+                return BadRequest(new { message = "Recommendation comment is required." });
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "User Not Found." });
+
+            var project = await _dbContext.Projects.FindAsync(projectId);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            var projectUser = await _dbContext.ProjectUsers.FindAsync(user.Id, project.ProjectID);
+            if (projectUser != null && string.Equals(projectUser.UserRole, "owner", StringComparison.OrdinalIgnoreCase))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { message = "Project owners cannot recommend their own project" });
+            }
+
+            var existingRecommendation = await _dbContext.ProjectRecommendations
+                .SingleOrDefaultAsync(pr => pr.UserID == user.Id && pr.ProjectID == project.ProjectID);
+            if (existingRecommendation != null)
+            {
+                return Conflict(new { message = "Project already recommended by this user." });
+            }
+
+            var now = DateTime.UtcNow;
+            var recommendation = new ProjectRecommendation
+            {
+                ProjectID = project.ProjectID,
+                Project = project,
+                UserID = user.Id,
+                User = user,
+                Comment = formdata.Comment.Trim(),
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            await _dbContext.ProjectRecommendations.AddAsync(recommendation);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new
+            {
+                result = new ProjectRecommendationVM
+                {
+                    ProjectRecommendationID = recommendation.ProjectRecommendationID,
+                    UserID = recommendation.UserID,
+                    AuthorName = user.UserName,
+                    ProjectID = recommendation.ProjectID,
+                    Comment = recommendation.Comment,
+                    CreatedAt = recommendation.CreatedAt,
+                    UpdatedAt = recommendation.UpdatedAt
+                },
+                message = "Project recommended successfully."
+            });
         }
 
         /*
@@ -3282,6 +3399,60 @@ namespace Web.Controllers
 
         /*
         * Type : PUT
+        * URL : /api/project/updaterecommendation/{recommendationID}
+        * Param : {recommendationID}, CreateProjectRecommendationVM
+        * Description: Update a project recommendation
+        */
+        [Authorize]
+        [HttpPut("[action]/{recommendationID}")]
+        public async Task<IActionResult> UpdateRecommendation([FromRoute] int recommendationID, [FromForm] CreateProjectRecommendationVM formdata)
+        {
+            if (recommendationID <= 0)
+                return BadRequest(new { message = "Invalid recommendation id." });
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (string.IsNullOrWhiteSpace(formdata.Comment))
+                return BadRequest(new { message = "Recommendation comment is required." });
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "User Not Found." });
+
+            var recommendation = await _dbContext.ProjectRecommendations
+                .SingleOrDefaultAsync(pr => pr.ProjectRecommendationID == recommendationID);
+            if (recommendation == null) return NotFound(new { message = "Recommendation Not Found" });
+
+            if (recommendation.UserID != user.Id) return Forbid();
+
+            recommendation.Comment = formdata.Comment.Trim();
+            recommendation.UpdatedAt = DateTime.UtcNow;
+
+            _dbContext.Entry(recommendation).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new
+            {
+                result = new ProjectRecommendationVM
+                {
+                    ProjectRecommendationID = recommendation.ProjectRecommendationID,
+                    UserID = recommendation.UserID,
+                    AuthorName = user.UserName,
+                    ProjectID = recommendation.ProjectID,
+                    Comment = recommendation.Comment,
+                    CreatedAt = recommendation.CreatedAt,
+                    UpdatedAt = recommendation.UpdatedAt
+                },
+                message = "Project recommendation updated successfully."
+            });
+        }
+
+        /*
+        * Type : PUT
         * URL : /api/project/updatecomment/{commentID}
         * Param : {commentID}, UpdateProjectCommentVM
         * Description: Update a comment
@@ -3639,6 +3810,51 @@ namespace Web.Controllers
 
             // Return 
             return Ok(new { message = "Publication deleted successfully."});
+        }
+
+        /*
+        * Type : DELETE
+        * URL : /api/project/unrecommendproject/{projectID}
+        * Param : {projectID}
+        * Description: Remove the authenticated user's project recommendation
+        */
+        [Authorize]
+        [HttpDelete("[action]/{projectID}")]
+        public async Task<IActionResult> UnrecommendProject([FromRoute] int projectID)
+        {
+            if (projectID <= 0)
+                return BadRequest(new { message = "Invalid project id." });
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid user identifier." });
+            }
+
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound(new { message = "User Not Found." });
+
+            var recommendation = await _dbContext.ProjectRecommendations
+                .SingleOrDefaultAsync(pr => pr.UserID == user.Id && pr.ProjectID == projectID);
+            if (recommendation == null) return NotFound(new { message = "Recommendation Not Found" });
+
+            _dbContext.ProjectRecommendations.Remove(recommendation);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new
+            {
+                result = new ProjectRecommendationVM
+                {
+                    ProjectRecommendationID = recommendation.ProjectRecommendationID,
+                    UserID = recommendation.UserID,
+                    AuthorName = user.UserName,
+                    ProjectID = recommendation.ProjectID,
+                    Comment = recommendation.Comment,
+                    CreatedAt = recommendation.CreatedAt,
+                    UpdatedAt = recommendation.UpdatedAt
+                },
+                message = "Project recommendation removed successfully."
+            });
         }
 
         /*

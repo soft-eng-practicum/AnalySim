@@ -13,6 +13,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { marked, Marked } from 'marked';
 import hljs from 'highlight.js';
 import { Notebook } from 'src/app/interfaces/notebook';
+import { ProjectRecommendation } from 'src/app/interfaces/project-recommendation';
 
 
 @Component({
@@ -34,11 +35,13 @@ export class ProjectComponent implements OnInit {
 
   @ViewChild('forkModal') forkModal: TemplateRef<any>
   @ViewChild('deleteModal') deleteModal: TemplateRef<any>
+  @ViewChild('recommendModal') recommendModal: TemplateRef<any>
   @ViewChildren(ProjectFileExplorerComponent) fileExplorer: ProjectFileExplorerComponent
   @ViewChild('displayNotebookModal') displayNotebookModal: TemplateRef<any>;
 
   forkModalRef: BsModalRef;
   deleteModalRef: BsModalRef;
+  recommendModalRef: BsModalRef;
   displayNotebookModalRef: BsModalRef;
 
   project: Project = null
@@ -290,6 +293,16 @@ export class ProjectComponent implements OnInit {
     return false;
   }
 
+  get currentRecommendation(): ProjectRecommendation {
+    if (this.currentUser == null) return null
+    if (this.project == null || this.project.projectRecommendations == null) return null
+    return this.project.projectRecommendations.find(x => x.userID == this.currentUser.id) || null
+  }
+
+  get isRecommended(): boolean {
+    return this.currentRecommendation != null
+  }
+
   getProjectUsers({ user }) {
     var userreturn = this.accountService.getUserByID(user)
     return userreturn
@@ -346,6 +359,38 @@ export class ProjectComponent implements OnInit {
           this.isFollowLoading = false
         })
       }
+    }
+  }
+
+  recommendProject() {
+    if (!this.accountService.checkLoginStatus()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } })
+      return
+    }
+
+    this.toggleMoreOption = false
+    this.recommendModalRef = this.modalService.show(this.recommendModal)
+  }
+
+  onRecommendationSaved(recommendation: ProjectRecommendation) {
+    if (this.project.projectRecommendations == null) {
+      this.project.projectRecommendations = []
+    }
+
+    let index = this.project.projectRecommendations.findIndex(x => x.projectRecommendationID == recommendation.projectRecommendationID)
+    if (index > -1) {
+      this.project.projectRecommendations[index] = recommendation
+    } else {
+      this.project.projectRecommendations.push(recommendation)
+    }
+  }
+
+  onRecommendationRemoved(recommendation: ProjectRecommendation) {
+    if (this.project.projectRecommendations == null) return
+
+    let index = this.project.projectRecommendations.findIndex(x => x.projectRecommendationID == recommendation.projectRecommendationID)
+    if (index > -1) {
+      this.project.projectRecommendations.splice(index, 1)
     }
   }
 
