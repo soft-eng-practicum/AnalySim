@@ -31,6 +31,8 @@ using Newtonsoft.Json;
 using Analysim.Core.Entities;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Core.Helper;
+using Core.Models;
 
 namespace Web.Controllers
 {
@@ -41,17 +43,17 @@ namespace Web.Controllers
 
         private readonly ApplicationDbContext _dbContext;
         private readonly IConfiguration _configuration;
-        private readonly IMailNetService _mailNetService;
+        private readonly INotificationService _notificationService;
 
         public ProjectController(
             ApplicationDbContext dbContext, 
             IConfiguration configuration,
-            IMailNetService mailNetService
+            INotificationService notificationService
         )
         {
             _dbContext = dbContext;
             _configuration = configuration;
-            _mailNetService = mailNetService;
+            _notificationService = notificationService;
         }
 
         private const string ProjectOwnerRole = "owner";
@@ -1070,6 +1072,18 @@ namespace Web.Controllers
 
                 await transaction.CommitAsync();
 
+                try
+                {
+                    await _notificationService.PublishAsync(new NotificationEvent
+                    {
+                        Type = NotificationTypes.ProjectLogCreated,
+                        ActorUserID = user.Id,
+                        ProjectID = newProjectLog.ProjectID,
+                        ProjectLogID = newProjectLog.LogID
+                    });
+                }
+                catch (Exception) { }
+
                 return Ok(new
                 {
                     result = new
@@ -1198,113 +1212,23 @@ namespace Web.Controllers
             _dbContext.ProjectComments.Add(newComment);
             await _dbContext.SaveChangesAsync();
 
-            // Send email notification if this comment is a reply
+            // Publish notification if this comment is a reply
             if (parentComment != null && parentComment.UserID != userId)
             {
                 try
                 {
-                    // Get the user who wrote the parent comment
-                    var parentCommentUser = await _dbContext.Users
-                        .SingleOrDefaultAsync(u => u.Id == parentComment.UserID);
-
-                    if (parentCommentUser != null 
-                        && parentCommentUser.ReceiveCommentReplyEmails 
-                        && !string.IsNullOrWhiteSpace(parentCommentUser.Email)
-                    )
+                    await _notificationService.PublishAsync(new NotificationEvent
                     {
-                        // Collect comment information for email
-                        var recipientName = string.IsNullOrWhiteSpace(parentCommentUser.UserName)
-                            ? "there"
-                            : parentCommentUser.UserName;
-
-                        var replyingUserName = string.IsNullOrWhiteSpace(user.UserName)
-                            ? "Someone"
-                            : user.UserName;
-
-                        var projectName = string.IsNullOrWhiteSpace(project.Name)
-                            ? $"Project #{project.ProjectID}"
-                            : project.Name;
-
-                        var parentCommentPreview = parentComment.Content.Length > 200
-                            ? parentComment.Content.Substring(0, 200) + "..."
-                            : parentComment.Content;
-
-                        var replyPreview = trimmedContent.Length > 200
-                            ? trimmedContent.Substring(0, 200) + "..."
-                            : trimmedContent;
-
-                        var projectRoute = string.IsNullOrWhiteSpace(project.Route)
-                            ? project.ProjectID.ToString()
-                            : project.Route.Trim('/');
-
-                        // Handle link to comment
-                        var clientBaseUrl = _configuration["ClientSettings:BaseUrl"]?.TrimEnd('/');
-
-                        var projectCommentUrl = string.IsNullOrWhiteSpace(clientBaseUrl)
-                            ? null
-                            : $"{clientBaseUrl}/project/{projectRoute}/comment";
-
-                        var linkHtml = string.IsNullOrWhiteSpace(projectCommentUrl)
-                            ? ""
-                            : $@"
-                                <p>
-                                    <a href='{System.Net.WebUtility.HtmlEncode(projectCommentUrl)}'>View the conversation</a>
-                                </p>
-                            ";
-
-                        var linkText = string.IsNullOrWhiteSpace(projectCommentUrl)
-                            ? ""
-                            : $"\n\nView the conversation: {projectCommentUrl}";
-
-                        // Safety HtmlEncoding
-                        var safeRecipientName = System.Net.WebUtility.HtmlEncode(recipientName);
-                        var safeReplyingUserName = System.Net.WebUtility.HtmlEncode(replyingUserName);
-                        var safeProjectName = System.Net.WebUtility.HtmlEncode(projectName);
-                        var safeParentCommentPreview = System.Net.WebUtility.HtmlEncode(parentCommentPreview);
-                        var safeReplyPreview = System.Net.WebUtility.HtmlEncode(replyPreview);
-
-                        // Build email
-                        var subject = $"Someone replied to your comment on AnalySim";
-
-                        var bodyHtml = $@"
-                            <p>Hi {safeRecipientName},</p>
-
-                            <p>
-                                <strong>{safeReplyingUserName}</strong> replied to your comment on 
-                                <strong>{safeProjectName}</strong>.
-                            </p>
-
-                            <p><strong>Your comment:</strong></p>
-                            <blockquote style='border-left: 4px solid #ccc; padding-left: 12px; color: #555;'>
-                                {safeParentCommentPreview}
-                            </blockquote>
-
-                            <p><strong>Their reply:</strong></p>
-                            <blockquote style='border-left: 4px solid #ccc; padding-left: 12px; color: #555;'>
-                                {safeReplyPreview}
-                            </blockquote>
-
-                            {linkHtml}
-                        ";
-
-                        var bodyText =
-                            $"Hi {recipientName},\n\n" +
-                            $"{replyingUserName} replied to your comment on {projectName}.\n\n" +
-                            $"Your comment:\n\"{parentCommentPreview}\"\n\n" +
-                            $"Their reply:\n\"{replyPreview}\"" +
-                            linkText;
-
-                        
-                        await _mailNetService.SendEmail(
-                            parentCommentUser.Email,
-                            recipientName,
-                            subject,
-                            bodyHtml,
-                            bodyText
-                        );
-                    }
+                        Type = NotificationTypes.CommentReply,
+                        ActorUserID = userId,
+                        RecipientUserID = parentComment.UserID,
+                        ProjectID = project.ProjectID,
+                        CommentID = newComment.CommentID,
+                        ParentCommentID = parentComment.CommentID,
+                        ProjectLogID = formdata.ProjectLogID
+                    });
                 }
-                catch (Exception){}
+                catch (Exception) { }
             }
 
             // Return 
@@ -2049,6 +1973,17 @@ namespace Web.Controllers
                 _dbContext.Entry(projectUser).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync();
 
+                try
+                {
+                    await _notificationService.PublishAsync(new NotificationEvent
+                    {
+                        Type = NotificationTypes.ProjectJoined,
+                        ActorUserID = user.Id,
+                        ProjectID = project.ProjectID
+                    });
+                }
+                catch (Exception) { }
+
                 return Ok(new
                 {
                     result = projectUser,
@@ -2069,6 +2004,17 @@ namespace Web.Controllers
 
             _dbContext.Entry(projectUser).Reference(pu => pu.User).Load();
             _dbContext.Entry(projectUser).Reference(pu => pu.Project).Load();
+
+            try
+            {
+                await _notificationService.PublishAsync(new NotificationEvent
+                {
+                    Type = NotificationTypes.ProjectJoined,
+                    ActorUserID = user.Id,
+                    ProjectID = project.ProjectID
+                });
+            }
+            catch (Exception) { }
 
             return Ok(new
             {
@@ -2445,6 +2391,24 @@ namespace Web.Controllers
 
             _dbContext.Entry(projectUser).Reference(pu => pu.User).Load();
             _dbContext.Entry(projectUser).Reference(pu => pu.Project).Load();
+
+            try
+            {
+                await _notificationService.PublishAsync(new NotificationEvent
+                {
+                    Type = NotificationTypes.ProjectMemberAdded,
+                    ActorUserID = membershipRequest.Type == MembershipRequestTypeInvitation
+                        ? membershipRequest.RequesterUserID
+                        : user.Id,
+                    RecipientUserID = projectUser.UserID,
+                    ProjectID = projectUser.ProjectID,
+                    Data = new Dictionary<string, string>
+                    {
+                        ["role"] = projectUser.UserRole
+                    }
+                });
+            }
+            catch (Exception) { }
 
             return Ok(new
             {
@@ -3596,6 +3560,18 @@ namespace Web.Controllers
 
                 await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                try
+                {
+                    await _notificationService.PublishAsync(new NotificationEvent
+                    {
+                        Type = NotificationTypes.ProjectLogUpdated,
+                        ActorUserID = user.Id,
+                        ProjectID = projectLog.ProjectID,
+                        ProjectLogID = projectLog.LogID
+                    });
+                }
+                catch (Exception) { }
 
                 return Ok(new
                 {
