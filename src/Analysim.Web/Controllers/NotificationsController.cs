@@ -21,6 +21,7 @@ namespace Web.Controllers
         private static readonly string[] SupportedNotificationTypes =
         {
             NotificationTypes.CommentReply,
+            NotificationTypes.ProjectInvitationReceived,
             NotificationTypes.ProjectMemberAdded,
             NotificationTypes.ProjectJoined,
             NotificationTypes.ProjectLogCreated,

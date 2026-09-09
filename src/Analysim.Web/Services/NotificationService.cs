@@ -42,6 +42,10 @@ namespace Web.Services
                     await PublishCommentReplyAsync(notificationEvent);
                     break;
 
+                case NotificationTypes.ProjectInvitationReceived:
+                    await PublishProjectInvitationReceivedAsync(notificationEvent);
+                    break;
+
                 case NotificationTypes.ProjectMemberAdded:
                     await PublishProjectMemberAddedAsync(notificationEvent);
                     break;
@@ -102,6 +106,43 @@ namespace Web.Services
                     data["replyPreview"],
                     BuildAbsoluteLink(link)
                 )
+            );
+        }
+
+        private async Task PublishProjectInvitationReceivedAsync(NotificationEvent notificationEvent)
+        {
+            if (!notificationEvent.ProjectID.HasValue || !notificationEvent.RecipientUserID.HasValue)
+                return;
+
+            var project = await _dbContext.Projects
+                .AsNoTracking()
+                .SingleOrDefaultAsync(p => p.ProjectID == notificationEvent.ProjectID.Value);
+
+            if (project == null)
+                return;
+
+            var recipientUserName = await _dbContext.Users
+                .AsNoTracking()
+                .Where(u => u.Id == notificationEvent.RecipientUserID.Value)
+                .Select(u => u.UserName)
+                .SingleOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(recipientUserName))
+                return;
+
+            var actorName = await GetUserDisplayNameAsync(notificationEvent.ActorUserID, "Someone");
+            var projectName = GetProjectName(project);
+            var link = BuildProfileInvitesLink(recipientUserName);
+            var title = "Project invitation";
+            var body = $"{actorName} invited you to join {projectName}.";
+
+            await CreateAndSendAsync(
+                notificationEvent,
+                new[] { notificationEvent.RecipientUserID.Value },
+                title,
+                body,
+                link,
+                notificationEvent.Data
             );
         }
 
@@ -360,6 +401,13 @@ namespace Web.Services
             return string.IsNullOrWhiteSpace(tab)
                 ? $"/project/{route}"
                 : $"/project/{route}/{tab}";
+        }
+
+        private static string BuildProfileInvitesLink(string username)
+        {
+            return string.IsNullOrWhiteSpace(username)
+                ? null
+                : $"/profile/{WebUtility.UrlEncode(username)}?tab=invites";
         }
 
         private string BuildAbsoluteLink(string relativeLink)

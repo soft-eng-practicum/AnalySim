@@ -331,6 +331,8 @@ export class ProfileSettingComponent implements OnInit {
     switch (type) {
       case UserNotificationTypes.CommentReply:
         return 'Comment replies';
+      case UserNotificationTypes.ProjectInvitationReceived:
+        return 'Project invitations';
       case UserNotificationTypes.ProjectMemberAdded:
         return 'Project member additions';
       case UserNotificationTypes.ProjectJoined:
@@ -348,6 +350,8 @@ export class ProfileSettingComponent implements OnInit {
     switch (type) {
       case UserNotificationTypes.CommentReply:
         return 'Replies to comments on projects and project updates.';
+      case UserNotificationTypes.ProjectInvitationReceived:
+        return 'When you are invited to join a project.';
       case UserNotificationTypes.ProjectMemberAdded:
         return 'When you are added to a project.';
       case UserNotificationTypes.ProjectJoined:

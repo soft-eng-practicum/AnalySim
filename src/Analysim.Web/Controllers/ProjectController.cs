@@ -2335,6 +2335,22 @@ namespace Web.Controllers
             invitation = await ProjectMembershipRequestsWithUsers()
                 .SingleAsync(pmr => pmr.ProjectMembershipRequestID == invitation.ProjectMembershipRequestID);
 
+            try
+            {
+                await _notificationService.PublishAsync(new NotificationEvent
+                {
+                    Type = NotificationTypes.ProjectInvitationReceived,
+                    ActorUserID = owner.Id,
+                    RecipientUserID = targetUser.Id,
+                    ProjectID = project.ProjectID,
+                    Data = new Dictionary<string, string>
+                    {
+                        ["membershipRequestID"] = invitation.ProjectMembershipRequestID.ToString()
+                    }
+                });
+            }
+            catch (Exception) { }
+
             return Ok(new
             {
                 result = invitation,
@@ -2392,23 +2408,24 @@ namespace Web.Controllers
             _dbContext.Entry(projectUser).Reference(pu => pu.User).Load();
             _dbContext.Entry(projectUser).Reference(pu => pu.Project).Load();
 
-            try
+            if (membershipRequest.Type != MembershipRequestTypeInvitation)
             {
-                await _notificationService.PublishAsync(new NotificationEvent
+                try
                 {
-                    Type = NotificationTypes.ProjectMemberAdded,
-                    ActorUserID = membershipRequest.Type == MembershipRequestTypeInvitation
-                        ? membershipRequest.RequesterUserID
-                        : user.Id,
-                    RecipientUserID = projectUser.UserID,
-                    ProjectID = projectUser.ProjectID,
-                    Data = new Dictionary<string, string>
+                    await _notificationService.PublishAsync(new NotificationEvent
                     {
-                        ["role"] = projectUser.UserRole
-                    }
-                });
+                        Type = NotificationTypes.ProjectMemberAdded,
+                        ActorUserID = user.Id,
+                        RecipientUserID = projectUser.UserID,
+                        ProjectID = projectUser.ProjectID,
+                        Data = new Dictionary<string, string>
+                        {
+                            ["role"] = projectUser.UserRole
+                        }
+                    });
+                }
+                catch (Exception) { }
             }
-            catch (Exception) { }
 
             return Ok(new
             {

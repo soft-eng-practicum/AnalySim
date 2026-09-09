@@ -30,6 +30,7 @@ export interface UserNotificationPreference {
 
 export const UserNotificationTypes = {
   CommentReply: 'comment.reply',
+  ProjectInvitationReceived: 'project.invitation.received',
   ProjectMemberAdded: 'project.member.added',
   ProjectJoined: 'project.joined',
   ProjectLogCreated: 'project.log.created',

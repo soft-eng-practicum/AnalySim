@@ -212,6 +212,8 @@ export class NavbarComponent implements OnInit {
     switch (type) {
       case 'comment.reply':
         return 'fa-comment';
+      case 'project.invitation.received':
+        return 'fa-envelope-open-text';
       case 'project.member.added':
       case 'project.joined':
         return 'fa-user-plus';

@@ -34,16 +34,23 @@ export class ProfileComponent implements OnInit {
   tabActive: boolean[] = [true, false, false, false]
   showError: boolean
   requestActionID: number = null
+  requestedTab: string = null
 
   currentUser: User = null
 
 
   async ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.requestedTab = params["tab"]
+      this.applyRequestedTab()
+    })
+
     if (this.accountService.checkLoginStatus()) {
       await this.accountService.currentUser.then((x) => this.currentUser$ = x)
       this.currentUser$.subscribe(x => {
         this.currentUser = x
         this.loadMembershipRequests()
+        this.applyRequestedTab()
       })
     }
 
@@ -68,6 +75,7 @@ export class ProfileComponent implements OnInit {
             this.loadFollower(result)
             this.loadMembershipRequests()
             this.profileImage()
+            this.applyRequestedTab()
           }, error => {
             this.showError = true
           })
@@ -104,6 +112,12 @@ export class ProfileComponent implements OnInit {
         this.tabActive[i] = true
       }
     });
+  }
+
+  private applyRequestedTab() {
+    if (this.requestedTab == "invites" && this.isOwnProfile) {
+      this.tabActive = [false, false, false, true]
+    }
   }
 
   followUser() {
