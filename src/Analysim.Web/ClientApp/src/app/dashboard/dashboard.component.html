@@ -1,29 +1,320 @@
-<!-- Container Start -->
-<div class="container-fluid my-5" *ngIf="(currentUser$ | async) as currentUser">
-    <!-- Row Start -->
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="row">
-                <!-- Profile Description Column Start -->
-                <div class="col-md-4">
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <app-dashboard-quickstart [currentUser]="currentUser"></app-dashboard-quickstart>
-                        </div>        
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <app-dashboard-following [currentUser]="currentUser"></app-dashboard-following>
-                        </div>
-                    </div>
-                </div> <!-- Profile Description Column End -->
-                <!-- Profile Follow List Column Start -->
-                <div class="col-md-8">
-                        <app-dashboard-social></app-dashboard-social>  
-                </div> <!-- Profile Follow List Column End -->
-            </div>
+<main class="dashboard-shell">
+  <header class="dashboard-header">
+    <div>
+      <h1>Dashboard</h1>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="primary-action" (click)="goToCreateProject()">
+        <i class="fa fa-plus"></i>
+        New Project
+      </button>
+      <button type="button" class="secondary-action" (click)="goToExplorePublicProjects()">
+        <i class="fa fa-compass"></i>
+        Explore
+      </button>
+    </div>
+  </header>
+
+  <div class="dashboard-grid" *ngIf="!isLoading; else loadingState">
+    <section class="metric-panel">
+      <div class="panel-strip"></div>
+      <div class="card-heading">
+        <span class="card-icon card-icon-overview">
+          <i class="fa fa-chart-line" aria-hidden="true"></i>
+        </span>
+        <h2>Overview</h2>
+      </div>
+
+      <div class="metric-row">
+        <i class="fa fa-project-diagram"></i>
+        <span>Total Projects</span>
+        <strong>{{ overview?.totalProjects || 0 }}</strong>
+      </div>
+      <div class="metric-row">
+        <i class="fa fa-file"></i>
+        <span>Data Files</span>
+        <strong>{{ overview?.totalDataFiles || 0 }}</strong>
+      </div>
+      <div class="metric-row">
+        <i class="fa fa-book-open"></i>
+        <span>Notebooks</span>
+        <strong>{{ overview?.totalNotebooks || 0 }}</strong>
+      </div>
+      <div class="metric-row">
+        <i class="fa fa-save"></i>
+        <span>Storage</span>
+        <strong>{{ storageLabel }}</strong>
+      </div>
+    </section>
+
+    <section class="metric-panel">
+      <div class="panel-strip"></div>
+      <div class="card-heading">
+        <span class="card-icon card-icon-impact">
+          <i class="fa fa-users" aria-hidden="true"></i>
+        </span>
+        <h2>Research Impact</h2>
+      </div>
+
+      <div class="metric-row">
+        <i class="fa fa-thumbs-up"></i>
+        <span>Recommends</span>
+        <strong>{{ researchImpact?.recommends || 0 }}</strong>
+      </div>
+      <div class="metric-row">
+        <i class="fa fa-user-plus"></i>
+        <span>Followers</span>
+        <strong>{{ researchImpact?.followers || 0 }}</strong>
+      </div>
+      <div class="metric-row">
+        <i class="fa fa-users"></i>
+        <span>Members</span>
+        <strong>{{ researchImpact?.members || 0 }}</strong>
+      </div>
+      <div class="metric-row">
+        <i class="fa fa-code-branch"></i>
+        <span>Forks</span>
+        <strong>{{ researchImpact?.forks || 0 }}</strong>
+      </div>
+    </section>
+
+    <section class="popular-panel">
+      <div class="panel-strip"></div>
+      <div class="card-heading">
+        <span class="card-icon card-icon-popular">
+          <i class="fa fa-fire" aria-hidden="true"></i>
+        </span>
+        <h2>Popular Projects</h2>
+      </div>
+
+      <div class="popular-list" *ngIf="popularProjects.length > 0; else emptyPopular">
+        <a
+          class="popular-item"
+          *ngFor="let project of popularProjects"
+          [routerLink]="projectLink(project)"
+        >
+          <span>{{ project.name }}</span>
+          <span class="score-track">
+            <span class="score-fill" [style.width.%]="project.popularityScore"></span>
+          </span>
+          <strong>{{ project.popularityScore }}</strong>
+        </a>
+      </div>
+
+      <ng-template #emptyPopular>
+        <p class="empty-note">No public projects yet.</p>
+      </ng-template>
+    </section>
+
+    <section class="activity-panel">
+      <div class="panel-strip"></div>
+      <div class="card-heading">
+        <span class="card-icon card-icon-activity">
+          <i class="fa fa-chart-bar" aria-hidden="true"></i>
+        </span>
+        <h2>Activity</h2>
+      </div>
+
+      <div class="activity-chart" *ngIf="activity?.months?.length">
+        <div class="activity-month" *ngFor="let month of activity.months">
+          <div class="activity-bars">
+            <span
+              class="bar bar-created"
+              [style.height.px]="activityBarHeight(month.created)"
+              [title]="month.month + ' ' + month.year + ' created: ' + month.created"
+            ></span>
+            <span
+              class="bar bar-updated"
+              [style.height.px]="activityBarHeight(month.updated)"
+              [title]="month.month + ' ' + month.year + ' updated: ' + month.updated"
+            ></span>
+          </div>
+          <span class="month-label">{{ month.month }}</span>
         </div>
-        
-    </div> <!-- Row End -->
-</div> <!-- Container End -->
-    
+      </div>
+
+      <div class="activity-legend">
+        <span><i class="legend-dot created"></i>Created</span>
+        <span><i class="legend-dot updated"></i>Updated</span>
+      </div>
+      <p class="growth-rate">Growth Rate: <strong>{{ growthRateLabel }}</strong></p>
+    </section>
+
+    <section class="results-panel">
+      <div class="panel-strip"></div>
+      <div class="results-toolbar">
+        <div class="card-heading toolbar-heading">
+          <span class="card-icon card-icon-results">
+            <i class="fa fa-folder-open" aria-hidden="true"></i>
+          </span>
+          <h2>{{ activeTab === 'projects' ? 'Projects' : 'Datasets' }}</h2>
+        </div>
+
+        <div class="tabs">
+          <button
+            type="button"
+            [class.active]="activeTab === 'projects'"
+            (click)="switchTab('projects')"
+          >
+            Projects
+          </button>
+          <button
+            type="button"
+            [class.active]="activeTab === 'datasets'"
+            (click)="switchTab('datasets')"
+          >
+            Datasets
+          </button>
+        </div>
+
+        <div class="sort-tools">
+          <select [(ngModel)]="sortBy" (change)="applyFilters()" aria-label="Sort projects">
+            <option value="lastUpdated">Last Updated</option>
+            <option value="dateCreated">Created</option>
+            <option value="name">Name</option>
+            <option value="popularity">Popularity</option>
+            <option value="followers">Followers</option>
+            <option value="members">Members</option>
+            <option value="forks">Forks</option>
+          </select>
+          <button type="button" class="sort-direction" (click)="sortDirection = sortDirection === 'desc' ? 'asc' : 'desc'; applyFilters()">
+            <i class="fa" [class.fa-sort-amount-down]="sortDirection === 'desc'" [class.fa-sort-amount-up]="sortDirection === 'asc'"></i>
+          </button>
+          <span>{{ activeTab === 'projects' ? totalProjectResults : datasetPlaceholders.length }} Results</span>
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'projects'" class="result-list">
+        <div class="inline-loader" *ngIf="isProjectListLoading">Loading projects...</div>
+
+        <article class="result-item" *ngFor="let project of projects" (click)="navigateToProject(project)">
+          <div class="file-badge project-badge">
+            <i class="fa fa-folder-open"></i>
+          </div>
+
+          <div class="result-copy">
+            <h3>{{ project.name }}</h3>
+            <p>{{ project.description || 'No description available.' }}</p>
+            <div class="tag-row" *ngIf="project.tags?.length">
+              <span *ngFor="let tag of project.tags">{{ tag }}</span>
+            </div>
+          </div>
+
+          <div class="result-metrics">
+            <span><i class="fa fa-file"></i>{{ project.dataFileCount }} files</span>
+            <span><i class="fa fa-book-open"></i>{{ project.notebookCount }} notebooks</span>
+            <span><i class="fa fa-star"></i>{{ project.popularityScore }} popularity</span>
+          </div>
+
+          <div class="result-status">
+            <span><i class="fa fa-globe"></i>{{ project.visibility }}</span>
+            <span><i class="fa fa-users"></i>{{ project.membersCount }} members</span>
+            <span><i class="fa fa-clock"></i>{{ project.lastUpdated | date:'mediumDate' }}</span>
+          </div>
+        </article>
+
+        <div
+          class="empty-projects"
+          *ngIf="shouldShowFirstProjectEmptyState"
+        >
+          <div class="empty-projects-icon">
+            <i class="fa fa-folder-plus" aria-hidden="true"></i>
+          </div>
+          <h3>You don’t have any projects yet.</h3>
+          <p>Create your first project to start organizing datasets and running analyses.</p>
+          <button type="button" class="empty-create-button" (click)="goToCreateProject()">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            Create Project
+          </button>
+        </div>
+
+        <div class="empty-list" *ngIf="!isProjectListLoading && hasAnyProjects && projects.length === 0">
+          No projects match these filters.
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'datasets'" class="result-list placeholder-list">
+        <article class="result-item placeholder" *ngFor="let dataset of datasetPlaceholders">
+          <div class="file-badge">
+            <i class="fa fa-file-csv"></i>
+          </div>
+
+          <div class="result-copy">
+            <h3>{{ dataset.name }}</h3>
+            <p>{{ dataset.description }}</p>
+          </div>
+
+          <div class="result-metrics">
+            <span><i class="fa fa-database"></i>{{ dataset.size }}</span>
+            <span><i class="fa fa-table"></i>{{ dataset.rows }}</span>
+            <span><i class="fa fa-columns"></i>{{ dataset.columns }}</span>
+          </div>
+
+          <div class="result-status">
+            <span><i class="fa fa-globe"></i>{{ dataset.visibility }}</span>
+            <span><i class="fa fa-folder"></i>{{ dataset.usage }}</span>
+            <span><i class="fa fa-clock"></i>{{ dataset.updated }}</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <aside class="filters-panel">
+      <div class="panel-strip"></div>
+      <div class="card-heading">
+        <span class="card-icon card-icon-filters">
+          <i class="fa fa-filter" aria-hidden="true"></i>
+        </span>
+        <h2>Filters</h2>
+      </div>
+
+      <label class="search-field">
+        <span class="filter-search-icon">
+          <i class="fa fa-search" aria-hidden="true"></i>
+        </span>
+        <input
+          type="text"
+          placeholder="Search projects"
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="applyFilters()"
+        />
+      </label>
+
+      <select [(ngModel)]="visibilityFilter" (change)="applyFilters()" [disabled]="activeTab === 'datasets'">
+        <option value="">All Visibility</option>
+        <option value="public">Public</option>
+        <option value="private">Private</option>
+      </select>
+
+      <input
+        type="text"
+        placeholder="Tag"
+        [(ngModel)]="tagFilter"
+        (keyup.enter)="applyFilters()"
+        [disabled]="activeTab === 'datasets'"
+      />
+
+      <select disabled>
+        <option>Any Size</option>
+      </select>
+
+      <select disabled>
+        <option>Last 30 Days</option>
+      </select>
+
+      <button type="button" class="filter-button" (click)="applyFilters()" [disabled]="activeTab === 'datasets'">Apply</button>
+      <button type="button" class="filter-button secondary" (click)="resetFilters()" [disabled]="activeTab === 'datasets'">Reset</button>
+    </aside>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+</main>
+
+<ng-template #loadingState>
+  <div class="dashboard-loading">
+    Loading dashboard...
+  </div>
+</ng-template>

@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { AccountService } from '../services/account.service';
 import { ProjectService } from '../services/project.service';
 import { Observable } from 'rxjs';
 import { User } from '../interfaces/user';
 import { Project } from '../interfaces/project';
 import { NotificationService } from '../services/notification.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { ExploreService } from '../services/explore.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar',
@@ -23,12 +24,16 @@ export class NavbarComponent implements OnInit {
     public notfi: NotificationService,
     private router: Router,
     private route: ActivatedRoute,
+    private elementRef: ElementRef,
   ) {}
 
   searchText: string = '';
   termParam: string[];
   projects: Project[];
   profileImageUrl: SafeUrl;
+  sectionTitle = 'Home';
+  isMenuOpen = false;
+  isProfileMenuOpen = false;
 
   loginStatus$: Observable<boolean>;
   currentUser$: Observable<User> = null;
@@ -36,6 +41,16 @@ export class NavbarComponent implements OnInit {
   isAdmin$: Observable<boolean>;
 
   async ngOnInit() {
+    this.updateSectionTitle(this.router.url);
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      )
+      .subscribe((event) => {
+        this.updateSectionTitle(event.urlAfterRedirects);
+        this.closeMenus();
+      });
+
     this.loginStatus$ = this.accountService.isLoggedIn;
     this.currentUser$ = await this.accountService.currentUser;
     this.currentUser$.subscribe((x) => {
@@ -106,6 +121,8 @@ export class NavbarComponent implements OnInit {
   }
 
   onSubmit() {
+    this.closeMenus();
+
     const rawTerm = this.searchText || '';
 
     const searchTerms: string[] = Array.from(
@@ -135,6 +152,8 @@ export class NavbarComponent implements OnInit {
   }
 
   navigateHome() {
+    this.closeMenus();
+
     if (this.accountService.checkLoginStatus()) {
       this.router.navigate(['/dashboard']);
     } else {
@@ -143,6 +162,96 @@ export class NavbarComponent implements OnInit {
   }
 
   onLogout() {
+    this.closeMenus();
     this.accountService.logout();
+  }
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+    this.isProfileMenuOpen = false;
+  }
+
+  toggleProfileMenu() {
+    this.isProfileMenuOpen = !this.isProfileMenuOpen;
+    this.isMenuOpen = false;
+  }
+
+  closeMenu() {
+    this.isMenuOpen = false;
+  }
+
+  closeProfileMenu() {
+    this.isProfileMenuOpen = false;
+  }
+
+  closeMenus() {
+    this.closeMenu();
+    this.closeProfileMenu();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as Node;
+
+    if (!this.elementRef.nativeElement.contains(target)) {
+      this.closeMenus();
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    this.closeMenus();
+  }
+
+  private updateSectionTitle(url: string) {
+    const parsedUrl = this.router.parseUrl(url || '/home');
+    const segments = parsedUrl.root.children['primary']?.segments || [];
+    const firstSegment = segments.length > 0 ? segments[0].path : 'home';
+
+    if (firstSegment === 'project') {
+      if (segments.length >= 3) {
+        this.sectionTitle = this.formatSegment(segments[2].path);
+      } else if (segments.length === 2) {
+        this.sectionTitle = 'Project';
+      } else {
+        this.sectionTitle = 'Projects';
+      }
+      return;
+    }
+
+    if (firstSegment === 'profile' && segments.length >= 2) {
+      this.sectionTitle = this.formatSegment(segments[1].path);
+      return;
+    }
+
+    const sectionTitles: { [key: string]: string } = {
+      home: 'Home',
+      dashboard: 'Dashboard',
+      explore: 'Explore',
+      login: 'Login',
+      register: 'Register',
+      aboutus: 'About',
+      contactus: 'Contact',
+      admin: 'Admin',
+      setting: 'Settings',
+      'email-confirmation': 'Email Confirmation',
+      'email-resend-verification': 'Email Confirmation',
+      emailForgotPass: 'Password Reset',
+      resetPassword: 'Password Reset',
+      '404': 'Not Found',
+    };
+
+    this.sectionTitle =
+      sectionTitles[firstSegment] || this.toTitleCase(firstSegment);
+  }
+
+  private toTitleCase(value: string): string {
+    return value
+      .replace(/[-_]/g, ' ')
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  private formatSegment(value: string): string {
+    return decodeURIComponent(value).replace(/[-_]/g, ' ');
   }
 }

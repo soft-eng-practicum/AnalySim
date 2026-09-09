@@ -246,3 +246,9 @@ src/Analysim.Web/Logs
 
 #
 .DS_Store
+
+# JupyterLite build artifacts
+src/Analysim.Web/ClientApp/src/assets/jupyter/venv/
+src/Analysim.Web/ClientApp/src/assets/jupyter/analysim-jupyterlite-bridge/labextension/
+src/Analysim.Web/ClientApp/src/assets/jupyter/analysim-jupyterlite-bridge/lib/
+src/Analysim.Web/ClientApp/.jupyterlite.doit.db
