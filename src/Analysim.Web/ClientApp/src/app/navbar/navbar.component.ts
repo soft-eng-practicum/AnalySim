@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { AccountService } from '../services/account.service';
 import { ProjectService } from '../services/project.service';
 import { Observable } from 'rxjs';
@@ -176,6 +176,16 @@ export class NavbarComponent implements OnInit {
 
     if (this.isNotificationMenuOpen) {
       this.loadNotifications();
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeNotificationsOnOutsideClick(event: MouseEvent) {
+    const target = event.target as Element | null;
+    const clickedInsideNotifications = !!target?.closest('.notification-nav-item');
+
+    if (this.isNotificationMenuOpen && !clickedInsideNotifications) {
+      this.isNotificationMenuOpen = false;
     }
   }
 
