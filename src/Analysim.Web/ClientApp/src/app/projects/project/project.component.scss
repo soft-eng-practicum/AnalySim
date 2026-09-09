@@ -305,55 +305,65 @@
       /* === More / Less pill === */
       .more-block {
         margin-right: 20px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: flex-end;
+        position: relative;
+        display: inline-block;
+        flex: 0 0 auto;
 
         height: 38px;
+        width: 96px;
         box-sizing: border-box;
 
         border: var(--border-w-1) var(--border-style) var(--border-color);
         border-radius: var(--nav-link-radius);
 
-        padding-left: var(--space-2);
-        padding-right: var(--space-2);
-
         white-space: nowrap;
       }
 
-      /* The actions expand LEFT from the right edge */
+      /* Dropdown actions stay out of the toolbar layout. */
       .more-actions {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--space-2);
+        position: absolute;
+        right: 0;
+        top: calc(100% + 6px);
+        z-index: 20;
 
-        max-width: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+
+        min-width: 210px;
+        padding: 6px 0;
+
+        background: #fff;
+        border: var(--border-w-1) var(--border-style) var(--border-color);
+        border-radius: var(--nav-link-radius);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+
+        visibility: hidden;
         opacity: 0;
-        transform: translateX(8px);
-        overflow: hidden;
+        transform: translateY(-4px);
         pointer-events: none;
 
         transition:
-          max-width 240ms ease,
           opacity 180ms ease,
-          transform 240ms ease;
+          transform 180ms ease,
+          visibility 180ms ease;
       }
 
       .more-actions.is-open {
-        max-width: 520px;
+        visibility: visible;
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(0);
         pointer-events: auto;
       }
 
-      /* Links inside “More” */
+      /* Links inside More */
       .more-link {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        height: 100%;
+        min-height: 34px;
 
-        padding: 0 var(--space-1);
-        border-radius: var(--nav-link-radius);
+        padding: 7px 14px;
 
         color: var(--link-on-light);
         cursor: pointer;
@@ -362,8 +372,9 @@
         transition: var(--motion-nav);
 
         &:hover {
+          background-color: var(--background-color-tertiary);
           color: var(--link-hover-color);
-          text-decoration: underline;
+          text-decoration: none;
         }
 
         &.is-disabled {
@@ -375,10 +386,11 @@
       .more-toggle {
         display: inline-flex;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: center;
 
         height: 100%;
-        padding: 0;
+        width: 100%;
+        padding: 0 var(--space-2);
 
         border: none;
         background: transparent;
@@ -387,7 +399,7 @@
         cursor: pointer;
 
         min-width: 74px;
-        text-align: right;
+        text-align: center;
 
         transition: color var(--motion-fast);
 
@@ -402,7 +414,6 @@
         align-items: center;
         gap: var(--space-1);
         line-height: 1;
-        padding-right: var(--space-2);
       }
 
       .is-hidden {

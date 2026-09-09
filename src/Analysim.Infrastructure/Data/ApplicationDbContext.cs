@@ -258,6 +258,37 @@ namespace Infrastructure.Data
                         .WithOne(pp => pp.Project)
                         .HasForeignKey(pp => pp.ProjectID)
                         .OnDelete(DeleteBehavior.Cascade);
+
+            // One To Many Relationship (Project -> ProjectMembershipRequest)
+            modelBuilder.Entity<Project>()
+                        .HasMany(p => p.ProjectMembershipRequests)
+                        .WithOne(pmr => pmr.Project)
+                        .HasForeignKey(pmr => pmr.ProjectID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectMembershipRequest>()
+                        .HasOne(pmr => pmr.RequesterUser)
+                        .WithMany()
+                        .HasForeignKey(pmr => pmr.RequesterUserID)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectMembershipRequest>()
+                        .HasOne(pmr => pmr.TargetUser)
+                        .WithMany()
+                        .HasForeignKey(pmr => pmr.TargetUserID)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectMembershipRequest>()
+                        .HasOne(pmr => pmr.CreatedByUser)
+                        .WithMany()
+                        .HasForeignKey(pmr => pmr.CreatedByUserID)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectMembershipRequest>()
+                        .HasIndex(pmr => new { pmr.ProjectID, pmr.TargetUserID, pmr.Type, pmr.Status });
+
+            modelBuilder.Entity<ProjectMembershipRequest>()
+                        .HasIndex(pmr => pmr.CreatedByUserID);
         }
 
 
@@ -279,5 +310,6 @@ namespace Infrastructure.Data
         public DbSet<ProjectLog> ProjectLogs { get; set; }
 
         public DbSet<Publication> Publications { get; set; }
+        public DbSet<ProjectMembershipRequest> ProjectMembershipRequests { get; set; }
     }
 }

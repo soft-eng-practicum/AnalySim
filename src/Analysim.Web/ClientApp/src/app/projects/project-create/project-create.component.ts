@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Project } from 'src/app/interfaces/project';
 import { ProjectUser } from 'src/app/interfaces/project-user';
 import { ProjectTag } from 'src/app/interfaces/project-tag';
+import { ProjectMembershipRequest } from 'src/app/interfaces/project-membership-request';
 
 @Component({
   selector: 'app-project-create',
@@ -14,6 +15,7 @@ import { ProjectTag } from 'src/app/interfaces/project-tag';
 export class ProjectCreateComponent implements OnInit {
 
   project : Project = null
+  membershipRequests : ProjectMembershipRequest[] = []
 
   constructor(private projectService : ProjectService,
     private formBuilder : FormBuilder,
@@ -34,6 +36,10 @@ export class ProjectCreateComponent implements OnInit {
 
   updateProjectUsers(projectUsers : ProjectUser[]){
     this.project.projectUsers = projectUsers
+  }
+
+  addMembershipRequest(request : ProjectMembershipRequest){
+    this.membershipRequests.push(request)
   }
 
 }

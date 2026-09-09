@@ -12,24 +12,9 @@ export class ProjectUserComponent implements OnInit {
   constructor(private projectService : ProjectService) { }
 
   @Input() projectUser : ProjectUser
-  @Output() updatedUser = new EventEmitter<ProjectUser>()
   @Output() removedUser = new EventEmitter<ProjectUser>()
 
-  roles: any[] = ['member', 'admin'];
-
   ngOnInit(): void {
-  }
-
-  updateUser(event : Event){
-    var role = (event.target as HTMLSelectElement).value;
-    this.projectUser.userRole = role.toLowerCase();
-    this.projectService.updateUser(this.projectUser).subscribe(
-      result => {
-        this.updatedUser.emit(this.projectUser)
-      }, error =>{
-        console.log(error)
-      }
-    )
   }
 
   deleteUser(){

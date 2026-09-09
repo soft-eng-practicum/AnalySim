@@ -54,6 +54,16 @@ namespace Web.Controllers
             _mailNetService = mailNetService;
         }
 
+        private const string ProjectOwnerRole = "owner";
+        private const string ProjectMemberRole = "member";
+        private const string ProjectFollowerRole = "follower";
+        private const string MembershipRequestTypeJoin = "join_request";
+        private const string MembershipRequestTypeInvitation = "invitation";
+        private const string MembershipRequestStatusPending = "pending";
+        private const string MembershipRequestStatusAccepted = "accepted";
+        private const string MembershipRequestStatusRejected = "rejected";
+        private const string MembershipRequestStatusCancelled = "cancelled";
+
         // Image Helpers
         private static string BuildImageDataUrl(byte[] imageBytes, string extension)
         {
@@ -80,6 +90,62 @@ namespace Web.Controllers
                 ".svg" => "image/svg+xml",
                 _ => "image/jpeg"
             };
+        }
+
+        private bool TryGetCurrentUserId(out int userId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return int.TryParse(userIdClaim, out userId);
+        }
+
+        private async Task<User> GetCurrentUserAsync(int userId)
+        {
+            return await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+        }
+
+        private async Task<bool> IsProjectOwnerAsync(int projectID, int userID)
+        {
+            return await _dbContext.ProjectUsers
+                .AnyAsync(pu =>
+                    pu.ProjectID == projectID &&
+                    pu.UserID == userID &&
+                    pu.UserRole == ProjectOwnerRole);
+        }
+
+        private IQueryable<ProjectMembershipRequest> ProjectMembershipRequestsWithUsers()
+        {
+            return _dbContext.ProjectMembershipRequests
+                .Include(pmr => pmr.Project)
+                .Include(pmr => pmr.RequesterUser)
+                .Include(pmr => pmr.TargetUser)
+                .Include(pmr => pmr.CreatedByUser);
+        }
+
+        private async Task<ProjectUser> AddProjectMemberAsync(int projectID, int userID)
+        {
+            var projectUser = await _dbContext.ProjectUsers.FindAsync(userID, projectID);
+
+            if (projectUser == null)
+            {
+                projectUser = new ProjectUser
+                {
+                    ProjectID = projectID,
+                    UserID = userID,
+                    UserRole = ProjectMemberRole,
+                    IsFollowing = false
+                };
+
+                await _dbContext.ProjectUsers.AddAsync(projectUser);
+                return projectUser;
+            }
+
+            if (projectUser.UserRole == ProjectFollowerRole)
+            {
+                projectUser.UserRole = ProjectMemberRole;
+                _dbContext.Entry(projectUser).State = EntityState.Modified;
+            }
+
+            return projectUser;
         }
 
         #region GET REQUEST
@@ -1920,80 +1986,6 @@ namespace Web.Controllers
 
         /*
          * Type : POST
-         * URL : /api/project/adduser
-         * Param : ProjectUserViewModel
-         * Description: Add User To Project
-         */
-        [Authorize]
-        [HttpPost("[action]")]
-        public async Task<IActionResult> AddUser([FromForm] ProjectUserVM formdata)
-        {
-            // Find User
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
-            {
-                return Unauthorized(new { message = "Invalid user identifier." });
-            }
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
-            if (user == null) return NotFound(new { message = "User Not Found" });
-
-            bool isOwner = await _dbContext.Projects
-                .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID == formdata.ProjectID &&
-                    aup.UserRole == "owner"));
-
-            if (!isOwner)   return Unauthorized(new { message = "You are not the owner of the project" });
-            
-            // Find Tag In Database
-            var projectUser = _dbContext.ProjectUsers.Find(formdata.UserID, formdata.ProjectID);
-
-            // Update Project User If Exist
-            if (projectUser != null)
-            {
-                // If Project User Is Not Follower Return Error
-                if (projectUser.UserRole != "follower") return Conflict(new { result = formdata, message = "Project User Already Exist" });
-
-                // Add Tag To Project
-                projectUser.UserRole = formdata.UserRole;
-
-                await _dbContext.SaveChangesAsync();
-
-                _dbContext.Entry(projectUser).Reference(pu => pu.User).Load();
-
-                // Return Ok Status
-                return Ok(new
-                {
-                    result = projectUser,
-                    message = "Project User Successfully Updated"
-                });
-            }
-
-            // Create Many To Many Connection
-            projectUser = new ProjectUser
-            {
-                ProjectID = formdata.ProjectID,
-                UserID = formdata.UserID,
-                UserRole = formdata.UserRole,
-                IsFollowing = formdata.IsFollowing
-            };
-
-            // Add To Database And Save Change
-            await _dbContext.ProjectUsers.AddAsync(projectUser);
-            await _dbContext.SaveChangesAsync();
-
-            _dbContext.Entry(projectUser).Reference(pu => pu.User).Load();
-
-            // Return Ok Status
-            return Ok(new
-            {
-                result = projectUser,
-                message = "Project User Successfully Created"
-            });
-        }
-
-        /*
-         * Type : POST
          * URL : /api/project/followproject/{projectID}
          * Description: Follow a project as the authenticated user.
          *
@@ -2156,6 +2148,454 @@ namespace Web.Controllers
             {
                 result = projectUser,
                 message = "Project unfollowed successfully."
+            });
+        }
+
+        /*
+         * Type : GET
+         * URL : /api/project/getprojectmembershiprequests/{projectID}
+         * Description: Get all membership requests for a project. Owner only.
+         */
+        [Authorize]
+        [HttpGet("[action]/{projectID}")]
+        public async Task<IActionResult> GetProjectMembershipRequests([FromRoute] int projectID)
+        {
+            if (projectID <= 0)
+                return BadRequest(new { message = "Invalid project id." });
+
+            if (!TryGetCurrentUserId(out var userId))
+                return Unauthorized(new { message = "Invalid user identifier." });
+
+            var user = await GetCurrentUserAsync(userId);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var project = await _dbContext.Projects.FindAsync(projectID);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            var isOwner = await IsProjectOwnerAsync(projectID, user.Id);
+            if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+
+            var requests = await ProjectMembershipRequestsWithUsers()
+                .Where(pmr => pmr.ProjectID == projectID)
+                .OrderByDescending(pmr => pmr.CreatedAt)
+                .ToListAsync();
+
+            return Ok(new
+            {
+                result = requests,
+                message = "Project membership requests received."
+            });
+        }
+
+        /*
+         * Type : GET
+         * URL : /api/project/getmymembershiprequests
+         * Description: Get current user's join requests and invitations.
+         */
+        [Authorize]
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetMyMembershipRequests()
+        {
+            if (!TryGetCurrentUserId(out var userId))
+                return Unauthorized(new { message = "Invalid user identifier." });
+
+            var user = await GetCurrentUserAsync(userId);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var requests = await ProjectMembershipRequestsWithUsers()
+                .Where(pmr => pmr.TargetUserID == user.Id || pmr.RequesterUserID == user.Id)
+                .OrderByDescending(pmr => pmr.CreatedAt)
+                .ToListAsync();
+
+            return Ok(new
+            {
+                result = requests,
+                message = "Membership requests received."
+            });
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/project/requestjoinproject/{projectID}
+         * Description: Create a pending join request for the authenticated user.
+         */
+        [Authorize]
+        [HttpPost("[action]/{projectID}")]
+        public async Task<IActionResult> RequestJoinProject([FromRoute] int projectID)
+        {
+            if (projectID <= 0)
+                return BadRequest(new { message = "Invalid project id." });
+
+            if (!TryGetCurrentUserId(out var userId))
+                return Unauthorized(new { message = "Invalid user identifier." });
+
+            var user = await GetCurrentUserAsync(userId);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var project = await _dbContext.Projects.FindAsync(projectID);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            var projectUser = await _dbContext.ProjectUsers.FindAsync(user.Id, projectID);
+            if (projectUser != null && projectUser.UserRole != ProjectFollowerRole)
+            {
+                return Conflict(new
+                {
+                    result = projectUser,
+                    message = "You are already a member of this project."
+                });
+            }
+
+            var pendingInvitation = await ProjectMembershipRequestsWithUsers()
+                .SingleOrDefaultAsync(pmr =>
+                    pmr.ProjectID == projectID &&
+                    pmr.TargetUserID == user.Id &&
+                    pmr.Type == MembershipRequestTypeInvitation &&
+                    pmr.Status == MembershipRequestStatusPending);
+
+            if (pendingInvitation != null)
+            {
+                return Conflict(new
+                {
+                    result = pendingInvitation,
+                    message = "You already have a pending invitation for this project."
+                });
+            }
+
+            var existingRequest = await ProjectMembershipRequestsWithUsers()
+                .SingleOrDefaultAsync(pmr =>
+                    pmr.ProjectID == projectID &&
+                    pmr.TargetUserID == user.Id &&
+                    pmr.Type == MembershipRequestTypeJoin &&
+                    pmr.Status == MembershipRequestStatusPending);
+
+            if (existingRequest != null)
+            {
+                return Ok(new
+                {
+                    result = existingRequest,
+                    message = "Join request is already pending."
+                });
+            }
+
+            var joinRequest = new ProjectMembershipRequest
+            {
+                ProjectID = projectID,
+                RequesterUserID = user.Id,
+                TargetUserID = user.Id,
+                CreatedByUserID = user.Id,
+                Type = MembershipRequestTypeJoin,
+                Status = MembershipRequestStatusPending,
+                CreatedAt = DateTimeOffset.UtcNow
+            };
+
+            await _dbContext.ProjectMembershipRequests.AddAsync(joinRequest);
+            await _dbContext.SaveChangesAsync();
+
+            joinRequest = await ProjectMembershipRequestsWithUsers()
+                .SingleAsync(pmr => pmr.ProjectMembershipRequestID == joinRequest.ProjectMembershipRequestID);
+
+            return Ok(new
+            {
+                result = joinRequest,
+                message = "Join request submitted successfully."
+            });
+        }
+
+        /*
+         * Type : POST
+         * URL : /api/project/inviteprojectmember
+         * Param : ProjectMembershipInvitationVM
+         * Description: Create a pending project invitation. Owner only.
+         */
+        [Authorize]
+        [HttpPost("[action]")]
+        public async Task<IActionResult> InviteProjectMember([FromForm] ProjectMembershipInvitationVM formdata)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            if (!TryGetCurrentUserId(out var userId))
+                return Unauthorized(new { message = "Invalid user identifier." });
+
+            var owner = await GetCurrentUserAsync(userId);
+            if (owner == null) return NotFound(new { message = "User Not Found" });
+
+            var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            var isOwner = await IsProjectOwnerAsync(formdata.ProjectID, owner.Id);
+            if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+
+            var targetUser = await _dbContext.Users.FindAsync(formdata.UserID);
+            if (targetUser == null) return NotFound(new { message = "Target user not found." });
+            if (targetUser.Id == owner.Id) return BadRequest(new { message = "Cannot invite yourself." });
+
+            var projectUser = await _dbContext.ProjectUsers.FindAsync(targetUser.Id, formdata.ProjectID);
+            if (projectUser != null && projectUser.UserRole != ProjectFollowerRole)
+            {
+                return Conflict(new
+                {
+                    result = projectUser,
+                    message = "User is already a member of this project."
+                });
+            }
+
+            var pendingJoinRequest = await ProjectMembershipRequestsWithUsers()
+                .SingleOrDefaultAsync(pmr =>
+                    pmr.ProjectID == formdata.ProjectID &&
+                    pmr.TargetUserID == targetUser.Id &&
+                    pmr.Type == MembershipRequestTypeJoin &&
+                    pmr.Status == MembershipRequestStatusPending);
+
+            if (pendingJoinRequest != null)
+            {
+                return Conflict(new
+                {
+                    result = pendingJoinRequest,
+                    message = "User already has a pending join request for this project."
+                });
+            }
+
+            var existingInvitation = await ProjectMembershipRequestsWithUsers()
+                .SingleOrDefaultAsync(pmr =>
+                    pmr.ProjectID == formdata.ProjectID &&
+                    pmr.TargetUserID == targetUser.Id &&
+                    pmr.Type == MembershipRequestTypeInvitation &&
+                    pmr.Status == MembershipRequestStatusPending);
+
+            if (existingInvitation != null)
+            {
+                return Ok(new
+                {
+                    result = existingInvitation,
+                    message = "Project invitation is already pending."
+                });
+            }
+
+            var invitation = new ProjectMembershipRequest
+            {
+                ProjectID = formdata.ProjectID,
+                RequesterUserID = owner.Id,
+                TargetUserID = targetUser.Id,
+                CreatedByUserID = owner.Id,
+                Type = MembershipRequestTypeInvitation,
+                Status = MembershipRequestStatusPending,
+                Message = formdata.Message,
+                CreatedAt = DateTimeOffset.UtcNow
+            };
+
+            await _dbContext.ProjectMembershipRequests.AddAsync(invitation);
+            await _dbContext.SaveChangesAsync();
+
+            invitation = await ProjectMembershipRequestsWithUsers()
+                .SingleAsync(pmr => pmr.ProjectMembershipRequestID == invitation.ProjectMembershipRequestID);
+
+            return Ok(new
+            {
+                result = invitation,
+                message = "Project invitation created successfully."
+            });
+        }
+
+        /*
+         * Type : PUT
+         * URL : /api/project/acceptprojectmembershiprequest/{requestID}
+         * Description: Accept a join request or invitation.
+         */
+        [Authorize]
+        [HttpPut("[action]/{requestID}")]
+        public async Task<IActionResult> AcceptProjectMembershipRequest([FromRoute] int requestID)
+        {
+            if (!TryGetCurrentUserId(out var userId))
+                return Unauthorized(new { message = "Invalid user identifier." });
+
+            var user = await GetCurrentUserAsync(userId);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var membershipRequest = await ProjectMembershipRequestsWithUsers()
+                .SingleOrDefaultAsync(pmr => pmr.ProjectMembershipRequestID == requestID);
+
+            if (membershipRequest == null) return NotFound(new { message = "Membership request not found." });
+            if (membershipRequest.Status != MembershipRequestStatusPending)
+                return Conflict(new { result = membershipRequest, message = "Membership request is not pending." });
+
+            if (membershipRequest.Type == MembershipRequestTypeJoin)
+            {
+                var isOwner = await IsProjectOwnerAsync(membershipRequest.ProjectID, user.Id);
+                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+            }
+            else if (membershipRequest.Type == MembershipRequestTypeInvitation)
+            {
+                if (membershipRequest.TargetUserID != user.Id)
+                    return Unauthorized(new { message = "Only the invited user can accept this invitation." });
+            }
+            else
+            {
+                return BadRequest(new { message = "Invalid membership request type." });
+            }
+
+            await using var tx = await _dbContext.Database.BeginTransactionAsync();
+
+            var projectUser = await AddProjectMemberAsync(membershipRequest.ProjectID, membershipRequest.TargetUserID);
+            membershipRequest.Status = MembershipRequestStatusAccepted;
+            membershipRequest.RespondedAt = DateTimeOffset.UtcNow;
+            _dbContext.Entry(membershipRequest).State = EntityState.Modified;
+
+            await _dbContext.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            _dbContext.Entry(projectUser).Reference(pu => pu.User).Load();
+            _dbContext.Entry(projectUser).Reference(pu => pu.Project).Load();
+
+            return Ok(new
+            {
+                result = projectUser,
+                request = membershipRequest,
+                message = "Project membership request accepted successfully."
+            });
+        }
+
+        /*
+         * Type : PUT
+         * URL : /api/project/rejectprojectmembershiprequest/{requestID}
+         * Description: Reject a join request or invitation.
+         */
+        [Authorize]
+        [HttpPut("[action]/{requestID}")]
+        public async Task<IActionResult> RejectProjectMembershipRequest([FromRoute] int requestID)
+        {
+            if (!TryGetCurrentUserId(out var userId))
+                return Unauthorized(new { message = "Invalid user identifier." });
+
+            var user = await GetCurrentUserAsync(userId);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var membershipRequest = await ProjectMembershipRequestsWithUsers()
+                .SingleOrDefaultAsync(pmr => pmr.ProjectMembershipRequestID == requestID);
+
+            if (membershipRequest == null) return NotFound(new { message = "Membership request not found." });
+            if (membershipRequest.Status != MembershipRequestStatusPending)
+                return Conflict(new { result = membershipRequest, message = "Membership request is not pending." });
+
+            if (membershipRequest.Type == MembershipRequestTypeJoin)
+            {
+                var isOwner = await IsProjectOwnerAsync(membershipRequest.ProjectID, user.Id);
+                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+            }
+            else if (membershipRequest.Type == MembershipRequestTypeInvitation)
+            {
+                if (membershipRequest.TargetUserID != user.Id)
+                    return Unauthorized(new { message = "Only the invited user can reject this invitation." });
+            }
+            else
+            {
+                return BadRequest(new { message = "Invalid membership request type." });
+            }
+
+            membershipRequest.Status = MembershipRequestStatusRejected;
+            membershipRequest.RespondedAt = DateTimeOffset.UtcNow;
+            _dbContext.Entry(membershipRequest).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new
+            {
+                result = membershipRequest,
+                message = "Project membership request rejected successfully."
+            });
+        }
+
+        /*
+         * Type : DELETE
+         * URL : /api/project/cancelprojectmembershiprequest/{requestID}
+         * Description: Cancel a pending join request or invitation.
+         */
+        [Authorize]
+        [HttpDelete("[action]/{requestID}")]
+        public async Task<IActionResult> CancelProjectMembershipRequest([FromRoute] int requestID)
+        {
+            if (!TryGetCurrentUserId(out var userId))
+                return Unauthorized(new { message = "Invalid user identifier." });
+
+            var user = await GetCurrentUserAsync(userId);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var membershipRequest = await ProjectMembershipRequestsWithUsers()
+                .SingleOrDefaultAsync(pmr => pmr.ProjectMembershipRequestID == requestID);
+
+            if (membershipRequest == null) return NotFound(new { message = "Membership request not found." });
+            if (membershipRequest.Status != MembershipRequestStatusPending)
+                return Conflict(new { result = membershipRequest, message = "Membership request is not pending." });
+
+            if (membershipRequest.Type == MembershipRequestTypeJoin)
+            {
+                if (membershipRequest.RequesterUserID != user.Id)
+                    return Unauthorized(new { message = "Only the requester can cancel this join request." });
+            }
+            else if (membershipRequest.Type == MembershipRequestTypeInvitation)
+            {
+                var isOwner = await IsProjectOwnerAsync(membershipRequest.ProjectID, user.Id);
+                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+            }
+            else
+            {
+                return BadRequest(new { message = "Invalid membership request type." });
+            }
+
+            membershipRequest.Status = MembershipRequestStatusCancelled;
+            membershipRequest.RespondedAt = DateTimeOffset.UtcNow;
+            _dbContext.Entry(membershipRequest).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new
+            {
+                result = membershipRequest,
+                message = "Project membership request cancelled successfully."
+            });
+        }
+
+        /*
+         * Type : DELETE
+         * URL : /api/project/leaveproject/{projectID}
+         * Description: Leave project as the authenticated member.
+         */
+        [Authorize]
+        [HttpDelete("[action]/{projectID}")]
+        public async Task<IActionResult> LeaveProject([FromRoute] int projectID)
+        {
+            if (projectID <= 0)
+                return BadRequest(new { message = "Invalid project id." });
+
+            if (!TryGetCurrentUserId(out var userId))
+                return Unauthorized(new { message = "Invalid user identifier." });
+
+            var user = await GetCurrentUserAsync(userId);
+            if (user == null) return NotFound(new { message = "User Not Found" });
+
+            var project = await _dbContext.Projects.FindAsync(projectID);
+            if (project == null) return NotFound(new { message = "Project Not Found" });
+
+            var projectUser = await _dbContext.ProjectUsers.FindAsync(user.Id, projectID);
+            if (projectUser == null || projectUser.UserRole == ProjectFollowerRole)
+                return NotFound(new { message = "Project membership not found." });
+
+            if (projectUser.UserRole == ProjectOwnerRole)
+                return BadRequest(new { message = "Project owner cannot leave the project." });
+
+            if (projectUser.IsFollowing)
+            {
+                projectUser.UserRole = ProjectFollowerRole;
+                _dbContext.Entry(projectUser).State = EntityState.Modified;
+            }
+            else
+            {
+                _dbContext.ProjectUsers.Remove(projectUser);
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new
+            {
+                result = projectUser,
+                message = "Project left successfully."
             });
         }
 
@@ -3501,72 +3941,6 @@ namespace Web.Controllers
             }
         }
 
-        /*
-         * Type : PUT
-         * URL : /api/project/updateuser
-         * Param : ProjectUserViewModel
-         * Description: Update Project
-         */
-        [Authorize]
-        [HttpPut("[action]")]
-        public async Task<IActionResult> UpdateUser([FromForm] ProjectUserVM formdata)
-        {
-            // Find User
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
-            {
-                return Unauthorized(new { message = "Invalid user identifier." });
-            }
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
-            if (user == null) return NotFound(new { message = "User Not Found" });
-
-            bool isOwner = await _dbContext.Projects
-                .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                    aup.User.Id == user.Id &&
-                    aup.Project.ProjectID == formdata.ProjectID &&
-                    aup.UserRole == "owner"));
-
-            if (!isOwner)   return Unauthorized(new { message = "You are not the owner of the project" });
-            
-
-            // Find Many To Many
-            var userRole = await _dbContext.ProjectUsers.FindAsync(formdata.UserID, formdata.ProjectID);
-            if (userRole == null) return NotFound(new { message = "User Not Found" });
-
-            //Remove Follower If Not Following
-            if (formdata.UserRole == "follower" && formdata.IsFollowing == false)
-            {
-                // Remove User Role
-                _dbContext.ProjectUsers.Remove(userRole);
-
-                // Save Change
-                await _dbContext.SaveChangesAsync();
-
-                return Ok(new
-                {
-                    result = userRole,
-                    message = "Follower successfully deleted"
-                });
-            }
-
-            // Update Role
-            userRole.UserRole = formdata.UserRole;
-            userRole.IsFollowing = formdata.IsFollowing;
-
-            // Set Entity State
-            _dbContext.Entry(userRole).State = EntityState.Modified;
-
-            // Save Change
-            await _dbContext.SaveChangesAsync();
-
-            // Return Ok Status
-            return Ok(new
-            {
-                result = userRole,
-                message = "Project successfully updated."
-            });
-        }
-
         [Authorize]
         [HttpPut("[action]")]
         public async Task<IActionResult> RenameNotebook([FromForm] NotebookNameChangeVM notebookNameChangeVM)
@@ -4097,6 +4471,9 @@ namespace Web.Controllers
             // Find Many To Many
             var projectUser = await _dbContext.ProjectUsers.FindAsync(userID, projectID);
             if (projectUser == null) return NotFound(new { message = "User Not Found" });
+
+            if (projectUser.UserRole == ProjectOwnerRole)
+                return BadRequest(new { message = "Project owner cannot be removed." });
 
             // Remove User Role
             _dbContext.ProjectUsers.Remove(projectUser);

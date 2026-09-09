@@ -4,6 +4,7 @@ import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { ProjectService } from 'src/app/services/project.service';
 import { User } from 'src/app/interfaces/user';
 import { AccountService } from 'src/app/services/account.service';
+import { ProjectMembershipRequest } from 'src/app/interfaces/project-membership-request';
 
 @Component({
   selector: 'app-project-form-users',
@@ -19,11 +20,13 @@ export class ProjectFormUsersComponent implements OnInit {
 
   // Form Control - Project Tag/Role
   @Input() project : Project
-  @Output() updateProject = new EventEmitter<Project>()
+  @Input() membershipRequests : ProjectMembershipRequest[] = []
+  @Output() invitationCreated = new EventEmitter<ProjectMembershipRequest>()
   users : User[] = []
   filteredUsers : User[] = []
   userForm: FormGroup
   userName: FormControl
+  invitationMessage: string = ''
 
   ngOnInit(): void {
     this.loadUser()
@@ -35,12 +38,11 @@ export class ProjectFormUsersComponent implements OnInit {
       }
     )
 
-    // Initialize FormGroup using FormBuilder
+    this.userName = new FormControl('');
     this.userForm = this.formBuilder.group({
       userName: this.userName,
     });
 
-    this.userName = new FormControl('');
     this.userForm.get("userName").valueChanges.subscribe(
       val => {
         this.filteredUsers =this.filterUser(val)
@@ -53,17 +55,23 @@ export class ProjectFormUsersComponent implements OnInit {
     if(val == null || val == "")
       return []
 
-    var existingUser : User[] = []
+    var existingUserIDs : number[] = []
     this.project.projectUsers
     .forEach(x => { 
       if(x.userRole != "follower"){
-        existingUser.push(x.user)
+        existingUserIDs.push(x.userID)
       }   
     })
 
     return this.users.filter(x => {
       if(count < 5){
-        if(x.userName.toLowerCase().indexOf(val.toLowerCase()) != -1 && existingUser.find(u => x.userName == u.userName) == undefined){
+        let hasPendingMembershipRequest = this.membershipRequests.find(request =>
+          request.targetUserID == x.id &&
+          request.status == "pending") != undefined
+
+        if(x.userName.toLowerCase().indexOf(val.toLowerCase()) != -1 &&
+          existingUserIDs.find(userID => x.id == userID) == undefined &&
+          !hasPendingMembershipRequest){
           count++
           return true
         }  
@@ -76,13 +84,16 @@ export class ProjectFormUsersComponent implements OnInit {
     
   }
 
-  public addUser(user : User){
-    this.projectService.addUser(this.project.projectID, user.id, "member", false).subscribe(
+  public inviteUser(user : User){
+    this.invitationMessage = ''
+
+    this.projectService.inviteProjectMember(this.project.projectID, user.id).subscribe(
       result => {
-        this.project.projectUsers.push(result)
-        this.updateProject.emit(this.project)
+        this.invitationCreated.emit(result)
+        this.invitationMessage = "Invitation sent to " + user.userName
       }, error =>{
         console.log(error)
+        this.invitationMessage = error?.error?.message || "Failed to send invitation."
       }
     )
     this.userForm.reset() 
@@ -96,9 +107,6 @@ export class ProjectFormUsersComponent implements OnInit {
         
         // Map Project in Project User
         this.project.projectUsers.map(pu => pu.user = result.find(u => u.id == pu.userID))
-        // Map Project
-        this.users = this.project.projectUsers
-          .map(x => x.user)
       }, error =>{
         console.log(error)
       }

@@ -1,0 +1,19 @@
+.membership-request-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.membership-request-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 576px) {
+  .membership-request-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
