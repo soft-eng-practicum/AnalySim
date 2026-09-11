@@ -1384,7 +1384,7 @@ namespace Web.Controllers
             //var user = _dbContext.Users.SingleOrDefault(x => x.Id == userID);
             //if (user == null) return NotFound(new { message = "User Not Found" });
 
-            var userProjects = _dbContext.ProjectUsers
+            var userProjectsQuery = _dbContext.ProjectUsers
                 .Include(pu => pu.Project)
                     .ThenInclude(p => p.BlobFiles)
                 .Include(pu => pu.Project)
@@ -1392,8 +1392,28 @@ namespace Web.Controllers
                 .Include(pu => pu.Project)
                     .ThenInclude(p => p.ProjectTags)
                     .ThenInclude(pt => pt.Tag)
-                .Where(pu => pu.UserID == userID)
-                .AsEnumerable();
+                .Where(pu => pu.UserID == userID);
+
+            if (!IsCurrentUserAdmin())
+            {
+                var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (int.TryParse(currentUserIdClaim, out var currentUserId))
+                {
+                    userProjectsQuery = userProjectsQuery.Where(pu =>
+                        (pu.Project.Visibility != null && pu.Project.Visibility.ToLower() == "public") ||
+                        pu.Project.ProjectUsers.Any(projectUser =>
+                            projectUser.UserID == currentUserId &&
+                            projectUser.UserRole != null &&
+                            projectUser.UserRole.ToLower() != "follower"));
+                }
+                else
+                {
+                    userProjectsQuery = userProjectsQuery.Where(pu =>
+                        pu.Project.Visibility != null && pu.Project.Visibility.ToLower() == "public");
+                }
+            }
+
+            var userProjects = userProjectsQuery.ToList();
 
 
             //if (userProjects.Count() == 0) return NoContent();
