@@ -21,3 +21,42 @@
 .nav-item:hover {
   cursor: pointer;
 }
+
+.profile-invite-row {
+  align-items: center;
+  border: 1px solid #dee2e6;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 14px;
+}
+
+.profile-invite-main {
+  min-width: 0;
+}
+
+.profile-invite-title {
+  font-weight: 500;
+}
+
+.profile-invite-title a {
+  color: var(--link-on-light);
+}
+
+.profile-invite-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.profile-invite-actions .btn-outline-danger {
+  background-color: transparent;
+  color: #dc3545;
+}
+
+@media (max-width: 576px) {
+  .profile-invite-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

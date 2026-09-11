@@ -70,6 +70,59 @@
         </a>
       </li>
 
+      <li class="nav-item dropdown notification-nav-item">
+        <a
+          class="nav-link nav-interactive notification-trigger"
+          href="#"
+          id="navbarNotificationMenuLink"
+          aria-haspopup="true"
+          [attr.aria-expanded]="isNotificationMenuOpen"
+          (click)="toggleNotifications($event)"
+        >
+          <i class="fa fa-bell"></i>
+          <span
+            class="notification-badge"
+            *ngIf="(unreadCount$ | async) as unreadCount"
+            [class.d-none]="unreadCount === 0"
+          >
+            {{ unreadCount > 99 ? "99+" : unreadCount }}
+          </span>
+        </a>
+
+        <div
+          class="dropdown-menu dropdown-menu-right notification-menu"
+          [class.show]="isNotificationMenuOpen"
+          aria-labelledby="navbarNotificationMenuLink"
+        >
+          <div class="notification-menu-header">
+            <span>Notifications</span>
+            <a href="#" (click)="markAllNotificationsRead($event)">Mark all read</a>
+          </div>
+
+          <ng-container *ngIf="(notifications$ | async) as notifications">
+            <button
+              type="button"
+              class="dropdown-item notification-item"
+              *ngFor="let notification of notifications"
+              [class.is-unread]="!notification.isRead"
+              (click)="onNotificationClick(notification)"
+            >
+              <span class="notification-icon">
+                <i class="fa" [ngClass]="getNotificationIcon(notification.type)"></i>
+              </span>
+              <span class="notification-copy">
+                <span class="notification-title">{{ notification.title }}</span>
+                <span class="notification-body">{{ notification.body }}</span>
+              </span>
+            </button>
+
+            <div class="notification-empty" *ngIf="notifications.length === 0">
+              No notifications yet.
+            </div>
+          </ng-container>
+        </div>
+      </li>
+
       <li class="nav-item dropdown" *ngIf="(currentUser$ | async) as currentUser">
         <a
           class="nav-link dropdown-toggle nav-interactive nav-profile-trigger"

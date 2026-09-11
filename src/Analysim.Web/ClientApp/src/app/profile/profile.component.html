@@ -71,6 +71,15 @@
                   </span>
                 </a>
               </li>
+              <!-- Invites Tab -->
+              <li class="nav-item" *ngIf="isOwnProfile">
+                <a class="nav-link d-flex align-items-center" [class.active]="tabActive[3]" (click)="changeTab(3)">
+                  Invites
+                  <span class="badge badge-primary font-weight-light ml-1">
+                    {{pendingInvitations.length}}
+                  </span>
+                </a>
+              </li>
             </ul>
 
             <!-- Nav Content -->
@@ -95,6 +104,45 @@
                   <li class="list-group-item border-0 p-0" *ngFor="let follower of followers; let lastItem = last"
                     [class.mb-4]="!lastItem">
                     <app-profile-card [profile]=follower></app-profile-card>
+                  </li>
+                </ul>
+                <!-- Invites List -->
+                <ul class="list-group list-group-flush" *ngIf="tabActive[3] && isOwnProfile">
+                  <li class="list-group-item border-0 p-0" *ngFor="let invitation of pendingInvitations; let lastItem = last"
+                    [class.mb-3]="!lastItem">
+                    <div class="profile-invite-row">
+                      <div class="profile-invite-main">
+                        <div
+                          class="profile-invite-title"
+                          *ngIf="invitation.project">
+                          <a [routerLink]='["/project/" + (invitation.project.route | route:"owner") + "/" + (invitation.project.route | route:"projectname")]'>
+                            {{invitation.project.route | route:"owner"}}/{{invitation.project.route | route:"projectname"}}
+                          </a>
+                        </div>
+                        <small class="text-muted">
+                          Invited by {{invitation.createdByUser?.userName}} - {{invitation.createdAt | date:'medium'}}
+                        </small>
+                      </div>
+                      <div class="profile-invite-actions">
+                        <button
+                          type="button"
+                          class="btn btn-sm"
+                          (click)="acceptInvitation(invitation)"
+                          [disabled]="requestActionID == invitation.projectMembershipRequestID">
+                          Accept
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          (click)="rejectInvitation(invitation)"
+                          [disabled]="requestActionID == invitation.projectMembershipRequestID">
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                  <li class="list-group-item border-0 text-muted" *ngIf="pendingInvitations.length == 0">
+                    No pending invitations.
                   </li>
                 </ul>
               </div>

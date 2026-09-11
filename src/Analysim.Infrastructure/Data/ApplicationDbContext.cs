@@ -25,6 +25,7 @@ namespace Infrastructure.Data
             modelBuilder.Entity<ProjectTag>().HasKey(pt => new { pt.ProjectID, pt.TagID });
             modelBuilder.Entity<UserUser>().HasKey(uu => new { uu.UserID, uu.FollowerID });
             modelBuilder.Entity<NotebookContent>().HasKey(nc => new { nc.NotebookID, nc.Version });
+            modelBuilder.Entity<UserNotificationPreference>().HasKey(p => new { p.UserID, p.NotificationType });
 
             modelBuilder.Entity<RefreshToken>()
                         .HasIndex(rt => rt.TokenHash)
@@ -83,6 +84,55 @@ namespace Infrastructure.Data
                         .WithOne(rt => rt.User)
                         .HasForeignKey(rt => rt.UserID)
                         .OnDelete(DeleteBehavior.Cascade);
+
+            #region Notifications
+
+            modelBuilder.Entity<Notification>()
+                        .HasOne(n => n.RecipientUser)
+                        .WithMany()
+                        .HasForeignKey(n => n.RecipientUserID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Notification>()
+                        .HasOne(n => n.ActorUser)
+                        .WithMany()
+                        .HasForeignKey(n => n.ActorUserID)
+                        .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Notification>()
+                        .HasOne(n => n.Project)
+                        .WithMany()
+                        .HasForeignKey(n => n.ProjectID)
+                        .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Notification>()
+                        .HasOne(n => n.ProjectComment)
+                        .WithMany()
+                        .HasForeignKey(n => n.CommentID)
+                        .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Notification>()
+                        .HasOne(n => n.ProjectLog)
+                        .WithMany()
+                        .HasForeignKey(n => n.ProjectLogID)
+                        .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<UserNotificationPreference>()
+                        .HasOne(p => p.User)
+                        .WithMany()
+                        .HasForeignKey(p => p.UserID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Notification>()
+                        .HasIndex(n => new { n.RecipientUserID, n.IsRead, n.CreatedAt });
+
+            modelBuilder.Entity<Notification>()
+                        .HasIndex(n => n.Type);
+
+            modelBuilder.Entity<UserNotificationPreference>()
+                        .HasIndex(p => p.NotificationType);
+
+            #endregion
 
             // One To Many Relationship (Project -> Blob)
             modelBuilder.Entity<Project>()
@@ -258,6 +308,37 @@ namespace Infrastructure.Data
                         .WithOne(pp => pp.Project)
                         .HasForeignKey(pp => pp.ProjectID)
                         .OnDelete(DeleteBehavior.Cascade);
+
+            // One To Many Relationship (Project -> ProjectMembershipRequest)
+            modelBuilder.Entity<Project>()
+                        .HasMany(p => p.ProjectMembershipRequests)
+                        .WithOne(pmr => pmr.Project)
+                        .HasForeignKey(pmr => pmr.ProjectID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectMembershipRequest>()
+                        .HasOne(pmr => pmr.RequesterUser)
+                        .WithMany()
+                        .HasForeignKey(pmr => pmr.RequesterUserID)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectMembershipRequest>()
+                        .HasOne(pmr => pmr.TargetUser)
+                        .WithMany()
+                        .HasForeignKey(pmr => pmr.TargetUserID)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectMembershipRequest>()
+                        .HasOne(pmr => pmr.CreatedByUser)
+                        .WithMany()
+                        .HasForeignKey(pmr => pmr.CreatedByUserID)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectMembershipRequest>()
+                        .HasIndex(pmr => new { pmr.ProjectID, pmr.TargetUserID, pmr.Type, pmr.Status });
+
+            modelBuilder.Entity<ProjectMembershipRequest>()
+                        .HasIndex(pmr => pmr.CreatedByUserID);
         }
 
 
@@ -279,5 +360,8 @@ namespace Infrastructure.Data
         public DbSet<ProjectLog> ProjectLogs { get; set; }
 
         public DbSet<Publication> Publications { get; set; }
+        public DbSet<ProjectMembershipRequest> ProjectMembershipRequests { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; }
     }
 }

@@ -4,10 +4,10 @@ import { AccountService } from '../services/account.service';
 import { User } from '../interfaces/user';
 import { Project } from '../interfaces/project';
 import { ProjectService } from '../services/project.service';
-import { of, pipe, Observable } from 'rxjs';
-import { take } from 'rxjs/operators';
-import { UserUser } from '../interfaces/user-user';
+import { Observable } from 'rxjs';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { ProjectMembershipRequest } from '../interfaces/project-membership-request';
+import { ProjectUser } from '../interfaces/project-user';
 
 @Component({
   selector: 'app-profile',
@@ -29,17 +29,29 @@ export class ProfileComponent implements OnInit {
   projects: Project[]
   followings: User[]
   followers: User[]
+  membershipRequests: ProjectMembershipRequest[] = []
 
-  tabActive: boolean[] = [true, false, false]
+  tabActive: boolean[] = [true, false, false, false]
   showError: boolean
+  requestActionID: number = null
+  requestedTab: string = null
 
   currentUser: User = null
 
 
   async ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.requestedTab = params["tab"]
+      this.applyRequestedTab()
+    })
+
     if (this.accountService.checkLoginStatus()) {
       await this.accountService.currentUser.then((x) => this.currentUser$ = x)
-      this.currentUser$.subscribe(x => this.currentUser = x)
+      this.currentUser$.subscribe(x => {
+        this.currentUser = x
+        this.loadMembershipRequests()
+        this.applyRequestedTab()
+      })
     }
 
     this.route.params.subscribe(params => {
@@ -47,7 +59,10 @@ export class ProfileComponent implements OnInit {
       this.projects = []
       this.followings = []
       this.followers = []
+      this.membershipRequests = []
       this.showError = false
+      this.requestActionID = null
+      this.tabActive = [true, false, false, false]
 
 
       let username = params["username"]
@@ -58,7 +73,9 @@ export class ProfileComponent implements OnInit {
             this.loadProject(result)
             this.loadFollowing(result)
             this.loadFollower(result)
+            this.loadMembershipRequests()
             this.profileImage()
+            this.applyRequestedTab()
           }, error => {
             this.showError = true
           })
@@ -86,6 +103,8 @@ export class ProfileComponent implements OnInit {
   }
 
   changeTab(num: number) {
+    if (num == 3 && !this.isOwnProfile) return
+
     this.tabActive.forEach((t, i) => {
       if (num != i)
         this.tabActive[i] = false
@@ -93,6 +112,12 @@ export class ProfileComponent implements OnInit {
         this.tabActive[i] = true
       }
     });
+  }
+
+  private applyRequestedTab() {
+    if (this.requestedTab == "invites" && this.isOwnProfile) {
+      this.tabActive = [false, false, false, true]
+    }
   }
 
   followUser() {
@@ -122,6 +147,92 @@ export class ProfileComponent implements OnInit {
         }
       }, error => {
         console.log(error)
+      }
+    )
+  }
+
+  get isOwnProfile(): boolean {
+    return this.profile != null &&
+      this.currentUser != null &&
+      this.profile.id == this.currentUser.id
+  }
+
+  get pendingInvitations(): ProjectMembershipRequest[] {
+    if (this.currentUser == null) return []
+
+    return this.membershipRequests.filter(request =>
+      request.type == "invitation" &&
+      request.status == "pending" &&
+      request.targetUserID == this.currentUser.id)
+  }
+
+  loadMembershipRequests() {
+    if (!this.isOwnProfile) return
+
+    this.projectService.getMyMembershipRequests().subscribe(
+      result => {
+        this.membershipRequests = result.filter(request =>
+          request.type == "invitation" &&
+          request.status == "pending" &&
+          request.targetUserID == this.currentUser.id)
+      }, error => {
+        console.log(error)
+      }
+    )
+  }
+
+  acceptInvitation(request: ProjectMembershipRequest) {
+    if (this.requestActionID != null) return
+    this.requestActionID = request.projectMembershipRequestID
+
+    this.projectService.acceptProjectMembershipRequest(request.projectMembershipRequestID).subscribe(
+      result => {
+        this.removeMembershipRequest(request.projectMembershipRequestID)
+        this.addProjectUser(result)
+        this.loadAcceptedProject(result)
+      }, error => {
+        console.log(error)
+        this.requestActionID = null
+      }
+    )
+  }
+
+  rejectInvitation(request: ProjectMembershipRequest) {
+    if (this.requestActionID != null) return
+    this.requestActionID = request.projectMembershipRequestID
+
+    this.projectService.rejectProjectMembershipRequest(request.projectMembershipRequestID).subscribe(
+      result => {
+        this.removeMembershipRequest(result.projectMembershipRequestID)
+        this.requestActionID = null
+      }, error => {
+        console.log(error)
+        this.requestActionID = null
+      }
+    )
+  }
+
+  private removeMembershipRequest(requestID: number) {
+    this.membershipRequests = this.membershipRequests
+      .filter(request => request.projectMembershipRequestID != requestID)
+  }
+
+  private addProjectUser(projectUser: ProjectUser) {
+    let index = this.profile.projectUsers.findIndex(item => item.projectID == projectUser.projectID)
+    if(index > -1) this.profile.projectUsers[index] = projectUser
+    else this.profile.projectUsers.push(projectUser)
+  }
+
+  private loadAcceptedProject(projectUser: ProjectUser) {
+    this.projectService.getProjectByID(projectUser.projectID).subscribe(
+      project => {
+        let index = this.projects.findIndex(item => item.projectID == project.projectID)
+        if(index > -1) this.projects[index] = project
+        else this.projects.push(project)
+        this.requestActionID = null
+      }, error => {
+        console.log(error)
+        this.requestActionID = null
       }
     )
   }
