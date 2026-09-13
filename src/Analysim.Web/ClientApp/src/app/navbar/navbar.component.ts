@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { AccountService } from '../services/account.service';
 import { ProjectService } from '../services/project.service';
 import { Observable } from 'rxjs';
 import { User } from '../interfaces/user';
 import { Project } from '../interfaces/project';
 import { NotificationService } from '../services/notification.service';
+import { UserNotificationService } from '../services/user-notification.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExploreService } from '../services/explore.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { UserNotification } from '../interfaces/user-notification';
 
 @Component({
   selector: 'app-navbar',
@@ -21,6 +23,7 @@ export class NavbarComponent implements OnInit {
     private exploreService: ExploreService,
     private sanitizer: DomSanitizer,
     public notfi: NotificationService,
+    private userNotificationService: UserNotificationService,
     private router: Router,
     private route: ActivatedRoute,
   ) {}
@@ -34,15 +37,23 @@ export class NavbarComponent implements OnInit {
   currentUser$: Observable<User> = null;
   currentUser: User = null;
   isAdmin$: Observable<boolean>;
+  notifications$: Observable<UserNotification[]>;
+  unreadCount$: Observable<number>;
+  isNotificationMenuOpen = false;
 
   async ngOnInit() {
     this.loginStatus$ = this.accountService.isLoggedIn;
+    this.notifications$ = this.userNotificationService.notifications$;
+    this.unreadCount$ = this.userNotificationService.unreadCount$;
     this.currentUser$ = await this.accountService.currentUser;
     this.currentUser$.subscribe((x) => {
       this.currentUser = x;
       if (x) {
         this.isAdmin$ = this.accountService.getIsAdmin(x.userName);
         this.profileImage();
+        this.loadNotifications();
+      } else {
+        this.userNotificationService.clearState();
       }
     });
   }
@@ -143,6 +154,84 @@ export class NavbarComponent implements OnInit {
   }
 
   onLogout() {
+    this.userNotificationService.clearState();
     this.accountService.logout();
+  }
+
+  loadNotifications() {
+    this.userNotificationService.loadUnreadCount().subscribe(
+      () => {},
+      (error) => console.log(error),
+    );
+
+    this.userNotificationService.loadNotifications(false, 1, 8).subscribe(
+      () => {},
+      (error) => console.log(error),
+    );
+  }
+
+  toggleNotifications(event: Event) {
+    event.preventDefault();
+    this.isNotificationMenuOpen = !this.isNotificationMenuOpen;
+
+    if (this.isNotificationMenuOpen) {
+      this.loadNotifications();
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeNotificationsOnOutsideClick(event: MouseEvent) {
+    const target = event.target as Element | null;
+    const clickedInsideNotifications = !!target?.closest('.notification-nav-item');
+
+    if (this.isNotificationMenuOpen && !clickedInsideNotifications) {
+      this.isNotificationMenuOpen = false;
+    }
+  }
+
+  onNotificationClick(notification: UserNotification) {
+    const navigate = () => {
+      this.isNotificationMenuOpen = false;
+      if (notification.link) {
+        this.router.navigateByUrl(notification.link);
+      }
+    };
+
+    if (notification.isRead) {
+      navigate();
+      return;
+    }
+
+    this.userNotificationService.markAsRead(notification.notificationID).subscribe(
+      () => navigate(),
+      () => navigate(),
+    );
+  }
+
+  markAllNotificationsRead(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.userNotificationService.markAllAsRead().subscribe(
+      () => {},
+      (error) => console.log(error),
+    );
+  }
+
+  getNotificationIcon(type: string): string {
+    switch (type) {
+      case 'comment.reply':
+        return 'fa-comment';
+      case 'project.invitation.received':
+        return 'fa-envelope-open-text';
+      case 'project.member.added':
+      case 'project.joined':
+        return 'fa-user-plus';
+      case 'project.log.created':
+      case 'project.log.updated':
+        return 'fa-bell';
+      default:
+        return 'fa-bell';
+    }
   }
 }

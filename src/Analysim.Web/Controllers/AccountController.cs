@@ -1207,6 +1207,25 @@ namespace Web.Controllers
             // Update Notification Preferences
             user.ReceiveCommentReplyEmails = formdata.ReceiveCommentReplyEmails;
 
+            var commentReplyPreference = await _dbContext.UserNotificationPreferences
+                .SingleOrDefaultAsync(p =>
+                    p.UserID == user.Id &&
+                    p.NotificationType == NotificationTypes.CommentReply);
+
+            if (commentReplyPreference == null)
+            {
+                commentReplyPreference = new UserNotificationPreference
+                {
+                    UserID = user.Id,
+                    NotificationType = NotificationTypes.CommentReply,
+                    InAppEnabled = true
+                };
+
+                await _dbContext.UserNotificationPreferences.AddAsync(commentReplyPreference);
+            }
+
+            commentReplyPreference.EmailEnabled = formdata.ReceiveCommentReplyEmails;
+
             // Save Changes
             await _dbContext.SaveChangesAsync();
 

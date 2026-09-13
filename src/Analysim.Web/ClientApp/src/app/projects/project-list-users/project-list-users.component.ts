@@ -11,22 +11,9 @@ export class ProjectListUsersComponent implements OnInit {
   constructor() { }
 
   @Input() projectUsers : ProjectUser[]
-  @Output() updateProjectUsers = new EventEmitter<ProjectUser[]>()
   @Output() removeProjectUsers = new EventEmitter<ProjectUser[]>()
 
   ngOnInit(): void {
-  }
-
-  updateUser(projectUsers : ProjectUser[]){
-    this.projectUsers = projectUsers
-  }
-
-  updateProjectUser(projectUser : ProjectUser){
-    let index = this.projectUsers.findIndex(x => x.userID == projectUser.userID)
-    if (index > -1) {
-      this.projectUsers[index] = projectUser
-    }
-    this.updateProjectUsers.emit(this.projectUsers)
   }
 
   removeProjectUser(projectUser : ProjectUser){
