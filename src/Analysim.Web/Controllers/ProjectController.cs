@@ -2076,17 +2076,6 @@ namespace Web.Controllers
                 _dbContext.Entry(projectUser).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync();
 
-                try
-                {
-                    await _notificationService.PublishAsync(new NotificationEvent
-                    {
-                        Type = NotificationTypes.ProjectJoined,
-                        ActorUserID = user.Id,
-                        ProjectID = project.ProjectID
-                    });
-                }
-                catch (Exception) { }
-
                 return Ok(new
                 {
                     result = projectUser,
@@ -2107,17 +2096,6 @@ namespace Web.Controllers
 
             _dbContext.Entry(projectUser).Reference(pu => pu.User).Load();
             _dbContext.Entry(projectUser).Reference(pu => pu.Project).Load();
-
-            try
-            {
-                await _notificationService.PublishAsync(new NotificationEvent
-                {
-                    Type = NotificationTypes.ProjectJoined,
-                    ActorUserID = user.Id,
-                    ProjectID = project.ProjectID
-                });
-            }
-            catch (Exception) { }
 
             return Ok(new
             {
@@ -2342,6 +2320,21 @@ namespace Web.Controllers
 
             joinRequest = await ProjectMembershipRequestsWithUsers()
                 .SingleAsync(pmr => pmr.ProjectMembershipRequestID == joinRequest.ProjectMembershipRequestID);
+
+            try
+            {
+                await _notificationService.PublishAsync(new NotificationEvent
+                {
+                    Type = NotificationTypes.ProjectJoined,
+                    ActorUserID = user.Id,
+                    ProjectID = project.ProjectID,
+                    Data = new Dictionary<string, string>
+                    {
+                        ["membershipRequestID"] = joinRequest.ProjectMembershipRequestID.ToString()
+                    }
+                });
+            }
+            catch (Exception) { }
 
             return Ok(new
             {

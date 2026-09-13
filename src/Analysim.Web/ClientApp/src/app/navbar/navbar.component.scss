@@ -98,8 +98,12 @@
   border-radius: var(--nav-link-radius);
 }
 
-.navbar.bg-shell .notification-trigger.has-unread-notifications {
-  color: #d94a38;
+.notification-trigger.has-unread-notifications {
+  background: var(--c-danger-background);
+}
+
+.notification-trigger.has-unread-notifications .fa-bell {
+  color: color-mix(in srgb, var(--color-danger) 65%, var(--c-text-inverse));
 }
 
 .notification-badge {
@@ -110,9 +114,9 @@
   height: 17px;
   padding: 0 4px;
   border-radius: 999px;
-  background: #d94a38;
+  background: var(--color-danger);
   color: #fff;
-  border: 1px solid var(--background-color-tertiary);
+  border: 1px solid var(--background-color-secondary);
   font-size: 10px;
   font-weight: 700;
   line-height: 15px;
