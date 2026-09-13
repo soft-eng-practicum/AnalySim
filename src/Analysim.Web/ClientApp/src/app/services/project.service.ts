@@ -18,6 +18,7 @@ import { FlaggedCommentGroup } from '../interfaces/project-comment-flag';
 import { ProjectLog } from '../interfaces/project-log';
 import { ExpiredProjectLog } from '../interfaces/expired-project-log';
 import { Publication } from '../interfaces/publication';
+import { ProjectMembershipRequest } from '../interfaces/project-membership-request';
 
 @Injectable({
   providedIn: 'root'
@@ -50,10 +51,13 @@ export class ProjectService {
   private urlGetExpiredProjectLogs: string = this.baseUrl + "getexpiredprojectlogs/";
   private urlGetPublications: string = this.baseUrl + "GetPublications/";
   private urlGetProjectNotebookRefs: string = this.baseUrl + "getprojectnotebookreferences/";
+  private urlGetProjectMembershipRequests: string = this.baseUrl + "getprojectmembershiprequests/";
+  private urlGetMyMembershipRequests: string = this.baseUrl + "getmymembershiprequests";
 
   // Post
   private urlCreateProject: string = this.baseUrl + "createproject"
-  private urlAddUser: string = this.baseUrl + "adduser"
+  private urlRequestJoinProject: string = this.baseUrl + "requestjoinproject/"
+  private urlInviteProjectMember: string = this.baseUrl + "inviteprojectmember"
   private urlFollowProject: string = this.baseUrl + "followproject/"
   private urlUnfollowProject: string = this.baseUrl + "unfollowproject/"
   private urlAddTag: string = this.baseUrl + "addtag"
@@ -72,7 +76,8 @@ export class ProjectService {
 
   // Put
   private urlUpdateProject: string = this.baseUrl + "updateproject/"
-  private urlupdateUser: string = this.baseUrl + "updateuser"
+  private urlAcceptProjectMembershipRequest: string = this.baseUrl + "acceptprojectmembershiprequest/"
+  private urlRejectProjectMembershipRequest: string = this.baseUrl + "rejectprojectmembershiprequest/"
   private urlUpdateFile: string = this.baseUrl + "updateFile"
   private urlRenameNotebook: string = this.baseUrl + "RenameNotebook"
   private urlDeleteDatasetFromNotebook: string = this.baseUrl + "deleteDatasetFromNotebook/"
@@ -88,6 +93,8 @@ export class ProjectService {
   private urlRemoveUser: string = this.baseUrl + "removeuser/"
   private urlRemoveTag: string = this.baseUrl + "removetag/"
   private urlDeleteFile: string = this.baseUrl + "deleteFile/"
+  private urlCancelProjectMembershipRequest: string = this.baseUrl + "cancelprojectmembershiprequest/"
+  private urlLeaveProject: string = this.baseUrl + "leaveproject/"
   private urlUnlikeComment: string = this.baseUrl + "likecomment/";
   private urlRemoveCommentReport: string = this.baseUrl + "removecommentreport/";
   private urlRemoveAllCommentReports: string = this.baseUrl + "removeallcommentreports/";
@@ -326,15 +333,110 @@ export class ProjectService {
       )
   }
 
+  getProjectMembershipRequests(projectID: number): Observable<ProjectMembershipRequest[]> {
+    return this.http.get<any>(this.urlGetProjectMembershipRequests + projectID)
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
 
+  getMyMembershipRequests(): Observable<ProjectMembershipRequest[]> {
+    return this.http.get<any>(this.urlGetMyMembershipRequests)
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
 
-  addUser(projectID: number, userID: number, userRole: string, isFollowing: boolean): Observable<ProjectUser> {
+  requestJoinProject(projectID: number): Observable<ProjectMembershipRequest> {
+    return this.http.post<any>(this.urlRequestJoinProject + projectID, null)
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
+  inviteProjectMember(projectID: number, userID: number, message: string = ''): Observable<ProjectMembershipRequest> {
     let body = new FormData()
     body.append('projectid', projectID.toString())
     body.append('userid', userID.toString())
-    body.append('userrole', userRole)
-    body.append('isFollowing', isFollowing ? 'true' : 'false')
-    return this.http.post<any>(this.urlAddUser, body)
+    body.append('message', message)
+    return this.http.post<any>(this.urlInviteProjectMember, body)
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
+  acceptProjectMembershipRequest(requestID: number): Observable<ProjectUser> {
+    return this.http.put<any>(this.urlAcceptProjectMembershipRequest + requestID, null)
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
+  rejectProjectMembershipRequest(requestID: number): Observable<ProjectMembershipRequest> {
+    return this.http.put<any>(this.urlRejectProjectMembershipRequest + requestID, null)
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
+  cancelProjectMembershipRequest(requestID: number): Observable<ProjectMembershipRequest> {
+    return this.http.delete<any>(this.urlCancelProjectMembershipRequest + requestID)
+      .pipe(
+        map(body => {
+          console.log(body.message)
+          return body.result
+        }),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
+  leaveProject(projectID: number): Observable<ProjectUser> {
+    return this.http.delete<any>(this.urlLeaveProject + projectID)
       .pipe(
         map(body => {
           console.log(body.message)
@@ -553,26 +655,6 @@ export class ProjectService {
         })
       )
   }
-
-  updateUser(userRole: ProjectUser): Observable<ProjectUser> {
-    let body = new FormData()
-    body.append('userid', userRole.userID.toString())
-    body.append('projectid', userRole.projectID.toString())
-    body.append('userrole', userRole.userRole)
-    body.append('isFollowing', userRole.isFollowing ? 'true' : 'false')
-    return this.http.put<any>(this.urlupdateUser, body)
-      .pipe(
-        map(body => {
-          console.log(body.message)
-          return body.result
-        }),
-        catchError(error => {
-          console.log(error)
-          return throwError(error)
-        })
-      )
-  }
-
 
   deleteDatasetFromNotebook(notebookID: number, file: BlobFile): Observable<any> {
     let body = new FormData();

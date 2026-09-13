@@ -73,6 +73,8 @@ namespace Web
 
             services.ConfigureMailService(Configuration);
 
+            services.ConfigureNotificationService();
+
             services.AddControllers(config =>
             {
                 config.RespectBrowserAcceptHeader = true;

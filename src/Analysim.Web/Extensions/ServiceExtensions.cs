@@ -151,5 +151,10 @@ namespace Web.Extensions
             services.AddTransient<IMailNetService, MailNetService>();
         }
 
+        public static void ConfigureNotificationService(this IServiceCollection services)
+        {
+            services.AddScoped<INotificationService, NotificationService>();
+        }
+
     }
 }

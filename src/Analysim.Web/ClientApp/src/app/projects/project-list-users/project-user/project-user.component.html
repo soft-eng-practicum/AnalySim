@@ -9,11 +9,9 @@
         <div class="col-md-5 d-flex justify-content-start">
             {{projectUser.user.userName}}
         </div>
-        <!-- Update User Role -->
+        <!-- User Role -->
         <div class="col-md-4">
-            <select class="btn custom-select" style="color: #343a40; border-color: #343a40;" (change)="updateUser($event)">
-                <option *ngFor="let role of roles" [selected]="role == projectUser.userRole" >{{role | titlecase}}</option>              
-            </select>
+            <span class="badge badge-secondary">{{projectUser.userRole | titlecase}}</span>
         </div>
         <!-- Delete User -->
         <div class="col-md-1">
