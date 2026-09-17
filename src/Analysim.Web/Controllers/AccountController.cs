@@ -814,14 +814,20 @@ namespace Web.Controllers
             var username = await _userManager.FindByNameAsync(formdata.Username);
             var email = await _userManager.FindByEmailAsync(formdata.Username);
 
-            // Check Login Status
-            if ((username != null && await _userManager.CheckPasswordAsync(username, formdata.Password)) || (email != null && await _userManager.CheckPasswordAsync(email, formdata.Password)))
+            // Select the user whose password was verified
+            User user = null;
+            if (username != null && await _userManager.CheckPasswordAsync(username, formdata.Password))
             {
-                var user = username;
-                if (email != null){
-                    user = email;
-                }
+                user = username;
+            }
+            else if (email != null && await _userManager.CheckPasswordAsync(email, formdata.Password))
+            {
+                user = email;
+            }
 
+            // Check Login Status
+            if (user != null)
+            {
                 if (IsUserDisabled(user))
                 {
                     return Unauthorized(new
