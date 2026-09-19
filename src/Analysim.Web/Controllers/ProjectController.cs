@@ -5161,6 +5161,7 @@ namespace Web.Controllers
          * Param : BlobUploadViewModel
          * Description: Upload Folder To Azure Storage
          */
+        [Authorize]
         [HttpPut("[action]")]
         public async Task<IActionResult> MoveFile([FromForm] ProjectFileMoveVM formdata)
         {
@@ -5169,9 +5170,21 @@ namespace Web.Controllers
                 // Check Model State
                 if (!ModelState.IsValid) return BadRequest(ModelState);
 
-                // Find User
+                if (!TryGetCurrentUserId(out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+
+                // Find File
                 var blobFile = await _dbContext.BlobFiles.FindAsync(formdata.FileID);
                 if (blobFile == null) return NotFound(new { message = "File Not Found" });
+                if (!blobFile.ProjectID.HasValue)
+                {
+                    return BadRequest(new { message = "File does not belong to a project" });
+                }
+
+                var isOwner = await IsProjectOwnerAsync(blobFile.ProjectID.Value, userId);
+                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
 
                 var filePath = formdata.SubDirectory + blobFile.Name + blobFile.Extension;
 
