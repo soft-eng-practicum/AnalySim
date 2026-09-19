@@ -1659,6 +1659,20 @@ namespace Web.Controllers
             if (project == null) return NotFound(new { message = "Project Not Found" });
             if (!await CanCurrentUserViewProjectAsync(project.ProjectID)) return ProjectNotFound();
 
+            // Validate all selected files belong to the source project
+            if (formdata.BlobFilesID != null && formdata.BlobFilesID.Length > 0)
+            {
+                var requestedBlobFileIDs = formdata.BlobFilesID.Distinct().ToArray();
+                var sourceBlobFileCount = await _dbContext.BlobFiles.CountAsync(file =>
+                    requestedBlobFileIDs.Contains(file.BlobFileID) &&
+                    file.ProjectID == project.ProjectID);
+
+                if (sourceBlobFileCount != requestedBlobFileIDs.Length)
+                {
+                    return BadRequest(new { message = "One or more files do not belong to the source project." });
+                }
+            }
+
             // Check if the project already exists
             bool projectExists = await _dbContext.Projects
                 .AnyAsync(p => p.ProjectUsers.Any(aup =>
