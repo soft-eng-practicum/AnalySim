@@ -1613,7 +1613,12 @@ namespace Web.Controllers
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
                 // Find File
-                var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
+                var blobFile = await _dbContext.BlobFiles.SingleOrDefaultAsync(file =>
+                    file.BlobFileID == fileID &&
+                    file.UserID == user.Id &&
+                    file.ProjectID == null &&
+                    file.Container == "profile" &&
+                    file.Name == "profileImage");
                 if (blobFile == null) return NotFound(new { message = "File Not Found" });
 
                 //await _blobService.DeleteBlobAsync(blobFile);
