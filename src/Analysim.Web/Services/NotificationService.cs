@@ -202,9 +202,9 @@ namespace Web.Services
 
             var actorName = await GetUserDisplayNameAsync(notificationEvent.ActorUserID, "Someone");
             var projectName = GetProjectName(project);
-            var link = BuildProjectLink(project, null);
-            var title = "Someone joined your project";
-            var body = $"{actorName} joined {projectName}.";
+            var link = BuildProjectLink(project, "edit");
+            var title = "Someone requested to join your project";
+            var body = $"{actorName} requested to join {projectName}.";
 
             await CreateAndSendAsync(
                 notificationEvent,
