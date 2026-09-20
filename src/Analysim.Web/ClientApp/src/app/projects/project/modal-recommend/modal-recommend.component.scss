@@ -1,0 +1,26 @@
+.recommend-modal {
+  .modal-body textarea {
+    resize: vertical;
+  }
+
+  .recommendation-list {
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .recommendation-item {
+    margin-bottom: var(--space-3);
+  }
+
+  .recommendation-author {
+    font-weight: 600;
+  }
+
+  .recommendation-comment {
+    white-space: pre-wrap;
+  }
+
+  .recommendation-empty {
+    color: var(--gray);
+  }
+}

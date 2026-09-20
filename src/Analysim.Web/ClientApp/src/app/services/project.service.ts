@@ -18,6 +18,7 @@ import { FlaggedCommentGroup } from '../interfaces/project-comment-flag';
 import { ProjectLog } from '../interfaces/project-log';
 import { ExpiredProjectLog } from '../interfaces/expired-project-log';
 import { Publication } from '../interfaces/publication';
+import { ProjectRecommendation } from '../interfaces/project-recommendation';
 import { ProjectMembershipRequest } from '../interfaces/project-membership-request';
 
 @Injectable({
@@ -50,6 +51,7 @@ export class ProjectService {
   private urlGetProjectLogComments: string = this.baseUrl + "getprojectlogcomments/";
   private urlGetExpiredProjectLogs: string = this.baseUrl + "getexpiredprojectlogs/";
   private urlGetPublications: string = this.baseUrl + "GetPublications/";
+  private urlGetProjectRecommendations: string = this.baseUrl + "getprojectrecommendations/";
   private urlGetProjectNotebookRefs: string = this.baseUrl + "getprojectnotebookreferences/";
   private urlGetProjectMembershipRequests: string = this.baseUrl + "getprojectmembershiprequests/";
   private urlGetMyMembershipRequests: string = this.baseUrl + "getmymembershiprequests";
@@ -73,6 +75,7 @@ export class ProjectService {
   private urlDeleteCommentandReports: string = this.baseUrl + "deletecommentandreports/";
   private urlAddProjectLog: string = this.baseUrl + "addprojectlog";
   private urlAddPublication: string = this.baseUrl + "addPublication";
+  private urlRecommendProject: string = this.baseUrl + "recommendproject/";
 
   // Put
   private urlUpdateProject: string = this.baseUrl + "updateproject/"
@@ -87,6 +90,7 @@ export class ProjectService {
   private urlDeleteProjectLog: string = this.baseUrl + "deletelog/";
   private urlRepostProjectLog: string = this.baseUrl + "repostlog/";
   private urlUpdatePublication: string = this.baseUrl + "updatePublication/";
+  private urlUpdateRecommendation: string = this.baseUrl + "updaterecommendation/";
 
   // Delete
   private urlDeleteProject: string = this.baseUrl + "deleteproject/"
@@ -100,6 +104,7 @@ export class ProjectService {
   private urlRemoveAllCommentReports: string = this.baseUrl + "removeallcommentreports/";
   private urlDeleteExpiredProjectLog: string = this.baseUrl + "deleteexpiredprojectlog/";
   private urlDeletePublication: string = this.baseUrl + "deletepublication/";
+  private urlUnrecommendProject: string = this.baseUrl + "unrecommendproject/";
 
   // Extra
   private urlGetUserList: string = this.baseUrl + "getuserlist/"
@@ -464,6 +469,62 @@ export class ProjectService {
 
   unfollowProject(projectID: number): Observable<ProjectUser> {
     return this.http.delete<any>(this.urlUnfollowProject + projectID).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
+  getProjectRecommendations(projectID: number): Observable<ProjectRecommendation[]> {
+    return this.http.get<any>(this.urlGetProjectRecommendations + projectID).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
+  recommendProject(projectID: number, comment: string): Observable<ProjectRecommendation> {
+    let body = new FormData()
+    body.append('comment', comment)
+    return this.http.post<any>(this.urlRecommendProject + projectID, body).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
+  updateRecommendation(recommendationID: number, comment: string): Observable<ProjectRecommendation> {
+    let body = new FormData()
+    body.append('comment', comment)
+    return this.http.put<any>(this.urlUpdateRecommendation + recommendationID, body).pipe(
+      map(body => {
+        console.log(body.message)
+        return body.result
+      }),
+      catchError(error => {
+        console.log(error)
+        return throwError(error)
+      })
+    )
+  }
+
+  unrecommendProject(projectID: number): Observable<ProjectRecommendation> {
+    return this.http.delete<any>(this.urlUnrecommendProject + projectID).pipe(
       map(body => {
         console.log(body.message)
         return body.result

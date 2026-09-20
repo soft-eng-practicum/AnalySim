@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260906231118_AddProjectRecommendations")]
+    partial class AddProjectRecommendations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,77 +177,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ProjectID");
 
                     b.ToTable("Notebook");
-                });
-
-            modelBuilder.Entity("Core.Entities.Notification", b =>
-                {
-                    b.Property<int>("NotificationID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("NotificationID"));
-
-                    b.Property<int?>("ActorUserID")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<int?>("CommentID")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DataJson")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Link")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<int?>("ProjectID")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ProjectLogID")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("ReadAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("RecipientUserID")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("NotificationID");
-
-                    b.HasIndex("ActorUserID");
-
-                    b.HasIndex("CommentID");
-
-                    b.HasIndex("ProjectID");
-
-                    b.HasIndex("ProjectLogID");
-
-                    b.HasIndex("Type");
-
-                    b.HasIndex("RecipientUserID", "IsRead", "CreatedAt");
-
-                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Core.Entities.ObservableNotebookDataset", b =>
@@ -520,57 +452,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("ProjectTags");
                 });
 
-            modelBuilder.Entity("Core.Entities.ProjectMembershipRequest", b =>
-                {
-                    b.Property<int>("ProjectMembershipRequestID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ProjectMembershipRequestID"));
-
-                    b.Property<int>("CreatedByUserID")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Message")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset?>("RespondedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("RequesterUserID")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("TargetUserID")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("ProjectMembershipRequestID");
-
-                    b.HasIndex("CreatedByUserID");
-
-                    b.HasIndex("RequesterUserID");
-
-                    b.HasIndex("TargetUserID");
-
-                    b.HasIndex("ProjectID", "TargetUserID", "Type", "Status");
-
-                    b.ToTable("ProjectMembershipRequests");
-                });
-
             modelBuilder.Entity("Core.Entities.ProjectUser", b =>
                 {
                     b.Property<int>("UserID")
@@ -801,28 +682,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Core.Entities.UserNotificationPreference", b =>
-                {
-                    b.Property<int>("UserID")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("NotificationType")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<bool>("EmailEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("InAppEnabled")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("UserID", "NotificationType");
-
-                    b.HasIndex("NotificationType");
-
-                    b.ToTable("UserNotificationPreferences");
-                });
-
             modelBuilder.Entity("Core.Entities.UserUser", b =>
                 {
                     b.Property<int>("UserID")
@@ -1045,45 +904,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("Core.Entities.Notification", b =>
-                {
-                    b.HasOne("Core.Entities.User", "ActorUser")
-                        .WithMany()
-                        .HasForeignKey("ActorUserID")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Core.Entities.ProjectComment", "ProjectComment")
-                        .WithMany()
-                        .HasForeignKey("CommentID")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Core.Entities.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectID")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Core.Entities.ProjectLog", "ProjectLog")
-                        .WithMany()
-                        .HasForeignKey("ProjectLogID")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Core.Entities.User", "RecipientUser")
-                        .WithMany()
-                        .HasForeignKey("RecipientUserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ActorUser");
-
-                    b.Navigation("Project");
-
-                    b.Navigation("ProjectComment");
-
-                    b.Navigation("ProjectLog");
-
-                    b.Navigation("RecipientUser");
-                });
-
             modelBuilder.Entity("Core.Entities.ObservableNotebookDataset", b =>
                 {
                     b.HasOne("Core.Entities.Notebook", "notebook")
@@ -1256,41 +1076,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Core.Entities.ProjectMembershipRequest", b =>
-                {
-                    b.HasOne("Core.Entities.User", "CreatedByUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedByUserID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.Project", "Project")
-                        .WithMany("ProjectMembershipRequests")
-                        .HasForeignKey("ProjectID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.User", "RequesterUser")
-                        .WithMany()
-                        .HasForeignKey("RequesterUserID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.User", "TargetUser")
-                        .WithMany()
-                        .HasForeignKey("TargetUserID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CreatedByUser");
-
-                    b.Navigation("Project");
-
-                    b.Navigation("RequesterUser");
-
-                    b.Navigation("TargetUser");
-                });
-
             modelBuilder.Entity("Core.Entities.Publication", b =>
                 {
                     b.HasOne("Core.Entities.Project", "Project")
@@ -1306,17 +1091,6 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Core.Entities.User", "User")
                         .WithMany("RefreshTokens")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Core.Entities.UserNotificationPreference", b =>
-                {
-                    b.HasOne("Core.Entities.User", "User")
-                        .WithMany()
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1417,8 +1191,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("ProjectLogs");
 
                     b.Navigation("ProjectRecommendations");
-
-                    b.Navigation("ProjectMembershipRequests");
 
                     b.Navigation("ProjectTags");
 

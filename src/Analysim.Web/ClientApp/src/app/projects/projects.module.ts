@@ -66,6 +66,7 @@ import { PublicationItemComponent } from './project-overview/project-overview-vi
 import { ModalEditPublicationComponent } from './project-overview/project-overview-view/project-publication/modal-edit-publication/modal-edit-publication.component';
 import { ModalDeletePublicationComponent } from './project-overview/project-overview-view/project-publication/modal-delete-publication/modal-delete-publication.component';
 import { ProjectStatCounterComponent } from './project/project-stat-counter/project-stat-counter.component';
+import { ModalRecommendComponent } from './project/modal-recommend/modal-recommend.component';
 
 @NgModule({
   declarations: [
@@ -124,6 +125,7 @@ import { ProjectStatCounterComponent } from './project/project-stat-counter/proj
     ModalEditPublicationComponent,
     ModalDeletePublicationComponent,
     ProjectStatCounterComponent,
+    ModalRecommendComponent,
   ],
   imports: [
     CommonModule,

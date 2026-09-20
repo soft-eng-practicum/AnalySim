@@ -1,0 +1,67 @@
+<div class="modal-content recommend-modal">
+  <div class="modal-header justify-content-center">
+    <h5 class="modal-title">{{ allowAction ? "Recommend Project" : "Project Recommendations" }}</h5>
+  </div>
+
+  <div class="modal-body">
+    <div class="form-group" *ngIf="canEditRecommendation">
+      <label for="recommendationComment">Comment</label>
+      <textarea
+        id="recommendationComment"
+        class="form-control"
+        rows="5"
+        maxlength="1000"
+        [(ngModel)]="comment"
+        [disabled]="isLoading"
+      ></textarea>
+    </div>
+
+    <div id="error" *ngIf="errorStatusAlert" class="alert alert-danger">
+      <small class="error">{{ errorResult }}</small>
+    </div>
+
+    <div class="recommendation-list" *ngIf="recommendations.length > 0">
+      <hr />
+
+      <div class="recommendation-item" *ngFor="let item of recommendations">
+        <div class="recommendation-author">{{ item.authorName }}</div>
+        <div class="recommendation-comment">{{ item.comment }}</div>
+      </div>
+    </div>
+
+    <div class="recommendation-empty" *ngIf="recommendations.length === 0">
+      No recommendations yet.
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-outline-primary"
+      (click)="closeModal()"
+      [disabled]="isLoading"
+    >
+      {{ allowAction ? "Cancel" : "Close" }}
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-danger"
+      *ngIf="recommendation && canEditRecommendation"
+      (click)="removeRecommendation()"
+      [disabled]="isLoading"
+    >
+      Unrecommend
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      *ngIf="canEditRecommendation"
+      (click)="saveRecommendation()"
+      [disabled]="isLoading"
+    >
+      {{ recommendation ? "Update" : "Recommend" }}
+    </button>
+  </div>
+</div>

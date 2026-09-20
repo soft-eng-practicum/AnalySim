@@ -2,6 +2,7 @@ import { BlobFile } from 'src/app/interfaces/blob-file';
 import { ProjectTag } from 'src/app/interfaces/project-tag';
 import { ProjectUser } from './project-user';
 import { Notebook } from './notebook';
+import { ProjectRecommendation } from './project-recommendation';
 
 export interface Project {
     projectID: number;
@@ -15,5 +16,6 @@ export interface Project {
     projectUsers: Array<ProjectUser>;
     blobFiles: Array<BlobFile>;
     projectTags: Array<ProjectTag>
+    projectRecommendations: Array<ProjectRecommendation>
     forkedFromProjectID: number;
 }

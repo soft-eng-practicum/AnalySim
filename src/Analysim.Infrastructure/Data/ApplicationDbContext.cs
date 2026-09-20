@@ -309,6 +309,23 @@ namespace Infrastructure.Data
                         .HasForeignKey(pp => pp.ProjectID)
                         .OnDelete(DeleteBehavior.Cascade);
 
+            // One recommendation per user per project
+            modelBuilder.Entity<ProjectRecommendation>()
+                        .HasIndex(pr => new { pr.UserID, pr.ProjectID })
+                        .IsUnique();
+
+            modelBuilder.Entity<Project>()
+                        .HasMany(p => p.ProjectRecommendations)
+                        .WithOne(pr => pr.Project)
+                        .HasForeignKey(pr => pr.ProjectID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<User>()
+                        .HasMany(u => u.ProjectRecommendations)
+                        .WithOne(pr => pr.User)
+                        .HasForeignKey(pr => pr.UserID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
             // One To Many Relationship (Project -> ProjectMembershipRequest)
             modelBuilder.Entity<Project>()
                         .HasMany(p => p.ProjectMembershipRequests)
@@ -360,6 +377,7 @@ namespace Infrastructure.Data
         public DbSet<ProjectLog> ProjectLogs { get; set; }
 
         public DbSet<Publication> Publications { get; set; }
+        public DbSet<ProjectRecommendation> ProjectRecommendations { get; set; }
         public DbSet<ProjectMembershipRequest> ProjectMembershipRequests { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; }
