@@ -1201,11 +1201,16 @@ namespace Web.Controllers
                 var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
                 if (project == null) return NotFound(new { message = "Project Not Found." });
 
-                var isProjectMember = await _dbContext.ProjectUsers.AnyAsync(pu =>
-                    pu.ProjectID == project.ProjectID &&
-                    pu.UserID == user.Id &&
-                    (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
-                if (!isProjectMember) return Forbid();
+                bool hasProjectLogAccess = await _dbContext.ProjectUsers
+                    .AnyAsync(aup =>
+                        aup.UserID == user.Id &&
+                        aup.ProjectID == project.ProjectID &&
+                        (aup.UserRole == ProjectOwnerRole || aup.UserRole == ProjectMemberRole));
+
+                if (!hasProjectLogAccess)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new { message = "You must be an owner or member of the project" });
+                }
 
                 // Validate Content
                 if (string.IsNullOrWhiteSpace(formdata.Content))
@@ -2231,17 +2236,6 @@ namespace Web.Controllers
                 _dbContext.Entry(projectUser).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync();
 
-                try
-                {
-                    await _notificationService.PublishAsync(new NotificationEvent
-                    {
-                        Type = NotificationTypes.ProjectJoined,
-                        ActorUserID = user.Id,
-                        ProjectID = project.ProjectID
-                    });
-                }
-                catch (Exception) { }
-
                 return Ok(new
                 {
                     result = ToProjectUserResponse(projectUser),
@@ -2262,17 +2256,6 @@ namespace Web.Controllers
 
             _dbContext.Entry(projectUser).Reference(pu => pu.User).Load();
             _dbContext.Entry(projectUser).Reference(pu => pu.Project).Load();
-
-            try
-            {
-                await _notificationService.PublishAsync(new NotificationEvent
-                {
-                    Type = NotificationTypes.ProjectJoined,
-                    ActorUserID = user.Id,
-                    ProjectID = project.ProjectID
-                });
-            }
-            catch (Exception) { }
 
             return Ok(new
             {
@@ -2497,6 +2480,21 @@ namespace Web.Controllers
 
             joinRequest = await ProjectMembershipRequestsWithUsers()
                 .SingleAsync(pmr => pmr.ProjectMembershipRequestID == joinRequest.ProjectMembershipRequestID);
+
+            try
+            {
+                await _notificationService.PublishAsync(new NotificationEvent
+                {
+                    Type = NotificationTypes.ProjectJoined,
+                    ActorUserID = user.Id,
+                    ProjectID = project.ProjectID,
+                    Data = new Dictionary<string, string>
+                    {
+                        ["membershipRequestID"] = joinRequest.ProjectMembershipRequestID.ToString()
+                    }
+                });
+            }
+            catch (Exception) { }
 
             return Ok(new
             {
@@ -2937,13 +2935,16 @@ namespace Web.Controllers
                 var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                bool isOwner = await _dbContext.Projects
+                bool hasUploadAccess = await _dbContext.Projects
                      .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                         aup.User.Id == user.Id &&
-                         aup.Project.ProjectID == formdata.ProjectID &&
-                         aup.UserRole == "owner"));
+                         aup.UserID == user.Id &&
+                         aup.ProjectID == formdata.ProjectID &&
+                         (aup.UserRole == "owner" || aup.UserRole == "member")));
 
-                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!hasUploadAccess)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new { message = "You must be an owner or member of the project" });
+                }
                 
 
                 if (formdata.Directory == null) { formdata.Directory = ""; }
@@ -3053,13 +3054,16 @@ namespace Web.Controllers
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
 
-                bool isOwner = await _dbContext.Projects
+                bool hasNotebookUploadAccess = await _dbContext.Projects
                      .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                         aup.User.Id == user.Id &&
-                         aup.Project.ProjectID == noteBookData.ProjectID &&
-                         aup.UserRole == "owner"));
+                         aup.UserID == user.Id &&
+                         aup.ProjectID == noteBookData.ProjectID &&
+                         (aup.UserRole == "owner" || aup.UserRole == "member")));
 
-                if (!isOwner)   return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!hasNotebookUploadAccess)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new { message = "You must be an owner or member of the project" });
+                }
                 
 
                 // Find Project
@@ -3150,12 +3154,15 @@ namespace Web.Controllers
                 var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                bool isOwner = await _dbContext.Projects
+                bool hasNotebookUploadAccess = await _dbContext.Projects
                      .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                         aup.User.Id == user.Id &&
-                         aup.Project.ProjectID == noteBookData.ProjectID &&
-                         aup.UserRole == "owner"));
-                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+                         aup.UserID == user.Id &&
+                         aup.ProjectID == noteBookData.ProjectID &&
+                         (aup.UserRole == "owner" || aup.UserRole == "member")));
+                if (!hasNotebookUploadAccess)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new { message = "You must be an owner or member of the project" });
+                }
                 
 
                 // Find Project
@@ -3233,13 +3240,16 @@ namespace Web.Controllers
                 var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                bool isOwner = await _dbContext.Projects
+                bool hasNotebookUploadAccess = await _dbContext.Projects
                      .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                         aup.User.Id == user.Id &&
-                         aup.Project.ProjectID == noteBookData.ProjectID &&
-                         aup.UserRole == "owner"));
+                         aup.UserID == user.Id &&
+                         aup.ProjectID == noteBookData.ProjectID &&
+                         (aup.UserRole == "owner" || aup.UserRole == "member")));
 
-                if (!isOwner)   return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!hasNotebookUploadAccess)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new { message = "You must be an owner or member of the project" });
+                }
                 
 
                 var project = await _dbContext.Projects.FindAsync(noteBookData.ProjectID);
@@ -3370,13 +3380,16 @@ namespace Web.Controllers
                 var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                bool isOwner = await _dbContext.Projects
+                bool hasFolderAccess = await _dbContext.Projects
                     .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                        aup.User.Id == user.Id &&
-                        aup.Project.ProjectID == formdata.ProjectID &&
-                        aup.UserRole == "owner"));
+                        aup.UserID == user.Id &&
+                        aup.ProjectID == formdata.ProjectID &&
+                        (aup.UserRole == "owner" || aup.UserRole == "member")));
 
-                if (!isOwner)   return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!hasFolderAccess)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new { message = "You must be an owner or member of the project" });
+                }
                 
 
                 if (formdata.Directory == null) { formdata.Directory = ""; }
@@ -3400,7 +3413,7 @@ namespace Web.Controllers
                     Uri = "",
                     DateCreated = DateTimeOffset.UtcNow,
                     LastModified = DateTimeOffset.UtcNow,
-                    UserID = formdata.UserID,
+                    UserID = user.Id,
                     ProjectID = formdata.ProjectID
                 };
 
@@ -3442,13 +3455,16 @@ namespace Web.Controllers
                 var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
-                bool isOwner = await _dbContext.Projects
+                bool hasFolderAccess = await _dbContext.Projects
                     .AnyAsync(p => p.ProjectUsers.Any(aup =>
-                        aup.User.Id == user.Id &&
-                        aup.Project.ProjectID == formdata.ProjectID &&
-                        aup.UserRole == "owner"));
+                        aup.UserID == user.Id &&
+                        aup.ProjectID == formdata.ProjectID &&
+                        (aup.UserRole == "owner" || aup.UserRole == "member")));
 
-                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
+                if (!hasFolderAccess)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new { message = "You must be an owner or member of the project" });
+                }
                 
 
                 if (formdata.Directory == null) { formdata.Directory = ""; }

@@ -73,6 +73,7 @@
       <li class="nav-item dropdown notification-nav-item">
         <a
           class="nav-link nav-interactive notification-trigger"
+          [class.has-unread-notifications]="((unreadCount$ | async) || 0) > 0"
           href="#"
           id="navbarNotificationMenuLink"
           aria-haspopup="true"
