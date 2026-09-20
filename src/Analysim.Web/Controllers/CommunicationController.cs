@@ -14,6 +14,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 
 namespace Core.Controllers
 {
@@ -24,11 +27,16 @@ namespace Core.Controllers
     {
         private readonly IMailNetService _mailNetService;
         private readonly ILoggerManager _loggerManager;
+        private readonly IConfiguration _configuration;
 
-        public CommunicationController(IMailNetService mailNetService, ILoggerManager loggerManager)
+        public CommunicationController(
+            IMailNetService mailNetService,
+            ILoggerManager loggerManager,
+            IConfiguration configuration)
         {
             _mailNetService = mailNetService;
             _loggerManager = loggerManager;
+            _configuration = configuration;
         }
 
         /*
@@ -38,9 +46,16 @@ namespace Core.Controllers
          * Description: Send an Email
          * Response Status: 200 Ok, 400 Bad Request
          */
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> SendEmail([FromForm] SendEmailVM emailInfo)
         {
+            var currentUsername = User.Identity?.Name ?? User.FindFirstValue(ClaimTypes.Name);
+            var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+
+            var isAdmin = admins.Any(u =>
+                string.Equals(u, currentUsername, StringComparison.OrdinalIgnoreCase));
+            if (!isAdmin) return Forbid();
 
             await _mailNetService.SendEmail(emailInfo.EmailAddress, emailInfo.Username, emailInfo.Subject, emailInfo.BodyHtml, emailInfo.BodyText);
 
