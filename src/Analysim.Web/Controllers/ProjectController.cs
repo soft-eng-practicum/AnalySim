@@ -1125,6 +1125,12 @@ namespace Web.Controllers
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
 
+            var canManagePublications = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                pu.ProjectID == project.ProjectID &&
+                pu.UserID == user.Id &&
+                (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+            if (!canManagePublications) return Forbid();
+
             // Validate Fields
             if (string.IsNullOrWhiteSpace(formdata.Journal))
                 return BadRequest(new { message = "Publication Journal is required." });
@@ -3585,10 +3591,11 @@ namespace Web.Controllers
             if (publication == null)
                 return NotFound(new { message = "Publication Not Found" });
 
-            // Validate Project
-            var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
-            if (project == null)
-                return NotFound(new { message = "Project Not Found" });
+            var canManagePublications = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                pu.ProjectID == publication.ProjectID &&
+                pu.UserID == user.Id &&
+                (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+            if (!canManagePublications) return Forbid();
 
             if (publication.ProjectID != formdata.ProjectID)
                 return BadRequest(new { message = "Publication does not belong to this project." });
@@ -4244,7 +4251,12 @@ namespace Web.Controllers
             var publication = await _dbContext.Publications
                 .FirstOrDefaultAsync(p => p.PublicationID == publicationId);
             if (publication == null) return NotFound(new { message = "Publication not found." });
-            
+
+            var canManagePublications = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                pu.ProjectID == publication.ProjectID &&
+                pu.UserID == userId &&
+                (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+            if (!canManagePublications) return Forbid();
 
             // Remove publication
             _dbContext.Publications.Remove(publication);
