@@ -1385,6 +1385,7 @@ namespace Web.Controllers
             // Validate Project
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
+            if (!await CanCurrentUserViewProjectAsync(project.ProjectID)) return ProjectNotFound();
 
             // Validate Project Log (if present)
             ProjectLog projectLog = null;
@@ -1507,11 +1508,12 @@ namespace Web.Controllers
             if (user == null) return NotFound(new {message = "User Not Found."});
 
             // Validate Comment
-            var commentExists = await _dbContext.ProjectComments
-                .AnyAsync(c => c.CommentID == commentID && !c.IsDeleted && !c.IsPendingReview);
+            var comment = await _dbContext.ProjectComments
+                .SingleOrDefaultAsync(c => c.CommentID == commentID && !c.IsDeleted && !c.IsPendingReview);
 
-            if (!commentExists)
+            if (comment == null)
                 return NotFound(new { message = "Comment not found." });
+            if (!await CanCurrentUserViewProjectAsync(comment.ProjectID)) return ProjectNotFound();
 
             // Prevent duplicate likes
             var alreadyLiked = await _dbContext.ProjectCommentLikes
@@ -1563,6 +1565,7 @@ namespace Web.Controllers
 
             if (comment == null)
                 return NotFound(new { message = "Comment not found." });
+            if (!await CanCurrentUserViewProjectAsync(comment.ProjectID)) return ProjectNotFound();
 
             // Prevent duplicate flags by user
             var alreadyFlagged = await _dbContext.ProjectCommentFlags
@@ -4048,6 +4051,7 @@ namespace Web.Controllers
             // Validate Comment
             var comment = await _dbContext.ProjectComments.SingleOrDefaultAsync(c => c.CommentID == commentID);
             if (comment == null) return NotFound(new { message = "Comment Not Found" });
+            if (!await CanCurrentUserViewProjectAsync(comment.ProjectID)) return ProjectNotFound();
 
             if(comment.IsDeleted) return BadRequest(new {message = "Cannot edit deleted comments."});
             if(comment.IsPendingReview) return BadRequest(new {message = "Cannot edit comments under review."});
