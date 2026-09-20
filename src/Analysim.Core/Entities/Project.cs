@@ -46,6 +46,7 @@ namespace Core.Entities
         public ICollection<ProjectLog> ProjectLogs { get; set; } = new List<ProjectLog>();
         public ICollection<Publication> Publications { get; set; } = new List<Publication>();
         public ICollection<ProjectRecommendation> ProjectRecommendations { get; set; } = new List<ProjectRecommendation>();
+        public ICollection<ProjectMembershipRequest> ProjectMembershipRequests { get; set; } = new List<ProjectMembershipRequest>();
 
         public int ForkedFromProjectID { get; set; }
     }

@@ -14,19 +14,81 @@
                 (setProject)="setProject($event)">
              </app-project-form-edit>
 
-             <div *ngIf="project != null">
-                <hr>
-                <h5 class="card-title mb-2">Project Tags</h5>
-                <app-project-form-tags
-                    [projectID]="project.projectID"
+	             <div *ngIf="project != null">
+	                <hr>
+	                <h5 class="card-title mb-2">Project Tags</h5>
+	                <app-project-form-tags
+	                    [projectID]="project.projectID"
                     [projectTags]="project.projectTags"
                     (updateProjectTags)="updateProjectTags($event)">
                 </app-project-form-tags>
                 <app-project-list-tags
                     [projectTags]="project.projectTags"
-                    (updateProjectTags)="updateProjectTags($event)">
-                </app-project-list-tags>
-             </div>
+	                    (updateProjectTags)="updateProjectTags($event)">
+	                </app-project-list-tags>
+
+	                <hr>
+	                <h5 class="card-title mb-2">Project Members</h5>
+		                <app-project-form-users
+		                    [project]="project"
+		                    [membershipRequests]="membershipRequests"
+		                    (invitationCreated)="loadMembershipRequests()">
+		                </app-project-form-users>
+	                <app-project-list-users
+	                    [projectUsers]='project.projectUsers | projectMember:""'
+	                    (removeProjectUsers)="updateProjectUsers($event)">
+	                </app-project-list-users>
+
+	                <hr>
+	                <h5 class="card-title mb-2">Join Requests</h5>
+	                <ul class="list-group mb-3" *ngIf="pendingJoinRequests.length > 0">
+	                    <li class="list-group-item" *ngFor="let request of pendingJoinRequests">
+	                        <div class="membership-request-row">
+	                            <div>
+	                                <strong>{{request.requesterUser?.userName}}</strong>
+	                                <small class="text-muted d-block">{{request.createdAt | date:'medium'}}</small>
+	                            </div>
+	                            <div class="membership-request-actions">
+	                                <button
+	                                    type="button"
+	                                    class="btn btn-sm btn-success"
+	                                    (click)="acceptRequest(request)"
+	                                    [disabled]="requestActionID == request.projectMembershipRequestID">
+	                                    Accept
+	                                </button>
+	                                <button
+	                                    type="button"
+	                                    class="btn btn-sm btn-outline-danger"
+	                                    (click)="rejectRequest(request)"
+	                                    [disabled]="requestActionID == request.projectMembershipRequestID">
+	                                    Reject
+	                                </button>
+	                            </div>
+	                        </div>
+	                    </li>
+	                </ul>
+	                <p class="text-muted mb-3" *ngIf="pendingJoinRequests.length == 0">No pending join requests.</p>
+
+	                <h5 class="card-title mb-2">Pending Invitations</h5>
+	                <ul class="list-group" *ngIf="pendingInvitations.length > 0">
+	                    <li class="list-group-item" *ngFor="let request of pendingInvitations">
+	                        <div class="membership-request-row">
+	                            <div>
+	                                <strong>{{request.targetUser?.userName}}</strong>
+	                                <small class="text-muted d-block">{{request.createdAt | date:'medium'}}</small>
+	                            </div>
+	                            <button
+	                                type="button"
+	                                class="btn btn-sm btn-outline-danger"
+	                                (click)="cancelInvitation(request)"
+	                                [disabled]="requestActionID == request.projectMembershipRequestID">
+	                                Cancel
+	                            </button>
+	                        </div>
+	                    </li>
+	                </ul>
+	                <p class="text-muted mb-0" *ngIf="pendingInvitations.length == 0">No pending invitations.</p>
+	             </div>
 
                 </div> <!-- Card Body End -->
             </div> <!-- Card End -->

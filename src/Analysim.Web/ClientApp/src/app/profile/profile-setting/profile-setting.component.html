@@ -272,12 +272,54 @@
             <span>Notification Preferences</span>
           </div>
 
-          <form
-            *ngIf="notificationForm"
-            [formGroup]="notificationForm"
-            (ngSubmit)="onSaveNotificationPreferences()"
-          >
-            <div class="settings-card-body">
+          <div class="settings-card-body">
+            <div class="settings-loading" *ngIf="notificationPreferencesLoading">
+              Loading notification preferences...
+            </div>
+
+            <div
+              class="settings-option notification-preference-option"
+              *ngFor="let preference of notificationPreferences"
+            >
+              <div>
+                <div class="settings-option-title">
+                  {{ getNotificationPreferenceTitle(preference.notificationType) }}
+                </div>
+
+                <div class="settings-option-text">
+                  {{ getNotificationPreferenceText(preference.notificationType) }}
+                </div>
+              </div>
+
+              <div class="settings-option-controls">
+                <label class="settings-channel-toggle">
+                  <span>In-app</span>
+                  <input
+                    type="checkbox"
+                    [checked]="preference.inAppEnabled"
+                    (change)="onToggleNotificationPreference(preference, 'inApp', $event)"
+                  />
+                </label>
+
+                <label
+                  class="settings-channel-toggle"
+                  *ngIf="canEmailNotification(preference.notificationType)"
+                >
+                  <span>Email</span>
+                  <input
+                    type="checkbox"
+                    [checked]="preference.emailEnabled"
+                    (change)="onToggleNotificationPreference(preference, 'email', $event)"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <form
+              *ngIf="notificationForm && notificationPreferences.length === 0 && !notificationPreferencesLoading"
+              [formGroup]="notificationForm"
+              (ngSubmit)="onSaveNotificationPreferences()"
+            >
               <label class="settings-option" for="sendCommentNotifications">
                 <div>
                   <div class="settings-option-title">Comment Notifications</div>
@@ -299,8 +341,8 @@
                   Save Preferences
                 </button>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>
