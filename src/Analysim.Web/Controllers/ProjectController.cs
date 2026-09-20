@@ -1201,6 +1201,12 @@ namespace Web.Controllers
                 var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
                 if (project == null) return NotFound(new { message = "Project Not Found." });
 
+                var isProjectMember = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                    pu.ProjectID == project.ProjectID &&
+                    pu.UserID == user.Id &&
+                    (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+                if (!isProjectMember) return Forbid();
+
                 // Validate Content
                 if (string.IsNullOrWhiteSpace(formdata.Content))
                 {
@@ -3673,6 +3679,12 @@ namespace Web.Controllers
                 if (projectLog == null)
                     return NotFound(new { message = "Project Log Not Found." });
 
+                var isProjectMember = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                    pu.ProjectID == projectLog.ProjectID &&
+                    pu.UserID == user.Id &&
+                    (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+                if (!isProjectMember) return Forbid();
+
                 // Validate this log belongs to current user
                 if (projectLog.UserID != user.Id)
                     return Forbid();
@@ -3898,8 +3910,17 @@ namespace Web.Controllers
             if (projectLog.IsDeleted)
                 return BadRequest(new { message = "Cannot delete already deleted project log." });
 
-            if (!isAdmin && projectLog.UserID != user.Id)
-                return Unauthorized(new { message = "Project log does not belong to current user." });
+            if (!isAdmin)
+            {
+                var isProjectMember = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                    pu.ProjectID == projectLog.ProjectID &&
+                    pu.UserID == user.Id &&
+                    (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+                if (!isProjectMember) return Forbid();
+
+                if (projectLog.UserID != user.Id)
+                    return Unauthorized(new { message = "Project log does not belong to current user." });
+            }
 
             // Update project log
             projectLog.IsDeleted = true;
@@ -3951,8 +3972,17 @@ namespace Web.Controllers
             if (!projectLog.IsDeleted)
                 return BadRequest(new { message = "Cannot repost project log that is not deleted." });
 
-            if (!isAdmin && projectLog.UserID != user.Id)
-                return Unauthorized(new { message = "Project log does not belong to current user." });
+            if (!isAdmin)
+            {
+                var isProjectMember = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                    pu.ProjectID == projectLog.ProjectID &&
+                    pu.UserID == user.Id &&
+                    (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+                if (!isProjectMember) return Forbid();
+
+                if (projectLog.UserID != user.Id)
+                    return Unauthorized(new { message = "Project log does not belong to current user." });
+            }
 
             // Update project log
             projectLog.IsDeleted = false;
