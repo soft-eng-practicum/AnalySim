@@ -139,7 +139,9 @@ namespace Web.Controllers
 
         private async Task LoadUserNavigationsAsync(User user)
         {
-            _dbContext.Entry(user).Collection(u => u.ProjectUsers).Load();
+            await _dbContext.Entry(user).Collection(u => u.ProjectUsers).Query()
+                .Include(pu => pu.Project).ThenInclude(p => p.ProjectUsers)
+                .LoadAsync();
             _dbContext.Entry(user).Collection(u => u.BlobFiles).Load();
             _dbContext.Entry(user).Collection(u => u.Followers).Load();
             _dbContext.Entry(user).Collection(u => u.Following).Load();
@@ -162,6 +164,78 @@ namespace Web.Controllers
             return admins.Any(u => string.Equals(u, currentUsername, StringComparison.OrdinalIgnoreCase));
         }
 
+        private object ToUserResponse(User user, bool isSessionUser = false)
+        {
+            if (user == null) return null;
+
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var currentUserId);
+            var isAdmin = IsCurrentUserAdmin();
+
+            // Login and refresh have verified this user independently of the incoming access token.
+            if (isSessionUser)
+            {
+                currentUserId = user.Id;
+                var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+                isAdmin = admins.Any(u => string.Equals(u, user.UserName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            var includeAccountDetails = currentUserId == user.Id || isAdmin;
+
+            return new
+            {
+                user.Id,
+                user.UserName,
+                user.Bio,
+                user.DateCreated,
+                user.LastOnline,
+                Email = includeAccountDetails ? user.Email : null,
+                ReceiveCommentReplyEmails = includeAccountDetails ? (bool?)user.ReceiveCommentReplyEmails : null,
+                LockoutEnabled = includeAccountDetails ? (bool?)user.LockoutEnabled : null,
+                LockoutEnd = includeAccountDetails ? user.LockoutEnd : null,
+                Followers = user.Followers.Select(f => new { f.UserID, f.FollowerID }).ToList(),
+                Following = user.Following.Select(f => new { f.UserID, f.FollowerID }).ToList(),
+                ProjectUsers = user.ProjectUsers
+                    .Where(pu => pu.Project != null && (isAdmin ||
+                        string.Equals(pu.Project.Visibility, "public", StringComparison.OrdinalIgnoreCase) ||
+                        pu.Project.ProjectUsers.Any(member => member.UserID == currentUserId &&
+                            member.UserRole != null && !string.Equals(member.UserRole, "follower", StringComparison.OrdinalIgnoreCase))))
+                    .Select(pu => new { pu.ProjectID, pu.UserID, pu.UserRole, pu.IsFollowing }).ToList(),
+                BlobFiles = user.BlobFiles
+                    .Where(b => b.ProjectID == null && b.Container == "profile" && b.Name == "profileImage")
+                    .Select(ToBlobFileResponse).ToList()
+            };
+        }
+
+        private object ToUserConnectionResponse(UserUser connection)
+        {
+            return new
+            {
+                connection.UserID,
+                connection.FollowerID,
+                User = ToUserResponse(connection.User),
+                Follower = ToUserResponse(connection.Follower)
+            };
+        }
+
+        private static object ToBlobFileResponse(BlobFile file)
+        {
+            return new
+            {
+                file.BlobFileID,
+                file.Container,
+                file.Directory,
+                file.Name,
+                file.Extension,
+                file.Size,
+                file.Uri,
+                file.DateCreated,
+                file.LastModified,
+                file.UserID,
+                file.ProjectID,
+                User = file.User == null ? null : new { file.User.Id, file.User.UserName }
+            };
+        }
+
         #region GET REQUEST
         /*
          * Type : GET
@@ -176,14 +250,14 @@ namespace Web.Controllers
             var user = _dbContext.Users
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
-                .Include(u => u.ProjectUsers)
+                .Include(u => u.ProjectUsers).ThenInclude(pu => pu.Project).ThenInclude(p => p.ProjectUsers)
                 .Include(u => u.BlobFiles)
                 .SingleOrDefault(x => x.Id == id);
             if (user == null) return NotFound();
             // user.EmailConfirmed ;
             return Ok(new
             {
-                result = user,
+                result = ToUserResponse(user),
                 message = "Received User: " + user.UserName
             });
         }
@@ -224,13 +298,13 @@ namespace Web.Controllers
             var user = _dbContext.Users
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
-                .Include(u => u.ProjectUsers)
+                .Include(u => u.ProjectUsers).ThenInclude(pu => pu.Project).ThenInclude(p => p.ProjectUsers)
                 .Include(u => u.BlobFiles)
                 .SingleOrDefault(u => u.UserName == username);
             if (user == null) return NotFound(new { message = "User Not Found" });
             return Ok(new
             {
-                result = user,
+                result = ToUserResponse(user),
                 message = "Received User: " + user.UserName
             });
         }
@@ -248,7 +322,7 @@ namespace Web.Controllers
             var users = _dbContext.Users
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
-                .Include(u => u.ProjectUsers)
+                .Include(u => u.ProjectUsers).ThenInclude(pu => pu.Project).ThenInclude(p => p.ProjectUsers)
                 .Include(u => u.BlobFiles)
                 .Where(u => ids.Contains(u.Id))
                 .ToList();
@@ -256,7 +330,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = users,
+                result = users.Select(user => ToUserResponse(user)).ToList(),
                 message = "Received User Range"
             });
         }
@@ -274,13 +348,13 @@ namespace Web.Controllers
             var users = _dbContext.Users
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
-                .Include(u => u.ProjectUsers)
+                .Include(u => u.ProjectUsers).ThenInclude(pu => pu.Project).ThenInclude(p => p.ProjectUsers)
                 .Include(u => u.BlobFiles)
                 .ToList();
 
             return Ok(new
             {
-                result = users,
+                result = users.Select(user => ToUserResponse(user)).ToList(),
                 message = "Received User List"
             });
         }
@@ -295,7 +369,7 @@ namespace Web.Controllers
         public IActionResult GetProfileImage([FromQuery(Name="id")] int id)
         {
             var blobfile = _dbContext.BlobFiles
-                .Where(b => b.UserID == id && b.Name == "profileImage")
+                .Where(b => b.UserID == id && b.ProjectID == null && b.Container == "profile" && b.Name == "profileImage")
                 .FirstOrDefault();
             if (blobfile == null) return NotFound(new { message = "Profile Image Not Found"});
 
@@ -303,7 +377,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = blobfile,
+                result = ToBlobFileResponse(blobfile),
                 message = "Received user's profile picture"
             });
         }
@@ -320,7 +394,7 @@ namespace Web.Controllers
             var matchedUser = _dbContext.Users
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
-                .Include(u => u.ProjectUsers)
+                .Include(u => u.ProjectUsers).ThenInclude(pu => pu.Project).ThenInclude(p => p.ProjectUsers)
                 .Include(u => u.BlobFiles)
                 .ToList()
                 .Where(u => searchTerms.All(k => u.UserName.ToLower().Contains(k.ToLower())));
@@ -328,7 +402,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = matchedUser,
+                result = matchedUser.Select(user => ToUserResponse(user)).ToList(),
                 message = "Search Successful"
             });
         }
@@ -373,7 +447,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = userFollower,
+                result = ToUserConnectionResponse(userFollower),
                 message = user.UserName + " is now following " + userToFollow.UserName
             });
         }
@@ -447,7 +521,6 @@ namespace Web.Controllers
                 // Return Ok Request
                 return Ok(new
                 {
-                    result = user,
                     message = $"Registration successful and confirmation email sent"
                 });
             }
@@ -603,7 +676,6 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = user,
                 message = "Successfully sent verification email"
             });  
         }
@@ -649,7 +721,6 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = user,
                 message = "Password Reset mail sent"
             });
         }
@@ -814,14 +885,20 @@ namespace Web.Controllers
             var username = await _userManager.FindByNameAsync(formdata.Username);
             var email = await _userManager.FindByEmailAsync(formdata.Username);
 
-            // Check Login Status
-            if ((username != null && await _userManager.CheckPasswordAsync(username, formdata.Password)) || (email != null && await _userManager.CheckPasswordAsync(email, formdata.Password)))
+            // Select the user whose password was verified
+            User user = null;
+            if (username != null && await _userManager.CheckPasswordAsync(username, formdata.Password))
             {
-                var user = username;
-                if (email != null){
-                    user = email;
-                }
+                user = username;
+            }
+            else if (email != null && await _userManager.CheckPasswordAsync(email, formdata.Password))
+            {
+                user = email;
+            }
 
+            // Check Login Status
+            if (user != null)
+            {
                 if (IsUserDisabled(user))
                 {
                     return Unauthorized(new
@@ -854,7 +931,7 @@ namespace Web.Controllers
                 // Return OK Request
                 return Ok(new
                 {
-                    result = user,
+                    result = ToUserResponse(user, isSessionUser: true),
                     expiration = tokenResult.AccessTokenExpiresAt,
                     message = "Login successful"
                 });
@@ -899,7 +976,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = user,
+                result = ToUserResponse(user),
                 message = "Session is active"
             });
         }
@@ -931,7 +1008,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = tokenResult.User,
+                result = ToUserResponse(tokenResult.User, isSessionUser: true),
                 expiration = tokenResult.AccessTokenExpiresAt,
                 message = "Authentication renewed"
             });
@@ -1001,7 +1078,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = user,
+                result = ToUserResponse(user),
                 message = formdata.Disabled ? "User account disabled." : "User account enabled."
             });
         }
@@ -1073,7 +1150,7 @@ namespace Web.Controllers
                     blobFile.BlobFileContents = null;
 
                     return Ok(new { 
-                        result = blobFile, 
+                        result = ToBlobFileResponse(blobFile),
                         message = "Profile Image Updated" });
                 }
 
@@ -1113,7 +1190,7 @@ namespace Web.Controllers
                 // Return Ok Status
                 return Ok(new
                 {
-                    result = newBlobFile,
+                    result = ToBlobFileResponse(newBlobFile),
                     message = "File Successfully Uploaded"
                 });
             }
@@ -1156,7 +1233,7 @@ namespace Web.Controllers
             var newuser = _dbContext.Users
                 .Include(u => u.Followers)
                 .Include(u => u.Following)
-                .Include(u => u.ProjectUsers)
+                .Include(u => u.ProjectUsers).ThenInclude(pu => pu.Project).ThenInclude(p => p.ProjectUsers)
                 .Include(u => u.BlobFiles)
                 .FirstOrDefault(u => u.Id == user.Id);
             if (newuser == null) return NotFound(new { message = "User Not Found" });
@@ -1170,7 +1247,7 @@ namespace Web.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = user,
+                result = ToUserResponse(user),
                 message = "User has been updated"
             });
 
@@ -1232,7 +1309,7 @@ namespace Web.Controllers
             // Return updated user
             return Ok(new
             {
-                result = user,
+                result = ToUserResponse(user),
                 message = "Notification preferences have been updated"
             });
         }
@@ -1275,7 +1352,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = userFollower,
+                result = ToUserConnectionResponse(userFollower),
                 message = user.UserName + " has unfollow " + userToFollow.UserName
             });
         }
@@ -1421,7 +1498,35 @@ namespace Web.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = userProjects,
+                result = userProjects.Select(pu => new
+                {
+                    pu.ProjectID,
+                    pu.UserID,
+                    pu.UserRole,
+                    pu.IsFollowing,
+                    Project = new
+                    {
+                        pu.Project.ProjectID,
+                        pu.Project.Name,
+                        pu.Project.Visibility,
+                        pu.Project.Description,
+                        pu.Project.DateCreated,
+                        pu.Project.LastUpdated,
+                        pu.Project.Route,
+                        pu.Project.ForkedFromProjectID,
+                        Notebooks = Array.Empty<object>(),
+                        BlobFiles = pu.Project.BlobFiles.Select(ToBlobFileResponse).ToList(),
+                        ProjectUsers = pu.Project.ProjectUsers.Select(member => new
+                        {
+                            member.ProjectID, member.UserID, member.UserRole, member.IsFollowing
+                        }).ToList(),
+                        ProjectTags = pu.Project.ProjectTags.Select(pt => new
+                        {
+                            pt.ProjectID, pt.TagID,
+                            Tag = new { pt.Tag.TagID, pt.Tag.Name }
+                        }).ToList()
+                    }
+                }).ToList(),
                 message = "Received User Project"
             });
         }
@@ -1450,7 +1555,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = userFollowers,
+                result = userFollowers.Select(ToUserConnectionResponse).ToList(),
                 message = "Received User Follower"
             });
         }
@@ -1481,7 +1586,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = userFollowings,
+                result = userFollowings.Select(ToUserConnectionResponse).ToList(),
                 message = "Received User Following"
             });
         }
@@ -1508,7 +1613,12 @@ namespace Web.Controllers
                 if (user == null) return NotFound(new { message = "User Not Found" });
 
                 // Find File
-                var blobFile = await _dbContext.BlobFiles.FindAsync(fileID);
+                var blobFile = await _dbContext.BlobFiles.SingleOrDefaultAsync(file =>
+                    file.BlobFileID == fileID &&
+                    file.UserID == user.Id &&
+                    file.ProjectID == null &&
+                    file.Container == "profile" &&
+                    file.Name == "profileImage");
                 if (blobFile == null) return NotFound(new { message = "File Not Found" });
 
                 //await _blobService.DeleteBlobAsync(blobFile);
@@ -1522,7 +1632,7 @@ namespace Web.Controllers
                 // Return Ok Status
                 return Ok(new
                 {
-                    result = blobFile,
+                    result = ToBlobFileResponse(blobFile),
                     message = "File Successfully Deleted"
                 });
             }

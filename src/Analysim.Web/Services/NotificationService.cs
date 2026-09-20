@@ -79,6 +79,12 @@ namespace Web.Services
             if (notificationEvent.ActorUserID.HasValue && recipientUserId == notificationEvent.ActorUserID.Value)
                 return;
 
+            var recipients = await FilterProjectRecipientsAsync(comment.Project, new[] { recipientUserId });
+            if (recipients.Count == 0)
+                return;
+
+            notificationEvent.ProjectID = comment.ProjectID;
+
             var actorName = await GetUserDisplayNameAsync(notificationEvent.ActorUserID, "Someone");
             var projectName = GetProjectName(comment.Project);
             var link = BuildProjectLink(comment.Project, comment.ProjectLogID.HasValue ? "log" : "comment");
@@ -92,7 +98,7 @@ namespace Web.Services
 
             await CreateAndSendAsync(
                 notificationEvent,
-                new[] { recipientUserId },
+                recipients,
                 title,
                 body,
                 link,
@@ -240,6 +246,9 @@ namespace Web.Services
                 .Distinct()
                 .ToListAsync();
 
+            recipients = await FilterProjectRecipientsAsync(projectLog.Project, recipients);
+            notificationEvent.ProjectID = projectLog.ProjectID;
+
             var actorName = await GetUserDisplayNameAsync(actorUserId, "Someone");
             var projectName = GetProjectName(projectLog.Project);
             var logTitle = string.IsNullOrWhiteSpace(projectLog.Title) ? "Project update" : projectLog.Title.Trim();
@@ -263,6 +272,44 @@ namespace Web.Services
                 link,
                 data
             );
+        }
+
+        private async Task<List<int>> FilterProjectRecipientsAsync(Project project, IEnumerable<int> recipientUserIds)
+        {
+            var recipientIds = recipientUserIds.Distinct().ToList();
+            if (project == null || recipientIds.Count == 0)
+                return new List<int>();
+
+            if (string.Equals(project.Visibility, "public", StringComparison.OrdinalIgnoreCase))
+                return recipientIds;
+
+            var allowedRecipientIds = await _dbContext.ProjectUsers
+                .AsNoTracking()
+                .Where(pu =>
+                    pu.ProjectID == project.ProjectID &&
+                    recipientIds.Contains(pu.UserID) &&
+                    pu.UserRole != null &&
+                    pu.UserRole.ToLower() != "follower")
+                .Select(pu => pu.UserID)
+                .Distinct()
+                .ToListAsync();
+
+            var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+            if (admins.Count > 0)
+            {
+                var recipientUsers = await _dbContext.Users
+                    .AsNoTracking()
+                    .Where(u => recipientIds.Contains(u.Id))
+                    .Select(u => new { u.Id, u.UserName })
+                    .ToListAsync();
+
+                allowedRecipientIds.AddRange(recipientUsers
+                    .Where(u => admins.Any(admin =>
+                        string.Equals(admin, u.UserName, StringComparison.OrdinalIgnoreCase)))
+                    .Select(u => u.Id));
+            }
+
+            return allowedRecipientIds.Distinct().ToList();
         }
 
         private async Task CreateAndSendAsync(

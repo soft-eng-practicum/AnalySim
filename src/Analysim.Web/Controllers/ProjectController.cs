@@ -179,10 +179,150 @@ namespace Web.Controllers
         private IQueryable<ProjectMembershipRequest> ProjectMembershipRequestsWithUsers()
         {
             return _dbContext.ProjectMembershipRequests
-                .Include(pmr => pmr.Project)
+                .Include(pmr => pmr.Project).ThenInclude(p => p.ProjectUsers)
                 .Include(pmr => pmr.RequesterUser)
                 .Include(pmr => pmr.TargetUser)
                 .Include(pmr => pmr.CreatedByUser);
+        }
+
+        // Return only response fields, never tracked navigation graphs or Identity properties.
+        private static object ToUserResponse(User user)
+        {
+            if (user == null) return null;
+
+            return new
+            {
+                user.Id,
+                user.UserName,
+                user.Bio,
+                user.DateCreated,
+                user.LastOnline,
+                Followers = user.Followers.Select(f => new { f.UserID, f.FollowerID }).ToList(),
+                Following = user.Following.Select(f => new { f.UserID, f.FollowerID }).ToList(),
+                BlobFiles = user.BlobFiles
+                    .Where(b => b.ProjectID == null && b.Container == "profile" && b.Name == "profileImage")
+                    .Select(ToBlobFileResponse).ToList()
+            };
+        }
+
+        private static object ToProjectUserResponse(ProjectUser member)
+        {
+            return new
+            {
+                member.ProjectID,
+                member.UserID,
+                member.UserRole,
+                member.IsFollowing,
+                User = ToUserResponse(member.User)
+            };
+        }
+
+        private static object ToBlobFileResponse(BlobFile file)
+        {
+            return new
+            {
+                file.BlobFileID,
+                file.Container,
+                file.Directory,
+                file.Name,
+                file.Extension,
+                file.Size,
+                file.Uri,
+                file.DateCreated,
+                file.LastModified,
+                file.UserID,
+                file.ProjectID,
+                User = file.User == null ? null : new { file.User.Id, file.User.UserName }
+            };
+        }
+
+        private static object ToDatasetResponse(ObservableNotebookDataset dataset)
+        {
+            return new
+            {
+                dataset.ID,
+                dataset.NotebookID,
+                dataset.BlobFileID,
+                dataset.datasetName,
+                dataset.datasetURL
+            };
+        }
+
+        private static object ToNotebookResponse(Notebook notebook)
+        {
+            return new
+            {
+                notebook.NotebookID,
+                notebook.Container,
+                notebook.Directory,
+                notebook.Name,
+                notebook.Route,
+                notebook.Extension,
+                notebook.Size,
+                notebook.Uri,
+                notebook.DateCreated,
+                notebook.LastModified,
+                notebook.ProjectID,
+                notebook.type,
+                observableNotebookDatasets = notebook.observableNotebookDatasets?.Select(ToDatasetResponse).ToList()
+            };
+        }
+
+        private static object ToProjectTagResponse(ProjectTag projectTag)
+        {
+            return new
+            {
+                projectTag.ProjectID,
+                projectTag.TagID,
+                Tag = projectTag.Tag == null ? null : new { projectTag.Tag.TagID, projectTag.Tag.Name }
+            };
+        }
+
+        private static object ToProjectResponse(Project project)
+        {
+            return new
+            {
+                project.ProjectID,
+                project.Name,
+                project.Visibility,
+                project.Description,
+                project.DateCreated,
+                project.LastUpdated,
+                project.Route,
+                project.ForkedFromProjectID,
+                ProjectUsers = project.ProjectUsers.Select(ToProjectUserResponse).ToList(),
+                BlobFiles = project.BlobFiles.Select(ToBlobFileResponse).ToList(),
+                Notebooks = project.Notebooks.Select(ToNotebookResponse).ToList(),
+                ProjectTags = project.ProjectTags?.Select(ToProjectTagResponse).ToList()
+            };
+        }
+
+        private object ToMembershipRequestResponse(ProjectMembershipRequest request)
+        {
+            var canViewProject = request.Project != null && CanCurrentUserViewProject(request.Project);
+            var isInvitee = request.Type == MembershipRequestTypeInvitation &&
+                TryGetCurrentUserId(out var userId) && request.TargetUserID == userId;
+
+            return new
+            {
+                request.ProjectMembershipRequestID,
+                request.ProjectID,
+                // An invitee needs the name and route to identify a private project before joining.
+                Project = request.Project != null && (canViewProject || isInvitee)
+                    ? new { request.Project.ProjectID, request.Project.Name, request.Project.Route }
+                    : null,
+                request.RequesterUserID,
+                RequesterUser = ToUserResponse(request.RequesterUser),
+                request.TargetUserID,
+                TargetUser = ToUserResponse(request.TargetUser),
+                request.CreatedByUserID,
+                CreatedByUser = ToUserResponse(request.CreatedByUser),
+                request.Type,
+                request.Status,
+                request.Message,
+                request.CreatedAt,
+                request.RespondedAt
+            };
         }
 
         private async Task<ProjectUser> AddProjectMemberAsync(int projectID, int userID)
@@ -235,7 +375,7 @@ namespace Web.Controllers
             // Return Ok Request
             return Ok(new
             {
-                result = project,
+                result = ToProjectResponse(project),
                 message = "Received Project"
             });
         }
@@ -261,7 +401,7 @@ namespace Web.Controllers
             // Return Ok Request
             return Ok(new
             {
-                result = project,
+                result = ToProjectResponse(project),
                 message = "Received Project"
             });
         }
@@ -285,7 +425,7 @@ namespace Web.Controllers
             // Return Ok Request
             return Ok(new
             {
-                result = projects,
+                result = projects.Select(ToProjectResponse).ToList(),
                 message = "Received Project"
             });
         }
@@ -309,7 +449,7 @@ namespace Web.Controllers
             // Return Ok Request
             return Ok(new
             {
-                result = projects,
+                result = projects.Select(ToProjectResponse).ToList(),
                 message = "Received Project"
             });
         }
@@ -339,7 +479,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = matchedProject,
+                result = matchedProject.Select(ToProjectResponse).ToList(),
                 message = "Received Search Result."
             });
         }
@@ -451,7 +591,7 @@ namespace Web.Controllers
                 return Ok(new
                 {
                     message = "Notebook Retrieved",
-                    notebook
+                    notebook = ToNotebookResponse(notebook)
                 });
             }
             catch (Exception e)
@@ -474,7 +614,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = notebooks,
+                result = notebooks.Select(ToNotebookResponse).ToList(),
                 message = "All notebooks retrieved"
             });
         }
@@ -985,6 +1125,12 @@ namespace Web.Controllers
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
 
+            var canManagePublications = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                pu.ProjectID == project.ProjectID &&
+                pu.UserID == user.Id &&
+                (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+            if (!canManagePublications) return Forbid();
+
             // Validate Fields
             if (string.IsNullOrWhiteSpace(formdata.Journal))
                 return BadRequest(new { message = "Publication Journal is required." });
@@ -1059,7 +1205,7 @@ namespace Web.Controllers
                     .AnyAsync(aup =>
                         aup.UserID == user.Id &&
                         aup.ProjectID == project.ProjectID &&
-                        (aup.UserRole == "owner" || aup.UserRole == "member"));
+                        (aup.UserRole == ProjectOwnerRole || aup.UserRole == ProjectMemberRole));
 
                 if (!hasProjectLogAccess)
                 {
@@ -1239,6 +1385,7 @@ namespace Web.Controllers
             // Validate Project
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
+            if (!await CanCurrentUserViewProjectAsync(project.ProjectID)) return ProjectNotFound();
 
             // Validate Project Log (if present)
             ProjectLog projectLog = null;
@@ -1361,11 +1508,12 @@ namespace Web.Controllers
             if (user == null) return NotFound(new {message = "User Not Found."});
 
             // Validate Comment
-            var commentExists = await _dbContext.ProjectComments
-                .AnyAsync(c => c.CommentID == commentID && !c.IsDeleted && !c.IsPendingReview);
+            var comment = await _dbContext.ProjectComments
+                .SingleOrDefaultAsync(c => c.CommentID == commentID && !c.IsDeleted && !c.IsPendingReview);
 
-            if (!commentExists)
+            if (comment == null)
                 return NotFound(new { message = "Comment not found." });
+            if (!await CanCurrentUserViewProjectAsync(comment.ProjectID)) return ProjectNotFound();
 
             // Prevent duplicate likes
             var alreadyLiked = await _dbContext.ProjectCommentLikes
@@ -1417,6 +1565,7 @@ namespace Web.Controllers
 
             if (comment == null)
                 return NotFound(new { message = "Comment not found." });
+            if (!await CanCurrentUserViewProjectAsync(comment.ProjectID)) return ProjectNotFound();
 
             // Prevent duplicate flags by user
             var alreadyFlagged = await _dbContext.ProjectCommentFlags
@@ -1529,6 +1678,20 @@ namespace Web.Controllers
             var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
             if (project == null) return NotFound(new { message = "Project Not Found" });
             if (!await CanCurrentUserViewProjectAsync(project.ProjectID)) return ProjectNotFound();
+
+            // Validate all selected files belong to the source project
+            if (formdata.BlobFilesID != null && formdata.BlobFilesID.Length > 0)
+            {
+                var requestedBlobFileIDs = formdata.BlobFilesID.Distinct().ToArray();
+                var sourceBlobFileCount = await _dbContext.BlobFiles.CountAsync(file =>
+                    requestedBlobFileIDs.Contains(file.BlobFileID) &&
+                    file.ProjectID == project.ProjectID);
+
+                if (sourceBlobFileCount != requestedBlobFileIDs.Length)
+                {
+                    return BadRequest(new { message = "One or more files do not belong to the source project." });
+                }
+            }
 
             // Check if the project already exists
             bool projectExists = await _dbContext.Projects
@@ -1694,7 +1857,7 @@ namespace Web.Controllers
 
                 return Ok(new
                 {
-                    result = newProject,
+                    result = ToProjectResponse(newProject),
                     message = "Project Successfully Forked"
                 });
             }
@@ -1835,7 +1998,7 @@ namespace Web.Controllers
 
                 return Ok(new
                 {
-                    result = newProject,
+                    result = ToProjectResponse(newProject),
                     message = "Project Successfully Forked"
                 });
             }
@@ -2005,7 +2168,7 @@ namespace Web.Controllers
             // Return Ok Request
             return Ok(new
             {
-                result = newProject,
+                result = ToProjectResponse(newProject),
                 message = "Project Successfully Created"
             });
         }
@@ -2058,7 +2221,7 @@ namespace Web.Controllers
                 {
                     return Conflict(new
                     {
-                        result = projectUser,
+                        result = ToProjectUserResponse(projectUser),
                         message = "Project membership already exists and cannot be changed to a follower record."
                     });
                 }
@@ -2067,7 +2230,7 @@ namespace Web.Controllers
                 {
                     return Ok(new
                     {
-                        result = projectUser,
+                        result = ToProjectUserResponse(projectUser),
                         message = "Project is already followed."
                     });
                 }
@@ -2078,7 +2241,7 @@ namespace Web.Controllers
 
                 return Ok(new
                 {
-                    result = projectUser,
+                    result = ToProjectUserResponse(projectUser),
                     message = "Project followed successfully."
                 });
             }
@@ -2099,7 +2262,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = projectUser,
+                result = ToProjectUserResponse(projectUser),
                 message = "Project followed successfully."
             });
         }
@@ -2153,7 +2316,7 @@ namespace Web.Controllers
             {
                 return Conflict(new
                 {
-                    result = projectUser,
+                    result = ToProjectUserResponse(projectUser),
                     message = "Project membership already exists and cannot be changed to an unfollow record."
                 });
             }
@@ -2162,7 +2325,7 @@ namespace Web.Controllers
             {
                 return Ok(new
                 {
-                    result = projectUser,
+                    result = ToProjectUserResponse(projectUser),
                     message = "Project is already unfollowed."
                 });
             }
@@ -2173,7 +2336,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = projectUser,
+                result = ToProjectUserResponse(projectUser),
                 message = "Project unfollowed successfully."
             });
         }
@@ -2209,7 +2372,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = requests,
+                result = requests.Select(ToMembershipRequestResponse).ToList(),
                 message = "Project membership requests received."
             });
         }
@@ -2236,7 +2399,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = requests,
+                result = requests.Select(ToMembershipRequestResponse).ToList(),
                 message = "Membership requests received."
             });
         }
@@ -2267,7 +2430,7 @@ namespace Web.Controllers
             {
                 return Conflict(new
                 {
-                    result = projectUser,
+                    result = ToProjectUserResponse(projectUser),
                     message = "You are already a member of this project."
                 });
             }
@@ -2283,7 +2446,7 @@ namespace Web.Controllers
             {
                 return Conflict(new
                 {
-                    result = pendingInvitation,
+                    result = ToMembershipRequestResponse(pendingInvitation),
                     message = "You already have a pending invitation for this project."
                 });
             }
@@ -2299,7 +2462,7 @@ namespace Web.Controllers
             {
                 return Ok(new
                 {
-                    result = existingRequest,
+                    result = ToMembershipRequestResponse(existingRequest),
                     message = "Join request is already pending."
                 });
             }
@@ -2338,7 +2501,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = joinRequest,
+                result = ToMembershipRequestResponse(joinRequest),
                 message = "Join request submitted successfully."
             });
         }
@@ -2376,7 +2539,7 @@ namespace Web.Controllers
             {
                 return Conflict(new
                 {
-                    result = projectUser,
+                    result = ToProjectUserResponse(projectUser),
                     message = "User is already a member of this project."
                 });
             }
@@ -2392,7 +2555,7 @@ namespace Web.Controllers
             {
                 return Conflict(new
                 {
-                    result = pendingJoinRequest,
+                    result = ToMembershipRequestResponse(pendingJoinRequest),
                     message = "User already has a pending join request for this project."
                 });
             }
@@ -2408,7 +2571,7 @@ namespace Web.Controllers
             {
                 return Ok(new
                 {
-                    result = existingInvitation,
+                    result = ToMembershipRequestResponse(existingInvitation),
                     message = "Project invitation is already pending."
                 });
             }
@@ -2449,7 +2612,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = invitation,
+                result = ToMembershipRequestResponse(invitation),
                 message = "Project invitation created successfully."
             });
         }
@@ -2474,7 +2637,7 @@ namespace Web.Controllers
 
             if (membershipRequest == null) return NotFound(new { message = "Membership request not found." });
             if (membershipRequest.Status != MembershipRequestStatusPending)
-                return Conflict(new { result = membershipRequest, message = "Membership request is not pending." });
+                return Conflict(new { message = "Membership request is not pending." });
 
             if (membershipRequest.Type == MembershipRequestTypeJoin)
             {
@@ -2525,8 +2688,8 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = projectUser,
-                request = membershipRequest,
+                result = ToProjectUserResponse(projectUser),
+                request = ToMembershipRequestResponse(membershipRequest),
                 message = "Project membership request accepted successfully."
             });
         }
@@ -2551,7 +2714,7 @@ namespace Web.Controllers
 
             if (membershipRequest == null) return NotFound(new { message = "Membership request not found." });
             if (membershipRequest.Status != MembershipRequestStatusPending)
-                return Conflict(new { result = membershipRequest, message = "Membership request is not pending." });
+                return Conflict(new { message = "Membership request is not pending." });
 
             if (membershipRequest.Type == MembershipRequestTypeJoin)
             {
@@ -2575,7 +2738,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = membershipRequest,
+                result = ToMembershipRequestResponse(membershipRequest),
                 message = "Project membership request rejected successfully."
             });
         }
@@ -2600,7 +2763,7 @@ namespace Web.Controllers
 
             if (membershipRequest == null) return NotFound(new { message = "Membership request not found." });
             if (membershipRequest.Status != MembershipRequestStatusPending)
-                return Conflict(new { result = membershipRequest, message = "Membership request is not pending." });
+                return Conflict(new { message = "Membership request is not pending." });
 
             if (membershipRequest.Type == MembershipRequestTypeJoin)
             {
@@ -2624,7 +2787,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = membershipRequest,
+                result = ToMembershipRequestResponse(membershipRequest),
                 message = "Project membership request cancelled successfully."
             });
         }
@@ -2671,7 +2834,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = projectUser,
+                result = ToProjectUserResponse(projectUser),
                 message = "Project left successfully."
             });
         }
@@ -2749,7 +2912,7 @@ namespace Web.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = projectTag,
+                result = ToProjectTagResponse(projectTag),
                 message = "Project Tag Added"
             });
         }
@@ -2858,7 +3021,7 @@ namespace Web.Controllers
                 // Return Ok Status
                 return Ok(new
                 {
-                    result = newBlobFile,
+                    result = ToBlobFileResponse(newBlobFile),
                     message = "File Successfully Uploaded",
                 });
 
@@ -2958,7 +3121,7 @@ namespace Web.Controllers
                 // Return Ok Status
                 return Ok(new
                 {
-                    result = newNotebook,
+                    result = ToNotebookResponse(newNotebook),
                     message = "Notebook Successfully Uploaded",
                 });
 
@@ -3190,7 +3353,7 @@ namespace Web.Controllers
 
                 return Ok(new
                 {
-                    result = newNotebook,
+                    result = ToNotebookResponse(newNotebook),
                     message = "Notebook Uploaded Successfully"
                 });
             }
@@ -3264,7 +3427,7 @@ namespace Web.Controllers
                 // Return Ok Status
                 return Ok(new
                 {
-                    result = newBlobFile,
+                    result = ToBlobFileResponse(newBlobFile),
                     message = "File Successfully Uploaded"
                 });
 
@@ -3340,7 +3503,7 @@ namespace Web.Controllers
                 // Return Ok Status
                 return Ok(new
                 {
-                    result = newNotebook,
+                    result = ToNotebookResponse(newNotebook),
                     message = "File Successfully Uploaded"
                 });
 
@@ -3408,7 +3571,7 @@ namespace Web.Controllers
 
                 return Ok(new
                 {
-                    result = newDataset,
+                    result = ToDatasetResponse(newDataset),
                     message = "Dataset added to the notebook successfully."
                 });
             }
@@ -3453,10 +3616,11 @@ namespace Web.Controllers
             if (publication == null)
                 return NotFound(new { message = "Publication Not Found" });
 
-            // Validate Project
-            var project = await _dbContext.Projects.FindAsync(formdata.ProjectID);
-            if (project == null)
-                return NotFound(new { message = "Project Not Found" });
+            var canManagePublications = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                pu.ProjectID == publication.ProjectID &&
+                pu.UserID == user.Id &&
+                (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+            if (!canManagePublications) return Forbid();
 
             if (publication.ProjectID != formdata.ProjectID)
                 return BadRequest(new { message = "Publication does not belong to this project." });
@@ -3533,6 +3697,12 @@ namespace Web.Controllers
 
                 if (projectLog == null)
                     return NotFound(new { message = "Project Log Not Found." });
+
+                var isProjectMember = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                    pu.ProjectID == projectLog.ProjectID &&
+                    pu.UserID == user.Id &&
+                    (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+                if (!isProjectMember) return Forbid();
 
                 // Validate this log belongs to current user
                 if (projectLog.UserID != user.Id)
@@ -3759,8 +3929,17 @@ namespace Web.Controllers
             if (projectLog.IsDeleted)
                 return BadRequest(new { message = "Cannot delete already deleted project log." });
 
-            if (!isAdmin && projectLog.UserID != user.Id)
-                return Unauthorized(new { message = "Project log does not belong to current user." });
+            if (!isAdmin)
+            {
+                var isProjectMember = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                    pu.ProjectID == projectLog.ProjectID &&
+                    pu.UserID == user.Id &&
+                    (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+                if (!isProjectMember) return Forbid();
+
+                if (projectLog.UserID != user.Id)
+                    return Unauthorized(new { message = "Project log does not belong to current user." });
+            }
 
             // Update project log
             projectLog.IsDeleted = true;
@@ -3812,8 +3991,17 @@ namespace Web.Controllers
             if (!projectLog.IsDeleted)
                 return BadRequest(new { message = "Cannot repost project log that is not deleted." });
 
-            if (!isAdmin && projectLog.UserID != user.Id)
-                return Unauthorized(new { message = "Project log does not belong to current user." });
+            if (!isAdmin)
+            {
+                var isProjectMember = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                    pu.ProjectID == projectLog.ProjectID &&
+                    pu.UserID == user.Id &&
+                    (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+                if (!isProjectMember) return Forbid();
+
+                if (projectLog.UserID != user.Id)
+                    return Unauthorized(new { message = "Project log does not belong to current user." });
+            }
 
             // Update project log
             projectLog.IsDeleted = false;
@@ -3863,6 +4051,7 @@ namespace Web.Controllers
             // Validate Comment
             var comment = await _dbContext.ProjectComments.SingleOrDefaultAsync(c => c.CommentID == commentID);
             if (comment == null) return NotFound(new { message = "Comment Not Found" });
+            if (!await CanCurrentUserViewProjectAsync(comment.ProjectID)) return ProjectNotFound();
 
             if(comment.IsDeleted) return BadRequest(new {message = "Cannot edit deleted comments."});
             if(comment.IsPendingReview) return BadRequest(new {message = "Cannot edit comments under review."});
@@ -3988,7 +4177,7 @@ namespace Web.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = project,
+                result = ToProjectResponse(project),
                 message = "Project successfully updated."
             });
 
@@ -4038,7 +4227,7 @@ namespace Web.Controllers
                 await _dbContext.SaveChangesAsync();
                 return Ok(new
                 {
-                    result = dataset,
+                    result = ToDatasetResponse(dataset),
                     message = "Dataset deleted from the notebook successfully."
                 });
             }
@@ -4082,7 +4271,7 @@ namespace Web.Controllers
             }
             return Ok(new
             {
-                notebook,
+                notebook = ToNotebookResponse(notebook),
                 message = "Notebook name Successfully Changed"
             });
 
@@ -4112,7 +4301,12 @@ namespace Web.Controllers
             var publication = await _dbContext.Publications
                 .FirstOrDefaultAsync(p => p.PublicationID == publicationId);
             if (publication == null) return NotFound(new { message = "Publication not found." });
-            
+
+            var canManagePublications = await _dbContext.ProjectUsers.AnyAsync(pu =>
+                pu.ProjectID == publication.ProjectID &&
+                pu.UserID == userId &&
+                (pu.UserRole == ProjectOwnerRole || pu.UserRole == ProjectMemberRole));
+            if (!canManagePublications) return Forbid();
 
             // Remove publication
             _dbContext.Publications.Remove(publication);
@@ -4532,7 +4726,7 @@ namespace Web.Controllers
                 // Return Ok Status
                 return Ok(new
                 {
-                    result = deleteProject,
+                    result = ToProjectResponse(deleteProject),
                     message = "Project successfully deleted."
                 });
             }
@@ -4591,7 +4785,7 @@ namespace Web.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = projectUser,
+                result = ToProjectUserResponse(projectUser),
                 message = "User Role successfully deleted."
             });
         }
@@ -4655,7 +4849,7 @@ namespace Web.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = projectTag,
+                result = ToProjectTagResponse(projectTag),
                 message = projectTag.Tag.Name + " tag has been removed"
             });
         }
@@ -4725,7 +4919,7 @@ namespace Web.Controllers
                     // Return Ok Status
                     return Ok(new
                     {
-                        result = blobFile,
+                        result = ToBlobFileResponse(blobFile),
                         message = "File Successfully Deleted"
                     });
                 }
@@ -4812,7 +5006,7 @@ namespace Web.Controllers
                     // Return Ok Status
                     return Ok(new
                     {
-                        result = notebook,
+                        result = ToNotebookResponse(notebook),
                         message = "Notebook Successfully Deleted"
                     });
                 }
@@ -4854,7 +5048,6 @@ namespace Web.Controllers
                 .Include(pu => pu.User).ThenInclude(u => u.BlobFiles)
                 .Include(pu => pu.User).ThenInclude(u => u.Followers)
                 .Include(pu => pu.User).ThenInclude(u => u.Following)
-                .Include(pu => pu.User).ThenInclude(u => u.ProjectUsers)
                 .Where(pu => pu.ProjectID == projectID)
                 .ToList();
             if (users.Count() == 0) return NoContent();
@@ -4862,7 +5055,7 @@ namespace Web.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = users,
+                result = users.Select(ToProjectUserResponse).ToList(),
                 message = "Received Project User"
             });
         }
@@ -4884,7 +5077,7 @@ namespace Web.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = files,
+                result = files.Select(ToBlobFileResponse).ToList(),
                 message = "Project File Received"
             });
         }
@@ -4903,7 +5096,7 @@ namespace Web.Controllers
             // Return Ok Status
             return Ok(new
             {
-                result = files,
+                result = files.Select(ToBlobFileResponse).ToList(),
                 message = "Datasets Received"
             });
         }
@@ -4921,7 +5114,7 @@ namespace Web.Controllers
 
             return Ok(new
             {
-                result = notebooks,
+                result = notebooks.Select(ToNotebookResponse).ToList(),
                 message = "Project Notebooks Received"
             });
         }
@@ -4947,7 +5140,7 @@ namespace Web.Controllers
 
             var query = project
                 .SelectMany(p => p.ProjectTags)
-                .Select(pt => pt.Tag);
+                .Select(pt => new { pt.Tag.TagID, pt.Tag.Name });
 
             // Return Ok Status
             return Ok(new
@@ -5030,6 +5223,7 @@ namespace Web.Controllers
          * Param : BlobUploadViewModel
          * Description: Upload Folder To Azure Storage
          */
+        [Authorize]
         [HttpPut("[action]")]
         public async Task<IActionResult> MoveFile([FromForm] ProjectFileMoveVM formdata)
         {
@@ -5038,9 +5232,21 @@ namespace Web.Controllers
                 // Check Model State
                 if (!ModelState.IsValid) return BadRequest(ModelState);
 
-                // Find User
+                if (!TryGetCurrentUserId(out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user identifier." });
+                }
+
+                // Find File
                 var blobFile = await _dbContext.BlobFiles.FindAsync(formdata.FileID);
                 if (blobFile == null) return NotFound(new { message = "File Not Found" });
+                if (!blobFile.ProjectID.HasValue)
+                {
+                    return BadRequest(new { message = "File does not belong to a project" });
+                }
+
+                var isOwner = await IsProjectOwnerAsync(blobFile.ProjectID.Value, userId);
+                if (!isOwner) return Unauthorized(new { message = "You are not the owner of the project" });
 
                 var filePath = formdata.SubDirectory + blobFile.Name + blobFile.Extension;
 
@@ -5060,7 +5266,7 @@ namespace Web.Controllers
                 // Return Ok Status
                 return Ok(new
                 {
-                    result = blobFile,
+                    result = ToBlobFileResponse(blobFile),
                     message = "File Successfully Moved"
                 });
 
