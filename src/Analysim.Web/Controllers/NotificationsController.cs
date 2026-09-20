@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,10 +30,12 @@ namespace Web.Controllers
         };
 
         private readonly ApplicationDbContext _dbContext;
+        private readonly IConfiguration _configuration;
 
-        public NotificationsController(ApplicationDbContext dbContext)
+        public NotificationsController(ApplicationDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -52,6 +55,8 @@ namespace Web.Controllers
             var query = _dbContext.Notifications
                 .AsNoTracking()
                 .Where(n => n.RecipientUserID == userId);
+
+            query = ApplyVisibleNotificationScope(query, userId);
 
             if (unreadOnly)
                 query = query.Where(n => !n.IsRead);
@@ -96,9 +101,12 @@ namespace Web.Controllers
             var userIdResult = TryGetCurrentUserId(out var userId);
             if (userIdResult != null) return userIdResult;
 
-            var count = await _dbContext.Notifications
-                .AsNoTracking()
-                .CountAsync(n => n.RecipientUserID == userId && !n.IsRead);
+            var count = await ApplyVisibleNotificationScope(
+                    _dbContext.Notifications
+                        .AsNoTracking()
+                        .Where(n => n.RecipientUserID == userId),
+                    userId)
+                .CountAsync(n => !n.IsRead);
 
             return Ok(new
             {
@@ -113,8 +121,10 @@ namespace Web.Controllers
             var userIdResult = TryGetCurrentUserId(out var userId);
             if (userIdResult != null) return userIdResult;
 
-            var notification = await _dbContext.Notifications
-                .SingleOrDefaultAsync(n => n.NotificationID == notificationId && n.RecipientUserID == userId);
+            var notification = await ApplyVisibleNotificationScope(
+                    _dbContext.Notifications.Where(n => n.RecipientUserID == userId),
+                    userId)
+                .SingleOrDefaultAsync(n => n.NotificationID == notificationId);
 
             if (notification == null)
                 return NotFound(new { message = "Notification not found." });
@@ -139,8 +149,10 @@ namespace Web.Controllers
             var userIdResult = TryGetCurrentUserId(out var userId);
             if (userIdResult != null) return userIdResult;
 
-            var unreadNotifications = await _dbContext.Notifications
-                .Where(n => n.RecipientUserID == userId && !n.IsRead)
+            var unreadNotifications = await ApplyVisibleNotificationScope(
+                    _dbContext.Notifications.Where(n => n.RecipientUserID == userId),
+                    userId)
+                .Where(n => !n.IsRead)
                 .ToListAsync();
 
             var now = DateTime.UtcNow;
@@ -256,6 +268,31 @@ namespace Web.Controllers
                 return Unauthorized(new { message = "Invalid user identifier." });
 
             return null;
+        }
+
+        private IQueryable<Notification> ApplyVisibleNotificationScope(
+            IQueryable<Notification> notifications,
+            int userId)
+        {
+            if (IsCurrentUserAdmin()) return notifications;
+
+            return notifications.Where(n =>
+                n.Type == NotificationTypes.ProjectInvitationReceived ||
+                !n.ProjectID.HasValue ||
+                (n.Project.Visibility != null && n.Project.Visibility.ToLower() == "public") ||
+                n.Project.ProjectUsers.Any(pu =>
+                    pu.UserID == userId &&
+                    pu.UserRole != null &&
+                    pu.UserRole.ToLower() != "follower"));
+        }
+
+        private bool IsCurrentUserAdmin()
+        {
+            var currentUsername = User.Identity?.Name ?? User.FindFirstValue(ClaimTypes.Name);
+            if (string.IsNullOrWhiteSpace(currentUsername)) return false;
+
+            var admins = _configuration.GetSection("AdminUsers").Get<List<string>>() ?? new List<string>();
+            return admins.Any(u => string.Equals(u, currentUsername, StringComparison.OrdinalIgnoreCase));
         }
 
         private static bool GetDefaultEmailPreference(User user, string notificationType)
