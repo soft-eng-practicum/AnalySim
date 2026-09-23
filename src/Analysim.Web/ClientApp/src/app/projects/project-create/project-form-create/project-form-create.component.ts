@@ -6,6 +6,11 @@ import { AccountService } from 'src/app/services/account.service';
 import { User } from 'src/app/interfaces/user';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import {
+  createDefaultProjectMemberPermissions,
+  PROJECT_MEMBER_PERMISSION_OPTIONS,
+  ProjectMemberPermissions
+} from 'src/app/interfaces/project-member-permissions';
 
 @Component({
   selector: 'app-project-form-create',
@@ -25,6 +30,8 @@ export class ProjectFormCreateComponent implements OnInit {
   name: FormControl
   description: FormControl
   visibility: FormControl
+  memberPermissions: FormGroup
+  permissionOptions = PROJECT_MEMBER_PERMISSION_OPTIONS
 
   currentUser$ : Observable<User>
   currentUser : User
@@ -47,12 +54,14 @@ export class ProjectFormCreateComponent implements OnInit {
     this.name = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20), this.noSpaceSpecial()])
     this.description = new FormControl('')
     this.visibility = new FormControl('public', [Validators.required])
+    this.memberPermissions = this.formBuilder.group(createDefaultProjectMemberPermissions())
 
     // Initialize FormGroup using FormBuilder
     this.projectForm = this.formBuilder.group({
         name : this.name,
         description : this.description,
-        visibility : this.visibility
+        visibility : this.visibility,
+        memberPermissions: this.memberPermissions
     })
     
   }
@@ -85,7 +94,13 @@ export class ProjectFormCreateComponent implements OnInit {
     this.submitErrorMessage = '';
     this.isLoading = true;
 
-    this.projectService.createProject(this.currentUser, projectForm.name, projectForm.visibility, projectForm.description).subscribe(
+    this.projectService.createProject(
+      this.currentUser,
+      projectForm.name,
+      projectForm.visibility,
+      projectForm.description,
+      projectForm.memberPermissions as ProjectMemberPermissions
+    ).subscribe(
       result =>{
         this.isLoading = false;
         this.setProject.emit(result)

@@ -24,7 +24,8 @@ export class ProjectNotebookItemComponent implements OnInit {
 
   @Input() currentDirectory: string;
 
-  @Input() isMember: boolean;
+  @Input() canUploadNotebooks: boolean;
+  @Input() canManageNotebooks: boolean;
 
   @Output() navigateToNewDirectory: EventEmitter<string> = new EventEmitter<string>();
 
@@ -117,7 +118,7 @@ export class ProjectNotebookItemComponent implements OnInit {
           return alert("folder is not empty !!");
         }
       }
-      this.projectService.deleteNotebook(this.notebook.notebookID, this.selectedVersion, this.isMember).subscribe(res => {
+      this.projectService.deleteNotebook(this.notebook.notebookID, this.selectedVersion, this.canManageNotebooks).subscribe(res => {
         this.getNotebooks.emit(this.currentDirectory);
       })
     });

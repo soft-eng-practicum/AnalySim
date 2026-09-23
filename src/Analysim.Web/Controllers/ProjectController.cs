@@ -2241,7 +2241,16 @@ namespace Web.Controllers
                 Description = formdata.Description,
                 DateCreated = DateTimeOffset.UtcNow,
                 LastUpdated = DateTimeOffset.UtcNow,
-                Route = user.UserName + "/" + formdata.Name
+                Route = user.UserName + "/" + formdata.Name,
+                MembersCanEditProject = formdata.MembersCanEditProject ?? false,
+                MembersCanManageMembers = formdata.MembersCanManageMembers ?? false,
+                MembersCanManageTags = formdata.MembersCanManageTags ?? false,
+                MembersCanUploadFiles = formdata.MembersCanUploadFiles ?? true,
+                MembersCanManageFiles = formdata.MembersCanManageFiles ?? false,
+                MembersCanUploadNotebooks = formdata.MembersCanUploadNotebooks ?? true,
+                MembersCanManageNotebooks = formdata.MembersCanManageNotebooks ?? false,
+                MembersCanManagePublications = formdata.MembersCanManagePublications ?? true,
+                MembersCanManageProjectLogs = formdata.MembersCanManageProjectLogs ?? true
             };
 
             // Add Project And Save Change
@@ -4456,6 +4465,20 @@ namespace Web.Controllers
                 ProjectPermission.EditProject);
 
             if (!canEditProject) return Forbid();
+
+            bool includesMemberPermissions =
+                formdata.MembersCanEditProject.HasValue ||
+                formdata.MembersCanManageMembers.HasValue ||
+                formdata.MembersCanManageTags.HasValue ||
+                formdata.MembersCanUploadFiles.HasValue ||
+                formdata.MembersCanManageFiles.HasValue ||
+                formdata.MembersCanUploadNotebooks.HasValue ||
+                formdata.MembersCanManageNotebooks.HasValue ||
+                formdata.MembersCanManagePublications.HasValue ||
+                formdata.MembersCanManageProjectLogs.HasValue;
+
+            if (includesMemberPermissions && !await IsProjectOwnerAsync(projectID, user.Id))
+                return Forbid();
             
 
             // Check Model State
@@ -4489,6 +4512,19 @@ namespace Web.Controllers
             project.Description = formdata.Description;
             project.LastUpdated = DateTime.UtcNow;
             project.Route = projectOwner.UserName + "/" + formdata.Name;
+
+            if (includesMemberPermissions)
+            {
+                project.MembersCanEditProject = formdata.MembersCanEditProject ?? project.MembersCanEditProject;
+                project.MembersCanManageMembers = formdata.MembersCanManageMembers ?? project.MembersCanManageMembers;
+                project.MembersCanManageTags = formdata.MembersCanManageTags ?? project.MembersCanManageTags;
+                project.MembersCanUploadFiles = formdata.MembersCanUploadFiles ?? project.MembersCanUploadFiles;
+                project.MembersCanManageFiles = formdata.MembersCanManageFiles ?? project.MembersCanManageFiles;
+                project.MembersCanUploadNotebooks = formdata.MembersCanUploadNotebooks ?? project.MembersCanUploadNotebooks;
+                project.MembersCanManageNotebooks = formdata.MembersCanManageNotebooks ?? project.MembersCanManageNotebooks;
+                project.MembersCanManagePublications = formdata.MembersCanManagePublications ?? project.MembersCanManagePublications;
+                project.MembersCanManageProjectLogs = formdata.MembersCanManageProjectLogs ?? project.MembersCanManageProjectLogs;
+            }
 
             // Set Entity State
             _dbContext.Entry(project).State = EntityState.Modified;

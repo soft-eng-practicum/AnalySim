@@ -30,13 +30,32 @@
         <textarea formControlName="description" type="text" class="form-control" placeholder="" [readOnly]="isLoading"></textarea>
     </div>
 
+    <fieldset class="member-permissions" formGroupName="memberPermissions" [disabled]="isLoading">
+        <legend>Member Permissions</legend>
+        <p class="text-muted mb-3">Choose what project members can do. As the owner, you always keep full access.</p>
+
+        <div class="member-permission-option" *ngFor="let permission of permissionOptions">
+            <div class="custom-control custom-switch">
+                <input
+                    type="checkbox"
+                    class="custom-control-input"
+                    [id]="'create-' + permission.key"
+                    [formControlName]="permission.key">
+                <label class="custom-control-label" [for]="'create-' + permission.key">
+                    {{ permission.label }}
+                </label>
+            </div>
+            <small class="text-muted d-block">{{ permission.description }}</small>
+        </div>
+    </fieldset>
+
     <!-- Form Create Project -->
     <div *ngIf="submitErrorMessage" class="form-group mb-2">
         <div class="alert alert-danger mb-0" role="alert">{{ submitErrorMessage }}</div>
     </div>
 
     <div class="form-group mb-0">
-        <button id="success-btn"  type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="projectForm.invalid">
+        <button id="success-btn"  type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="projectForm.invalid || isLoading">
             <div *ngIf="!isLoading">
                 <span>Create Project</span>
             </div>
@@ -46,4 +65,3 @@
         </button>                
     </div>
 </form> <!-- Project Form End -->
-
