@@ -33,6 +33,18 @@ namespace Core.Entities
         [Required(ErrorMessage = "Project Route is a required field.")]
         public string Route { get; set; }
 
+        // Member permissions are configured per project. Defaults preserve the
+        // existing platform behaviour for projects created before this feature.
+        public bool MembersCanEditProject { get; set; } = false;
+        public bool MembersCanManageMembers { get; set; } = false;
+        public bool MembersCanManageTags { get; set; } = false;
+        public bool MembersCanUploadFiles { get; set; } = true;
+        public bool MembersCanManageFiles { get; set; } = false;
+        public bool MembersCanUploadNotebooks { get; set; } = true;
+        public bool MembersCanManageNotebooks { get; set; } = false;
+        public bool MembersCanManagePublications { get; set; } = true;
+        public bool MembersCanManageProjectLogs { get; set; } = true;
+
         public List<ProjectTag> ProjectTags { get; set; }
         public ICollection<ProjectUser> ProjectUsers { get; } = new List<ProjectUser>();
         public ICollection<BlobFile> BlobFiles { get; set; } = new List<BlobFile>();

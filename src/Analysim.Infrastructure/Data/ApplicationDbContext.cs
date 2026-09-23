@@ -141,6 +141,24 @@ namespace Infrastructure.Data
                         .HasForeignKey(p => p.ProjectID)
                         .OnDelete(DeleteBehavior.Cascade);
 
+            // Preserve the current member capabilities for existing and new projects.
+            // Project owners can change these values through the project permissions API.
+            modelBuilder.Entity<Project>()
+                        .Property(p => p.MembersCanUploadFiles)
+                        .HasDefaultValue(true);
+
+            modelBuilder.Entity<Project>()
+                        .Property(p => p.MembersCanUploadNotebooks)
+                        .HasDefaultValue(true);
+
+            modelBuilder.Entity<Project>()
+                        .Property(p => p.MembersCanManagePublications)
+                        .HasDefaultValue(true);
+
+            modelBuilder.Entity<Project>()
+                        .Property(p => p.MembersCanManageProjectLogs)
+                        .HasDefaultValue(true);
+
 
             // One To Many Relationship (Project -> Notebook)
             modelBuilder.Entity<Project>()
