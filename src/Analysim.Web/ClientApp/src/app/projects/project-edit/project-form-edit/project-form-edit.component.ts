@@ -7,6 +7,11 @@ import { User } from 'src/app/interfaces/user';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { ProjectUser } from 'src/app/interfaces/project-user';
+import {
+  createDefaultProjectMemberPermissions,
+  PROJECT_MEMBER_PERMISSION_OPTIONS,
+  ProjectMemberPermissions
+} from 'src/app/interfaces/project-member-permissions';
 
 
 @Component({
@@ -28,6 +33,8 @@ export class ProjectFormEditComponent implements OnInit {
   name: FormControl
   description: FormControl
   visibility: FormControl
+  memberPermissions: FormGroup
+  permissionOptions = PROJECT_MEMBER_PERMISSION_OPTIONS
 
   currentUser$: Observable<User>
   currentUser: User
@@ -37,6 +44,7 @@ export class ProjectFormEditComponent implements OnInit {
   currentProject$: Observable<Project> = null
   project: Project
   projectUser: ProjectUser = null
+  isOwner: boolean = false
 
 
   @Input() owner: string
@@ -59,12 +67,14 @@ export class ProjectFormEditComponent implements OnInit {
     this.name = new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(20), this.noSpaceSpecial()])
     this.description = new FormControl('')
     this.visibility = new FormControl('', [Validators.required])
+    this.memberPermissions = this.formBuilder.group(createDefaultProjectMemberPermissions())
 
     // Initialize FormGroup using FormBuilder
     this.projectForm = this.formBuilder.group({
       name: this.name,
       description: this.description,
-      visibility: this.visibility
+      visibility: this.visibility,
+      memberPermissions: this.memberPermissions
     })
 
     if (!this.owner || !this.projectname) {
@@ -82,10 +92,13 @@ export class ProjectFormEditComponent implements OnInit {
     this.projectService.getProjectByRoute(owner, projectname).subscribe(
       result => {
         this.project = result;
+        this.projectUser = result.projectUsers.find(projectUser => projectUser.userID == this.currentUser.id) || null;
+        this.isOwner = this.projectUser?.userRole == 'owner';
         this.projectForm.patchValue({
           name: result.name,
           description: result.description,
-          visibility: result.visibility
+          visibility: result.visibility,
+          memberPermissions: result.memberPermissions || createDefaultProjectMemberPermissions()
         });
         this.setProject.emit(result);
         this.isLoading = false;
@@ -95,6 +108,12 @@ export class ProjectFormEditComponent implements OnInit {
         console.log(error);
       }
     );
+  }
+
+  get canEditProject(): boolean {
+    if (this.isOwner) return true;
+    return this.projectUser?.userRole == 'member' &&
+      this.project?.memberPermissions?.membersCanEditProject == true;
   }
 
 
@@ -122,7 +141,7 @@ export class ProjectFormEditComponent implements OnInit {
 
 
   onSubmit() {
-    if (!this.project || this.projectForm.invalid) {
+    if (!this.project || !this.canEditProject || this.projectForm.invalid) {
       this.projectForm.markAllAsTouched();
       return;
     }
@@ -138,7 +157,11 @@ export class ProjectFormEditComponent implements OnInit {
     this.project.visibility = projectForm.visibility;
 
     //updates project based on those parameters
-    this.projectService.updateProject(this.project).subscribe(
+    const memberPermissions = this.isOwner
+      ? projectForm.memberPermissions as ProjectMemberPermissions
+      : undefined;
+
+    this.projectService.updateProject(this.project, memberPermissions).subscribe(
       result => {
         this.isLoading = false;
         this.setProject.emit(result);

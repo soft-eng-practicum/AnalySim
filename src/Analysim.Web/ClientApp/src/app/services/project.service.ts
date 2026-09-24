@@ -20,6 +20,7 @@ import { ExpiredProjectLog } from '../interfaces/expired-project-log';
 import { Publication } from '../interfaces/publication';
 import { ProjectRecommendation } from '../interfaces/project-recommendation';
 import { ProjectMembershipRequest } from '../interfaces/project-membership-request';
+import { ProjectMemberPermissions } from '../interfaces/project-member-permissions';
 
 @Injectable({
   providedIn: 'root'
@@ -55,6 +56,7 @@ export class ProjectService {
   private urlGetProjectNotebookRefs: string = this.baseUrl + "getprojectnotebookreferences/";
   private urlGetProjectMembershipRequests: string = this.baseUrl + "getprojectmembershiprequests/";
   private urlGetMyMembershipRequests: string = this.baseUrl + "getmymembershiprequests";
+  private urlGetProjectMemberPermissions: string = this.baseUrl + "getprojectmemberpermissions/";
 
   // Post
   private urlCreateProject: string = this.baseUrl + "createproject"
@@ -91,6 +93,7 @@ export class ProjectService {
   private urlRepostProjectLog: string = this.baseUrl + "repostlog/";
   private urlUpdatePublication: string = this.baseUrl + "updatePublication/";
   private urlUpdateRecommendation: string = this.baseUrl + "updaterecommendation/";
+  private urlUpdateProjectMemberPermissions: string = this.baseUrl + "updateprojectmemberpermissions/";
 
   // Delete
   private urlDeleteProject: string = this.baseUrl + "deleteproject/"
@@ -281,12 +284,25 @@ export class ProjectService {
     )
   }
 
-  createProject(currentUser: User, projectName: string, visibility: string, description: string): Observable<Project> {
+  private appendMemberPermissions(body: FormData, permissions: ProjectMemberPermissions): void {
+    body.append('membersCanEditProject', permissions.membersCanEditProject.toString())
+    body.append('membersCanManageMembers', permissions.membersCanManageMembers.toString())
+    body.append('membersCanManageTags', permissions.membersCanManageTags.toString())
+    body.append('membersCanUploadFiles', permissions.membersCanUploadFiles.toString())
+    body.append('membersCanManageFiles', permissions.membersCanManageFiles.toString())
+    body.append('membersCanUploadNotebooks', permissions.membersCanUploadNotebooks.toString())
+    body.append('membersCanManageNotebooks', permissions.membersCanManageNotebooks.toString())
+    body.append('membersCanManagePublications', permissions.membersCanManagePublications.toString())
+    body.append('membersCanManageProjectLogs', permissions.membersCanManageProjectLogs.toString())
+  }
+
+  createProject(currentUser: User, projectName: string, visibility: string, description: string, memberPermissions: ProjectMemberPermissions): Observable<Project> {
     let body = new FormData()
     body.append('name', projectName)
     body.append('visibility', visibility)
     body.append('description', description)
     body.append('route', currentUser.userName + "/" + projectName)
+    this.appendMemberPermissions(body, memberPermissions)
     return this.http.post<any>(this.urlCreateProject, body)
       .pipe(
         map(body => {
@@ -699,11 +715,36 @@ export class ProjectService {
       )
   }
 
-  updateProject(updateProject: Project): Observable<Project> {
+  getProjectMemberPermissions(projectID: number): Observable<ProjectMemberPermissions> {
+    return this.http.get<any>(this.urlGetProjectMemberPermissions + projectID)
+      .pipe(
+        map(body => body.result),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
+  updateProjectMemberPermissions(projectID: number, permissions: ProjectMemberPermissions): Observable<ProjectMemberPermissions> {
+    return this.http.put<any>(this.urlUpdateProjectMemberPermissions + projectID, permissions)
+      .pipe(
+        map(body => body.result),
+        catchError(error => {
+          console.log(error)
+          return throwError(error)
+        })
+      )
+  }
+
+  updateProject(updateProject: Project, memberPermissions?: ProjectMemberPermissions): Observable<Project> {
     let body = new FormData()
     body.append('name', updateProject.name)
     body.append('visibility', updateProject.visibility)
     body.append('description', updateProject.description)
+    if (memberPermissions != null) {
+      this.appendMemberPermissions(body, memberPermissions)
+    }
     return this.http.put<any>(this.urlUpdateProject + updateProject.projectID, body)
       .pipe(
         map(body => {

@@ -1,43 +1,64 @@
 <!-- Project Form Start -->
 <form class="form" [formGroup]="projectForm" (ngSubmit)="onSubmit()" *ngIf="currentUser != null && project != null">
 
-    <h4 class="card-title text-center mb-4 mt-1">Edit Project</h4>
-    <!-- Form Project Visibility -->
-    <div class="form-group">
-        <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" formControlName="visibility" id="inlineRadio1" value="public" [readOnly]="isLoading">
-        <label class="form-check-label" for="inlineRadio1">Public</label>
-      </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" formControlName="visibility" id="inlineRadio2" value="private" [readOnly]="isLoading">
-        <label class="form-check-label" for="inlineRadio2">Private</label>
-      </div>
-    </div>
-
-    <!-- Form Project Name -->
-    <div class="form-group">
-        <label for="name">Project Name</label>
-        <input formControlName="name" type="text" class="form-control" placeholder="{{project.name}}" [class.invalid]="name.touched && name.invalid" [class.valid]="name.valid"  required  [readOnly]="isLoading">
-        <div *ngIf="name.touched && name.errors" class="text-danger">
-            <p class="mb-0 p-1" [hidden]="!name.errors?.['noSpaceSpecial']">No Space or Special Character Except Hyphen</p>
-            <p class="mb-0 p-1" [hidden]="!name.errors?.['minlength']">Minimum 5 Character</p>
-            <p class="mb-0 p-1" [hidden]="!name.errors?.['maxlength']">maximum 20 Character</p>
+    <ng-container *ngIf="canEditProject">
+        <h4 class="card-title text-center mb-4 mt-1">Edit Project</h4>
+        <!-- Form Project Visibility -->
+        <div class="form-group">
+            <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" formControlName="visibility" id="inlineRadio1" value="public" [readOnly]="isLoading">
+            <label class="form-check-label" for="inlineRadio1">Public</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" formControlName="visibility" id="inlineRadio2" value="private" [readOnly]="isLoading">
+            <label class="form-check-label" for="inlineRadio2">Private</label>
+          </div>
         </div>
-    </div> 
 
-    <!-- Form Description -->
-    <div class="form-group">
-        <label for="description">Description</label>
-        <textarea formControlName="description" type="text" class="form-control" placeholder="{{project.description}}" [readOnly]="isLoading"></textarea>
-    </div>
+        <!-- Form Project Name -->
+        <div class="form-group">
+            <label for="name">Project Name</label>
+            <input formControlName="name" type="text" class="form-control" placeholder="{{project.name}}" [class.invalid]="name.touched && name.invalid" [class.valid]="name.valid"  required  [readOnly]="isLoading">
+            <div *ngIf="name.touched && name.errors" class="text-danger">
+                <p class="mb-0 p-1" [hidden]="!name.errors?.['noSpaceSpecial']">No Space or Special Character Except Hyphen</p>
+                <p class="mb-0 p-1" [hidden]="!name.errors?.['minlength']">Minimum 5 Character</p>
+                <p class="mb-0 p-1" [hidden]="!name.errors?.['maxlength']">maximum 20 Character</p>
+            </div>
+        </div>
+
+        <!-- Form Description -->
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea formControlName="description" type="text" class="form-control" placeholder="{{project.description}}" [readOnly]="isLoading"></textarea>
+        </div>
+    </ng-container>
+
+    <fieldset class="member-permissions" formGroupName="memberPermissions" [disabled]="isLoading" *ngIf="isOwner">
+        <legend>Member Permissions</legend>
+        <p class="text-muted mb-3">Choose what project members can do. These settings do not limit your owner access.</p>
+
+        <div class="member-permission-option" *ngFor="let permission of permissionOptions">
+            <div class="custom-control custom-switch">
+                <input
+                    type="checkbox"
+                    class="custom-control-input"
+                    [id]="'edit-' + permission.key"
+                    [formControlName]="permission.key">
+                <label class="custom-control-label" [for]="'edit-' + permission.key">
+                    {{ permission.label }}
+                </label>
+            </div>
+            <small class="text-muted d-block">{{ permission.description }}</small>
+        </div>
+    </fieldset>
 
     <!-- Form Create Project -->
     <div class="alert alert-danger" *ngIf="submitErrorMessage">
         {{ submitErrorMessage }}
     </div>
 
-    <div class="form-group mb-0">
-        <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="projectForm.invalid">
+    <div class="form-group mb-0" *ngIf="canEditProject">
+        <button type="submit" class="btn btn-success btn-block" value="Submit" [disabled]="projectForm.invalid || isLoading">
             <div *ngIf="!isLoading">
                 <span>Update Project</span>
             </div>

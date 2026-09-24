@@ -5,6 +5,8 @@ import { ProjectTag } from 'src/app/interfaces/project-tag';
 import { ProjectUser } from 'src/app/interfaces/project-user';
 import { ProjectMembershipRequest } from 'src/app/interfaces/project-membership-request';
 import { ProjectService } from 'src/app/services/project.service';
+import { AccountService } from 'src/app/services/account.service';
+import { User } from 'src/app/interfaces/user';
 
 @Component({
   selector: 'app-project-edit',
@@ -18,14 +20,19 @@ export class ProjectEditComponent implements OnInit {
   projectname: string = null;
   membershipRequests: ProjectMembershipRequest[] = [];
   requestActionID: number = null;
+  currentUser: User = null;
 
   constructor(
     private route: ActivatedRoute,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private accountService: AccountService
   ) { }
 
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    const currentUser$ = await this.accountService.currentUser;
+    currentUser$.subscribe(user => this.currentUser = user);
+
     this.route.params.subscribe(params => {
       this.owner = params['owner'];
       this.projectname = params['projectname'];
@@ -34,7 +41,26 @@ export class ProjectEditComponent implements OnInit {
 
   setProject(project : Project){
     this.project = project
-    this.loadMembershipRequests()
+    if (this.canManageMembers) this.loadMembershipRequests()
+  }
+
+  get projectUser(): ProjectUser {
+    if (this.project == null || this.currentUser == null) return null
+    return this.project.projectUsers.find(projectUser => projectUser.userID == this.currentUser.id) || null
+  }
+
+  get isOwner(): boolean {
+    return this.projectUser?.userRole == 'owner'
+  }
+
+  get canManageTags(): boolean {
+    return this.isOwner || (this.projectUser?.userRole == 'member' &&
+      this.project?.memberPermissions?.membersCanManageTags == true)
+  }
+
+  get canManageMembers(): boolean {
+    return this.isOwner || (this.projectUser?.userRole == 'member' &&
+      this.project?.memberPermissions?.membersCanManageMembers == true)
   }
 
   updateProjectTags(projectTags : ProjectTag[]){

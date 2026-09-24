@@ -39,7 +39,8 @@ export class ProjectFileExplorerComponent implements OnInit {
   @Input() project: Project
   @Input() currentUser: User
   @Input() currentDirectory: string
-  @Input() isMember: boolean
+  @Input() canUploadFiles: boolean
+  @Input() canManageFiles: boolean
 
   blobFileItemList: BlobFileItem[] = []
   validDirectory: boolean = true;
@@ -205,7 +206,7 @@ export class ProjectFileExplorerComponent implements OnInit {
       if (item.type == "file") {
 
         // Delete The Item
-        this.projectService.deleteFile(item.file.blobFileID, this.isMember).subscribe(res => {
+        this.projectService.deleteFile(item.file.blobFileID, this.canManageFiles).subscribe(res => {
           console.log(res);
 
           // Remove Item From Project File
@@ -247,7 +248,7 @@ export class ProjectFileExplorerComponent implements OnInit {
         this.setDirectoryFile(this.currentDirectory)
 
         // Delete The Item
-        this.projectService.deleteFile(blobFileId, this.isMember).subscribe(res => {
+        this.projectService.deleteFile(blobFileId, this.canManageFiles).subscribe(res => {
           console.log(res);
           this.closeDeleteModalbutton.nativeElement.click();
         })
