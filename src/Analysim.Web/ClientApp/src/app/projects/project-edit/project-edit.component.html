@@ -14,7 +14,7 @@
                 (setProject)="setProject($event)">
              </app-project-form-edit>
 
-	             <div *ngIf="project != null">
+	             <div *ngIf="project != null && canManageTags">
 	                <hr>
 	                <h5 class="card-title mb-2">Project Tags</h5>
 	                <app-project-form-tags
@@ -26,7 +26,9 @@
                     [projectTags]="project.projectTags"
 	                    (updateProjectTags)="updateProjectTags($event)">
 	                </app-project-list-tags>
+	             </div>
 
+	             <div *ngIf="project != null && canManageMembers">
 	                <hr>
 	                <h5 class="card-title mb-2">Project Members</h5>
 		                <app-project-form-users

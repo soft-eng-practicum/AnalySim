@@ -60,6 +60,7 @@
             [log]="null"
             [projectID]="project.projectID"
             [projectName]="project.name"
+            [canManage]="isMember"
             (onSuccessfulCreate)="onCreateLog()"
             (onCancelCreate)="this.isCreatingLog = false"
           ></app-project-log-item>
@@ -76,6 +77,7 @@
             [projectID]="project.projectID"
             [projectName]="project.name"
             [currentUser]="currentUser"
+            [canManage]="isMember"
             (onSuccessfulEdit)="loadLogs()"
           ></app-project-log-item>
 
@@ -112,6 +114,7 @@
             [projectID]="this.project.projectID"
             [projectName]="project.name"
             [currentUser]="currentUser"
+            [canManage]="isMember"
             (onSuccessfulEdit)="loadLogs()"
           ></app-project-log-item>
 

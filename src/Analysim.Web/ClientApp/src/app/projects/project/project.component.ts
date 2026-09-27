@@ -15,6 +15,10 @@ import hljs from 'highlight.js';
 import { Notebook } from 'src/app/interfaces/notebook';
 import { ProjectRecommendation } from 'src/app/interfaces/project-recommendation';
 import { ProjectMembershipRequest } from 'src/app/interfaces/project-membership-request';
+import {
+  createDefaultProjectMemberPermissions,
+  ProjectMemberPermissions
+} from 'src/app/interfaces/project-member-permissions';
 
 
 @Component({
@@ -65,6 +69,7 @@ export class ProjectComponent implements OnInit {
   toggleNotebookExpand: boolean = true
   toggleView: string = "File"
   showFiles: boolean = false;
+  private readonly defaultMemberPermissions = createDefaultProjectMemberPermissions();
 
   activeView: string = 'File';
 
@@ -302,6 +307,54 @@ export class ProjectComponent implements OnInit {
     if (this.projectUser == null) return false
     if (this.projectUser.userRole == "owner") return true
     return false;
+  }
+
+  private hasMemberPermission(permission: keyof ProjectMemberPermissions): boolean {
+    if (this.isOwner) return true
+    if (this.projectUser == null || this.projectUser.userRole != "member") return false
+
+    const permissions = this.project?.memberPermissions || this.defaultMemberPermissions
+    return permissions[permission]
+  }
+
+  get canEditProject(): boolean {
+    return this.hasMemberPermission('membersCanEditProject')
+  }
+
+  get canManageMembers(): boolean {
+    return this.hasMemberPermission('membersCanManageMembers')
+  }
+
+  get canManageTags(): boolean {
+    return this.hasMemberPermission('membersCanManageTags')
+  }
+
+  get canUploadFiles(): boolean {
+    return this.hasMemberPermission('membersCanUploadFiles')
+  }
+
+  get canManageFiles(): boolean {
+    return this.hasMemberPermission('membersCanManageFiles')
+  }
+
+  get canUploadNotebooks(): boolean {
+    return this.hasMemberPermission('membersCanUploadNotebooks')
+  }
+
+  get canManageNotebooks(): boolean {
+    return this.hasMemberPermission('membersCanManageNotebooks')
+  }
+
+  get canManagePublications(): boolean {
+    return this.hasMemberPermission('membersCanManagePublications')
+  }
+
+  get canManageProjectLogs(): boolean {
+    return this.hasMemberPermission('membersCanManageProjectLogs')
+  }
+
+  get canAccessProjectSettings(): boolean {
+    return this.canEditProject || this.canManageMembers || this.canManageTags
   }
 
   get currentRecommendation(): ProjectRecommendation {

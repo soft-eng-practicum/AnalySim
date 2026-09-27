@@ -33,7 +33,8 @@ export class ProjectContentComponent implements OnInit, AfterViewInit {
 
   validDirectory: boolean = true
 
-  @Input() isMember: boolean
+  @Input() canUploadNotebooks: boolean
+  @Input() canManageNotebooks: boolean
 
   stackDirectories: string[] = ["notebook/"];
 

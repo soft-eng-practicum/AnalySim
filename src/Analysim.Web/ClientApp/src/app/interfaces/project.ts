@@ -3,6 +3,7 @@ import { ProjectTag } from 'src/app/interfaces/project-tag';
 import { ProjectUser } from './project-user';
 import { Notebook } from './notebook';
 import { ProjectRecommendation } from './project-recommendation';
+import { ProjectMemberPermissions } from './project-member-permissions';
 
 export interface Project {
     projectID: number;
@@ -17,5 +18,6 @@ export interface Project {
     blobFiles: Array<BlobFile>;
     projectTags: Array<ProjectTag>
     projectRecommendations: Array<ProjectRecommendation>
+    memberPermissions: ProjectMemberPermissions;
     forkedFromProjectID: number;
 }

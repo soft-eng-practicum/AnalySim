@@ -22,7 +22,7 @@
         </div>
       </div>
 
-      <div *ngIf="!isEditing && isOwner" class="d-flex ml-auto">
+      <div *ngIf="!isEditing && canManage" class="d-flex ml-auto">
         <button
           class="btn btn-ghost-primary" 
           title="Edit" 

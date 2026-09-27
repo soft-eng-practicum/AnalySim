@@ -58,7 +58,7 @@
 
       <!-- Secondary actions: outline style -->
       <button
-        *ngIf="isMember && notebook.type !== 'observable'"
+        *ngIf="canManageNotebooks && notebook.type !== 'observable'"
         type="button"
         class="btn btn-outline-primary"
         (click)="showDatasetsModal()"
@@ -80,7 +80,7 @@
       </button>
 
       <button
-        *ngIf="isMember"
+        *ngIf="canManageNotebooks"
         type="button"
         class="btn btn-outline-primary"
         (click)="showRenameNotebookModal()"
@@ -92,7 +92,7 @@
 
       <!-- Destructive: danger last -->
       <button
-        *ngIf="isMember"
+        *ngIf="canManageNotebooks"
         type="button"
         class="btn btn-danger"
         data-toggle="modal"
@@ -121,7 +121,7 @@
       aria-label="Folder actions"
     >
       <button
-        *ngIf="isMember"
+        *ngIf="canManageNotebooks"
         type="button"
         class="btn btn-danger"
         data-toggle="modal"
@@ -305,7 +305,7 @@
     [notebook]="notebook"
     [version]="selectedVersion"
     [projectName]="project?.name"
-    [isMember]="isMember"
+    [isMember]="canUploadNotebooks"
   ></app-project-notebook-item-display>
 </ng-template>
 

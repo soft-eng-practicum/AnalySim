@@ -3,7 +3,7 @@
         <span class="mr-2">Notebooks</span>
         <div class="d-inline-flex ml-auto" *ngIf="!isCurrentDirNotebook">
             <!-- Private Button Group Start -->
-            <div class="btn-group notebooks-card__actions" role="group" *ngIf="isMember" aria-label="Notebook creation actions">
+            <div class="btn-group notebooks-card__actions" role="group" *ngIf="canUploadNotebooks" aria-label="Notebook creation actions">
                 <button type="button" class="btn btn-primary" title="Upload Notebook" aria-label="Upload Notebook" (click)="toggleModalUpload()">
                     <i class="fa fa-plus" aria-hidden="true"></i>
                 </button>
@@ -20,7 +20,8 @@
         <app-project-notebook-item *ngFor="let notebook of notebooks" [project]="project" [notebook]="notebook"
             [currentDirectory]="currentDirectory" (navigateToNewDirectory)="navigate($event)"
             (getNotebooks)="getNotebooks($event)" (setCurrentNotebook)="displayNotebook($event)"
-            [isMember]="isMember"></app-project-notebook-item>
+            [canUploadNotebooks]="canUploadNotebooks"
+            [canManageNotebooks]="canManageNotebooks"></app-project-notebook-item>
     </ul>
 </div>
 
@@ -35,7 +36,7 @@
 </ng-template>
 
 <ng-template #displayNotebookModal>
-    <app-project-notebook-item-display [notebook]="currentNotebook" [version]="version" [isMember]="isMember"
+    <app-project-notebook-item-display [notebook]="currentNotebook" [version]="version" [isMember]="canUploadNotebooks"
         [projectName]="project?.name"
         (closeModal)="closeDisplayNotebookModal()"></app-project-notebook-item-display>
 </ng-template>

@@ -16,3 +16,24 @@
     background-color: #2a6a8a;
     color: #01234a !important;
   }
+
+  .member-permissions {
+    border-top: 1px solid #dee2e6;
+    margin: 1.5rem 0;
+    padding-top: 1rem;
+  }
+
+  .member-permissions legend {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: .25rem;
+  }
+
+  .member-permission-option {
+    border-bottom: 1px solid #e9ecef;
+    padding: .65rem 0;
+  }
+
+  .member-permission-option:last-child {
+    border-bottom: 0;
+  }

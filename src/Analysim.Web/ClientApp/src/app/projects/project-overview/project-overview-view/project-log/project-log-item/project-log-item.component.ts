@@ -23,6 +23,7 @@ export class ProjectLogItemComponent implements OnInit {
   @Input() projectID: number;
   @Input() projectName?: string;
   @Input() currentUser: User;
+  @Input() canManage: boolean = false;
 
   // Delete modal
   @ViewChild('deleteModal') deleteModal: TemplateRef<any>

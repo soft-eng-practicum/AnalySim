@@ -9,7 +9,7 @@
                 {{ projectname }}
               </h2>
               <div
-                *ngIf="isOwner"
+                *ngIf="canAccessProjectSettings"
                 type="button" 
                 (click)="editProject()"
               >
@@ -239,21 +239,22 @@
               [project]="project" 
               [currentUser]="currentUser"
               [currentDirectory]="fileDirectory" 
-              [isMember]="isMember">
+              [canUploadFiles]="canUploadFiles"
+              [canManageFiles]="canManageFiles">
             </app-project-file-explorer>
 
             <app-project-publication 
               *ngIf="activeView === 'Publications'" 
               [project]="project" 
               [currentUser]="currentUser"
-              [isMember]="isMember">
+              [isMember]="canManagePublications">
             </app-project-publication>
 
             <app-project-log 
               *ngIf="activeView === 'Log'" 
               [project]="project" 
               [currentUser]="currentUser"
-              [isMember]="isMember">
+              [isMember]="canManageProjectLogs">
             </app-project-log>
 
             <app-project-comments 
@@ -265,7 +266,8 @@
               *ngIf='toggleView == "Content"' 
               [project]="project" 
               [currentUser]="currentUser"
-              [isMember]="isMember" 
+              [canUploadNotebooks]="canUploadNotebooks"
+              [canManageNotebooks]="canManageNotebooks"
               [currentDirectory]="fileDirectory">
             </app-project-content>
           </div>
@@ -319,7 +321,7 @@
   </ng-template>
   
   <ng-template #displayNotebookModal>
-    <app-project-notebook-item-display [notebook]="readmeNotebook" [version]="latestVersion" [isMember]="isMember"
+    <app-project-notebook-item-display [notebook]="readmeNotebook" [version]="latestVersion" [isMember]="canUploadNotebooks"
         [projectName]="project?.name"
         (closeModal)="closeDisplayNotebookModal()"></app-project-notebook-item-display>
   </ng-template>

@@ -22,11 +22,12 @@
         <div
           class="btn-group file-explorer-card__actions"
           role="group"
-          *ngIf="isMember"
+          *ngIf="canUploadFiles || canManageFiles"
           aria-label="Member actions"
         >
           <!-- Primary -->
           <button
+            *ngIf="canUploadFiles"
             type="button"
             class="btn btn-primary file-explorer-card__upload-btn"
             title="Upload"
@@ -45,6 +46,7 @@
 
           <!-- Secondary -->
           <button
+            *ngIf="canUploadFiles"
             type="button"
             class="btn btn-outline-primary"
             title="Create Folder"
@@ -56,6 +58,7 @@
 
           <!-- Disabled secondary -->
           <button
+            *ngIf="canManageFiles"
             type="button"
             class="btn btn-outline-primary"
             title="Rename"
@@ -67,6 +70,7 @@
           </button>
 
           <button
+            *ngIf="canManageFiles"
             type="button"
             class="btn btn-outline-primary"
             title="Move"
@@ -77,6 +81,7 @@
           </button>
 
           <button
+            *ngIf="canManageFiles"
             type="button"
             class="btn btn-outline-primary"
             title="Copy"
@@ -88,6 +93,7 @@
 
           <!-- Destructive -->
           <button
+            *ngIf="canManageFiles"
             type="button"
             class="btn btn-danger"
             title="Delete"
