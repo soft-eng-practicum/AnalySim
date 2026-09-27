@@ -508,7 +508,9 @@ export class ProjectFileExplorerComponent implements OnInit {
           )
           this.filePreview = true
           this.dataBrowserURL += file.uri;
-          this.csvFile = file;
+          if (file.extension.toLowerCase() == ".csv") {
+            this.csvFile = file;
+          }
           console.log(this.dataBrowserURL);
 
         }
